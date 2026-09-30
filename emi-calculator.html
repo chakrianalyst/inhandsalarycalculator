@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EMI Calculator — Home, Car & Personal Loan EMI | InHand</title>
+<meta name="description" content="Free EMI calculator for home, car and personal loans with amortisation schedule, total interest and payment breakup.">
+<link rel="canonical" href="https://inhand.example/emi-calculator.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"EMI Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero">
+    <div class="crumbs"><a href="index.html">Home</a> › EMI calculator</div>
+    <h1>EMI Calculator <span class="grad-text">for any loan</span></h1>
+    <p>Work out your monthly instalment, total interest and a year-by-year repayment schedule in seconds.</p>
+  </div>
+  <div class="container tool-layout">
+    <section class="card" aria-label="Inputs">
+      <h2 class="card-title">🏦 Loan details</h2>
+      <div class="field" data-slider><label for="amt">Loan amount</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="amt" value="5000000" min="50000" max="50000000" step="50000"></div></div>
+      <div class="field" data-slider><label for="rate">Interest rate (p.a.)</label>
+        <div class="input-wrap"><input type="number" id="rate" value="8.5" min="1" max="30" step="0.05"><span class="suf">%</span></div></div>
+      <div class="field" data-slider><label for="yrs">Tenure (years)</label>
+        <div class="input-wrap"><input type="number" id="yrs" value="20" min="1" max="30" step="1"><span class="suf">yrs</span></div></div>
+    </section>
+
+    <section class="results" aria-live="polite">
+      <div class="hero-result"><div class="lbl">Monthly EMI</div><div class="big" id="emi">—</div><div class="sub" id="emiSub"></div></div>
+      <div class="kpis"><div class="kpi"><div class="k">Principal</div><div class="v" id="kP"></div></div><div class="kpi bad"><div class="k">Total interest</div><div class="v" id="kI"></div></div>
+        <div class="kpi"><div class="k">Total payment</div><div class="v" id="kT"></div></div><div class="kpi"><div class="k">Interest share</div><div class="v" id="kS"></div></div></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🥧 Principal vs interest</h2>
+        <div class="chart-row"><svg class="donut" id="donut" viewBox="0 0 170 170"></svg><div class="legend" id="legend"></div></div></div>
+      <div class="card"><h2 class="card-title">📅 Year-wise schedule</h2><div class="tbl-wrap"><table class="tbl" id="sched"></table></div></div>
+      <div class="offer"><div><b>Looking for a lower rate?</b><small>Compare home loan offers from top lenders.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="home-loan">Compare offers</a></div>
+    </section>
+
+  </div>
+  <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
+  <article class="container prose">
+    <h2>How is EMI calculated?</h2>
+    <p>EMI = P × r × (1 + r)<sup>n</sup> ÷ [(1 + r)<sup>n</sup> − 1], where <strong>P</strong> is the loan amount, <strong>r</strong> the monthly interest rate (annual rate ÷ 12 ÷ 100) and <strong>n</strong> the number of monthly instalments.</p>
+    <h2>How to reduce your EMI burden</h2>
+    <ul><li>Make a larger down payment to lower the principal.</li><li>Negotiate or transfer your loan for a lower interest rate.</li><li>Prepay part of the principal whenever you get a bonus — early years are mostly interest.</li></ul>
+    <h2>Frequently asked questions</h2>
+    <div class="faq"><details><summary>Is a longer tenure better?</summary><p>A longer tenure lowers your EMI but increases the total interest paid. Choose the shortest tenure you can comfortably afford.</p></details><details><summary>Does this include processing fees?</summary><p>No. The calculator covers principal and interest only; processing fees and insurance are extra.</p></details><details><summary>Is interest calculated on reducing balance?</summary><p>Yes. Banks charge interest on the outstanding balance, which is what this calculator models.</p></details></div>
+  </article>
+  <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
+</main>
+<script src="assets/tax.js"></script>
+<script src="assets/common.js"></script>
+<script>
+  Common.init('emi');
+  const $ = id => document.getElementById(id), f = Common.fmt;
+  function calc() {
+    const P = Common.num('amt'), r = Common.num('rate') / 1200, n = Math.round(Common.num('yrs') * 12);
+    const emi = r === 0 ? P / n : P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+    const total = emi * n, int = total - P;
+    $('emi').textContent = f(emi); $('emiSub').textContent = `for ${n} months`;
+    $('kP').textContent = f(P); $('kI').textContent = f(int); $('kT').textContent = f(total); $('kS').textContent = (total ? Math.round(int / total * 100) : 0) + '%';
+    Common.donut($('donut'), $('legend'), [{ label: 'Principal', value: P }, { label: 'Interest', value: int }], 'Total', Common.fmtCompact(total));
+    let bal = P, rows = '<tr><th>Year</th><th>Principal</th><th>Interest</th><th>Balance</th></tr>';
+    for (let y = 1; y <= Math.ceil(n / 12); y++) {
+      let pp = 0, ii = 0;
+      for (let m = 0; m < 12 && (y - 1) * 12 + m < n; m++) { const i = bal * r, p = emi - i; ii += i; pp += p; bal -= p; }
+      rows += `<tr><td>${y}</td><td>${f(pp)}</td><td>${f(ii)}</td><td>${f(Math.max(0, bal))}</td></tr>`;
+    }
+    $('sched').innerHTML = rows;
+  }
+  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc)); calc();
+</script>
+</body>
+</html>

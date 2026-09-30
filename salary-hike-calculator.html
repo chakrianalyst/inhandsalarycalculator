@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Salary Hike Calculator — Real In-Hand Increase After Tax | InHand</title>
+<meta name="description" content="Free salary hike calculator: see how a percentage raise changes your monthly in-hand salary after tax and PF.">
+<link rel="canonical" href="https://inhand.example/salary-hike-calculator.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Salary Hike Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero">
+    <div class="crumbs"><a href="index.html">Home</a> › Hike calculator</div>
+    <h1>Salary Hike Calculator <span class="grad-text">your real raise</span></h1>
+    <p>A 15% hike rarely means 15% more in your bank. See the real number.</p>
+  </div>
+  <div class="container tool-layout">
+    <section class="card" aria-label="Inputs">
+      <h2 class="card-title">📈 Current pay & raise</h2>
+      <div class="field" data-slider><label for="ctc">Current annual CTC</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="ctc" value="1000000" min="100000" max="10000000" step="10000"></div></div>
+      <div class="field" data-slider><label for="hike">Hike percentage</label>
+        <div class="input-wrap"><input type="number" id="hike" value="15" min="0" max="100" step="1"><span class="suf">%</span></div></div>
+      <p style="color:var(--muted);font-size:.85rem">Assumes 40% basic, 50% HRA, PF on full basic, metro city, ₹200 professional tax, and the better of old/new regime for each salary. <a href="salary-calculator.html">Customise →</a></p>
+    </section>
+
+    <section class="results" aria-live="polite">
+      <div class="hero-result"><div class="lbl">Your real monthly gain</div><div class="big" id="gain">—</div><div class="sub" id="gainSub"></div></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🔍 Before vs after</h2><div class="tbl-wrap"><table class="tbl" id="tbl"></table></div></div>
+      <div class="kpis"><div class="kpi"><div class="k">Headline hike</div><div class="v" id="kH"></div></div><div class="kpi good"><div class="k">Real in-hand hike</div><div class="v" id="kR"></div></div></div>
+      <div class="offer"><div><b>Got a raise? Put it to work.</b><small>Start a SIP with your extra take-home.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="mutual-funds">Compare offers</a></div>
+    </section>
+
+  </div>
+  <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
+  <article class="container prose">
+    <h2>Why is my in-hand hike smaller than my CTC hike?</h2>
+    <p>Part of every raise goes to higher income tax (a bigger slice falls in higher slabs) and to extra PF and gratuity. So a 15% CTC hike usually translates to a slightly lower percentage increase in take-home pay — especially if the raise pushes you across a tax slab.</p>
+    <h2>Negotiating tip</h2>
+    <p>Ask for the raise in cash components (basic and special allowance) rather than in benefits you won't fully use. Always compare offers on <strong>in-hand salary</strong>, not CTC alone.</p>
+    <h2>Frequently asked questions</h2>
+    <div class="faq"><details><summary>Does this include the variable pay?</summary><p>No — it models fixed pay only. Use the full salary calculator to include variable pay.</p></details><details><summary>Which tax regime is used?</summary><p>For each salary the calculator automatically picks the regime that gives higher take-home.</p></details></div>
+  </article>
+  <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
+</main>
+<script src="assets/tax.js"></script>
+<script src="assets/common.js"></script>
+<script>
+  Common.init('hike');
+  const $ = id => document.getElementById(id), f = Common.fmt;
+  const base = { basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, metro: true, rentMonthly: 0 };
+  function calc() {
+    const c0 = Common.num('ctc'), h = Common.num('hike'), c1 = c0 * (1 + h / 100);
+    const a = Tax.salary({ ...base, ctc: c0 }), b = Tax.salary({ ...base, ctc: c1 });
+    const m0 = a[a.best].inHandMonth, m1 = b[b.best].inHandMonth, gain = m1 - m0;
+    $('gain').textContent = '+' + f(gain); $('gainSub').textContent = `per month · ${f(gain * 12)} per year`;
+    $('kH').textContent = h + '%'; $('kR').textContent = (m0 ? (gain / m0 * 100).toFixed(1) : 0) + '%';
+    const row = (l, x, y, cls = '') => `<tr class="${cls}"><td>${l}</td><td>${f(x)}</td><td>${f(y)}</td></tr>`;
+    $('tbl').innerHTML = '<tr><th></th><th>Before</th><th>After</th></tr>' + row('Annual CTC', c0, c1) + row('Income tax / yr', -a[a.best].tax, -b[b.best].tax, 'neg') +
+      row('In-hand / year', a[a.best].inHandYear, b[b.best].inHandYear) + row('In-hand / month', m0, m1, 'total');
+  }
+  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc)); calc();
+</script>
+</body>
+</html>

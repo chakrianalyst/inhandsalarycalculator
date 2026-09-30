@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FD Calculator — Fixed Deposit Maturity & Interest | InHand</title>
+<meta name="description" content="Free fixed deposit calculator with monthly, quarterly, half-yearly and yearly compounding. See maturity value and interest earned.">
+<link rel="canonical" href="https://inhand.example/fd-calculator.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"FD Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero">
+    <div class="crumbs"><a href="index.html">Home</a> › FD calculator</div>
+    <h1>FD Calculator <span class="grad-text">maturity in a click</span></h1>
+    <p>Know exactly what your fixed deposit will be worth at maturity.</p>
+  </div>
+  <div class="container tool-layout">
+    <section class="card" aria-label="Inputs">
+      <h2 class="card-title">🔒 Deposit details</h2>
+      <div class="field" data-slider><label for="p">Deposit amount</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="p" value="500000" min="10000" max="10000000" step="10000"></div></div>
+      <div class="field" data-slider><label for="rate">Interest rate (p.a.)</label>
+        <div class="input-wrap"><input type="number" id="rate" value="7" min="1" max="12" step="0.05"><span class="suf">%</span></div></div>
+      <div class="field" data-slider><label for="yrs">Tenure (years)</label>
+        <div class="input-wrap"><input type="number" id="yrs" value="5" min="1" max="20" step="1"><span class="suf">yrs</span></div></div>
+      <div class="field"><label for="cmp">Compounding</label><select id="cmp"><option value="4" selected>Quarterly</option><option value="12">Monthly</option><option value="2">Half-yearly</option><option value="1">Yearly</option></select></div>
+    </section>
+
+    <section class="results" aria-live="polite">
+      <div class="hero-result"><div class="lbl">Maturity amount</div><div class="big" id="mv">—</div><div class="sub" id="mvSub"></div></div>
+      <div class="kpis"><div class="kpi"><div class="k">Invested</div><div class="v" id="kI"></div></div><div class="kpi good"><div class="k">Interest earned</div><div class="v" id="kG"></div></div></div>
+      <div class="card"><h2 class="card-title">🥧 Principal vs interest</h2>
+        <div class="chart-row"><svg class="donut" id="donut" viewBox="0 0 170 170"></svg><div class="legend" id="legend"></div></div></div>
+      <div class="offer"><div><b>Find the best FD rates</b><small>Compare high-interest fixed deposits from banks and small finance banks.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="fd">Compare offers</a></div>
+    </section>
+
+  </div>
+  <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
+  <article class="container prose">
+    <h2>How is FD maturity calculated?</h2>
+    <p>Maturity = P × (1 + r ÷ n)<sup>n × t</sup>, where <strong>P</strong> is the deposit, <strong>r</strong> the annual rate, <strong>n</strong> the compounding frequency per year and <strong>t</strong> the tenure in years. Most banks compound quarterly.</p>
+    <h2>Frequently asked questions</h2>
+    <div class="faq"><details><summary>Is FD interest taxable?</summary><p>Yes, FD interest is added to your income and taxed at your slab rate. Banks deduct TDS above certain limits.</p></details><details><summary>Does a senior-citizen rate apply?</summary><p>Enter the rate your bank offers you — senior citizens typically get an extra 0.25–0.75%.</p></details></div>
+  </article>
+  <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
+</main>
+<script src="assets/tax.js"></script>
+<script src="assets/common.js"></script>
+<script>
+  Common.init('fd');
+  const $ = id => document.getElementById(id), f = Common.fmt;
+  function calc() {
+    const P = Common.num('p'), r = Common.num('rate') / 100, n = +$('cmp').value, t = Common.num('yrs');
+    const mv = P * Math.pow(1 + r / n, n * t);
+    $('mv').textContent = f(mv); $('mvSub').textContent = 'after ' + t + ' years';
+    $('kI').textContent = f(P); $('kG').textContent = f(mv - P);
+    Common.donut($('donut'), $('legend'), [{ label: 'Principal', value: P }, { label: 'Interest', value: mv - P }], 'Maturity', Common.fmtCompact(mv));
+  }
+  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc)); calc();
+</script>
+</body>
+</html>

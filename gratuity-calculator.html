@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gratuity Calculator India — Formula & Payout | InHand</title>
+<meta name="description" content="Free gratuity calculator for India using the (basic × 15/26 × years) formula. Check eligibility and the ₹20 lakh tax-free limit.">
+<link rel="canonical" href="https://inhand.example/gratuity-calculator.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Gratuity Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero">
+    <div class="crumbs"><a href="index.html">Home</a> › Gratuity calculator</div>
+    <h1>Gratuity Calculator <span class="grad-text">know your payout</span></h1>
+    <p>Estimate the gratuity you'll receive when you leave your job.</p>
+  </div>
+  <div class="container tool-layout">
+    <section class="card" aria-label="Inputs">
+      <h2 class="card-title">🎁 Service details</h2>
+      <div class="field" data-slider><label for="basic">Last drawn basic + DA (monthly)</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="basic" value="50000" min="5000" max="500000" step="1000"></div></div>
+      <div class="field" data-slider><label for="yrs">Years of service</label>
+        <div class="input-wrap"><input type="number" id="yrs" value="10" min="5" max="45" step="1"><span class="suf">yrs</span></div><span class="hint">Gratuity is payable after 5 years of continuous service.</span></div>
+      <div class="field"><span class="lbl">Covered under Gratuity Act?</span><div class="seg" id="act"><button data-v="1" class="on">Yes</button><button data-v="0">No</button></div><span class="hint">Applies to firms with 10+ employees. Changes the divisor from 26 to 30 days.</span></div>
+    </section>
+
+    <section class="results" aria-live="polite">
+      <div class="hero-result"><div class="lbl">Estimated gratuity</div><div class="big" id="g">—</div><div class="sub" id="gSub"></div></div>
+      <div class="banner info" id="gNote"></div>
+      <div class="offer"><div><b>Planning your exit or next move?</b><small>See what your new offer means for your take-home.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="career">Compare offers</a></div>
+    </section>
+
+  </div>
+  <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
+  <article class="container prose">
+    <h2>Gratuity formula</h2>
+    <p>For employees covered under the Payment of Gratuity Act: <strong>Gratuity = (Last drawn basic + DA) × 15 ÷ 26 × years of service</strong>. Service of more than 6 months in the last year is rounded up to a full year. For employees not covered, the divisor is 30.</p>
+    <h2>Frequently asked questions</h2>
+    <div class="faq"><details><summary>When do I receive gratuity?</summary><p>On resignation, retirement, death or disability — provided you completed 5 years (waived for death or disability).</p></details><details><summary>Is gratuity taxable?</summary><p>Up to ₹20 lakh is exempt for employees covered under the Gratuity Act. Amounts above are taxable as salary.</p></details></div>
+  </article>
+  <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
+</main>
+<script src="assets/tax.js"></script>
+<script src="assets/common.js"></script>
+<script>
+  Common.init('gratuity');
+  const $ = id => document.getElementById(id), f = Common.fmt;
+  const act = Common.seg($('act'), calc);
+  function calc() {
+    const b = Common.num('basic'), y = Math.round(Common.num('yrs')), covered = act() === '1';
+    const g = covered ? b * 15 / 26 * y : b * 15 / 30 * y, cap = 2000000;
+    $('g').textContent = f(Math.min(g, cap));
+    $('gSub').textContent = covered ? `(${f(b)} × 15 ÷ 26) × ${y} years` : `(${f(b)} × 15 ÷ 30) × ${y} years`;
+    $('gNote').innerHTML = y < 5 ? '<span>⚠️</span><span>You need at least 5 years of continuous service to be eligible (except in case of death or disability).</span>'
+      : g > cap ? '<span>ℹ️</span><span>Amount capped at the ₹20 lakh tax-exempt limit. The excess is taxable.</span>'
+      : '<span>✅</span><span>Gratuity up to ₹20 lakh is tax-exempt for private-sector employees covered under the Act.</span>';
+  }
+  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc)); calc();
+</script>
+</body>
+</html>

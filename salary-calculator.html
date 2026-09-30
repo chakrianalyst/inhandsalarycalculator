@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>In-Hand Salary Calculator India (CTC to Take-Home) — FY 2025-26 | InHand</title>
+<meta name="description" content="Free in-hand salary calculator for India. Convert CTC to monthly take-home with PF, HRA, professional tax and old vs new tax regime comparison for FY 2025-26.">
+<link rel="canonical" href="https://inhand.example/salary-calculator.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"In-Hand Salary Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero">
+    <div class="crumbs"><a href="index.html">Home</a> › Salary calculator</div>
+    <h1>In-Hand Salary Calculator <span class="grad-text">(CTC → Take-Home)</span></h1>
+    <p>Enter your annual CTC and see your monthly in-hand salary under both the old and new tax regimes — with PF, HRA, professional tax and deductions.</p>
+  </div>
+
+  <div class="container tool-layout">
+    <!-- INPUTS -->
+    <section class="card" aria-label="Inputs">
+      <h2 class="card-title">🧮 Your salary details</h2>
+
+      <div class="field" data-slider>
+        <label for="ctc">Annual CTC</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="ctc" value="1200000" min="100000" max="10000000" step="10000"></div>
+      </div>
+
+      <div class="row-2">
+        <div class="field"><label for="basicPct">Basic (% of CTC)</label>
+          <div class="input-wrap"><input type="number" id="basicPct" value="40" min="10" max="80" step="1"><span class="suf">%</span></div></div>
+        <div class="field"><label for="variablePct">Variable / bonus (% of CTC)</label>
+          <div class="input-wrap"><input type="number" id="variablePct" value="0" min="0" max="50" step="1"><span class="suf">%</span></div></div>
+      </div>
+
+      <div class="field"><span class="lbl">City type (for HRA)</span>
+        <div class="seg" id="metroSeg"><button data-v="1" class="on">Metro</button><button data-v="0">Non-metro</button></div>
+        <span class="hint">Delhi, Mumbai, Kolkata, Chennai count as metro for the 50% HRA limit.</span></div>
+
+      <details class="adv">
+        <summary>Employer &amp; PF settings</summary>
+        <div class="row-2">
+          <div class="field"><label for="hraPct">HRA (% of basic)</label>
+            <div class="input-wrap"><input type="number" id="hraPct" value="50" min="0" max="100"><span class="suf">%</span></div></div>
+          <div class="field"><label for="pt">Professional tax / month</label>
+            <div class="input-wrap"><span class="pre">₹</span><input type="number" id="pt" value="200" min="0" max="300"></div></div>
+        </div>
+        <label class="toggle"><span>Limit PF to ₹15,000 basic<small>Many employers cap PF at ₹1,800/month</small></span>
+          <span class="switch"><input type="checkbox" id="pfCap"><i></i></span></label>
+        <label class="toggle"><span>Gratuity included in CTC<small>4.81% of basic, paid only on exit</small></span>
+          <span class="switch"><input type="checkbox" id="gratuity" checked><i></i></span></label>
+        <div class="field"><label for="enps">Employer NPS contribution / year</label>
+          <div class="input-wrap"><span class="pre">₹</span><input type="number" id="enps" value="0" min="0" step="1000"></div>
+          <span class="hint">Deductible under both regimes (80CCD(2)).</span></div>
+      </details>
+
+      <details class="adv">
+        <summary>Old-regime deductions &amp; rent</summary>
+        <div class="field"><label for="rent">Monthly rent you pay</label>
+          <div class="input-wrap"><span class="pre">₹</span><input type="number" id="rent" value="0" min="0" step="500"></div></div>
+        <div class="row-2">
+          <div class="field"><label for="o80c">Other 80C (ELSS, LIC, PPF…)</label>
+            <div class="input-wrap"><span class="pre">₹</span><input type="number" id="o80c" value="0" min="0" step="1000"></div>
+            <span class="hint">Your PF already counts toward the ₹1.5L limit.</span></div>
+          <div class="field"><label for="n1b">NPS 80CCD(1B)</label>
+            <div class="input-wrap"><span class="pre">₹</span><input type="number" id="n1b" value="0" min="0" max="50000" step="1000"></div></div>
+          <div class="field"><label for="d80">Health insurance 80D</label>
+            <div class="input-wrap"><span class="pre">₹</span><input type="number" id="d80" value="0" min="0" step="1000"></div></div>
+          <div class="field"><label for="hl">Home loan interest</label>
+            <div class="input-wrap"><span class="pre">₹</span><input type="number" id="hl" value="0" min="0" max="200000" step="1000"></div></div>
+        </div>
+        <div class="field"><label for="oth">Any other deductions</label>
+          <div class="input-wrap"><span class="pre">₹</span><input type="number" id="oth" value="0" min="0" step="1000"></div></div>
+      </details>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="results" aria-live="polite" aria-label="Results">
+      <div class="hero-result">
+        <div class="lbl">Monthly in-hand salary</div>
+        <div class="big" id="rMonth">—</div>
+        <div class="sub" id="rYear"></div>
+        <span class="pill" id="rPill"></span>
+      </div>
+
+      <div class="banner" id="rBanner"></div>
+
+      <div class="card" style="margin-bottom:18px">
+        <h2 class="card-title">⚖️ Old vs new regime</h2>
+        <div class="compare">
+          <div class="cmp" id="cmpNew"><div class="n">NEW REGIME</div><div class="v" id="cnV"></div><div class="s" id="cnS"></div></div>
+          <div class="cmp" id="cmpOld"><div class="n">OLD REGIME</div><div class="v" id="coV"></div><div class="s" id="coS"></div></div>
+        </div>
+        <div class="tbl-wrap"><table class="tbl" id="tbl"></table></div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">🥧 Where your CTC goes</h2>
+        <div class="chart-row"><svg class="donut" id="donut" viewBox="0 0 170 170" role="img" aria-label="CTC breakdown chart"></svg><div class="legend" id="legend"></div></div>
+      </div>
+
+      <div class="offer">
+        <div><b>Want to grow your take-home?</b><small>Compare tax-saving investments and top-rated credit cards in minutes.</small></div>
+        <a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="tax-saving">Explore options</a>
+      </div>
+    </section>
+  </div>
+
+  <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
+
+  <article class="container prose">
+    <h2>How is in-hand salary calculated?</h2>
+    <p>Your <strong>CTC (Cost to Company)</strong> is the total an employer spends on you in a year. It includes items you never receive as cash — employer PF and gratuity — so your take-home is always lower than CTC ÷ 12.</p>
+    <ol>
+      <li><strong>Gross salary</strong> = CTC − employer PF − gratuity − employer NPS (basic + HRA + special allowance + variable).</li>
+      <li>Subtract <strong>employee PF</strong> (12% of basic) and <strong>professional tax</strong>.</li>
+      <li>Subtract <strong>income tax (TDS)</strong> computed on taxable income after your deductions.</li>
+      <li>What remains, divided by 12, is your <strong>monthly in-hand salary</strong>.</li>
+    </ol>
+    <h2>New tax regime slabs (FY 2025-26)</h2>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Taxable income</th><th>Rate</th></tr>
+      <tr><td>Up to ₹4,00,000</td><td>Nil</td></tr><tr><td>₹4,00,001 – ₹8,00,000</td><td>5%</td></tr>
+      <tr><td>₹8,00,001 – ₹12,00,000</td><td>10%</td></tr><tr><td>₹12,00,001 – ₹16,00,000</td><td>15%</td></tr>
+      <tr><td>₹16,00,001 – ₹20,00,000</td><td>20%</td></tr><tr><td>₹20,00,001 – ₹24,00,000</td><td>25%</td></tr>
+      <tr><td>Above ₹24,00,000</td><td>30%</td></tr>
+    </table></div>
+    <p>A rebate under section 87A makes income up to <strong>₹12 lakh</strong> tax-free (₹12.75 lakh of salary after the ₹75,000 standard deduction). Plus 4% health &amp; education cess and surcharge on very high incomes.</p>
+    <h2>Which regime is better?</h2>
+    <p>The new regime wins for most people with fewer deductions. The old regime can win if you claim large HRA, 80C, 80D and home-loan interest deductions. This calculator computes both and tells you the difference in rupees.</p>
+    <h2>Frequently asked questions</h2>
+    <div class="faq">
+      <details><summary>Why is my in-hand salary much lower than CTC/12?</summary><p>Because CTC includes employer PF and gratuity, plus your own PF, professional tax and income tax are deducted before payout.</p></details>
+      <details><summary>Is PF always 12% of basic?</summary><p>PF is 12% of basic wages. Some employers cap it at ₹15,000 of basic (₹1,800/month). Use the “Limit PF” switch to model that.</p></details>
+      <details><summary>Is variable pay included?</summary><p>Yes — the calculator assumes you receive variable pay in full and spreads it evenly over 12 months for the monthly figure.</p></details>
+      <details><summary>Is professional tax deductible?</summary><p>Yes under the old regime. It is not allowed as a deduction in the new regime, but it is still deducted from your pay.</p></details>
+    </div>
+  </article>
+
+  <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
+</main>
+
+<script src="assets/tax.js"></script>
+<script src="assets/common.js"></script>
+<script>
+  Common.init('salary');
+  const metro = Common.seg(document.getElementById('metroSeg'), calc);
+  const $ = id => document.getElementById(id);
+  function calc() {
+    const r = Tax.salary({
+      ctc: Common.num('ctc'), basicPct: Common.num('basicPct'), hraPct: Common.num('hraPct'), variablePct: Common.num('variablePct'),
+      pfCap: $('pfCap').checked, gratuity: $('gratuity').checked, employerNps: Common.num('enps'), ptMonthly: Common.num('pt'),
+      metro: metro() === '1', rentMonthly: Common.num('rent'), other80c: Common.num('o80c'), nps1b: Common.num('n1b'),
+      d80: Common.num('d80'), homeLoanInt: Common.num('hl'), otherDed: Common.num('oth'),
+    });
+    const b = r[r.best], other = r[r.best === 'new' ? 'old' : 'new'];
+    const f = Common.fmt;
+    $('rMonth').textContent = f(b.inHandMonth);
+    $('rYear').textContent = `${f(b.inHandYear)} per year · ${r.ctc ? Math.round(b.inHandYear / r.ctc * 100) : 0}% of CTC`;
+    $('rPill').textContent = (r.best === 'new' ? 'New' : 'Old') + ' regime applied';
+    $('rBanner').className = 'banner' + (r.saving < 1 ? ' info' : '');
+    $('rBanner').innerHTML = r.saving < 1
+      ? '<span>ℹ️</span><span>Both regimes give the same take-home for your inputs.</span>'
+      : `<span>💡</span><span>The <b>${r.best === 'new' ? 'new' : 'old'} regime</b> is better for you — you keep <b>${f(r.saving)}</b> more per year (${f(r.saving / 12)}/month) than under the ${r.best === 'new' ? 'old' : 'new'} regime.</span>`;
+
+    $('cnV').textContent = f(r.new.inHandMonth) + '/mo'; $('cnS').textContent = 'Tax ' + f(r.new.tax) + '/yr';
+    $('coV').textContent = f(r.old.inHandMonth) + '/mo'; $('coS').textContent = 'Tax ' + f(r.old.tax) + '/yr';
+    $('cmpNew').classList.toggle('best', r.best === 'new' && r.saving >= 1);
+    $('cmpOld').classList.toggle('best', r.best === 'old' && r.saving >= 1);
+
+    const row = (l, n, o, cls = '') => `<tr class="${cls}"><td>${l}</td><td>${f(n)}</td><td>${f(o)}</td></tr>`;
+    $('tbl').innerHTML = `<tr><th>Yearly</th><th>New</th><th>Old</th></tr>` +
+      row('Gross salary', r.gross, r.gross) +
+      row('Deductions claimed', r.new.deductions, r.old.deductions, 'pos') +
+      row('Taxable income', r.new.taxable, r.old.taxable) +
+      row('Income tax + cess', -r.new.tax, -r.old.tax, 'neg') +
+      row('Employee PF', -r.employeePf, -r.employeePf, 'neg') +
+      row('Professional tax', -r.pt, -r.pt, 'neg') +
+      row('In-hand (yearly)', r.new.inHandYear, r.old.inHandYear, 'total');
+
+    Common.donut($('donut'), $('legend'), [
+      { label: 'In-hand salary', value: b.inHandYear },
+      { label: 'Income tax', value: b.tax },
+      { label: 'Employee PF', value: r.employeePf },
+      { label: 'Employer PF', value: r.employerPf },
+      { label: 'Gratuity / NPS / PT', value: r.gratuity + r.employerNps + r.pt },
+    ], 'CTC', Common.fmtCompact(r.ctc));
+  }
+  document.querySelectorAll('input').forEach(i => i.addEventListener('input', calc));
+  calc();
+</script>
+</body>
+</html>
