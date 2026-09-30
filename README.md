@@ -1,6 +1,6 @@
 # InHand — money calculators for India
 
-A fast, beautiful, dependency-free static site: in-hand salary (old vs new regime), salary hike, HRA, EMI, SIP, FD and gratuity calculators.
+A fast, beautiful, dependency-free static site: in-hand salary (old vs new regime), net worth & financial health score, salary hike, HRA, EMI, SIP, FD and gratuity calculators.
 
 ## Run locally
 ```

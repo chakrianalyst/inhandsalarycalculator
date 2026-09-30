@@ -1,6 +1,7 @@
 /* InHand — shared layout + helpers */
 const TOOLS = [
   { id: 'salary', href: 'salary-calculator.html', icon: '💼', name: 'In-Hand Salary Calculator', short: 'Salary', desc: 'CTC to monthly take-home with old vs new tax regime, PF, HRA and more.', hot: true },
+  { id: 'networth', href: 'networth-calculator.html', icon: '🏆', name: 'Net Worth Calculator', short: 'Net Worth', desc: 'Add all your assets and liabilities. Get net worth, allocation and a health score.', isNew: true },
   { id: 'hike', href: 'salary-hike-calculator.html', icon: '📈', name: 'Salary Hike Calculator', short: 'Hike', desc: 'See how much of your raise actually lands in your bank account.' },
   { id: 'hra', href: 'hra-calculator.html', icon: '🏠', name: 'HRA Exemption Calculator', short: 'HRA', desc: 'Calculate exempt HRA and taxable HRA under the old regime.' },
   { id: 'emi', href: 'emi-calculator.html', icon: '🏦', name: 'EMI Calculator', short: 'EMI', desc: 'Home, car and personal loan EMI with a full amortisation schedule.' },

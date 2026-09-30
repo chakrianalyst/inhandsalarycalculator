@@ -25,7 +25,7 @@
         <a class="btn btn-ghost" href="#tools">Browse all tools</a>
       </div>
       <div class="stats">
-        <div><b>7</b>calculators</div>
+        <div><b>8</b>calculators</div>
         <div><b>Old &amp; New</b>tax regimes</div>
         <div><b>FY 2025-26</b>latest rules</div>
         <div><b>100% free</b>forever</div>
@@ -96,7 +96,7 @@
 <script>
   Common.init('home');
   document.getElementById('toolGrid').innerHTML = TOOLS.map(t =>
-    `<a class="tool-card" href="${t.href}"><div class="ico">${t.icon}</div><h3>${t.name}${t.hot ? '<span class="tag">Popular</span>' : ''}</h3><p>${t.desc}</p><span class="go">Open calculator →</span></a>`).join('');
+    `<a class="tool-card" href="${t.href}"><div class="ico">${t.icon}</div><h3>${t.name}${t.hot ? '<span class="tag">Popular</span>' : ''}${t.isNew ? '<span class="tag">New</span>' : ''}</h3><p>${t.desc}</p><span class="go">Open calculator →</span></a>`).join('');
   function quick() {
     const ctc = Common.num('q');
     const r = Tax.salary({ ctc, basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, metro: true, rentMonthly: 0 });
