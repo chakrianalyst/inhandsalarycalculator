@@ -406,3 +406,11 @@ table.tbl tr.pos td:not(:first-child) { color: var(--accent); }
 .foot-grid { grid-template-columns: 1.4fr 1fr 1fr 1fr; }
 @media (max-width: 900px) { .foot-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 560px) { .foot-grid { grid-template-columns: 1fr; } }
+
+/* Net worth: quick-add chips and hints */
+.grp-hint { font-size: .8rem; color: var(--muted); margin: 0 0 2px; line-height: 1.5; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding-top: 4px; }
+.chips[hidden], .chip[hidden] { display: none; }
+.chips-l { font-size: .74rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-right: 2px; }
+.chip { border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit; font-size: .8rem; font-weight: 600; padding: 6px 11px; border-radius: 99px; cursor: pointer; transition: .15s; }
+.chip:hover { border-color: var(--brand); color: var(--brand); background: var(--grad-soft); transform: translateY(-1px); }

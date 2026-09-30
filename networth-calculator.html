@@ -134,6 +134,28 @@
     { id: 'loans',  type: 'liab',  icon: '🏦', name: 'Loans',                   sub: 'Home, car, personal',    items: [['Home loan', 3800000], ['Car loan', 180000], ['Personal loan', 0], ['Education loan', 0]] },
     { id: 'cards',  type: 'liab',  icon: '💳', name: 'Credit cards & dues',     sub: 'Short-term obligations', items: [['Credit card outstanding', 25000], ['Other dues', 0]] },
   ];
+
+  /* Quick-add suggestions (kept out of the default view so the form stays simple) and valuation tips */
+  const CHIPS = {
+    cash:   ['Salary / joint account', 'Foreign-currency balance', 'Wallets & prepaid cards'],
+    fixed:  ['Post office schemes (MIS / TD)', 'SCSS (Senior Citizens)', 'NSC / KVP', 'Corporate FDs / NCDs', 'Government bonds / T-bills', 'Debt mutual funds'],
+    market: ['ETFs', 'International stocks / funds', 'REITs / InvITs', 'PMS / AIF', 'Vested ESOPs / RSUs', 'Unlisted shares'],
+    retire: ['Sukanya Samriddhi (SSY)', 'Gratuity accrued', 'Superannuation fund', 'Employee pension (EPS)', 'Atal Pension Yojana'],
+    real:   ['Second home', 'Land / plots', 'Rental / commercial property', 'Sovereign Gold Bonds', 'Gold ETF / digital gold', 'Silver', 'Art & collectibles', 'Two-wheeler'],
+    otherA: ['Insurance surrender value (ULIP / endowment)', 'Rental / security deposits', 'Tax refund due', 'Receivables / advances', 'Provident fund of a past employer'],
+    loans:  ['Loan against property', 'Gold loan', 'Two-wheeler loan', 'Business loan', 'Loan from family / friends', 'Overdraft'],
+    cards:  ['BNPL / pay-later dues', 'Income tax due', 'Unpaid bills / rent', 'Credit line / EMI card'],
+  };
+  const HINTS = {
+    cash:   'Use today’s balance. Money you may need within days belongs here.',
+    fixed:  'Use the current value including accrued interest. Your total, not the amount originally invested.',
+    market: 'Use today’s market value. For ESOPs, count only vested shares you could actually sell.',
+    retire: 'Use the latest passbook / statement balance, including your employer’s contribution. Locked until retirement, so counted as illiquid.',
+    real:   'Use today’s resale value, not what you paid. Jewellery: weight × today’s rate (making charges are usually not recovered). Enter gold you hold physically or as SGB / ETF separately if you like.',
+    otherA: 'Insurance counts only at surrender value. The sum assured or life cover is not an asset.',
+    loans:  'Enter the outstanding principal today, not the original loan amount.',
+    cards:  'Include anything you owe and would have to pay soon.',
+  };
   const sample = () => ({ age: 32, inc: 1800000, exp: 60000, g: Object.fromEntries(GROUPS.map(g => [g.id, g.items.map(([n, v]) => ({ n, v }))])) });
   const blank = () => ({ age: '', inc: '', exp: '', g: Object.fromEntries(GROUPS.map(g => [g.id, g.items.map(([n]) => ({ n, v: '' }))])) });
   let S;
@@ -144,7 +166,7 @@
   const gTotal = id => (S.g[id] || []).reduce((s, r) => s + val(r.v), 0);
 
   /* ---------- build inputs ---------- */
-  const groupEls = {};
+  const groupEls = {}, refreshers = {};
   function addRow(body, gid, row, before) {
     const el = document.createElement('div'); el.className = 'item';
     const nm = document.createElement('input'); nm.className = 'nm'; nm.type = 'text'; nm.value = row.n; nm.placeholder = 'Name'; nm.setAttribute('aria-label', 'Item name');
@@ -153,9 +175,9 @@
     const v = document.createElement('input'); v.type = 'number'; v.min = 0; v.step = 1000; v.value = row.v; v.placeholder = '0'; v.setAttribute('aria-label', (row.n || 'Item') + ' value');
     w.append(pre, v);
     const x = document.createElement('button'); x.className = 'x'; x.type = 'button'; x.textContent = '×'; x.setAttribute('aria-label', 'Remove item');
-    nm.oninput = () => { row.n = nm.value; save(); };
+    nm.oninput = () => { row.n = nm.value; save(); refreshers[gid] && refreshers[gid](); };
     v.oninput = () => { row.v = v.value; update(); };
-    x.onclick = () => { S.g[gid].splice(S.g[gid].indexOf(row), 1); el.remove(); update(); };
+    x.onclick = () => { S.g[gid].splice(S.g[gid].indexOf(row), 1); el.remove(); refreshers[gid] && refreshers[gid](); update(); };
     el.append(nm, w, x); body.insertBefore(el, before || null);
   }
   function build() {
@@ -168,7 +190,14 @@
       const add = document.createElement('button'); add.type = 'button'; add.className = 'add-item'; add.textContent = '+ Add item';
       body.appendChild(add);
       (S.g[g.id] = S.g[g.id] || []).forEach(r => addRow(body, g.id, r, add));
-      add.onclick = () => { const r = { n: '', v: '' }; S.g[g.id].push(r); addRow(body, g.id, r, add); body.querySelector('.item:nth-last-of-type(1) .nm').focus(); };
+      add.onclick = () => { const r = { n: '', v: '' }; S.g[g.id].push(r); addRow(body, g.id, r, add); const last = [...body.querySelectorAll('.item')].pop(); last.querySelector('.nm').focus(); };
+      if (HINTS[g.id]) { const h = document.createElement('p'); h.className = 'grp-hint'; h.textContent = HINTS[g.id]; body.insertBefore(h, body.firstChild); }
+      const chips = document.createElement('div'); chips.className = 'chips'; chips.innerHTML = '<span class="chips-l">Quick add:</span>';
+      const chipEls = (CHIPS[g.id] || []).map(name => { const c = document.createElement('button'); c.type = 'button'; c.className = 'chip'; c.textContent = '+ ' + name;
+        c.onclick = () => { const r = { n: name, v: '' }; S.g[g.id].push(r); addRow(body, g.id, r, add); refreshers[g.id](); const last = [...body.querySelectorAll('.item')].pop(); last.querySelector('input[type=number]').focus(); update(); };
+        chips.appendChild(c); return [name, c]; });
+      refreshers[g.id] = () => { const have = new Set(S.g[g.id].map(r => (r.n || '').trim().toLowerCase())); chipEls.forEach(([n, c]) => c.hidden = have.has(n.toLowerCase())); chips.hidden = chipEls.every(([, c]) => c.hidden); };
+      body.appendChild(chips); refreshers[g.id]();
       d.appendChild(body); groupEls[g.id] = d;
       $(g.type === 'asset' ? 'assets' : 'liabs').appendChild(d);
     });
