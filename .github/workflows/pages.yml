@@ -1,5 +1,5 @@
-# Deploys the static site to GitHub Pages on every push to main.
-# One-time setup: repo Settings -> Pages -> Source: "GitHub Actions".
+# Publishes the site to GitHub Pages on every push to main.
+# One-time setup: repo Settings -> Pages -> Build and deployment -> Source: "GitHub Actions".
 name: Deploy to GitHub Pages
 on:
   push:
@@ -20,10 +20,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Keep only publishable files
-        run: |
-          mkdir _site
-          cp -r *.html assets robots.txt sitemap.xml _site/
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node --test tests/tax.test.js
+      - run: node scripts/build.js
+      - run: node scripts/check.js          # a broken build never gets published
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with: { path: _site }

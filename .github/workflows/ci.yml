@@ -3,10 +3,20 @@ on:
   push:
   pull_request:
 jobs:
-  test:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
-      - run: node --test tests/tax.test.js
+      - name: Tax engine tests
+        run: node --test tests/tax.test.js
+      - name: Build site
+        run: node scripts/build.js
+      - name: Check SEO tags, links and structured data
+        run: node scripts/check.js
+      - name: Browser smoke tests
+        run: |
+          npm i --no-save playwright
+          npx playwright install --with-deps chromium
+          node --test tests/smoke.test.js

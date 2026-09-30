@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How We Calculate: Tax Rules & Assumptions (FY 2025-26) | {{SITE_NAME}}</title>
+<meta name="description" content="Exactly which tax rules, salary assumptions and formulas the calculators use, and what they leave out.">
+<link rel="canonical" href="https://inhand.example/methodology.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero"><div class="crumbs"><a href="index.html">Home</a> › Methodology</div><h1>How we calculate</h1></div>
+  <article class="container prose" style="padding-top:10px">
+<p>Transparency builds trust. This page lists the rules behind the salary and tax numbers, plus what the calculators deliberately simplify.</p>
+<h2>Income tax: FY 2025-26 (AY 2026-27), salaried individuals</h2>
+<h3>New regime (default)</h3>
+<ul><li>Slabs: nil up to ₹4L; 5% to ₹8L; 10% to ₹12L; 15% to ₹16L; 20% to ₹20L; 25% to ₹24L; 30% above.</li>
+<li>Standard deduction: ₹75,000. Employer NPS (80CCD(2)) up to 14% of basic.</li>
+<li>Section 87A rebate up to ₹60,000, so taxable income up to ₹12L is tax-free, with marginal relief just above it.</li></ul>
+<h3>Old regime</h3>
+<ul><li>Slabs: nil up to ₹2.5L; 5% to ₹5L; 20% to ₹10L; 30% above.</li>
+<li>Standard deduction ₹50,000; HRA exemption; 80C up to ₹1.5L; 80CCD(1B) up to ₹50,000; 80D; home-loan interest up to ₹2L; employer NPS up to 10% of basic; professional tax.</li>
+<li>Section 87A rebate up to ₹12,500 for taxable income up to ₹5L.</li></ul>
+<h3>Both regimes</h3>
+<ul><li>4% health &amp; education cess on tax plus surcharge.</li>
+<li>Surcharge of 10% above ₹50L, 15% above ₹1Cr, 25% above ₹2Cr (and 37% above ₹5Cr in the old regime; capped at 25% in the new regime), each with marginal relief.</li></ul>
+<h2>Salary structure assumptions</h2>
+<ul><li>Basic salary defaults to 40% of CTC; HRA to 50% of basic; both are editable.</li>
+<li>Employer and employee PF are 12% of basic (optionally capped at ₹15,000 of basic).</li>
+<li>Gratuity is 4.81% of basic and sits inside CTC but is not paid monthly.</li>
+<li>Professional tax defaults to ₹200 a month (actual amounts vary by state); it is deductible only in the old regime.</li>
+<li>Variable pay is assumed to be paid in full and spread evenly over 12 months.</li></ul>
+<h2>Other calculators</h2>
+<ul><li><strong>EMI:</strong> reducing-balance formula. <strong>SIP / FD:</strong> standard compound-growth formulas, before tax.</li>
+<li><strong>Gratuity:</strong> (last basic + DA) × 15 ÷ 26 × years, with the ₹20 lakh exemption limit.</li>
+<li><strong>HRA:</strong> least of actual HRA, rent minus 10% of basic, and 50%/40% of basic.</li>
+<li><strong>Net worth score, FIRE, rent-vs-buy and life simulator:</strong> educational models with their assumptions stated on each page. They are not predictions.</li></ul>
+<h2>What is not included</h2>
+<p>Dearness allowance, LTA, reimbursements, arrears, capital-gains tax, TDS timing differences, state-specific rules, employee NPS, and leave-encashment effects are not modelled. Real payslips can differ.</p>
+<h2>Quality checks</h2>
+<p>The tax engine has automated tests for known values, rebate and relief boundaries, and a sweep across incomes up to ₹30 crore in both regimes. If tax law changes in a Budget, the rules live in a single file so they can be updated quickly.</p>
+<p>See something wrong? <a href="contact.html">Contact us</a>.</p>
+  </article>
+
+</main>
+<script src="assets/tax.js"></script>
+<script src="assets/common.js"></script>
+<script>Common.init('methodology');</script>
+</body>
+</html>

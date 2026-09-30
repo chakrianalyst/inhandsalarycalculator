@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About | {{SITE_NAME}}</title>
+<meta name="description" content="Who we are and why these calculators are free, private and unbiased.">
+<link rel="canonical" href="https://inhand.example/about.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero"><div class="crumbs"><a href="index.html">Home</a> › About</div><h1>About {{SITE_NAME}}</h1></div>
+  <article class="container prose" style="padding-top:10px">
+<p>{{SITE_NAME}} is an independent set of free money calculators for people in India. We build tools for the questions we kept asking ourselves: <em>What will I actually take home? Should I rent or buy? When can I afford to retire?</em></p>
+<h2>What we believe</h2>
+<ul><li><strong>Your numbers are yours.</strong> Every calculation runs in your browser. We never receive your salary, loans or savings.</li>
+<li><strong>Clear beats clever.</strong> Each tool shows its assumptions and the working behind every number.</li>
+<li><strong>Free, honestly funded.</strong> The site is supported by advertising and by affiliate links, which are always labelled. Sponsorship never changes a calculation result.</li></ul>
+<h2>How we keep numbers reliable</h2>
+<p>The tax engine is covered by automated tests, including checks that tax never falls as income rises and that the rebate and surcharge relief behave correctly at every boundary. Read the details on our <a href="methodology.html">methodology page</a>.</p>
+<h2>Important</h2>
+<p>We are not a financial adviser, chartered accountant or registered investment adviser. Results are estimates for education and planning. Always confirm with your payslip, employer or a qualified professional before making decisions.</p>
+<p>Found a mistake or have an idea? Please <a href="contact.html">tell us</a>.</p>
+  </article>
+
+</main>
+<script src="assets/tax.js"></script>
+<script src="assets/common.js"></script>
+<script>Common.init('about');</script>
+</body>
+</html>

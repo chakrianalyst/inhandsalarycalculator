@@ -181,7 +181,7 @@
     $('timeline').innerHTML = items.map(i => `<div class="tl"><span class="age">${i.a}</span><span>${i.icon} ${i.t}</span><span class="nwv">${Common.fmtCompact(sc(at(i.a)))}</span></div>`).join('');
   }
   document.querySelectorAll('.card > .field input, .card > .row-2 input, details input').forEach(i => { if (!i.dataset.e) i.addEventListener('input', calc); });
-  calc();
+  Common.restore(); calc();
 </script>
 </body>
 </html>

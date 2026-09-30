@@ -2,20 +2,31 @@
 
 A fast, beautiful, dependency-free static site: in-hand salary (old vs new regime), life money simulator, net worth & health score, FIRE planner, rent vs buy, job-offer comparison, salary hike, HRA, EMI, SIP, FD and gratuity calculators.
 
-## Run locally
+## Quick start
 ```
-python3 -m http.server 8000   # then open http://localhost:8000
+npm run build              # builds the publishable site into _site/
+python3 -m http.server 8000 --directory _site   # open http://localhost:8000
+npm run verify             # tax tests + build + SEO/link checks + browser smoke tests
 ```
-No build step. Deploy the folder as-is to GitHub Pages, Netlify or Cloudflare Pages.
+**New here? Read [LAUNCH.md](LAUNCH.md)** for the no-code steps to go live, rank on Google and earn money.
+
+All launch settings (domain, email, analytics, AdSense, affiliate links) live in one file: `site.config.json`.
+
+## What the build does (`scripts/build.js`)
+Stamps your domain into canonical/sitemap, adds favicon + Open Graph/Twitter tags + FAQ rich-result data, generates the
+"₹X LPA in-hand salary" pages from the tax engine, writes `sitemap.xml`, `robots.txt`, `ads.txt`, and prints a launch checklist.
+Ad boxes and affiliate boxes stay hidden until real IDs/links are configured.
 
 ## Test
 ```
-node --test tests/tax.test.js   # tax engine: known values, rebate/marginal relief, monotonicity sweep
+npm test              # tax engine: known values, rebate/marginal relief, monotonicity sweep
+npm run check         # built site: titles, descriptions, canonicals, links, JSON-LD, sitemap
+npm run test:browser  # Playwright: every page loads, results render, share links, ads/affiliate/consent behaviour
 ```
-CI runs this on every push (`.github/workflows/ci.yml`).
+CI runs all of these on every push (`.github/workflows/ci.yml`); a failing check blocks deployment.
 
 ## Deploy
-`.github/workflows/pages.yml` publishes the site to GitHub Pages on every push to `main`.
+`.github/workflows/pages.yml` publishes `_site/` to GitHub Pages on every push to `main`.
 One-time setup: repo **Settings → Pages → Source: GitHub Actions**.
 
 ## Structure
@@ -24,11 +35,3 @@ One-time setup: repo **Settings → Pages → Source: GitHub Actions**.
 - `assets/style.css` — design system with light/dark themes.
 - `*.html` — one page per calculator, each with SEO copy and FAQ.
 
-## Monetisation hooks
-- `.ad-slot` placeholders — replace with AdSense / Ezoic units once approved.
-- `.offer` blocks with `data-affiliate` — swap `href="#"` for real affiliate links (keep `rel="sponsored nofollow"`).
-
-## Before launch
-1. Replace `https://inhand.example` in canonical tags, `sitemap.xml` and `robots.txt` with your domain.
-2. Add analytics and the AdSense script.
-3. Re-verify tax slabs against the latest Finance Act.
