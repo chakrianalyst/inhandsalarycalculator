@@ -165,6 +165,40 @@
   const val = v => { const n = parseFloat(v); return isNaN(n) || n < 0 ? 0 : n; };
   const gTotal = id => (S.g[id] || []).reduce((s, r) => s + val(r.v), 0);
 
+
+  /* Optional gold helper: grams x purity x today's 24K rate (no price is hard-coded; it changes daily) */
+  function goldHelper(body, gid) {
+    const d = document.createElement('details'); d.className = 'gold';
+    const fld = (label, inner) => `<div class="field"><label>${label}</label>${inner}</div>`;
+    d.innerHTML = `<summary>🪙 Gold value helper <small>grams × today’s rate</small></summary>
+      <div class="gold-grid">
+        ${fld('Weight (grams)', '<div class="input-wrap"><input type="number" class="g-w" min="0" step="0.1" placeholder="e.g. 50"><span class="suf">g</span></div>')}
+        ${fld('Today’s 24K rate (₹/gram)', '<div class="input-wrap"><span class="pre">₹</span><input type="number" class="g-r" min="0" step="1" placeholder="from a jeweller / rate site"></div>')}
+        ${fld('Purity', '<select class="g-p"><option value="1">24K (99.9%)</option><option value="0.916667" selected>22K</option><option value="0.75">18K</option><option value="0.583333">14K</option></select>')}
+        ${fld('Form', '<select class="g-f"><option value="1">Coins / bars</option><option value="0.9" selected>Jewellery (−10%)</option></select>')}
+      </div>
+      <div class="gold-out"><span class="g-o">Enter the weight and today’s rate.</span><button type="button" class="btn btn-primary btn-sm g-use" disabled>Use for “Gold &amp; jewellery”</button></div>
+      <p class="grp-hint">Jewellery is reduced by ~10% because making charges are usually not recovered on resale; coins and bars are not. For Sovereign Gold Bonds, gold ETFs or digital gold, use their own rows — they are valued by units or market price, not weight.</p>`;
+    const q = c => d.querySelector(c), rateKey = 'inhand-gold-rate';
+    try { const r = localStorage.getItem(rateKey); if (r) q('.g-r').value = r; } catch (e) {}
+    let value = 0;
+    const calc = () => {
+      const w = parseFloat(q('.g-w').value) || 0, r = parseFloat(q('.g-r').value) || 0;
+      value = Math.round(w * r * parseFloat(q('.g-p').value) * parseFloat(q('.g-f').value));
+      q('.g-o').innerHTML = value > 0 ? `Estimated resale value: <b>${f(value)}</b>` : 'Enter the weight and today’s rate.';
+      q('.g-use').disabled = value <= 0;
+      try { if (r > 0) localStorage.setItem(rateKey, String(r)); } catch (e) {}
+    };
+    d.addEventListener('input', calc);
+    q('.g-use').onclick = () => {
+      let rowEl = [...body.querySelectorAll('.item')].find(el => el.querySelector('.nm').value.trim().toLowerCase() === 'gold & jewellery');
+      if (!rowEl) { const row = { n: 'Gold & jewellery', v: '' }; S.g[gid].push(row); addRow(body, gid, row, body.querySelector('.add-item')); rowEl = [...body.querySelectorAll('.item')].pop(); }
+      const num = rowEl.querySelector('input[type=number]'); num.value = value; num.dispatchEvent(new Event('input', { bubbles: true }));
+      Common.toast('Gold value added: ' + f(value));
+    };
+    calc(); return d;
+  }
+
   /* ---------- build inputs ---------- */
   const groupEls = {}, refreshers = {};
   function addRow(body, gid, row, before) {
@@ -198,6 +232,7 @@
         chips.appendChild(c); return [name, c]; });
       refreshers[g.id] = () => { const have = new Set(S.g[g.id].map(r => (r.n || '').trim().toLowerCase())); chipEls.forEach(([n, c]) => c.hidden = have.has(n.toLowerCase())); chips.hidden = chipEls.every(([, c]) => c.hidden); };
       body.appendChild(chips); refreshers[g.id]();
+      if (g.id === 'real') body.insertBefore(goldHelper(body, g.id), chips);
       d.appendChild(body); groupEls[g.id] = d;
       $(g.type === 'asset' ? 'assets' : 'liabs').appendChild(d);
     });

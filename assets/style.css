@@ -414,3 +414,17 @@ table.tbl tr.pos td:not(:first-child) { color: var(--accent); }
 .chips-l { font-size: .74rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-right: 2px; }
 .chip { border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit; font-size: .8rem; font-weight: 600; padding: 6px 11px; border-radius: 99px; cursor: pointer; transition: .15s; }
 .chip:hover { border-color: var(--brand); color: var(--brand); background: var(--grad-soft); transform: translateY(-1px); }
+
+/* Net worth: gold helper */
+details.gold { border: 1px dashed var(--line); border-radius: var(--radius-sm); padding: 12px 14px; background: var(--surface); }
+details.gold summary { cursor: pointer; font-weight: 700; font-size: .88rem; color: var(--brand); list-style: none; }
+details.gold summary small { font-weight: 500; color: var(--muted); margin-left: 6px; }
+details.gold[open] summary { margin-bottom: 12px; }
+.gold-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+.gold-grid .field { margin: 0; }
+.gold-grid .field > label { font-size: .75rem; margin-bottom: 4px; }
+.gold-grid .input-wrap input { padding: 10px 10px; font-size: .92rem; }
+.gold-grid select { padding: 10px; font-size: .9rem; }
+.gold-out { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 12px; font-size: .88rem; }
+.gold-out .btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
+@media (max-width: 520px) { .gold-grid { grid-template-columns: 1fr; } }
