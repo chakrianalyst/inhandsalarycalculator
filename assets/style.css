@@ -64,7 +64,7 @@ img, svg { max-width: 100%; }
 .logo span b { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .nav-links { display: flex; align-items: center; gap: 4px; }
 .nav-links a {
-  color: var(--muted); font-weight: 500; font-size: .93rem; padding: 8px 12px; border-radius: 10px; transition: .15s;
+  white-space: nowrap; color: var(--muted); font-weight: 500; font-size: .93rem; padding: 8px 12px; border-radius: 10px; transition: .15s;
 }
 .nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--bg-2); text-decoration: none; }
 .nav-actions { display: flex; align-items: center; gap: 8px; }
@@ -74,7 +74,7 @@ img, svg { max-width: 100%; }
 }
 .icon-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
 .menu-btn { display: none; }
-@media (max-width: 960px) {
+@media (max-width: 1180px) {
   .menu-btn { display: grid; }
   .nav-links {
     position: absolute; inset: 68px 0 auto 0; flex-direction: column; align-items: stretch;
@@ -341,3 +341,48 @@ table.tbl tr.pos td:not(:first-child) { color: var(--accent); }
 .insight.warn { background: color-mix(in srgb, var(--warn) 12%, var(--surface)); border-color: color-mix(in srgb, var(--warn) 35%, var(--line)); }
 .insight.bad { background: color-mix(in srgb, var(--danger) 10%, var(--surface)); border-color: color-mix(in srgb, var(--danger) 30%, var(--line)); }
 .hero-result.neg { background: linear-gradient(135deg, #ef4444, #f97316); }
+
+/* ---------- Line chart ---------- */
+.lc { position: relative; }
+.lc svg { width: 100%; height: auto; display: block; touch-action: pan-y; }
+.lc-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: .8rem; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+.lc-legend i, .lc-tip i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
+.lc-tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); padding: 9px 12px; border-radius: 12px; font-size: .78rem; min-width: 150px; z-index: 5; }
+.lc-tip b { display: block; margin-bottom: 4px; }
+.lc-tip div { display: flex; justify-content: space-between; gap: 14px; color: var(--muted); }
+.lc-tip div span:last-child { color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* ---------- Event cards (life simulator) ---------- */
+.ev-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.ev { border: 1.5px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-2); padding: 14px; transition: .2s; }
+.ev.on { border-color: var(--brand); background: color-mix(in srgb, var(--brand) 7%, var(--surface)); box-shadow: 0 6px 18px -10px rgba(91,75,255,.5); }
+.ev-top { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+.ev-top .gi { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--grad-soft); font-size: 1.1rem; }
+.ev-top span.t { flex: 1; font-size: .92rem; }
+.ev-body { margin-top: 12px; display: none; gap: 10px; }
+.ev.on .ev-body { display: grid; }
+.ev-body .field { margin: 0; }
+.ev-body .field > label { font-size: .75rem; margin-bottom: 4px; }
+.ev-body .input-wrap input { padding: 9px 10px; font-size: .9rem; }
+.ev-body .row-2 { gap: 8px; }
+.ev-body input[type=range] { margin-top: 8px; }
+.timeline { display: grid; gap: 0; }
+.tl { display: grid; grid-template-columns: 54px 1fr auto; gap: 12px; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
+.tl:last-child { border-bottom: 0; }
+.tl .age { font-weight: 800; color: var(--brand); }
+.tl .nwv { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* ---------- Offer comparison ---------- */
+.offers-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; padding: 26px 0 0; }
+@media (max-width: 920px) { .offers-grid { grid-template-columns: minmax(0, 1fr); } }
+.offer-card { position: relative; }
+.offer-card .oname { width: 100%; border: 0; background: transparent; font: inherit; font-size: 1.1rem; font-weight: 800; color: var(--text); padding: 0 0 12px; margin-bottom: 14px; border-bottom: 1px solid var(--line); outline: none; }
+.offer-card.win { border-color: var(--accent); box-shadow: 0 10px 30px -12px rgba(16,185,129,.45); }
+.offer-card.win::after { content: "🏆 Best overall"; position: absolute; top: -12px; right: 16px; background: var(--accent); color: #fff; font-size: .72rem; font-weight: 800; padding: 3px 11px; border-radius: 99px; }
+.offer-card.off { opacity: .55; }
+.cmp-table td.best { color: var(--accent); font-weight: 800; }
+.cmp-table td.best::after { content: " ✓"; }
+.cmp-table tr.grp td { background: var(--bg-2); font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 800; }
+.bars { display: grid; gap: 12px; }
+.bars .vs-row .track i { background: var(--grad); }
+.full-card { margin-top: 18px; }

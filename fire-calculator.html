@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FIRE Calculator India — Early Retirement Planner | InHand</title>
+<meta name="description" content="Free FIRE and retirement calculator for India. Find the corpus you need, your earliest retirement age, and whether your money lasts.">
+<link rel="canonical" href="https://inhand.example/fire-calculator.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"FIRE Planner","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero">
+    <div class="crumbs"><a href="index.html">Home</a> › FIRE planner</div>
+    <h1>FIRE Planner <span class="grad-text">retire on your terms</span></h1>
+    <p>How much do you need to stop working, and at what age can you do it? Inflation-adjusted, with a full drawdown simulation.</p>
+  </div>
+  <div class="container tool-layout">
+    <section class="card" aria-label="Inputs">
+      <h2 class="card-title">🔥 Your plan</h2>
+      <div class="row-2">
+      <div class="field"><label for="age">Current age</label>
+        <div class="input-wrap"><input type="number" id="age" value="30" min="18" max="70" step="1"><span class="suf">yrs</span></div></div>
+      <div class="field"><label for="retAge">Retire at</label>
+        <div class="input-wrap"><input type="number" id="retAge" value="45" min="30" max="75" step="1"><span class="suf">yrs</span></div></div>
+      </div>
+      <div class="field" data-slider><label for="exp">Monthly expenses today</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="exp" value="60000" min="10000" max="1000000" step="1000"></div><span class="hint">Everything you spend now, including rent / EMI.</span></div>
+      <div class="field" data-slider><label for="corp">Investments today</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="corp" value="1500000" min="0" max="100000000" step="50000"></div></div>
+      <div class="field" data-slider><label for="sav">Monthly investing</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="sav" value="50000" min="0" max="1000000" step="1000"></div></div>
+      <div class="row-2">
+      <div class="field"><label for="step">Yearly step-up in SIP</label>
+        <div class="input-wrap"><input type="number" id="step" value="8" min="0" max="25" step="1"><span class="suf">%</span></div></div>
+      <div class="field"><label for="ret">Return before retirement</label>
+        <div class="input-wrap"><input type="number" id="ret" value="11" min="4" max="18" step="0.5"><span class="suf">%</span></div></div>
+      </div>
+      <details class="adv"><summary>Retirement assumptions</summary>
+        <div class="row-2">
+      <div class="field"><label for="infl">Inflation</label>
+        <div class="input-wrap"><input type="number" id="infl" value="6" min="2" max="12" step="0.5"><span class="suf">%</span></div></div>
+      <div class="field"><label for="postRet">Return after retirement</label>
+        <div class="input-wrap"><input type="number" id="postRet" value="8" min="3" max="14" step="0.5"><span class="suf">%</span></div></div>
+      <div class="field"><label for="swr">Safe withdrawal rate</label>
+        <div class="input-wrap"><input type="number" id="swr" value="3.5" min="2" max="6" step="0.25"><span class="suf">%</span></div><span class="hint">3–4% is commonly used; India's higher inflation argues for the lower end.</span></div>
+      <div class="field"><label for="life">Plan until age</label>
+        <div class="input-wrap"><input type="number" id="life" value="90" min="60" max="105" step="1"><span class="suf">yrs</span></div></div>
+        </div>
+      <div class="field"><label for="ratio">Retirement spending vs today</label>
+        <div class="input-wrap"><input type="number" id="ratio" value="100" min="40" max="200" step="5"><span class="suf">%</span></div><span class="hint">100% = same lifestyle as now, adjusted for inflation.</span></div>
+      </details>
+    </section>
+    <section class="results" aria-live="polite">
+      <div class="hero-result" id="hero"><div class="lbl" id="fTitle">Earliest possible retirement</div><div class="big" id="fBig">—</div><div class="sub" id="fSub"></div><span class="pill" id="fPill"></span></div>
+      <div class="kpis">
+        <div class="kpi"><div class="k">Corpus needed at retirement</div><div class="v" id="kNeed"></div></div>
+        <div class="kpi"><div class="k">Projected corpus</div><div class="v" id="kProj"></div></div>
+        <div class="kpi"><div class="k">Needed, in today's money</div><div class="v" id="kReal"></div></div>
+        <div class="kpi"><div class="k">Monthly SIP needed</div><div class="v" id="kSip"></div></div>
+      </div>
+      <div class="banner info" id="verdict"></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🚀 Your wealth journey</h2><div id="chart"></div></div>
+      <div class="card"><h2 class="card-title">🧮 How it adds up</h2><div class="tbl-wrap"><table class="tbl" id="tbl"></table></div></div>
+      <div class="offer"><div><b>Start building your FIRE corpus</b><small>Open a direct mutual fund account and automate your SIP.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="mutual-funds">Compare offers</a></div>
+    </section>
+  </div>
+  <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
+  <article class="container prose">
+    <h2>What is FIRE?</h2>
+    <p><strong>FIRE</strong> — Financial Independence, Retire Early — means building an investment corpus large enough that its returns cover your living costs for life. The classic rule: corpus = annual expenses ÷ safe withdrawal rate. At 3.5%, you need roughly <strong>28.6×</strong> your yearly spending.</p>
+    <h2>Why inflation changes everything</h2>
+    <p>₹60,000 a month today becomes about ₹1.9 lakh a month in 20 years at 6% inflation. This planner inflates your expenses to the year you retire, and keeps inflating your withdrawals afterwards, so you see a realistic corpus rather than today's-money illusions.</p>
+    <h2>How to read the chart</h2>
+    <p>The blue area is your corpus growing while you invest and then drawn down after retirement. The dashed line is the corpus you would need if you retired at each age — where the blue line crosses it is your earliest retirement age.</p>
+    <h2>Frequently asked questions</h2>
+    <div class="faq"><details><summary>Is the 4% rule safe in India?</summary><p>The 4% rule comes from US data. With higher inflation in India, many planners prefer 3–3.5%, which is why 3.5% is the default here.</p></details><details><summary>Does this include taxes?</summary><p>No. Returns are treated as after-tax. Reduce the return assumptions if you expect a significant tax drag.</p></details><details><summary>What about EPF, PPF and NPS?</summary><p>Add their current balances to 'Investments today' and their contributions to 'Monthly investing' to include them.</p></details></div>
+  </article>
+  <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
+</main>
+<script src="assets/tax.js"></script>
+<script src="assets/common.js"></script>
+<script>
+  Common.init('fire');
+  const $ = id => document.getElementById(id), f = Common.fmt;
+  function accumulate(monthly, years, corp0, stepPct, retPct) {
+    const mr = Math.pow(1 + retPct / 100, 1 / 12) - 1; let c = corp0, s = monthly;
+    for (let y = 0; y < years; y++) { for (let m = 0; m < 12; m++) c = (c + s) * (1 + mr); s *= 1 + stepPct / 100; }
+    return c;
+  }
+  function calc() {
+    const age = Math.round(Common.num('age')), ra = Math.max(age, Math.round(Common.num('retAge'))), life = Math.max(ra + 1, Math.round(Common.num('life')));
+    const infl = Common.num('infl') / 100, swr = Common.num('swr') / 100 || 0.035, ratio = Common.num('ratio') / 100;
+    const exp0 = Common.num('exp') * 12 * ratio, corp0 = Common.num('corp'), sav = Common.num('sav'), step = Common.num('step'), pre = Common.num('ret'), post = Common.num('postRet') / 100;
+    const need = a => exp0 * Math.pow(1 + infl, a - age) / swr;           // corpus needed if retiring at age a
+    const n = ra - age, needRA = need(ra), projRA = accumulate(sav, n, corp0, step, pre);
+
+    // earliest age at which accumulated corpus >= corpus needed
+    let fireAge = null; for (let a = age; a <= 80; a++) if (accumulate(sav, a - age, corp0, step, pre) >= need(a)) { fireAge = a; break; }
+
+    // required monthly SIP to hit target at chosen retirement age
+    let lo = 0, hi = 5e6; for (let i = 0; i < 60; i++) { const mid = (lo + hi) / 2; accumulate(mid, n, corp0, step, pre) >= needRA ? hi = mid : lo = mid; }
+    const sipNeed = accumulate(0, n, corp0, step, pre) >= needRA ? 0 : hi;
+
+    // full journey: accumulate until ra, then draw down with inflation-adjusted spending
+    const xs = [], ys = [], tg = []; let c = corp0, s = sav, runOut = null; const mr = Math.pow(1 + pre / 100, 1 / 12) - 1;
+    for (let a = age; a <= life; a++) {
+      xs.push(a); ys.push(Math.max(0, c)); tg.push(a <= ra ? need(a) : NaN);
+      if (a < ra) { for (let m = 0; m < 12; m++) c = (c + s) * (1 + mr); s *= 1 + step / 100; }
+      else { c = (c - exp0 * Math.pow(1 + infl, a - age)) * (1 + post); if (c < 0 && runOut === null) { runOut = a + 1; c = 0; } }
+    }
+    const gap = projRA - needRA, ok = gap >= 0 && runOut === null;
+    $('hero').classList.toggle('neg', fireAge === null || fireAge > ra);
+    if (fireAge !== null) { $('fTitle').textContent = 'Earliest possible retirement'; $('fBig').textContent = 'Age ' + fireAge; $('fSub').textContent = fireAge <= age ? 'You are already financially independent 🎉' : `${fireAge - age} years from now at your current savings pace`; }
+    else { $('fTitle').textContent = 'Earliest possible retirement'; $('fBig').textContent = 'After 80'; $('fSub').textContent = 'Raise your monthly investing to bring this forward.'; }
+    $('fPill').textContent = `Target: retire at ${ra}`;
+    $('kNeed').textContent = Common.fmtCompact(needRA); $('kProj').textContent = Common.fmtCompact(projRA);
+    $('kReal').textContent = Common.fmtCompact(needRA / Math.pow(1 + infl, n)); $('kSip').textContent = sipNeed ? f(sipNeed) : 'On track ✓';
+    $('verdict').className = 'banner' + (ok ? '' : ' info');
+    $('verdict').innerHTML = ok ? `<span>✅</span><span>You're on track. At age ${ra} you'll have about <b>${Common.fmtCompact(projRA)}</b>, ${Common.fmtCompact(gap)} more than needed, and it lasts beyond age ${life}.</span>`
+      : gap < 0 ? `<span>📉</span><span>You'd be <b>${Common.fmtCompact(-gap)}</b> short at ${ra}. Invest about <b>${f(sipNeed)}/month</b> (vs ${f(sav)}) or retire around age <b>${fireAge || '80+'}</b>.</span>`
+      : `<span>⚠️</span><span>You reach the target, but with these returns your money runs out at age <b>${runOut}</b>. Lower spending, raise the corpus, or lower the withdrawal rate.</span>`;
+    Common.lineChart($('chart'), { xs, xfmt: v => v, xlabel: v => 'Age ' + v, label: 'Corpus over time', area: true,
+      series: [{ name: 'Your corpus', color: 'var(--c1)', ys }, { name: 'Needed to retire at that age', color: 'var(--c4)', ys: tg, dash: true }],
+      markers: [{ x: ra, label: '🏖️' }] });
+    const row = (a, b, cls = '') => `<tr class="${cls}"><td>${a}</td><td>${b}</td></tr>`;
+    $('tbl').innerHTML = row('Annual spending today', f(exp0)) + row(`Annual spending at ${ra} (inflated)`, f(exp0 * Math.pow(1 + infl, n))) +
+      row(`× 1 ÷ ${(swr * 100).toFixed(2)}% withdrawal rate`, f(needRA), 'total') + row(`Projected corpus at ${ra}`, f(projRA), gap >= 0 ? 'pos' : 'neg') +
+      row(runOut ? 'Money runs out at' : 'Money lasts until', runOut ? 'Age ' + runOut : 'Beyond ' + life, runOut ? 'neg' : 'pos');
+  }
+  document.querySelectorAll('input').forEach(i => i.addEventListener('input', calc)); calc();
+</script>
+</body>
+</html>

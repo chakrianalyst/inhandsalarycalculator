@@ -1,6 +1,6 @@
 # InHand — money calculators for India
 
-A fast, beautiful, dependency-free static site: in-hand salary (old vs new regime), net worth & financial health score, salary hike, HRA, EMI, SIP, FD and gratuity calculators.
+A fast, beautiful, dependency-free static site: in-hand salary (old vs new regime), life money simulator, net worth & health score, FIRE planner, rent vs buy, job-offer comparison, salary hike, HRA, EMI, SIP, FD and gratuity calculators.
 
 ## Run locally
 ```
@@ -10,7 +10,7 @@ No build step. Deploy the folder as-is to GitHub Pages, Netlify or Cloudflare Pa
 
 ## Structure
 - `assets/tax.js` — Indian income-tax engine (FY 2025-26). Pure functions; update slabs here each Budget.
-- `assets/common.js` — shared header/footer, tool registry (`TOOLS`), sliders, donut chart.
+- `assets/common.js` — shared header/footer, tool registry (`TOOLS`), sliders, donut chart, interactive line chart (`Common.lineChart`).
 - `assets/style.css` — design system with light/dark themes.
 - `*.html` — one page per calculator, each with SEO copy and FAQ.
 
