@@ -69,3 +69,75 @@ test('odd inputs never throw or produce NaN', () => {
     const r = L.run(p); assert.ok(r.rows.length > 1); assert.ok(r.rows.every(x => Number.isFinite(x.nw) && Number.isFinite(x.corp) && Number.isFinite(x.idx)));
   }
 });
+
+/* ---------- habits: how much of the spare money is invested, and lifestyle creep ---------- */
+const offEvents = () => Object.fromEntries(Object.keys(L.DEFAULT_EVENTS).map(k => [k, { ...L.DEFAULT_EVENTS[k], on: false }]));
+const simple = o => ({ ...base(), incomeMode: 'net', income: 150000, living: 40000, rent: 20000, savings: 800000, events: offEvents(), ...o });
+
+test('invest share: 100% is the default; 0% leaves only the growth of existing savings; in between sits between', () => {
+  const none = L.run(simple({ investPct: 0 })), half = L.run(simple({ investPct: 50 })), all = L.run(simple({ investPct: 100 })), dflt = L.run(simple({}));
+  near(none.rows[1].corp, 800000 * 1.10, 0.5); assert.ok(half.rows[1].corp > none.rows[1].corp && half.rows[1].corp < all.rows[1].corp); near(dflt.rows[1].corp, all.rows[1].corp, 0.01);
+  near(all.rows[1].corp, 800000 * 1.10 + (150000 * 12 - 60000 * 12) * 1.05, 1);                    // the formula quoted on the page: savings x (1+r) + invested x (1+r/2)
+});
+test('invest share: when in debt, every spare rupee repays it regardless of the share', () => {
+  const r = L.run(simple({ savings: -500000, investPct: 0 })); assert.ok(r.rows[1].corp > r.rows[0].corp);
+});
+test('lifestyle creep: spends a share of REAL raises only, and grows costs relative to no creep', () => {
+  const none = L.run(simple({ creep: 0 })), full = L.run(simple({ creep: 100 })), part = L.run(simple({ creep: 25 }));
+  assert.ok(full.rows[10].run > part.rows[10].run && part.rows[10].run > none.rows[10].run); assert.ok(real(full, 58) < real(part, 58) && real(part, 58) < real(none, 58));
+  const slow = L.run(simple({ growth: 3, creep: 100 })), slow0 = L.run(simple({ growth: 3, creep: 0 }));          // pay grows slower than inflation: no real raise, so no creep
+  near(slow.rows[10].run, slow0.rows[10].run, 0.5);
+});
+test('lifestyle creep: a career break does not trigger a phantom raise when pay resumes', () => {
+  const ev = offEvents(); ev.break = { on: true, age: 40, yrs: 1 };
+  const withBreak = L.run(simple({ creep: 100, events: ev })), without = L.run(simple({ creep: 100 }));
+  for (const a of [38, 45, 52]) near(withBreak.rows.find(x => x.a === a + 1).run, without.rows.find(x => x.a === a + 1).run, 0.5);
+});
+
+/* ---------- events that already exist ---------- */
+test('child already born: no new one-time or monthly cost, their share of living costs stops at 22, education only for years still to come', () => {
+  const ev = offEvents(); ev.kid = { ...L.DEFAULT_EVENTS.kid, on: true, past: true, childAge: 6, share: 15000, edu: 2400000 };
+  const p = simple({ age: 32, retire: 58, events: ev }), withKid = L.run(p), noKid = L.run({ ...p, events: offEvents() });
+  near(withKid.rows[1].run, noKid.rows[1].run, 0.5);                                                          // nothing added on top of living costs
+  const a22 = 32 + 16;                                                                                        // child turns 22 at this age of the parent
+  near(withKid.rows.find(x => x.a === a22 + 1).run, noKid.rows.find(x => x.a === a22 + 1).run - 15000 * 12 * Math.pow(1.06, 16), 1);
+  near(withKid.eventCost.kid, 2400000 / 4 * (Math.pow(1.06, 12) + Math.pow(1.06, 13) + Math.pow(1.06, 14) + Math.pow(1.06, 15)), 5);   // ages 44-47: four education years
+});
+test('child already born vs planned: the existing child never double counts today\'s living costs', () => {
+  const planned = offEvents(); planned.kid = { ...L.DEFAULT_EVENTS.kid, on: true, past: false, age: 32, cost: 0, monthly: 15000 };
+  const existing = offEvents(); existing.kid = { ...L.DEFAULT_EVENTS.kid, on: true, past: true, childAge: 6, share: 0 };
+  assert.ok(L.run(simple({ age: 32, events: planned })).firstYear.extra > 0); assert.equal(L.run(simple({ age: 32, events: existing })).firstYear.extra, 0);
+});
+test('a second child is a planned event and costs money only when switched on', () => {
+  const ev = offEvents(); ev.kid2 = { ...L.DEFAULT_EVENTS.kid2, on: true, age: 30 };
+  assert.ok(L.run(simple({ events: ev })).eventCost.kid2 > 0); assert.equal(L.run(simple({})).eventCost.kid2, undefined);
+});
+test('home already owned: no purchase cost, rent ignored, EMI paid for the years left, equity counted from day one', () => {
+  const ev = offEvents(); ev.home = { ...L.DEFAULT_EVENTS.home, on: true, past: true, value: 8000000, loan: 4000000, emi: 40000, yearsLeft: 15, rate: 8.5 };
+  const r = L.run(simple({ events: ev, rent: 25000 }));
+  near(r.rows[0].nw, 800000 + 8000000 - 4000000, 0.5); assert.equal(r.firstYear.rent, 0); assert.equal(r.eventCost.home, undefined); near(r.firstYear.emi, 40000 * 12, 0.5);
+  const noLoan = r.rows.find(x => x.a === 28 + 16).run, withLoan = r.rows.find(x => x.a === 28 + 10).run; assert.ok(noLoan < withLoan);   // EMI is gone after the years left
+});
+test('habit inputs are clamped and never produce NaN', () => {
+  for (const o of [{ investPct: -50, creep: 500 }, { investPct: 500, creep: -5 }, { investPct: 0, creep: 100 }]) { const r = L.run(simple(o)); assert.ok(r.rows.every(x => Number.isFinite(x.nw) && Number.isFinite(x.run))); }
+});
+test('fixes(): can suggest investing everything or dropping lifestyle creep when that alone rescues the plan', () => {
+  const p = simple({ age: 30, retire: 45, income: 120000, living: 70000, rent: 20000, savings: 300000, investPct: 70, creep: 0 });
+  if (L.run(p).crunch === null) return;                                           // only meaningful when the plan fails
+  const fx = L.fixes(p); if (fx.invest) assert.equal(L.run({ ...p, investPct: 100 }).crunch, null);
+  const q = simple({ age: 30, retire: 52, income: 200000, living: 60000, rent: 20000, savings: 300000, investPct: 100, creep: 100, growth: 10, inflation: 4 });
+  if (L.run(q).crunch !== null) { const fq = L.fixes(q); if (fq.creep) assert.equal(L.run({ ...q, creep: 0 }).crunch, null); }
+});
+
+/* ---------- year-by-year detail ---------- */
+test('year table: one entry per simulated year, flows reconcile, and balances follow the quoted formula', () => {
+  const r = L.run(simple({ investPct: 80, creep: 25 })); assert.equal(r.years.length, r.end - r.a0);
+  for (const y of r.years) near(y.pay - y.running - y.one, y.flow, 0.5);
+  near(r.years[0].flow, r.firstYear.flow, 0.5); near(r.years[0].corp, r.rows[1].corp, 0.5);
+  for (let k = 1; k < 20; k++) near(r.years[k].corp, r.years[k - 1].corp * 1.10 + r.years[k].invested * 1.05, 1);          // savings x (1+r) + invested x (1+r/2)
+  for (const y of r.years) { if (y.flow <= 0 || y.corp < 0) near(y.invested, y.flow, 0.5); else near(y.invested, y.flow * 0.8, 0.5); }
+});
+test('year table: retirement year has no pay, and balances match the chart rows', () => {
+  const r = L.run(simple({})); const y = r.years.find(x => x.a === r.ret); assert.equal(y.pay, 0);
+  r.years.forEach((x, k) => { near(x.nw, r.rows[k + 1].nw, 0.5); near(x.endIdx, r.rows[k + 1].idx, 1e-9); });
+});

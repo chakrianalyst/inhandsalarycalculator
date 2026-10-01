@@ -511,3 +511,30 @@ table.pay tr.off td { color: var(--muted); font-size: .85rem; }
 
 .limit-note { margin-top: 5px; font-size: .78rem; font-weight: 700; color: var(--danger); }
 .input-wrap.limit-hit { border-color: var(--danger); box-shadow: 0 0 0 4px color-mix(in srgb, var(--danger) 16%, transparent); }
+
+/* ---------- Life simulator: existing-vs-planned events, how-it-works ---------- */
+.ev[data-past="1"] .only-planned { display: none; }
+.ev:not([data-past="1"]) .only-past { display: none; }
+.ev-blurb { font-size: .78rem; color: var(--muted); margin: 6px 0 0 44px; line-height: 1.45; }
+.ev-body .toggle { margin: 0; padding: 10px 12px; font-size: .86rem; }
+.kpi .kv2 { font-size: .74rem; color: var(--brand); font-weight: 700; margin-top: 2px; }
+.kpi .kv2:empty { display: none; }
+details.howcalc { margin-bottom: 18px; padding: 0; }
+details.howcalc > summary { cursor: pointer; padding: 18px 22px; font-weight: 800; list-style: none; }
+details.howcalc > summary::-webkit-details-marker { display: none; }
+details.howcalc[open] > summary { border-bottom: 1px solid var(--line); }
+.how { padding: 16px 22px 20px; font-size: .9rem; line-height: 1.6; }
+.how ol { padding-left: 20px; } .how li, .how p { margin-bottom: 9px; }
+.how .how-eg { background: var(--grad-soft); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid color-mix(in srgb, var(--brand) 25%, var(--line)); }
+
+.yr-tools { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; margin-bottom: 12px; }
+.yr-tools p { flex: 1; min-width: 220px; }
+.yr-wrap { max-height: 520px; overflow: auto; border: 1px solid var(--line); border-radius: var(--radius-sm); }
+table.yr { min-width: 760px; font-size: .82rem; }
+table.yr th { position: sticky; top: 0; background: var(--surface-2); z-index: 2; white-space: nowrap; }
+table.yr td { white-space: nowrap; }
+table.yr th:first-child, table.yr td:first-child { position: sticky; left: 0; background: var(--surface); z-index: 1; font-weight: 700; text-align: left; }
+table.yr th:first-child { z-index: 3; background: var(--surface-2); }
+table.yr tr.ret td { background: var(--grad-soft); }
+table.yr tr.ret td:first-child { background: color-mix(in srgb, var(--brand) 12%, var(--surface)); }
+table.yr tr.bad td, table.yr tr.bad td:first-child { background: color-mix(in srgb, var(--danger) 10%, var(--surface)); }

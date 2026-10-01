@@ -152,7 +152,7 @@ if (chromium) {
 
   test('life simulator: amounts have words, the plan is explained, a failing plan says why and what to fix', async () => {
     const pg = await open(SITE, 'life-simulator.html'); const t = id => pg.$eval('#' + id, e => e.innerText.replace(/\s+/g, ' ').trim());
-    assert.equal(await t('incWords'), 'One lakh fifty thousand rupees only'); assert.match(await t('story'), /You take home .* a month and spend/); assert.match(await t('month'), /Left to save and invest/);
+    assert.equal(await t('incWords'), 'One lakh fifty thousand rupees only'); assert.match(await t('story'), /You take home .* a month and spend/); assert.match(await t('month'), /Left over/);
     assert.match(await t('hPill'), /lasts beyond/); assert.doesNotMatch(await pg.evaluate(() => document.body.innerText), /NaN|undefined|Infinity/);
     await pg.fill('#inc', '30,000'); await pg.fill('#expenses', '60,000');
     assert.equal(await t('hLbl'), 'Your money runs out at'); assert.match(await t('story'), /What would fix it/); assert.match(await t('month'), /Short each month/);
@@ -166,6 +166,46 @@ if (chromium) {
     assert.match(await t('info-home'), /upfront, then about .* a month/); assert.match(await t('info-car'), /one car only/);
     await pg.fill('input[data-e=car][data-k=every]', '8'); assert.match(await t('info-car'), /again every 8 years/);
     await pg.fill('input[data-e=home][data-k=price]', '1,00,00,000'); assert.match(await t('info-home'), /Cr/); await pg.close();
+  });
+
+  test('life simulator: a child or home that already exists is modelled as existing, not as a new event', async () => {
+    const pg = await open(SITE, 'life-simulator.html'); const t = id => pg.$eval('#' + id, e => e.innerText.replace(/\s+/g, ' ').trim());
+    const kid = pg.locator('.ev', { has: pg.locator('input[data-e=kid][data-k=on]') }), home = pg.locator('.ev', { has: pg.locator('input[data-e=home][data-k=on]') });
+    assert.equal(await kid.getAttribute('data-past'), '0'); assert.match(await t('info-kid'), /then .* a month until/);
+    await kid.locator('.toggle').click(); assert.equal(await kid.getAttribute('data-past'), '1'); assert.equal(await kid.locator('.only-planned').first().isVisible(), false); assert.equal(await kid.locator('.only-past').first().isVisible(), true);
+    assert.match(await t('info-kid'), /already in your living costs/); assert.match(await t('story'), /your child/);
+    await home.locator('.toggle').click(); assert.match(await t('info-home'), /You own a home worth/); assert.match(await t('month'), /Home EMI/);
+    assert.deepEqual(pg.errs, []); await pg.close();
+    const l = await browser.newPage(); await l.goto(url(SITE, 'life-simulator.html') + '?kid.past=1&kid.childAge=9&kid2.on=1');
+    assert.equal(await l.$eval('.ev:has(input[data-e=kid][data-k=on])', e => e.dataset.past), '1'); assert.equal(await l.inputValue('input[data-e=kid][data-k=childAge]'), '9');
+    assert.equal(await l.$eval('input[data-e=kid2][data-k=on]', e => e.checked), true); await l.close();
+  });
+
+  test('life simulator: habit controls change the result and are explained; future rupees are never shown alone; the method is on the page', async () => {
+    const pg = await open(SITE, 'life-simulator.html'); const t = id => pg.$eval('#' + id, e => e.innerText.replace(/\s+/g, ' ').trim()), num = x => Number(String(x).replace(/[^0-9.]/g, ''));
+    assert.equal(await pg.inputValue('#invest'), '80'); assert.equal(await pg.inputValue('#creep'), '25'); assert.match(await t('story'), /invest 80% of it/); assert.match(await t('month'), /You invest 80% of it/);
+    const before = num((await t('hBig')).replace(/Cr.*/, ''));
+    await pg.fill('#invest', '100'); await pg.fill('#creep', '0'); assert.match(await t('story'), /invest 100% of it/); assert.ok(num((await t('hBig')).replace(/Cr.*/, '')) > before, 'investing more and creeping less leaves more');
+    await pg.fill('#invest', '150'); assert.equal(await pg.inputValue('#invest'), '100');
+    assert.equal(await pg.$eval('#nomNote', e => e.hidden), true); await pg.click('#mode [data-v=nom]');
+    assert.equal(await pg.$eval('#nomNote', e => e.hidden), false); assert.match(await t('nomNote'), /higher by age/); assert.match(await t('hSub'), /in today.s money/); assert.match(await t('kEnd2'), /in today.s money/);
+    assert.equal(await pg.$eval('#howCalc', e => e.open), false); await pg.click('#howCalc > summary'); assert.match(await t('how'), /Year 1 with your numbers/); assert.match(await t('how'), /Savings: .* × 1\.\d+ \+ .* × 1\.\d+ = /);
+    assert.match(await t('how'), /Left out:/); assert.deepEqual(pg.errs, []); await pg.close();
+  });
+
+  test('life simulator: year-by-year table shows every year, marks events and retirement, follows the rupee mode, and downloads as CSV', async () => {
+    const pg = await browser.newPage({ viewport: { width: 1280, height: 900 }, acceptDownloads: true }); const errs = []; pg.on('pageerror', e => errs.push(e.message));
+    await pg.goto(url(SITE, 'life-simulator.html')); await pg.waitForTimeout(200);
+    const rows = async () => (await pg.$$('#yrTable tr')).length - 1, cell = (r, c) => pg.$eval(`#yrTable tr:nth-child(${r + 1}) td:nth-child(${c})`, e => e.innerText.trim());
+    assert.equal(await rows(), 85 - 28); assert.match(await pg.$eval('#yrTable th:last-child', e => e.textContent), /Net worth/);
+    assert.match(await cell(1, 1), /^28/); assert.match(await pg.$eval('#yrTable', e => e.innerText), /🏖️/); assert.equal(await pg.$$eval('#yrTable tr.ret', e => e.length), 1);
+    assert.match(await pg.$eval('#yrTable', e => e.innerText), /🏠/);                                      // the home purchase year is flagged
+    const real = await cell(30, 9); await pg.click('#mode [data-v=nom]'); assert.notEqual(await cell(30, 9), real, 'future rupees differ from today\'s money');
+    const [dl] = await Promise.all([pg.waitForEvent('download'), pg.click('#btnCsv')]); assert.match(dl.suggestedFilename(), /life-money-plan-future-rupees\.csv/);
+    const csv = require('fs').readFileSync(await dl.path(), 'utf8').split('\n'); assert.match(csv[0], /^Age,Pay after tax/); assert.equal(csv.length, 1 + 85 - 28);
+    await pg.fill('#inc', '30,000'); await pg.fill('#expenses', '60,000');                                // a failing plan: the table stops at the failure year
+    assert.ok((await rows()) < 20); assert.equal(await pg.$$eval('#yrTable tr.bad', e => e.length), 2); assert.match(await pg.$eval('#yrTable', e => e.innerText), /Later years are not shown/);
+    assert.deepEqual(errs, []); await pg.close();
   });
 
   test('life simulator restores event settings from the URL', async () => {
