@@ -13,20 +13,22 @@
   const DEFAULT_EVENTS = {
     home:    { on: true,  past: false, age: 32, price: 8000000, dp: 20, rate: 8.5, tenure: 20, value: 8000000, loan: 4000000, emi: 40000, yearsLeft: 15 },
     wed:     { on: true,  age: 30, cost: 1500000, uplift: 25 },
-    kid:     { on: true,  past: false, age: 32, cost: 300000, monthly: 15000, edu: 2500000, childAge: 5, share: 15000 },
-    kid2:    { on: false, age: 36, cost: 300000, monthly: 15000, edu: 2500000 },
-    jump:    { on: true,  age: 35, pct: 35 },
+    kid:     { on: true,  past: false, age: 32, cost: 300000, monthly: 15000, edu: 2500000, childAge: 5, share: 15000, wedCost: 0, wedAge: 27 },
+    kid2:    { on: false, age: 36, cost: 300000, monthly: 15000, edu: 2500000, wedCost: 0, wedAge: 27 },
+    jump:    { on: true,  age: 35, pct: 35, every: 0 },    // every = 0 means one jump only; otherwise it repeats every N years until you stop working
     car:     { on: true,  age: 34, cost: 1200000, every: 0 },    // every = 0 means one car only
     parents: { on: false, age: 36, monthly: 15000, yrs: 20 },
     break:   { on: false, age: 40, yrs: 1 },
+    pension: { on: false, age: 60, monthly: 20000 },              // pension, rent or other income that starts later, in today's rupees a month
+    crash:   { on: false, age: 58, drop: 30 },                    // a market fall: your savings lose this % at the start of that year
   };
-  const NAMES = { home: 'home purchase', wed: 'wedding', kid: 'child', kid2: 'second child', jump: 'career jump', car: 'car', parents: 'support for parents', break: 'career break' };
+  const NAMES = { home: 'home purchase', wed: 'wedding', kid: 'child', kid2: 'second child', jump: 'career jump', car: 'car', parents: 'support for parents', break: 'career break', pension: 'pension or rental income', crash: 'market crash' };
 
   /** p: { age, retire, end, inflation, growth, ret (percent numbers), incomeMode:'net'|'gross', income (₹/month take-home if net, ₹/year gross if gross),
-   *       living, rent (₹/month), savings (₹), investPct (0-100, default 100), creep (0-100, default 0), events, skip (event id to leave out) } */
+   *       living, rent (₹/month), savings (₹), investPct (0-100, default 100), creep (0-100, default 0), retReturn (% a year once you stop working, default = ret), eduInfl (% a year for higher education, default = inflation), homeGrowth (% a year home prices rise, default = inflation), events, skip (event id to leave out) } */
   function run(p) {
     const a0 = Math.round(p.age), ret = Math.max(a0 + 1, Math.round(p.retire)), end = Math.max(ret + 1, Math.round(p.end));
-    const infl = p.inflation / 100, g = p.growth / 100, rr = p.ret / 100, ev = p.events || DEFAULT_EVENTS;
+    const infl = p.inflation / 100, rrAfter = (p.retReturn == null ? p.ret : p.retReturn) / 100, eduInfl = (p.eduInfl == null ? p.inflation : p.eduInfl) / 100, homeG = (p.homeGrowth == null ? p.inflation : p.homeGrowth) / 100, g = p.growth / 100, rr = p.ret / 100, ev = p.events || DEFAULT_EVENTS;
     const investShare = (p.investPct == null ? 100 : Math.min(100, Math.max(0, p.investPct))) / 100, creep = Math.min(100, Math.max(0, p.creep || 0)) / 100;
     const on = id => !!(ev[id] && ev[id].on) && p.skip !== id;
     const living0 = p.living * 12, rent0 = p.rent * 12, gross = p.incomeMode === 'gross';
@@ -38,13 +40,15 @@
 
     for (let a = a0; a < end; a++) {
       const idx = Math.pow(1 + infl, a - a0);
-      let takeHome = 0, payFull = 0;
+      let takeHome = 0, payFull = 0, crashLoss = 0;
+      if (on('crash') && a === ev.crash.age && corp > 0) { crashLoss = corp * ev.crash.drop / 100; corp -= crashLoss; }      // the fall hits your investments before the year's money moves
       if (a < ret) {
-        let mult = Math.pow(1 + g, a - a0); if (on('jump') && a >= ev.jump.age) mult *= 1 + ev.jump.pct / 100;
+        let mult = Math.pow(1 + g, a - a0); if (on('jump') && a >= ev.jump.age) mult *= Math.pow(1 + ev.jump.pct / 100, ev.jump.every > 0 ? Math.floor((a - ev.jump.age) / ev.jump.every) + 1 : 1);
         const base = (gross ? p.income : p.income * 12) * mult;
         payFull = gross ? base - taxOf(base, idx) : base; takeHome = payFull;
         if (on('break') && a >= ev.break.age && a < ev.break.age + ev.break.yrs) takeHome = 0;     // creep follows pay as if there were no break
       }
+      const pens = on('pension') && a >= ev.pension.age ? ev.pension.monthly * 12 * idx : 0; takeHome += pens;
       // lifestyle creep: a share of every REAL raise (above inflation) becomes permanent extra spending
       if (a === a0) creepExtra = 0; else if (a < ret) creepExtra = creepExtra * (1 + infl) + creep * Math.max(0, payFull - prevPay * (1 + infl)); else creepExtra *= 1 + infl;
       if (a < ret) prevPay = payFull;
@@ -56,28 +60,29 @@
         if (!on(id)) return; const c = ev[id], past = id === 'kid' && c.past, born = past ? a0 - c.childAge : c.age;
         if (!past) { if (a >= born && a < born + 22) extra += c.monthly * 12 * idx; if (a === born) { one += c.cost * idx; bump(id, c.cost * idx); } }
         else if (c.share > 0 && a >= born + 22) relief += c.share * 12 * idx;                           // their costs are inside today's living costs; they stop at 22
-        if (a >= born + 18 && a < born + 22) { one += c.edu / 4 * idx; bump(id, c.edu / 4 * idx); }      // higher education, only years still to come
+        if (c.wedCost > 0 && a === born + c.wedAge && a >= a0) { const w = c.wedCost * idx; one += w; bump(id, w); }          // your child's wedding
+        if (a >= born + 18 && a < born + 22) { const e = c.edu / 4 * Math.pow(1 + eduInfl, a - a0); one += e; bump(id, e); }      // higher education, only years still to come
       };
       kid('kid'); kid('kid2'); living = Math.max(0, living - relief);
       if (on('parents') && a >= ev.parents.age && a < ev.parents.age + ev.parents.yrs) extra += ev.parents.monthly * 12 * idx;
       if (on('wed') && a === ev.wed.age) { one += ev.wed.cost * idx; bump('wed', ev.wed.cost * idx); }
       if (on('car') && a >= ev.car.age && (ev.car.every > 0 ? (a - ev.car.age) % ev.car.every === 0 : a === ev.car.age)) { one += ev.car.cost * idx; bump('car', ev.car.cost * idx); }
       if (on('home') && !ev.home.past && a === ev.home.age) {
-        const price = ev.home.price * idx, down = price * ev.home.dp / 100; one += down; bump('home', down); loan = price - down; homeVal = price; hadHome = true;
+        const price = ev.home.price * Math.pow(1 + homeG, a - a0), down = price * ev.home.dp / 100; one += down; bump('home', down); loan = price - down; homeVal = price; hadHome = true;
         rm = ev.home.rate / 1200; const n = ev.home.tenure * 12; emi = rm ? loan * rm * Math.pow(1 + rm, n) / (Math.pow(1 + rm, n) - 1) : loan / n; emiEnd = a + ev.home.tenure; emiMonthly = emi;
       }
       if (owned && hadHome) {
         if (a < emiEnd) for (let m = 0; m < 12 && loan > 0; m++) { const i = loan * rm, pr = Math.min(loan, emi - i); loan -= pr; emiPaid += emi; }
-        maint = homeVal * 0.01; homeVal *= 1 + infl;
+        maint = homeVal * 0.01; homeVal *= 1 + homeG;
       }
       const running = living + rent + extra + emiPaid + maint, flow = takeHome - running - one;
-      const r = corp < 0 ? BORROW_RATE : rr, invested = flow > 0 && corp >= 0 ? flow * investShare : flow;      // in debt, every spare rupee repays it
+      const r = corp < 0 ? BORROW_RATE : a >= ret ? rrAfter : rr, invested = flow > 0 && corp >= 0 ? flow * investShare : flow;      // in debt, every spare rupee repays it
       if (a === a0) firstYear = { takeHome, living, rent, extra, emi: emiPaid, maint, one, flow, invested };
       corp = corp * (1 + r) + invested * (1 + r / 2);
       if (free === null && corp > 0 && corp * FREEDOM_RATE >= running) free = a + 1;
       if (crunch === null && corp < 0) { crunch = a + 1; crunchInfo = { age: a + 1, flow, takeHome, running, one, retired: a >= ret }; }
       rows.push({ a: a + 1, nw: corp + homeVal - loan, corp, idx: idx * (1 + infl), home: homeVal - loan, run: running });
-      years.push({ a, idx, endIdx: idx * (1 + infl), pay: takeHome, living, rent, extra, emi: emiPaid, maint, one, running, flow, invested, corp, home: homeVal - loan, nw: corp + homeVal - loan });
+      years.push({ a, crashLoss, pension: pens, idx, endIdx: idx * (1 + infl), pay: takeHome, living, rent, extra, emi: emiPaid, maint, one, running, flow, invested, corp, home: homeVal - loan, nw: corp + homeVal - loan });
     }
     return { rows, years, a0, ret, end, free, crunch, crunchInfo, eventCost, firstYear, emiMonthly, infl };
   }

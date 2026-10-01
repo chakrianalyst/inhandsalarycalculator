@@ -141,3 +141,53 @@ test('year table: retirement year has no pay, and balances match the chart rows'
   const r = L.run(simple({})); const y = r.years.find(x => x.a === r.ret); assert.equal(y.pay, 0);
   r.years.forEach((x, k) => { near(x.nw, r.rows[k + 1].nw, 0.5); near(x.endIdx, r.rows[k + 1].idx, 1e-9); });
 });
+
+const offAll = () => { const e = clone(L.DEFAULT_EVENTS); Object.keys(e).forEach(k => { e[k].on = false; }); return e; };
+
+test('a car bought in 5 years costs the inflated price, not today’s price', () => {
+  const ev = offAll(); ev.car = { on: true, age: 33, cost: 1000000, every: 0 };
+  const r = L.run({ ...base(), events: ev }); near(r.eventCost.car, 1000000 * Math.pow(1.06, 5), 1); near(r.years.find(y => y.a === 33).one, 1338225.58, 1);
+});
+
+test('career jump can repeat: pay compounds one jump every N years until retirement', () => {
+  const once = offAll(), rep = offAll(); once.jump = { on: true, age: 32, pct: 20, every: 0 }; rep.jump = { on: true, age: 32, pct: 20, every: 4 };
+  const A = L.run({ ...base(), incomeMode: 'net', income: 100000, events: once }), B = L.run({ ...base(), incomeMode: 'net', income: 100000, events: rep });
+  const pay = (r, age) => r.years.find(y => y.a === age).pay, g = Math.pow(1.08, 40 - 28);
+  near(pay(A, 40), 1200000 * g * 1.2, 1); near(pay(B, 40), 1200000 * g * 1.2 * 1.2 * 1.2, 1);       // jumps at 32, 36, 40
+  near(pay(B, 31), pay(A, 31), 0.001);
+});
+
+test('education inflation: fees rise at their own rate; defaults to general inflation; home price rise is separate too', () => {
+  const ev = offAll(); ev.kid = { ...L.DEFAULT_EVENTS.kid, on: true, past: false, age: 30, cost: 0, monthly: 0, edu: 4000000 };
+  const same = L.run({ ...base(), events: ev }), fast = L.run({ ...base(), events: ev, eduInfl: 10 });
+  near(same.eventCost.kid, 1000000 * [48, 49, 50, 51].reduce((s, a) => s + Math.pow(1.06, a - 28), 0), 5);
+  near(fast.eventCost.kid, 1000000 * [48, 49, 50, 51].reduce((s, a) => s + Math.pow(1.10, a - 28), 0), 5);
+  const hv = offAll(); hv.home = { ...L.DEFAULT_EVENTS.home, on: true, past: false, age: 33, price: 8000000, dp: 100 };
+  near(L.run({ ...base(), events: hv, homeGrowth: 9 }).eventCost.home, 8000000 * Math.pow(1.09, 5), 1); near(L.run({ ...base(), events: hv }).eventCost.home, 8000000 * Math.pow(1.06, 5), 1);
+});
+
+test('pension / rental income starts at its age, grows with inflation, and adds to spare money', () => {
+  const ev = offAll(); ev.pension = { on: true, age: 60, monthly: 20000 };
+  const r = L.run({ ...base(), events: ev }), y = r.years.find(x => x.a === 60);
+  near(y.pension, 20000 * 12 * Math.pow(1.06, 32), 1); assert.equal(r.years.find(x => x.a === 59).pension, 0);
+  const none = L.run({ ...base(), events: offAll() }); assert.ok(r.rows[r.rows.length - 1].nw > none.rows[none.rows.length - 1].nw);
+});
+
+test('return after retirement: a lower rate applies only once you stop working', () => {
+  const ev = offAll(), a = L.run({ ...base(), events: ev }), b = L.run({ ...base(), events: ev, retReturn: 6 });
+  near(a.rows.find(x => x.a === 58).nw, b.rows.find(x => x.a === 58).nw, 0.001); assert.ok(b.rows[b.rows.length - 1].nw < a.rows[a.rows.length - 1].nw);
+});
+
+test('market crash: savings fall by the chosen % at the start of that year, only the savings', () => {
+  const ev = offAll(); ev.crash = { on: true, age: 50, drop: 30 };
+  const base0 = L.run({ ...base(), events: offAll() }), c = L.run({ ...base(), events: ev });
+  near(c.years.find(x => x.a === 49).corp, base0.years.find(x => x.a === 49).corp, 0.001);
+  near(c.years.find(x => x.a === 50).crashLoss, base0.years.find(x => x.a === 49).corp * 0.3, 1); assert.ok(c.rows[c.rows.length - 1].nw < base0.rows[base0.rows.length - 1].nw);
+});
+
+test('child’s wedding: inflated cost in the year the child reaches that age (planned and existing child)', () => {
+  const ev = offAll(); ev.kid = { ...L.DEFAULT_EVENTS.kid, on: true, past: false, age: 30, cost: 0, monthly: 0, edu: 0, wedCost: 2000000, wedAge: 27 };
+  near(L.run({ ...base(), events: ev }).eventCost.kid, 2000000 * Math.pow(1.06, 29), 1);               // age 57
+  ev.kid = { ...ev.kid, past: true, childAge: 10, share: 0, edu: 0 };
+  near(L.run({ ...base(), events: ev }).eventCost.kid, 2000000 * Math.pow(1.06, 17), 1);               // 28 + (27-10)
+});

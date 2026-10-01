@@ -182,6 +182,27 @@ if (chromium) {
     assert.ok(mb.bottom <= cb.top + 1, `m-bar ${mb.bottom} overlaps banner ${cb.top}`); await live.close();
   });
 
+  test('life sim: age sliders start at your age, career jump can repeat, education and home price rise have their own inputs', async () => {
+    const life = await open(SITE, 'life-simulator.html'); await life.fill('#age', '35');
+    assert.equal(await life.$eval('input[data-e=car][data-k=age]', e => +e.min), 35); assert.equal(await life.$eval('input[data-e=wed][data-k=age]', e => +e.value), 35);
+    assert.ok(await life.$eval('input[data-e=jump][data-k=every]', e => !!e)); assert.ok(await life.$eval('#eduInfl', e => e.value === '10')); assert.equal(await life.inputValue('#homeG'), '');
+    await life.fill('input[data-e=jump][data-k=every]', '4'); assert.match(await life.$eval('#info-jump', e => e.textContent), /again every 4 years/);
+    assert.deepEqual(life.errs, []); await life.close();
+  });
+
+  test('life sim: pension, market crash, child wedding, post-retirement return, and Plan A vs this plan', async () => {
+    const life = await open(SITE, 'life-simulator.html');
+    for (const sel of ['input[data-e=pension][data-k=monthly]', 'input[data-e=crash][data-k=drop]', 'input[data-e=kid][data-k=wedCost]', '#retRet']) assert.ok(await life.$(sel), sel);
+    assert.equal(await life.isVisible('#planTbl'), false);
+    await life.click('#planSave'); assert.equal(await life.isVisible('#planTbl'), true);
+    const endRow = () => life.$eval('#planTbl tbody tr:nth-child(3)', e => e.innerText);
+    await life.fill('#retire', '52'); assert.match(await life.$eval('#planTbl tbody tr:first-child', e => e.innerText), /Age 58\s+Age 52/);
+    assert.ok(await life.$eval('#chart', e => e.textContent.includes('Plan A net worth')));
+    await life.click('#planClear'); assert.equal(await life.isVisible('#planTbl'), false);
+    await life.$eval('.ev:has(input[data-e=crash][data-k=on]) input[data-k=on]', e => e.click()); assert.match(await life.$eval('#info-crash', e => e.textContent), /fall by 30%/);
+    assert.deepEqual(life.errs, []); await life.close();
+  });
+
   test('HRA city list: eight metros plus "any other city" drive the 50% / 40% limit on every page that uses it, and survive a share link', async () => {
     const sal = await open(SITE, 'salary-calculator.html'); const opts = await sal.$$eval('#city option', os => os.map(o => o.textContent));
     assert.deepEqual(opts, ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad', 'Any other city']); assert.equal(await sal.inputValue('#city'), 'Bengaluru');
