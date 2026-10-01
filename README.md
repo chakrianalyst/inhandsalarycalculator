@@ -30,7 +30,7 @@ CI runs all of these on every push (`.github/workflows/ci.yml`); a failing check
 One-time setup: repo **Settings → Pages → Source: GitHub Actions**.
 
 ## Structure
-- `assets/tax.js` — Indian income-tax engine (FY 2025-26). Pure functions; update slabs here each Budget.
+- `assets/tax.js` — Indian income-tax engine (FY 2026-27). Pure functions; update slabs here each Budget.
 - `assets/common.js` — shared header/footer, tool registry (`TOOLS`), sliders, donut chart, interactive line chart (`Common.lineChart`).
 - `assets/style.css` — design system with light/dark themes.
 - `*.html` — one page per calculator, each with SEO copy and FAQ.

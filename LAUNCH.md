@@ -47,7 +47,7 @@ Do them in order; each one is independent, so you can stop at any point and the 
 ## Keeping it reliable
 - Every change is tested automatically (tax maths, every page, links, SEO tags). A broken build is never published.
 - **Every February after the Union Budget:** tax slabs can change. Ask Claude to "update the tax rules for the new Budget" — the rules live in `assets/tax.js` with tests.
-- On **1 April**, update the "FY 2025-26" labels (Claude can do this).
+- On **1 April**, update the "FY 2026-27" labels (Claude can do this).
 - Run the full check yourself anytime: `npm run verify` (needs Node 20).
 
 ## Honest expectations

@@ -5,7 +5,7 @@ const Tax = require('../assets/tax.js');
 
 const tax = (income, regime) => Math.round(Tax.computeTax(income, regime).total);
 
-test('new regime: known values (FY 2025-26)', () => {
+test('new regime: known values (FY 2026-27)', () => {
   assert.equal(tax(400000, 'new'), 0);
   assert.equal(tax(1200000, 'new'), 0);          // 87A rebate
   assert.equal(tax(1275000, 'new'), 74100);      // just past the rebate, no marginal relief left

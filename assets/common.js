@@ -30,7 +30,8 @@ const Common = (() => {
     if (a >= 1e5) return sg + '₹' + (a / 1e5).toFixed(2) + ' L';
     return fmt(n);
   };
-  const num = id => { const v = parseFloat(document.getElementById(id).value); return isNaN(v) ? 0 : v; };
+  const num = id => { const v = parseFloat(String(document.getElementById(id).value).replace(/,/g, '')); return isNaN(v) ? 0 : v; };
+  const raw = el => String(el.value).replace(/,/g, '');
 
   function setTheme(t) {
     document.documentElement.dataset.theme = t;
@@ -64,7 +65,7 @@ const Common = (() => {
         <div><h4>More</h4><ul>${TOOLS.slice(6).map(t => `<li><a href="${t.href}">${t.name}</a></li>`).join('')}<li><a href="in-hand-salary-by-ctc.html">Salary by CTC chart</a></li></ul></div>
         <div><h4>Learn &amp; about</h4><ul>${GUIDES.map(g => `<li><a href="${g[0]}">${g[1]}</a></li>`).join('')}<li><a href="methodology.html">How we calculate</a></li><li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li><li><a href="privacy.html">Privacy &amp; Disclaimer</a></li></ul></div>
       </div>
-      <p class="legal">© ${new Date().getFullYear()} InHand. Calculators give estimates for educational purposes based on FY 2025-26 (AY 2026-27) rules and common salary structures; they are not tax, legal or investment advice. Your employer's actual payslip may differ.</p>
+      <p class="legal">© ${new Date().getFullYear()} InHand. Calculators give estimates for educational purposes based on FY 2026-27 (AY 2027-28) rules and common salary structures; they are not tax, legal or investment advice. Your employer's actual payslip may differ.</p>
     </div></footer>`;
     document.body.insertAdjacentHTML('afterbegin', header);
     document.body.insertAdjacentHTML('beforeend', foot);
@@ -72,30 +73,54 @@ const Common = (() => {
     document.getElementById('menuBtn').onclick = () => document.getElementById('navLinks').classList.toggle('open');
   }
 
-  /** Upgrade every .field[data-slider] with a synced range slider. */
+  const IN = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
+  /** Upgrade every .field[data-slider] with a synced range slider (works with comma-formatted money inputs). */
   function enhanceFields() {
     document.querySelectorAll('.field[data-slider]').forEach(f => {
-      const n = f.querySelector('input[type=number]');
+      const n = f.querySelector('input[type=number], input[data-money]'); if (!n || f.querySelector('input[type=range]')) return;
+      const money = n.dataset.money !== undefined;
       const r = document.createElement('input');
       r.type = 'range';
       ['min', 'max', 'step'].forEach(a => { if (n.hasAttribute(a)) r.setAttribute(a, n.getAttribute(a)); });
-      r.value = n.value; r.setAttribute('aria-label', (f.querySelector('label') || {}).textContent || 'slider');
+      r.value = raw(n); r.setAttribute('aria-label', (f.querySelector('label') || {}).textContent || 'slider');
       const paint = () => { const p = ((r.value - r.min) / (r.max - r.min)) * 100; r.style.setProperty('--p', Math.max(0, Math.min(100, p)) + '%'); };
-      r.addEventListener('input', () => { n.value = r.value; paint(); n.dispatchEvent(new Event('input', { bubbles: true })); });
-      n.addEventListener('input', () => { r.value = n.value; paint(); });
+      r.addEventListener('input', () => { n.value = money ? IN.format(+r.value) : r.value; paint(); n.dispatchEvent(new Event('input', { bubbles: true })); });
+      n.addEventListener('input', () => { r.value = raw(n); paint(); });
       f.appendChild(r); paint();
     });
   }
 
-  /** Segmented control: <div class="seg" data-seg="id"><button data-v="a">..</button></div> -> getter */
+  /** Comma-formatted (Indian grouping) text input with an optional words caption (data-words="captionElementId"). */
+  function attachMoney(el, opts) {
+    opts = opts || {}; if (el._money) return; el._money = true;
+    el.type = 'text'; el.setAttribute('inputmode', opts.decimals ? 'decimal' : 'numeric'); el.setAttribute('autocomplete', 'off');
+    const dec = () => typeof opts.decimals === 'function' ? opts.decimals() : !!opts.decimals;
+    const cap = el.dataset.words ? document.getElementById(el.dataset.words) : null;
+    const fmtVal = () => {
+      let r = String(el.value).replace(/[^\d.]/g, '');
+      if (dec()) { const i = r.indexOf('.'); if (i >= 0) r = r.slice(0, i + 1) + r.slice(i + 1).replace(/\./g, '').slice(0, 2); return r; }
+      r = r.split('.')[0].slice(0, 12); return r ? IN.format(parseInt(r, 10)) : '';
+    };
+    const words = () => { if (cap) { const n = parseFloat(raw(el)); cap.textContent = n > 0 && window.IndianWords ? window.IndianWords.sentence(n) : ''; } };
+    el.addEventListener('input', () => {
+      const pos = el.selectionStart == null ? el.value.length : el.selectionStart, before = el.value.slice(0, pos).replace(/[^\d.]/g, '').length, nv = fmtVal();
+      if (nv !== el.value) { el.value = nv; let c = 0, i = 0; if (before) for (i = 0; i < nv.length && c < before; i++) if (/[\d.]/.test(nv[i])) c++; try { el.setSelectionRange(i, i); } catch (e) {} }
+      words();
+    });
+    el.value = fmtVal(); words();
+  }
+  /** Set a formatted input programmatically (fires the normal input pipeline). */
+  function setVal(el, v) { el.value = String(v); el.dispatchEvent(new Event('input', { bubbles: true })); }
+
+  /** Segmented control: <div class="seg" id="x"><button data-v="a">..</button></div> -> getter (always reads the DOM) */
   function seg(el, onChange) {
     const btns = el.querySelectorAll('button');
-    let val = (el.querySelector('button.on') || btns[0]).dataset.v;
     btns.forEach(b => b.addEventListener('click', () => {
-      btns.forEach(x => x.classList.remove('on')); b.classList.add('on'); val = b.dataset.v; onChange && onChange(val);
+      btns.forEach(x => x.classList.remove('on')); b.classList.add('on'); onChange && onChange(b.dataset.v);
     }));
-    return () => val;
+    return () => (el.querySelector('button.on') || btns[0]).dataset.v;
   }
+  function segSet(el, v) { const b = [...el.querySelectorAll('button')].find(x => x.dataset.v === String(v)); if (b) { el.querySelectorAll('button').forEach(x => x.classList.remove('on')); b.classList.add('on'); } }
 
   const COLORS = ['var(--c1)', 'var(--c2)', 'var(--c3)', 'var(--c4)', 'var(--c5)', 'var(--c6)'];
   /** Render donut + legend. items: [{label, value}] */
@@ -235,17 +260,18 @@ const Common = (() => {
     const segs = () => [...document.querySelectorAll('.seg[id]')];
     const segVal = sg => (sg.querySelector('button.on') || sg.querySelector('button')).dataset.v;
     const defaults = new Map(); let ready = false, timer = null;
-    function snapshot() { controls().forEach(el => { if (!defaults.has(el)) defaults.set(el, el.type === 'checkbox' ? el.checked : el.value); }); segs().forEach(sg => { if (!defaults.has(sg)) defaults.set(sg, segVal(sg)); }); }
+    const val = el => el.type === 'checkbox' ? el.checked : (el.dataset.money !== undefined ? raw(el) : el.value);
+    function snapshot() { controls().forEach(el => { if (!defaults.has(el)) defaults.set(el, val(el)); }); segs().forEach(sg => { if (!defaults.has(sg)) defaults.set(sg, segVal(sg)); }); }
     function write() {
       snapshot(); const p = new URLSearchParams();
-      controls().forEach(el => { const v = el.type === 'checkbox' ? el.checked : el.value; if (v !== defaults.get(el)) p.set(key(el), el.type === 'checkbox' ? (v ? '1' : '0') : v); });
+      controls().forEach(el => { const v = val(el); if (v !== defaults.get(el)) p.set(key(el), el.type === 'checkbox' ? (v ? '1' : '0') : v); });
       segs().forEach(sg => { if (segVal(sg) !== defaults.get(sg)) p.set(sg.id, segVal(sg)); });
       try { history.replaceState(null, '', location.pathname + (p.toString() ? '?' + p.toString() : '')); } catch (e) {}
     }
     function restore() {
       snapshot(); const p = new URLSearchParams(location.search); if (![...p.keys()].length) return;
       controls().forEach(el => { const k = key(el); if (!p.has(k)) return; const v = p.get(k);
-        if (el.type === 'checkbox') el.checked = v === '1'; else el.value = v.slice(0, 80);
+        if (el.type === 'checkbox') el.checked = v === '1'; else el.value = v.slice(0, 400);
         el.dispatchEvent(new Event('input', { bubbles: true })); });
       segs().forEach(sg => { if (!p.has(sg.id)) return; const b = [...sg.querySelectorAll('button')].find(x => x.dataset.v === p.get(sg.id)); if (b) { sg.querySelectorAll('button').forEach(x => x.classList.remove('on')); b.classList.add('on'); } });
     }
@@ -271,10 +297,10 @@ const Common = (() => {
   window.addEventListener('error', e => { try { track('js_error', { msg: String(e.message).slice(0, 100), src: (e.filename || '').split('/').pop() }); } catch (x) {} });
 
   function init(activeId) {
-    layout(activeId); a11y(); state.restore(); enhanceFields(); related(activeId);
+    layout(activeId); a11y(); document.querySelectorAll('input[data-money]').forEach(e => attachMoney(e)); state.restore(); enhanceFields(); related(activeId);
     placeAds(); placeAffiliates(); addShare(); consentBanner(); startThirdParties();
     window.addEventListener('load', () => { state.watch(); let used = false; document.addEventListener('input', () => { if (!used) { used = true; track('calculator_used', { tool: activeId }); } }); });
   }
   initTheme();
-  return { fmt, fmtCompact, num, donut, seg, init, layout, enhanceFields, related, lineChart, restore: state.restore, track, toast };
+  return { fmt, fmtCompact, num, raw, attachMoney, setVal, segSet, donut, seg, init, layout, enhanceFields, related, lineChart, restore: state.restore, track, toast };
 })();
