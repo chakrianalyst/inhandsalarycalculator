@@ -494,3 +494,17 @@ table.pay tr.off td { color: var(--muted); font-size: .85rem; }
 
 .legend div > span:first-child { min-width: 0; }
 .legend b { white-space: nowrap; flex: none; }
+
+/* ---------- Life simulator: plain-English results ---------- */
+.story p { margin-bottom: 10px; font-size: .94rem; line-height: 1.6; }
+.story .verdict { padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--line); }
+.story .verdict.bad { background: color-mix(in srgb, var(--danger) 9%, var(--surface)); border-color: color-mix(in srgb, var(--danger) 35%, var(--line)); }
+.story .verdict.good { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); }
+.story .fixes { padding: 12px 16px; border-radius: var(--radius-sm); background: var(--grad-soft); border: 1px solid color-mix(in srgb, var(--brand) 25%, var(--line)); font-size: .92rem; }
+.story .fixes ul { margin: 8px 0 0 18px; }
+.story .fixes li { margin-bottom: 6px; }
+.neg-t { color: var(--danger); }
+.kpi .kd { font-size: .72rem; color: var(--muted); margin-top: 5px; line-height: 1.4; font-weight: 400; }
+.banner.bad { background: color-mix(in srgb, var(--danger) 10%, var(--surface)); border-color: color-mix(in srgb, var(--danger) 35%, var(--line)); }
+.ev-info { color: var(--text); background: var(--bg-2); padding: 8px 10px; border-radius: 10px; }
+.ev-info:empty { display: none; }

@@ -178,7 +178,7 @@ const Common = (() => {
       const i = xs.indexOf(mk.x); if (i < 0) return;
       const cx = X(mk.x), cy = Y(o.series[0].ys[i]);
       marks += `<line x1="${cx}" x2="${cx}" y1="${m.t}" y2="${H - m.b}" stroke="var(--muted)" stroke-dasharray="2 4" opacity=".45"/>` +
-        `<circle cx="${cx}" cy="${cy}" r="4.5" fill="var(--surface)" stroke="${o.series[0].color}" stroke-width="2"/>` +
+        (Number.isFinite(cy) ? `<circle cx="${cx}" cy="${cy}" r="4.5" fill="var(--surface)" stroke="${o.series[0].color}" stroke-width="2"/>` : '') +
         `<text x="${cx}" y="${m.t - 5 + (k % 2) * 0}" text-anchor="middle" font-size="13">${mk.label}</text>`;
     });
     const legend = o.series.length > 1 || o.legend ? `<div class="lc-legend">${o.series.map(s => `<span><i style="background:${s.color}"></i>${s.name}</span>`).join('')}</div>` : '';
