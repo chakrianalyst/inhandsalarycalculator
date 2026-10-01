@@ -146,8 +146,34 @@ const Common = (() => {
       if (!g.getAttribute('role')) g.setAttribute('role', 'group'); if (l && !g.getAttribute('aria-label')) g.setAttribute('aria-label', l.textContent.trim());
       g.querySelectorAll('button').forEach(b => { const v = b.classList.contains('on') ? 'true' : 'false'; if (b.getAttribute('aria-pressed') !== v) b.setAttribute('aria-pressed', v); });
     }); };
-    syncSegs(); new MutationObserver(() => { if (!raf) raf = requestAnimationFrame(syncSegs); }).observe(document.body, { attributes: true, attributeFilter: ['class'], childList: true, subtree: true });
+    const sync = () => { addHelp(); syncSegs(); }; sync(); new MutationObserver(() => { if (!raf) raf = requestAnimationFrame(() => { sync(); }); }).observe(document.body, { attributes: true, attributeFilter: ['class'], childList: true, subtree: true });
   }
+
+  /** Plain-English "?" help next to jargon labels. A real button (keyboard + touch), toggles a note linked with aria-describedby; Esc or a tap elsewhere closes it. */
+  const HELP = [
+    [/\bCTC\b/, 'CTC = Cost to Company: everything your employer spends on you in a year, including their PF, gratuity and insurance. It is bigger than what reaches your bank account.'],
+    [/^(Employer NPS|Own NPS|Your own NPS)|\bNPS\b/, 'NPS is the National Pension System, a retirement account. Employer contributions are tax-free up to 14% of basic (new regime) or 10% (old regime). Your own extra ₹50,000 is old-regime only.'],
+    [/\bgratuity\b/i, 'Gratuity is a lump sum your employer pays after 5+ years of service. It is part of CTC but is not paid monthly, so it never shows in your in-hand pay.'],
+    [/^HRA\b|^HRA /, 'HRA = House Rent Allowance, a salary part meant for rent. In the old regime, part of it can be tax-free if you pay rent. The new regime gives no HRA exemption.'],
+    [/\bPF\b|Provident/i, 'PF = Provident Fund. 12% of basic is saved for you every month by you and by your employer. It is usually capped at 12% of ₹15,000 basic unless your employer uses full basic.'],
+    [/^Basic/, 'Basic is the core part of your pay. PF, HRA and gratuity are all calculated from it, so a higher basic means higher PF and gratuity but lower take-home.'],
+  ];
+  function addHelp() {
+    document.querySelectorAll('label[for]:not(.toggle):not([data-nohelp])').forEach(l => {
+      if (l.parentElement.classList.contains('lbl-row') || l.closest('.toggle')) return;
+      const hit = HELP.find(h => h[0].test(l.textContent.trim())); if (!hit) return;
+      const id = 'help-' + l.getAttribute('for'), row = document.createElement('div'); row.className = 'lbl-row';
+      l.parentNode.insertBefore(row, l); row.appendChild(l);
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'help-btn'; b.textContent = '?'; b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-controls', id);
+      b.setAttribute('aria-label', 'What does ' + l.textContent.trim() + ' mean?');
+      const tip = document.createElement('div'); tip.className = 'help-tip'; tip.id = id; tip.hidden = true; tip.textContent = hit[1];
+      b.addEventListener('click', () => { const open = tip.hidden; document.querySelectorAll('.help-tip').forEach(t => { t.hidden = true; }); document.querySelectorAll('.help-btn').forEach(x => x.setAttribute('aria-expanded', 'false')); tip.hidden = !open; b.setAttribute('aria-expanded', String(open)); });
+      row.appendChild(b); row.insertAdjacentElement('afterend', tip);
+      const inp = document.getElementById(l.getAttribute('for')); if (inp) inp.setAttribute('aria-describedby', ((inp.getAttribute('aria-describedby') || '') + ' ' + id).trim());
+    });
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.help-tip:not([hidden])').forEach(t => { t.hidden = true; const b = document.querySelector('[aria-controls="' + t.id + '"]'); if (b) { b.setAttribute('aria-expanded', 'false'); b.focus(); } }); });
+  document.addEventListener('click', e => { if (!e.target.closest('.help-btn, .help-tip')) { document.querySelectorAll('.help-tip').forEach(t => { t.hidden = true; }); document.querySelectorAll('.help-btn').forEach(x => x.setAttribute('aria-expanded', 'false')); } });
 
   function initLimits() {
     document.addEventListener('input', e => {                                    // capture phase: runs before any page calculates

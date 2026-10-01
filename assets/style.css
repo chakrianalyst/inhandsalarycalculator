@@ -556,3 +556,10 @@ table.yr tr.bad td, table.yr tr.bad td:first-child { background: color-mix(in sr
   .tool-card { padding: 18px; }
   .consent { left: 8px; right: 8px; bottom: 8px; }
 }
+
+/* "?" help */
+.lbl-row { display: flex; align-items: center; gap: 6px; margin-bottom: 7px; } .lbl-row > label { margin: 0; font-size: .88rem; font-weight: 600; color: var(--muted); }
+.help-btn { width: 20px; height: 20px; min-width: 20px; padding: 0; border-radius: 50%; border: 1px solid var(--line); background: var(--card, transparent); color: var(--muted); font: 700 .72rem/1 inherit; cursor: pointer; display: inline-grid; place-items: center; }
+.help-btn:hover, .help-btn[aria-expanded="true"] { color: var(--brand, currentColor); border-color: currentColor; }
+.help-tip { font-size: .82rem; line-height: 1.45; padding: 10px 12px; margin: -2px 0 10px; border-radius: 10px; background: var(--soft, rgba(127,127,127,.1)); border: 1px solid var(--line); color: var(--text, inherit); }
+.help-tip[hidden] { display: none; }
