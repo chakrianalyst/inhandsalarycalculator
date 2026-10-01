@@ -141,3 +141,27 @@ test('year table: retirement year has no pay, and balances match the chart rows'
   const r = L.run(simple({})); const y = r.years.find(x => x.a === r.ret); assert.equal(y.pay, 0);
   r.years.forEach((x, k) => { near(x.nw, r.rows[k + 1].nw, 0.5); near(x.endIdx, r.rows[k + 1].idx, 1e-9); });
 });
+
+const offAll = () => { const e = clone(L.DEFAULT_EVENTS); Object.keys(e).forEach(k => { e[k].on = false; }); return e; };
+
+test('a car bought in 5 years costs the inflated price, not today’s price', () => {
+  const ev = offAll(); ev.car = { on: true, age: 33, cost: 1000000, every: 0 };
+  const r = L.run({ ...base(), events: ev }); near(r.eventCost.car, 1000000 * Math.pow(1.06, 5), 1); near(r.years.find(y => y.a === 33).one, 1338225.58, 1);
+});
+
+test('career jump can repeat: pay compounds one jump every N years until retirement', () => {
+  const once = offAll(), rep = offAll(); once.jump = { on: true, age: 32, pct: 20, every: 0 }; rep.jump = { on: true, age: 32, pct: 20, every: 4 };
+  const A = L.run({ ...base(), incomeMode: 'net', income: 100000, events: once }), B = L.run({ ...base(), incomeMode: 'net', income: 100000, events: rep });
+  const pay = (r, age) => r.years.find(y => y.a === age).pay, g = Math.pow(1.08, 40 - 28);
+  near(pay(A, 40), 1200000 * g * 1.2, 1); near(pay(B, 40), 1200000 * g * 1.2 * 1.2 * 1.2, 1);       // jumps at 32, 36, 40
+  near(pay(B, 31), pay(A, 31), 0.001);
+});
+
+test('education inflation: fees rise at their own rate; defaults to general inflation; home price rise is separate too', () => {
+  const ev = offAll(); ev.kid = { ...L.DEFAULT_EVENTS.kid, on: true, past: false, age: 30, cost: 0, monthly: 0, edu: 4000000 };
+  const same = L.run({ ...base(), events: ev }), fast = L.run({ ...base(), events: ev, eduInfl: 10 });
+  near(same.eventCost.kid, 1000000 * [48, 49, 50, 51].reduce((s, a) => s + Math.pow(1.06, a - 28), 0), 5);
+  near(fast.eventCost.kid, 1000000 * [48, 49, 50, 51].reduce((s, a) => s + Math.pow(1.10, a - 28), 0), 5);
+  const hv = offAll(); hv.home = { ...L.DEFAULT_EVENTS.home, on: true, past: false, age: 33, price: 8000000, dp: 100 };
+  near(L.run({ ...base(), events: hv, homeGrowth: 9 }).eventCost.home, 8000000 * Math.pow(1.09, 5), 1); near(L.run({ ...base(), events: hv }).eventCost.home, 8000000 * Math.pow(1.06, 5), 1);
+});
