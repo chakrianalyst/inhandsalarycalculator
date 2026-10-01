@@ -119,6 +119,23 @@ if (chromium) {
     assert.deepEqual(errs, []); await pg.close();
   });
 
+  test('limits: percentages stop at their maximum, negatives are refused, rupee amounts stay free, links are clamped', async () => {
+    const typeIn = async (pg, sel, v) => { await pg.click(sel); await pg.fill(sel, ''); await pg.keyboard.type(v); };
+    const pg = await open(SITE, 'salary-calculator.html');
+    await typeIn(pg, '#basic', '150'); assert.equal(await pg.inputValue('#basic'), '100'); assert.match(await pg.$eval('#sec-basic .limit-note', e => e.textContent), /Maximum is 100%/);
+    await pg.$eval('#sec-hra', e => (e.open = true)); await typeIn(pg, '#hra', '250'); assert.equal(await pg.inputValue('#hra'), '100');
+    await pg.$eval('#sec-bonus', e => (e.open = true)); await typeIn(pg, '#bonus', '777'); assert.equal(await pg.inputValue('#bonus'), '100');
+    await typeIn(pg, '#payout', '500'); assert.equal(await pg.inputValue('#payout'), '200');
+    await pg.$eval('#sec-ret', e => (e.open = true)); await typeIn(pg, '#nps', '999'); assert.equal(await pg.inputValue('#nps'), '100');
+    await pg.click('#basicM [data-v=yr]'); await typeIn(pg, '#basic', '5,00,00,000'); assert.equal(await pg.inputValue('#basic'), '5,00,00,000');
+    assert.deepEqual(pg.errs, []); await pg.close();
+    const l = await browser.newPage(); await l.goto(url(SITE, 'salary-calculator.html') + '?basic=500&hra=900'); assert.equal(await l.inputValue('#basic'), '100'); assert.equal(await l.inputValue('#hra'), '100'); await l.close();
+    const e = await open(SITE, 'emi-calculator.html');
+    await typeIn(e, '#rate', '80'); assert.equal(await e.inputValue('#rate'), '30'); await typeIn(e, '#amt', '70000000'); assert.equal(await e.inputValue('#amt'), '70000000');
+    await typeIn(e, '#yrs', '-5'); assert.equal(await e.inputValue('#yrs'), '1'); await e.close();
+    const life = await open(SITE, 'life-simulator.html'); await typeIn(life, 'input[data-e=home][data-k=dp]', '500'); assert.equal(await life.inputValue('input[data-e=home][data-k=dp]'), '100'); await life.close();
+  });
+
   test('salary: payslip mode estimates tax and checks TDS', async () => {
     const pg = await open(SITE, 'salary-calculator.html'); await pg.click('#mode [data-v=payslip]');
     assert.equal(await pg.$eval('#payMode', e => e.hidden), false); assert.equal(await pg.$eval('#ctcMode', e => e.hidden), true);

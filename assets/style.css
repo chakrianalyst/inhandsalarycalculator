@@ -508,3 +508,6 @@ table.pay tr.off td { color: var(--muted); font-size: .85rem; }
 .banner.bad { background: color-mix(in srgb, var(--danger) 10%, var(--surface)); border-color: color-mix(in srgb, var(--danger) 35%, var(--line)); }
 .ev-info { color: var(--text); background: var(--bg-2); padding: 8px 10px; border-radius: 10px; }
 .ev-info:empty { display: none; }
+
+.limit-note { margin-top: 5px; font-size: .78rem; font-weight: 700; color: var(--danger); }
+.input-wrap.limit-hit { border-color: var(--danger); box-shadow: 0 0 0 4px color-mix(in srgb, var(--danger) 16%, transparent); }
