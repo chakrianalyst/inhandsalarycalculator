@@ -113,3 +113,34 @@ test('Indian number words', () => {
   assert.equal(W.sentence(-475000), W.sentence(475000)); assert.equal(W.sentence(475000.9), W.sentence(475000)); assert.equal(W.sentence('abc'), 'Zero rupees only');
   assert.equal(W.group(1200000), '12,00,000'); assert.equal(W.group(123456789), '12,34,56,789');
 });
+
+/* ---------- gratuity base (basic / wages / custom / off) ---------- */
+test('gratuity: on basic = 4.81% of basic (the default)', () => {
+  const a = Tax.structure({ ctc: 4500000, gratMode: 'basic' }); near(a.gratuity, a.basic * 0.0481, 0.01);
+});
+test('gratuity: wages rule = 4.81% of wages, with wages = 50% of (CTC minus gratuity) when basic is below 50%', () => {
+  const a = Tax.structure({ ctc: 4500000, gratMode: 'wages' });
+  near(a.gratuity, 0.0481 * 0.5 * (4500000 - a.gratuity), 0.5); assert.ok(a.gratuity > a.basic * 0.0481);
+});
+test('gratuity: wages rule falls back to basic when basic is already above 50% of pay', () => {
+  const a = Tax.structure({ ctc: 4500000, basicMode: 'pct', basicVal: 60, gratMode: 'wages' }); near(a.gratuity, a.basic * 0.0481, 0.01);
+});
+test('gratuity: custom % of basic, custom ₹, and off', () => {
+  near(Tax.structure({ ctc: 4500000, gratMode: 'custom', gratCustomMode: 'pct', gratVal: 6 }).gratuity, 4500000 * 0.4 * 0.06, 0.01);
+  near(Tax.structure({ ctc: 4500000, gratMode: 'custom', gratCustomMode: 'yr', gratVal: 111000 }).gratuity, 111000, 0.01);
+  near(Tax.structure({ ctc: 4500000, gratMode: 'off' }).gratuity, 0, 0.01);
+});
+test('gratuity: any base keeps components summing to CTC, and legacy flags still work', () => {
+  for (const gratMode of ['basic', 'wages', 'custom', 'off']) {
+    const a = Tax.structure({ ctc: 4500000, gratMode, gratCustomMode: 'pct', gratVal: 5, hraMode: 'pct', hraVal: 80 });
+    near(a.basic + a.hra + a.special + a.employerPf + a.gratuity + a.employerNps + a.insurance, 4500000, 0.5);
+  }
+  near(Tax.structure({ ctc: 1200000, gratuityOn: true }).gratuity, 480000 * 0.0481, 0.01); near(Tax.structure({ ctc: 1200000, gratuity: false }).gratuity, 0, 0.01);
+});
+test('offer-letter shape: basic + HRA + fixed allowances can use up the whole CTC once gratuity is on wages', () => {
+  // generic example: A (fixed pay) = CTC - PF - gratuity must equal basic + HRA + listed allowances
+  const ctc = 5000000, base = { ctc, basicMode: 'pct', basicVal: 40, hraMode: 'pct', hraVal: 80, gratMode: 'wages', pfMode: 'full' };
+  const probe = Tax.structure(base), A = ctc - probe.employerPf - probe.gratuity, listed = A - probe.basic - probe.hra;
+  const a = Tax.structure({ ...base, others: [{ name: 'Allowances', val: listed, mode: 'yr' }] });
+  near(a.special, 0, 1); near(a.shortfall, 0, 1);
+});

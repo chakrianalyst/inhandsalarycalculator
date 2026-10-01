@@ -74,6 +74,19 @@ const Tax = (() => {
     return per(m, inp.pfVal, basic);                      // custom: pct of basic / ₹ per year / ₹ per month
   }
 
+  /** Gratuity accrual inside CTC. Bases: 'basic' (4.81% of basic), 'wages' (4.81% of wages, where wages are at least 50% of
+   *  total remuneration excluding the gratuity itself), 'custom' (% of basic or ₹ you enter), 'off'. Legacy: gratuityOn / gratuity booleans. */
+  function gratuityOf(inp, ctc, basic) {
+    const mode = inp.gratMode || ((inp.gratuityOn != null ? inp.gratuityOn : inp.gratuity) ? 'basic' : 'off');
+    if (mode === 'basic') return basic * K.gratuityRate;
+    if (mode === 'wages') {
+      const r = K.gratuityRate, solved = r * 0.5 * ctc / (1 + r * 0.5);          // wages = 50% of (CTC - gratuity), gratuity = r * wages
+      return basic > 0.5 * (ctc - solved) ? basic * r : solved;                  // basic already above 50% -> wages are simply basic
+    }
+    if (mode === 'custom') return per(inp.gratCustomMode || 'yr', inp.gratVal, basic);
+    return 0;
+  }
+
   function structure(inp) {
     const ctc = Math.max(0, Number(inp.ctc) || 0);
     const basic = per(inp.basicMode || 'pct', inp.basicVal == null ? 40 : inp.basicVal, ctc);
@@ -83,7 +96,7 @@ const Tax = (() => {
     const others = (inp.others || []).map(o => ({ name: o.name || 'Allowance', kind: o.kind || 'other', amt: per(o.mode || 'yr', o.val, 0) }));
     const otherSum = others.reduce((s, o) => s + o.amt, 0);
     const pf = employerPf(inp, basic);
-    const gratuity = (inp.gratuityOn != null ? inp.gratuityOn : inp.gratuity) ? basic * K.gratuityRate : 0;
+    const gratuity = gratuityOf(inp, ctc, basic);
     const employerNps = Math.min(per(inp.npsMode || 'yr', inp.npsVal, basic), ctc);
     const insurance = per(inp.insMode || 'yr', inp.insVal, 0);
     const vpf = per(inp.vpfMode || 'mo', inp.vpfVal, basic);
