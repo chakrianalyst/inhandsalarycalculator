@@ -86,6 +86,21 @@ if (chromium) {
     assert.match(await pg.$eval('#rPill', e => e.textContent), /Old regime selected/); await pg.close();
   });
 
+  test('salary: gratuity base (basic / wages / custom), A + B summary, flexible-benefit chip', async () => {
+    const pg = await open(SITE, 'salary-calculator.html'); const t = id => pg.$eval('#' + id, e => e.textContent.trim());
+    await pg.$eval('#sec-ret', e => (e.open = true)); assert.match(await t('ab'), /Total annual salary \(A\).*Retirals \(B\).*CTC/);
+    assert.match(await t('gratInfo'), /4\.81% of basic/); const onBasic = await t('v-ret');
+    await pg.click('#gratMode [data-v=wages]'); assert.match(await t('gratInfo'), /4\.81% of wages/); assert.notEqual(await t('v-ret'), onBasic);
+    assert.equal(await pg.$eval('#gratCustom', e => e.hidden), true);
+    await pg.click('#gratMode [data-v=custom]'); assert.equal(await pg.$eval('#gratCustom', e => e.hidden), false);
+    await pg.fill('#gratc', '1,00,000'); assert.match(await t('gratInfo'), /₹1,00,000\/yr/);
+    await pg.click('#gratMode [data-v=off]'); assert.match(await t('gratInfo'), /No gratuity/);
+    await pg.$eval('#sec-other', e => (e.open = true)); await pg.click('#ochips .chip:text("Flexible benefit")'); assert.equal((await pg.$$('#orows .orow')).length, 1);
+    assert.deepEqual(pg.errs, []); await pg.close();
+    const p2 = await browser.newPage(); await p2.goto(url(SITE, 'salary-calculator.html') + '?gratMode=wages');
+    assert.equal(await p2.$eval('#gratMode .on', e => e.dataset.v), 'wages'); assert.match(await p2.$eval('#gratInfo', e => e.textContent), /wages/); await p2.close();
+  });
+
   test('salary: payslip mode estimates tax and checks TDS', async () => {
     const pg = await open(SITE, 'salary-calculator.html'); await pg.click('#mode [data-v=payslip]');
     assert.equal(await pg.$eval('#payMode', e => e.hidden), false); assert.equal(await pg.$eval('#ctcMode', e => e.hidden), true);

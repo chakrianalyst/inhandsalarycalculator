@@ -32,6 +32,7 @@
           <div class="words" id="ctcWords" aria-live="polite"></div>
         </div>
         <div class="alloc" id="alloc" aria-label="How your CTC is split"></div>
+        <div class="ab" id="ab"></div>
         <div class="nw-groups" id="ctcSecs"></div>
       </div>
 
@@ -97,7 +98,7 @@
     <h2>How is in-hand salary calculated?</h2>
     <p>Your <strong>CTC (Cost to Company)</strong> is the total an employer spends on you in a year. It includes items you never receive as cash, such as employer PF, gratuity and employer-paid insurance, so your take-home is always lower than CTC ÷ 12.</p>
     <ol>
-      <li><strong>Gross salary</strong> = CTC − employer PF − gratuity − employer NPS − employer-paid benefits. It is made of basic, HRA, special and other allowances, and bonus.</li>
+      <li><strong>Gross salary</strong> = CTC − employer PF − gratuity − employer NPS − employer-paid benefits (the “Total annual salary (A)” in many offer letters). It is made of basic, HRA, special and other allowances, and bonus.</li>
       <li>Subtract your <strong>employee PF</strong> (and any voluntary PF) and <strong>professional tax</strong>.</li>
       <li>Subtract <strong>income tax (TDS)</strong> on taxable income after your deductions.</li>
       <li>Divide what remains by 12 for your <strong>monthly in-hand salary</strong>. Bonus is shown separately because it is paid at a different time.</li>
@@ -185,12 +186,13 @@
   $('b-ret').innerHTML = sub('Provident fund (PF)') +
     `<div class="field"><span class="lbl">PF is calculated on</span><div class="seg" id="pfMode"><button type="button" data-v="full" class="on">12% of basic</button><button type="button" data-v="cap">Minimum (₹1,800/mo)</button><button type="button" data-v="custom">Custom</button></div><div class="cap" id="pfInfo"></div></div><div id="pfCustom"></div>` +
     mfield('vpf', 'Voluntary PF (VPF)', '', 'Extra PF you choose to put in each month. Comes out of your pay; counts under 80C (old regime).', '/month') +
-    sub('Gratuity') + toggle('grat', 'Gratuity is included in my CTC', '4.81% of basic; paid only when you leave after 5 years', true) +
+    sub('Gratuity') + `<div class="field"><span class="lbl">Gratuity is calculated on</span><div class="seg" id="gratMode"><button type="button" data-v="basic" class="on">Basic</button><button type="button" data-v="wages">Wages (50% rule)</button><button type="button" data-v="custom">Custom</button><button type="button" data-v="off">None</button></div><div class="cap" id="gratInfo"></div><span class="hint">Gratuity is 4.81% of the base. Many employers now use “wages”, which is at least 50% of total pay, instead of basic. Choose the one your offer uses, or enter your own figure under Custom.</span></div><div id="gratCustom"></div>` +
     sub('NPS (employer contribution)') + `<div id="npsBox"></div><div class="cap" id="npsInfo"></div>` +
     sub('Other employer benefits') + mfield('ins', 'Employer-paid insurance & other non-cash benefits', '', 'Group health or term cover and similar items listed inside your CTC.', '/year');
   $('pfCustom').appendChild(dual('pfc', 'Custom PF contribution', { mode: 'pct', val: 10, base: () => DUALS.basic.annual(), baseName: 'basic', hint: 'Your PF deduction equals the employer contribution.' }).el);
+  $('gratCustom').appendChild(dual('gratc', 'Gratuity in your offer', { mode: 'yr', val: 0, base: () => DUALS.basic.annual(), baseName: 'basic', hint: 'Copy the gratuity line from your offer letter.' }).el);
   $('npsBox').appendChild(dual('nps', 'Employer NPS contribution', { mode: 'yr', val: 0, base: () => DUALS.basic.annual(), baseName: 'basic' }).el);
-  const pfGet = Common.seg($('pfMode'), () => calc());
+  const pfGet = Common.seg($('pfMode'), () => calc()), gratGet = Common.seg($('gratMode'), () => calc());
 
   /* ---------- Payslip-mode sections ---------- */
   const paySecs = $('paySecs');
@@ -225,7 +227,7 @@
 
   /* ---------- "Other components" rows ---------- */
   const orows = $('orows'), hidden = $('othersData');
-  const CHIPS = [['LTA / leave travel', 'lta'], ['Conveyance / transport'], ['Phone & internet'], ['Meal card / food coupons'], ['Fuel allowance'], ['Gadget / wellness'], ['Education allowance'], ['Other allowance']];
+  const CHIPS = [['LTA / leave travel', 'lta'], ['Conveyance / transport'], ['Phone & internet'], ['Meal card / food coupons'], ['Fuel allowance'], ['Flexible benefit plan / flexi basket'], ['Gadget / wellness'], ['Education allowance'], ['Other allowance']];
   let synced = '';
   function addOther(name, val, period, kind) {
     const r = document.createElement('div'); r.className = 'orow'; r.dataset.kind = kind || 'other';
@@ -248,7 +250,7 @@
     const pf = pfGet(), cust = DUALS.pfc;
     return { ctc: num('ctc'), basicMode: DUALS.basic.mode(), basicVal: DUALS.basic.val(), hraMode: DUALS.hra.mode(), hraVal: DUALS.hra.val(),
       bonusMode: DUALS.bonus.mode(), bonusVal: DUALS.bonus.val(), payoutPct: $('payout').value === '' ? 100 : num('payout'), others: rowsData(),
-      pfMode: pf === 'custom' ? cust.mode() : pf, pfVal: cust.val(), vpfVal: num('vpf'), vpfMode: 'mo', gratuityOn: $('grat').checked,
+      pfMode: pf === 'custom' ? cust.mode() : pf, pfVal: cust.val(), vpfVal: num('vpf'), vpfMode: 'mo', gratMode: gratGet(), gratCustomMode: DUALS.gratc.mode(), gratVal: DUALS.gratc.val(),
       npsMode: DUALS.nps.mode(), npsVal: DUALS.nps.val(), insVal: num('ins'), insMode: 'yr' };
   };
   const readPay = () => ({ basicM: num('pBasic'), hraM: num('pHra'), otherM: num('pOther'), bonusYr: num('pBonus'), pfM: num('pPf'), vpfM: num('pVpf'), employerNpsM: num('pNps') });
@@ -263,7 +265,7 @@
     const m = modeGet(), isCtc = m === 'ctc';
     $('ctcMode').hidden = !isCtc; $('payMode').hidden = isCtc; $('donutCard').hidden = !isCtc; $('tdsCard').hidden = isCtc || num('pTds') <= 0;
     Object.values(DUALS).forEach(d => d.refresh());
-    $('pfCustom').hidden = pfGet() !== 'custom';
+    $('pfCustom').hidden = pfGet() !== 'custom'; $('gratCustom').hidden = gratGet() !== 'custom';
     const a = isCtc ? Tax.structure(readCtc()) : Tax.fromPayslip(readPay()), d = readDed(), r = Tax.assess(a, d);
     const reg = regimeGet(), key = reg === 'auto' ? r.best : reg, b = r[key], o = r[key === 'new' ? 'old' : 'new'], keyName = key === 'new' ? 'New' : 'Old';
     const hasBonus = r.bonus > 0, pct = r.ctc ? Math.round(b.inHandYear / r.ctc * 100) : null;
@@ -290,7 +292,7 @@
     const W = [], w = (cls, t) => W.push(`<div class="warn ${cls}"><span>${cls === 'bad' ? '⛔' : '⚠️'}</span><span>${t}</span></div>`);
     if (isCtc && r.shortfall > 0) w('bad', `Your components add up to <b>${f(r.shortfall)}</b> more than your CTC. Reduce basic, HRA, bonus or other items.`);
     if (a.employerNps > a.basic * 0.10 + 1) w('', `Employer NPS above ${f(a.basic * 0.10)} (10% of basic) is not deductible in the old regime; the new regime allows up to ${f(a.basic * 0.14)} (14%).`);
-    const c80in = a.employeePf + a.vpf + d.other80c; if (c80in > 150000 + 1) w('', `Your 80C investments (${f(c80in)}) exceed the ₹1.5 lakh limit. The extra ${f(c80in - 150000)} is ignored.`);
+    const c80in = a.employeePf + a.vpf + d.other80c; if (c80in > 150000 + 1) w('', `Your PF${d.other80c > 0 ? ' and other 80C items' : ''} total ${f(c80in)}, above the ₹1.5 lakh 80C limit. The extra ${f(c80in - 150000)} earns no old-regime deduction.`);
     if (r.excess > 0) w('', `Employer PF + NPS above ₹7.5 lakh a year is taxable. ${f(r.excess)} has been added to your taxable income.`);
     if (isCtc && r.bonusTarget > r.bonus + 1) w('', `Only ${f(r.bonus)} of the ${f(r.bonusTarget)} variable pay is assumed to be paid.`);
     if (d.ltaClaim > r.ltaAmt + 1) w('', `LTA exemption is limited to the LTA in your salary (${f(r.ltaAmt)}).`);
@@ -310,7 +312,10 @@
     setV('basic', f(a.basic) + '/yr'); setV('hra', f(a.hra) + '/yr'); setV('bonus', hasBonus ? f(r.bonus) + '/yr' : 'None'); setV('other', f(a.otherSum + a.special) + '/yr');
     setV('ret', f(a.employerPf + a.gratuity + a.employerNps + a.insurance) + '/yr'); setV('pearn', f((a.basic + a.hra + a.otherSum) / 12) + '/mo'); setV('pded', f(a.employeePf / 12) + '/mo PF');
     setV('tax', f(r.pt) + '/yr PT'); setV('old', f(r.old.deductions) + ' total');
-    const pfAmt = a.employerPf; $('pfInfo').textContent = isCtc ? `Employer PF ${f(pfAmt)}/yr (${f(pfAmt / 12)}/mo). Your own PF deduction is the same.` : '';
+    const pfAmt = a.employerPf; $('pfInfo').textContent = isCtc ? `Employer PF ${f(pfAmt)}/yr (${f(pfAmt / 12)}/mo). Your own PF deduction is the same.` + (pfGet() === 'full' && a.basic / 12 > 15000 ? ' Some employers cap PF at ₹1,800/month; choose “Minimum” if yours does.' : '') : '';
+    const gm = gratGet(), gv = a.gratuity; $('gratInfo').textContent = !isCtc ? '' : gm === 'off' ? 'No gratuity is counted inside your CTC.' : gm === 'wages' ? `Gratuity ${f(gv)}/yr = 4.81% of wages (${f(gv / 0.0481)}).` : gm === 'basic' ? `Gratuity ${f(gv)}/yr = 4.81% of basic.` : `Gratuity ${f(gv)}/yr (${f(gv / 12)}/mo).`;
+    const retB = a.employerPf + a.gratuity + a.employerNps + a.insurance;
+    $('ab').innerHTML = isCtc ? `<span>Total annual salary (A) <b>${f(a.ctc - retB)}</b></span><span>+ Retirals (B) <b>${f(retB)}</b></span><span>= CTC <b>${f(a.ctc)}</b></span>` : '';
     $('npsInfo').textContent = a.basic > 0 ? `Tax-free up to ${f(a.basic * 0.14)} (new regime, 14% of basic) or ${f(a.basic * 0.10)} (old regime, 10% of basic).` : '';
     const hi = $('hraInfo'); hi.textContent = a.hra > 0 && d.rentMonthly > 0 ? `HRA exemption: ${f(r.old.hraExempt)} of your ${f(a.hra)} HRA is tax-free.` : '';
     const u80 = Math.min(150000, c80in), mb = $('m80b'); mb.style.width = u80 / 150000 * 100 + '%'; $('m80').classList.toggle('full', u80 >= 150000);
