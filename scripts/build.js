@@ -74,6 +74,7 @@ if (fs.existsSync(path.join(ROOT, 'manifest.webmanifest'))) fs.copyFileSync(path
 const pub = { siteName: cfg.siteName, siteUrl, gaId: (cfg.analytics || {}).gaId || '', adsenseClient: (cfg.adsense || {}).client || '', adsenseSlot: (cfg.adsense || {}).slot || '',
   affiliates: Object.fromEntries(Object.entries(cfg.affiliates || {}).filter(([, v]) => v)) };
 fs.writeFileSync(path.join(OUT, 'assets', 'site.js'), `window.SITE = ${JSON.stringify(pub)};\n`);
+if (siteUrl !== PLACEHOLDER && !/github\.io$/.test(new URL(siteUrl).hostname)) fs.writeFileSync(path.join(OUT, 'CNAME'), new URL(siteUrl).hostname + '\n');      // GitHub Pages custom domain
 fs.writeFileSync(path.join(OUT, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`);
 fs.writeFileSync(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
   sitemap.map(s => `  <url><loc>${s.url}</loc><lastmod>${today}</lastmod></url>`).join('\n') + `\n</urlset>\n`);
