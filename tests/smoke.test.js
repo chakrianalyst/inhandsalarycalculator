@@ -77,7 +77,7 @@ if (chromium) {
 
   test('salary: bonus shown separately, allowance chips reduce special allowance, overshoot is flagged', async () => {
     const pg = await open(SITE, 'salary-calculator.html'); const t = id => pg.$eval('#' + id, e => e.textContent.trim());
-    await pg.$eval('#sec-bonus', e => (e.open = true)); await pg.fill('#bonus', '10'); assert.match(await t('rLbl'), /fixed pay/); assert.match(await t('rYear'), /bonus after tax/);
+    await pg.$eval('#sec-bonus', e => (e.open = true)); await pg.fill('#bonus', '10'); assert.match(await t('rLbl'), /fixed pay/); assert.match(await t('rYear'), /before tax, ₹[\d,]+ after tax/);
     await pg.fill('#bonus', '0'); await pg.$eval('#sec-other', e => (e.open = true)); const before = await t('specialRow');
     await pg.click('#ochips .chip:text("Phone")'); await (await pg.$('#orows .ov')).fill('3000'); assert.notEqual(await t('specialRow'), before);
     await pg.fill('#basic', '90'); await pg.fill('#ctc', '300000'); assert.ok((await pg.$$('#warns .warn.bad')).length >= 1); await pg.close();
@@ -167,6 +167,19 @@ if (chromium) {
     await sal.selectOption('#ptState', 'manual'); assert.equal(await sal.isVisible('#pt'), true);
     const link = await browser.newPage(); await link.goto(url(SITE, 'salary-calculator.html') + '?ptState=TG'); assert.equal(await link.inputValue('#ptState'), 'TG'); await link.close();
     assert.deepEqual(sal.errs, []); await sal.close();
+  });
+
+  test('polish: PF label, regime saving in the badge, bonus chips, mobile bar above the cookie banner', async () => {
+    const sal = await open(SITE, 'salary-calculator.html'); await sal.fill('#ctc', '2000000');
+    assert.match(await sal.$eval('#pfMode', e => e.textContent), /Capped at ₹15,000 basic/);
+    assert.match(await sal.$eval('#rPill', e => e.textContent), /best for you\)( · saves you ₹[\d,]+\/yr)?$/);
+    await sal.close();
+    const bon = await browser.newPage(); await bon.goto(url(SITE, 'salary-calculator.html') + '?bonus=10'); await bon.waitForTimeout(300);
+    assert.match(await bon.$eval('#rChips', e => e.textContent), /Fixed pay: ₹[\d,]+\/mo.*Bonus after tax: ₹[\d,]+\/yr/); await bon.close();
+    const live = await browser.newPage({ viewport: { width: 390, height: 800 } }); await live.goto(url(LIVE, 'salary-calculator.html')); await live.waitForSelector('.consent');
+    await live.evaluate(() => window.scrollTo(0, 900)); await live.waitForTimeout(500);
+    const [mb, cb] = await live.evaluate(() => [document.querySelector('.m-bar').getBoundingClientRect(), document.querySelector('.consent').getBoundingClientRect()]);
+    assert.ok(mb.bottom <= cb.top + 1, `m-bar ${mb.bottom} overlaps banner ${cb.top}`); await live.close();
   });
 
   test('HRA city list: eight metros plus "any other city" drive the 50% / 40% limit on every page that uses it, and survive a share link', async () => {

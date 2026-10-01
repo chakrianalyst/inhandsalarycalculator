@@ -307,8 +307,10 @@ const Common = (() => {
     if (!(SITE.gaId || SITE.adsenseClient) || consent()) return;
     const b = document.createElement('div'); b.className = 'consent'; b.setAttribute('role', 'dialog'); b.setAttribute('aria-label', 'Cookie notice');
     b.innerHTML = `<p>We use cookies for anonymous analytics and to show ads that keep these tools free. Your calculator inputs never leave your device. <a href="privacy.html">Learn more</a></p><div><button class="btn btn-ghost btn-sm" data-c="no">Decline</button><button class="btn btn-primary btn-sm" data-c="yes">Accept</button></div>`;
-    b.addEventListener('click', e => { const c = e.target.dataset && e.target.dataset.c; if (!c) return; try { localStorage.setItem('inhand-consent', c); } catch (x) {} b.remove(); if (c === 'yes') startThirdParties(); });
+    b.addEventListener('click', e => { const c = e.target.dataset && e.target.dataset.c; if (!c) return; try { localStorage.setItem('inhand-consent', c); } catch (x) {} b.remove(); document.documentElement.style.removeProperty('--consent-lift'); if (c === 'yes') startThirdParties(); });
     document.body.appendChild(b);
+    const size = () => { if (b.isConnected) document.documentElement.style.setProperty('--consent-lift', (b.offsetHeight + 12) + 'px'); };      // lets the mobile result bar sit above the banner
+    size(); window.addEventListener('resize', size);
   }
   /** Ad placeholders -> real units only when AdSense is configured AND the visitor hasn't declined; otherwise removed. */
   function placeAds() {
