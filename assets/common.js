@@ -126,6 +126,29 @@ const Common = (() => {
     const mx = el.getAttribute('max'), mn = el.getAttribute('min');
     return { money, pct, max: mx !== null && mx !== '' ? parseFloat(mx) : (pct ? 100 : null), min: mn !== null && mn !== '' ? parseFloat(mn) : null };
   }
+  /** Screen readers: one short debounced sentence instead of re-reading the whole results panel on every keystroke; toggle groups expose their pressed state. */
+  function initA11y() {
+    const say = document.createElement('div'); say.className = 'sr-only'; say.setAttribute('aria-live', 'polite'); say.setAttribute('role', 'status'); document.body.appendChild(say);
+    document.querySelectorAll('section.results[aria-live]').forEach(sec => {
+      sec.removeAttribute('aria-live');
+      const hero = sec.querySelector('.hero-result'), big = hero && hero.querySelector('.big'); if (!big) return;
+      let t, last = '';
+      new MutationObserver(() => {
+        clearTimeout(t); t = setTimeout(() => {
+          const lbl = hero.querySelector('.lbl'), txt = ((lbl ? lbl.textContent.trim() + ': ' : '') + big.textContent.trim()).replace(/\s+/g, ' ');
+          if (txt !== last && !/—\s*$/.test(txt)) { last = txt; say.textContent = txt; }
+        }, 1200);
+      }).observe(big, { childList: true, characterData: true, subtree: true });
+    });
+    let raf = 0;                                                                  // some toggle groups are built by page scripts after init, so sync them all whenever the page changes
+    const syncSegs = () => { raf = 0; document.querySelectorAll('.seg').forEach(g => {
+      const f = g.closest('.field'), l = f && f.querySelector('label');
+      if (!g.getAttribute('role')) g.setAttribute('role', 'group'); if (l && !g.getAttribute('aria-label')) g.setAttribute('aria-label', l.textContent.trim());
+      g.querySelectorAll('button').forEach(b => { const v = b.classList.contains('on') ? 'true' : 'false'; if (b.getAttribute('aria-pressed') !== v) b.setAttribute('aria-pressed', v); });
+    }); };
+    syncSegs(); new MutationObserver(() => { if (!raf) raf = requestAnimationFrame(syncSegs); }).observe(document.body, { attributes: true, attributeFilter: ['class'], childList: true, subtree: true });
+  }
+
   function initLimits() {
     document.addEventListener('input', e => {                                    // capture phase: runs before any page calculates
       const el = e.target; if (!el || el.tagName !== 'INPUT' || el.type !== 'number') return;
@@ -337,7 +360,7 @@ const Common = (() => {
     });
   }
   function init(activeId) {
-    layout(activeId); a11y(); initLimits(); fillCities(); document.querySelectorAll('input[data-money]').forEach(e => attachMoney(e)); state.restore(); enhanceFields(); related(activeId);
+    layout(activeId); a11y(); initLimits(); initA11y(); fillCities(); document.querySelectorAll('input[data-money]').forEach(e => attachMoney(e)); state.restore(); enhanceFields(); related(activeId);
     placeAds(); placeAffiliates(); addShare(); consentBanner(); startThirdParties();
     window.addEventListener('load', () => { state.watch(); let used = false; document.addEventListener('input', () => { if (!used) { used = true; track('calculator_used', { tool: activeId }); } }); });
   }

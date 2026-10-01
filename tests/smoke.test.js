@@ -140,6 +140,16 @@ if (chromium) {
     const life = await open(SITE, 'life-simulator.html'); await typeIn(life, 'input[data-e=home][data-k=dp]', '500'); assert.equal(await life.inputValue('input[data-e=home][data-k=dp]'), '100'); await life.close();
   });
 
+  test('accessibility: results panel is not a live region; one debounced announcer; toggle groups expose pressed state', async () => {
+    const sal = await open(SITE, 'salary-calculator.html');
+    assert.equal(await sal.$$eval('[aria-live]', e => e.filter(x => x.closest('section.results')).length), 0);
+    assert.equal(await sal.$$eval('body > [role=status][aria-live=polite]', e => e.length), 1);
+    const g = await sal.$$eval('.seg', gs => gs.every(x => x.getAttribute('role') === 'group' && [...x.querySelectorAll('button')].filter(b => b.getAttribute('aria-pressed') === 'true').length === 1)); assert.ok(g);
+    await sal.fill('#ctc', '2000000'); await sal.waitForTimeout(1600);
+    assert.match(await sal.$eval('body > [role=status]', e => e.textContent), /in-hand salary: ₹/i);
+    assert.deepEqual(sal.errs, []); await sal.close();
+  });
+
   test('HRA city list: eight metros plus "any other city" drive the 50% / 40% limit on every page that uses it, and survive a share link', async () => {
     const sal = await open(SITE, 'salary-calculator.html'); const opts = await sal.$$eval('#city option', os => os.map(o => o.textContent));
     assert.deepEqual(opts, ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad', 'Any other city']); assert.equal(await sal.inputValue('#city'), 'Bengaluru');
