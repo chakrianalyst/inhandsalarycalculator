@@ -216,7 +216,7 @@
   const taxSecs = $('taxSecs');
   const sTax = sec('tax', '🏛️', 'Location & professional tax', 'Affects HRA and take-home', false); taxSecs.appendChild(sTax);
   $('b-tax').innerHTML = mfield('pt', 'Professional tax', '200', 'Charged by your state (capped at ₹2,500 a year). ₹200 a month is common.', '/month') +
-    `<div class="field"><span class="lbl">City type (for HRA)</span><div class="seg" id="metro"><button type="button" data-v="1" class="on">Metro</button><button type="button" data-v="0">Non-metro</button></div><span class="hint">Delhi, Mumbai, Kolkata, Chennai count as metro.</span></div>`;
+    `<div class="field"><label for="city">City you live in (for HRA)</label><select id="city" data-cities data-default="Bengaluru"></select><span class="hint">From FY 2026-27, HRA exemption can be up to 50% of basic in Delhi, Mumbai, Kolkata, Chennai, Bengaluru, Hyderabad, Pune and Ahmedabad, and 40% elsewhere. Old regime only. Please confirm with your employer.</span></div>`;
 
   const sOld = sec('old', '🧮', 'Old-regime benefits', 'Used only if the old regime comes out better', false); taxSecs.appendChild(sOld);
   $('b-old').innerHTML = `<p class="grp-hint">The new regime ignores these. We use them to check if the old regime would leave you with more.</p>` +
@@ -261,7 +261,7 @@
       npsMode: DUALS.nps.mode(), npsVal: DUALS.nps.val(), insVal: num('ins'), insMode: 'yr' };
   };
   const readPay = () => ({ basicM: num('pBasic'), hraM: num('pHra'), otherM: num('pOther'), bonusYr: num('pBonus'), pfM: num('pPf'), vpfM: num('pVpf'), employerNpsM: num('pNps') });
-  const readDed = () => ({ ptMonthly: num('pt'), metro: $('metro').querySelector('.on').dataset.v === '1', rentMonthly: num('rent'),
+  const readDed = () => ({ ptMonthly: num('pt'), metro: $('city').value !== 'other', rentMonthly: num('rent'),
     other80c: num('c80ppf') + num('c80elss') + num('c80lic') + num('c80hl') + num('c80tui') + num('c80oth'), nps1b: num('nps1b'),
     d80Self: num('d80s'), d80Parents: num('d80p'), selfSenior: $('d80ss').checked, parentsSenior: $('d80ps').checked, homeLoanInt: num('hli'),
     eduLoanInt: num('edu'), donations: num('don'), disability: num('dis'), ltaClaim: num('ltac'), otherDed: num('othd') });
@@ -397,9 +397,8 @@
   document.querySelectorAll('input[data-money]').forEach(e => Common.attachMoney(e));
   document.addEventListener('input', e => { if (e.target.closest && e.target.closest('#inputs')) calc(); });
   document.addEventListener('change', e => { if (e.target.closest && e.target.closest('#inputs')) calc(); });
-  Common.seg($('metro'), () => calc());
   $('btnReset').onclick = () => { location.href = location.pathname; };
-  Common.restore(); calc();
+  Common.fillCities(); Common.restore(); calc();
   if ('IntersectionObserver' in window) { const bar = $('mBar'); new IntersectionObserver(es => bar.classList.toggle('show', !es[0].isIntersecting), { threshold: 0.05 }).observe($('results')); }
 </script>
 </body>

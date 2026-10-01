@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HRA Exemption Calculator — Save Tax on Rent | InHand</title>
-<meta name="description" content="Free HRA calculator: find your tax-exempt HRA using the three-way test for metro and non-metro cities.">
+<meta name="description" content="Free HRA calculator: find your tax-exempt HRA using the three-way test for the eight metro cities and other cities.">
 <link rel="canonical" href="https://inhand.example/hra-calculator.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -28,7 +28,7 @@
         <div class="input-wrap"><span class="pre">₹</span><input type="number" id="hra" value="25000" min="0" max="300000" step="500"></div></div>
       <div class="field" data-slider><label for="rent">Rent paid (monthly)</label>
         <div class="input-wrap"><span class="pre">₹</span><input type="number" id="rent" value="28000" min="0" max="300000" step="500"></div></div>
-      <div class="field"><span class="lbl">City type</span><div class="seg" id="metro"><button data-v="0.5" class="on">Metro (50%)</button><button data-v="0.4">Non-metro (40%)</button></div></div>
+      <div class="field"><label for="city">City you live in</label><select id="city" data-cities data-default="Bengaluru"></select><span class="hint">Delhi, Mumbai, Kolkata, Chennai, Bengaluru, Hyderabad, Pune and Ahmedabad get the 50% limit from FY 2026-27. Other cities get 40%.</span></div>
     </section>
 
     <section class="results" aria-live="polite">
@@ -43,10 +43,10 @@
   <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
   <article class="container prose">
     <h2>HRA exemption rules</h2>
-    <p>If you live in rented accommodation and receive HRA, the least of the following is exempt from tax under section 10(13A): (1) actual HRA received, (2) rent paid minus 10% of basic salary, (3) 50% of basic for metro cities (Delhi, Mumbai, Kolkata, Chennai) or 40% for others.</p>
+    <p>If you live in rented accommodation and receive HRA, the least of the following is exempt from tax under section 10(13A): (1) actual HRA received, (2) rent paid minus 10% of basic salary, (3) 50% of basic if you live in one of the eight metro cities (Delhi, Mumbai, Kolkata, Chennai and, from FY 2026-27 under the Income-tax Rules 2026, Bengaluru, Hyderabad, Pune and Ahmedabad) or 40% for any other city.</p>
     <p>You must submit rent receipts to your employer, and landlord PAN is required if annual rent exceeds ₹1 lakh.</p>
     <h2>Frequently asked questions</h2>
-    <div class="faq"><details><summary>Can I claim HRA in the new tax regime?</summary><p>No. HRA exemption is available only under the old tax regime.</p></details><details><summary>Can I claim HRA if I live with my parents?</summary><p>Yes, if you actually pay them rent, they declare it as income, and you can prove payment.</p></details></div>
+    <div class="faq"><details><summary>Can I claim HRA in the new tax regime?</summary><p>No. HRA exemption is available only under the old tax regime.</p></details><details><summary>Is my city a metro for HRA?</summary><p>For FY 2026-27 the 50% limit applies to Delhi, Mumbai, Kolkata, Chennai, Bengaluru, Hyderabad, Pune and Ahmedabad. For FY 2025-26 only the first four counted. Confirm your city with your employer if it is on the border of one of these.</p></details><details><summary>Can I claim HRA if I live with my parents?</summary><p>Yes, if you actually pay them rent, they declare it as income, and you can prove payment.</p></details></div>
   </article>
   <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
 </main>
@@ -55,9 +55,8 @@
 <script>
   Common.init('hra');
   const $ = id => document.getElementById(id), f = Common.fmt;
-  const metro = Common.seg($('metro'), calc);
   function calc() {
-    const b = Common.num('basic') * 12, h = Common.num('hra') * 12, r = Common.num('rent') * 12, pct = +metro();
+    const b = Common.num('basic') * 12, h = Common.num('hra') * 12, r = Common.num('rent') * 12, pct = $('city').value === 'other' ? 0.4 : 0.5;
     const a = h, c = Math.max(0, r - 0.1 * b), d = b * pct, ex = Math.max(0, Math.min(a, c, d));
     $('ex').textContent = f(ex); $('exSub').textContent = f(ex / 12) + ' per month';
     $('kE').textContent = f(ex); $('kT').textContent = f(h - ex);

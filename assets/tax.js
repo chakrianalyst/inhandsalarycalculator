@@ -75,6 +75,8 @@ const Tax = (() => {
        assess(a, d)     Taxes the amounts under both regimes; d = deductions / personal details
      salary(legacy)     Backward-compatible wrapper used by the hike / offer / by-CTC pages.
      ==================================================================================== */
+  /** Cities where HRA exemption is up to 50% of basic (old regime). Income-tax Rules 2026 added the last four from FY 2026-27. */
+  const METRO_CITIES = ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad'];
   const K = { stdNew: 75000, stdOld: 50000, npsNew: 0.14, npsOld: 0.10, cap80c: 150000, cap1b: 50000, capHome: 200000, capDis: 125000,
               empCap: 750000, pfCeiling: 15000, pfRate: 0.12, gratuityRate: 0.0481 };
   /** annual amount from a value entered as 'pct' (of base), 'yr' or 'mo' */
@@ -188,6 +190,6 @@ const Tax = (() => {
       homeLoanInt: inp.homeLoanInt, otherDed: inp.otherDed });
   }
 
-  return { computeTax, breakdown, salary, structure, fromPayslip, assess, breakevenOldDeductions, slabTax, per, NEW_SLABS, OLD_SLABS, K };
+  return { computeTax, breakdown, METRO_CITIES, salary, structure, fromPayslip, assess, breakevenOldDeductions, slabTax, per, NEW_SLABS, OLD_SLABS, K };
 })();
 if (typeof module !== 'undefined') module.exports = Tax;

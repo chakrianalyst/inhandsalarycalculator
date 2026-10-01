@@ -287,7 +287,7 @@ const Common = (() => {
 
   /* ---------- Shareable state: inputs <-> URL query (?ctc=1800000&...) ---------- */
   const state = (() => {
-    const controls = () => [...document.querySelectorAll('input[id], input[data-e]')].filter(i => i.type !== 'range' || i.dataset.e);
+    const controls = () => [...document.querySelectorAll('input[id], input[data-e], select[id]')].filter(i => i.type !== 'range' || i.dataset.e);
     const key = el => el.id || (el.dataset.e + '.' + el.dataset.k);
     const segs = () => [...document.querySelectorAll('.seg[id]')];
     const segVal = sg => (sg.querySelector('button.on') || sg.querySelector('button')).dataset.v;
@@ -328,11 +328,19 @@ const Common = (() => {
   window.addEventListener('unhandledrejection', e => { try { track('js_error', { msg: String(e.reason).slice(0, 100) }); } catch (x) {} });
   window.addEventListener('error', e => { try { track('js_error', { msg: String(e.message).slice(0, 100), src: (e.filename || '').split('/').pop() }); } catch (x) {} });
 
+  /** <select data-cities data-default="Bengaluru"> becomes the HRA city list: the metro cities plus "Any other city". */
+  function fillCities() {
+    document.querySelectorAll('select[data-cities]').forEach(sel => {
+      if (sel.options.length || typeof Tax === 'undefined') return;
+      sel.innerHTML = Tax.METRO_CITIES.map(c => `<option value="${c}">${c}</option>`).join('') + '<option value="other">Any other city</option>';
+      sel.value = sel.dataset.default || 'other';
+    });
+  }
   function init(activeId) {
-    layout(activeId); a11y(); initLimits(); document.querySelectorAll('input[data-money]').forEach(e => attachMoney(e)); state.restore(); enhanceFields(); related(activeId);
+    layout(activeId); a11y(); initLimits(); fillCities(); document.querySelectorAll('input[data-money]').forEach(e => attachMoney(e)); state.restore(); enhanceFields(); related(activeId);
     placeAds(); placeAffiliates(); addShare(); consentBanner(); startThirdParties();
     window.addEventListener('load', () => { state.watch(); let used = false; document.addEventListener('input', () => { if (!used) { used = true; track('calculator_used', { tool: activeId }); } }); });
   }
   initTheme();
-  return { fmt, fmtCompact, num, raw, attachMoney, setVal, segSet, donut, seg, init, layout, enhanceFields, related, lineChart, restore: state.restore, track, toast };
+  return { fmt, fmtCompact, num, raw, fillCities, attachMoney, setVal, segSet, donut, seg, init, layout, enhanceFields, related, lineChart, restore: state.restore, track, toast };
 })();
