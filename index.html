@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InHand — Free Salary, Net Worth, FIRE & Rent vs Buy Calculators India</title>
+<meta name="description" content="Free, fast money calculators for India: in-hand salary (CTC to take-home), old vs new tax regime, HRA, EMI, SIP, FD and gratuity. No signup, 100% private.">
+<link rel="canonical" href="https://inhand.example/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"InHand","description":"Free money calculators for India"}</script>
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+
+<main>
+  <section class="hero">
+    <div class="container fade-in">
+      <span class="eyebrow">✨ Free · No signup · Your data never leaves your browser</span>
+      <h1>Know exactly what lands in your <span class="grad-text">bank account</span></h1>
+      <p class="lead">Quick, beautiful tools for everyday money questions — from CTC to in-hand salary, to net worth, FIRE and life-planning simulators. Answers in seconds.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="salary-calculator.html">Calculate my salary →</a>
+        <a class="btn btn-ghost" href="#tools">Browse all tools</a>
+      </div>
+      <div class="stats">
+        <div><b>12</b>tools</div>
+        <div><b>Old &amp; New</b>tax regimes</div>
+        <div><b>FY 2026-27</b>latest rules</div>
+        <div><b>100% free</b>forever</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:10px">
+    <div class="container">
+      <div class="card fade-in" style="padding:28px;box-shadow:var(--shadow);max-width:920px;margin:auto">
+        <h2 class="card-title" style="font-size:1.2rem">⚡ Quick in-hand salary check</h2>
+        <div class="row-2" style="align-items:end">
+          <div class="field" style="margin:0"><label for="q">Annual CTC</label>
+            <div class="input-wrap"><span class="pre">₹</span><input type="number" id="q" value="1200000" min="0" step="10000"></div></div>
+          <div class="hero-result" style="margin:0;padding:18px 22px">
+            <div class="lbl">Estimated monthly in-hand</div>
+            <div class="big" id="qOut" style="font-size:2rem">—</div>
+            <div class="sub" id="qSub" style="position:relative;z-index:1"></div>
+          </div>
+        </div>
+        <p style="margin-top:14px;font-size:.88rem;color:var(--muted)">Assumes 40% basic, 12% PF, metro city and the better of old/new regime. <a href="salary-calculator.html">Customise everything →</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="tools">
+    <div class="container">
+      <div class="section-head"><h2>Every calculator you need</h2><p>Pick a tool. Get the answer. Get on with your day.</p></div>
+      <div class="tool-grid" id="toolGrid"></div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--bg-2)">
+    <div class="container">
+      <div class="section-head"><h2>Why people love InHand</h2><p>Built to be faster and clearer than a spreadsheet.</p></div>
+      <div class="steps">
+        <div class="card step"><div class="n">⚡</div><h3>Instant results</h3><p>Results update as you type — no buttons, no page reloads, no waiting.</p></div>
+        <div class="card step"><div class="n">🔐</div><h3>Private by design</h3><p>All maths runs on your device. We never see or store your salary or loan details.</p></div>
+        <div class="card step"><div class="n">⚖️</div><h3>Old vs new, side by side</h3><p>See which tax regime leaves more money in your pocket, and by how much.</p></div>
+        <div class="card step"><div class="n">📱</div><h3>Works everywhere</h3><p>Designed mobile-first with a light and dark theme. Fast on any connection.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="cta-band">
+        <h2>Negotiating an offer or planning a raise?</h2>
+        <p>See the real take-home before you say yes.</p>
+        <a class="btn" href="salary-hike-calculator.html">Try the hike calculator →</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="container prose faq">
+      <h2>Frequently asked questions</h2>
+      <details><summary>What is in-hand salary?</summary><p>In-hand (take-home) salary is what you actually receive in your bank account each month after employee PF, professional tax and income tax (TDS) are deducted from your gross pay. It is usually 70–85% of monthly CTC.</p></details>
+      <details><summary>Is my data stored anywhere?</summary><p>No. Every calculation runs locally in your browser. Nothing you type is uploaded or saved on a server.</p></details>
+      <details><summary>Which tax year do the calculators use?</summary><p>FY 2026-27 (AY 2027-28) slabs, including the ₹75,000 standard deduction and the ₹12 lakh rebate limit under the new regime.</p></details>
+      <details><summary>Will the result match my payslip exactly?</summary><p>It will be very close, but employers structure pay differently (DA, reimbursements, insurance, etc.), so use it as a reliable estimate and confirm with your HR or payroll team.</p></details>
+    </div>
+  </section>
+</main>
+
+<script src="assets/tax.js"></script>
+<script src="assets/common.js"></script>
+<script>
+  Common.init('home');
+  document.getElementById('toolGrid').innerHTML = TOOLS.map(t =>
+    `<a class="tool-card" href="${t.href}"><div class="ico">${t.icon}</div><h3>${t.name}${t.hot ? '<span class="tag">Popular</span>' : ''}${t.isNew ? '<span class="tag">New</span>' : ''}</h3><p>${t.desc}</p><span class="go">Open calculator →</span></a>`).join('');
+  function quick() {
+    const ctc = Common.num('q');
+    const r = Tax.salary({ ctc, basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, metro: true, rentMonthly: 0 });
+    const best = r[r.best];
+    document.getElementById('qOut').textContent = Common.fmt(best.inHandMonth);
+    document.getElementById('qSub').textContent = `${Common.fmtCompact(best.inHandYear)} per year · ${r.best === 'new' ? 'New' : 'Old'} regime`;
+  }
+  document.getElementById('q').addEventListener('input', quick); quick();
+</script>
+</body>
+</html>

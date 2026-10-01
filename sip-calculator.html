@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIP Calculator — Mutual Fund SIP Returns with Step-Up | InHand</title>
+<meta name="description" content="Free SIP calculator to project mutual fund returns, with optional yearly step-up. See invested amount vs wealth gained.">
+<link rel="canonical" href="https://inhand.example/sip-calculator.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"SIP Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero">
+    <div class="crumbs"><a href="index.html">Home</a> › SIP calculator</div>
+    <h1>SIP Calculator <span class="grad-text">see your money grow</span></h1>
+    <p>Find out how much a monthly SIP could grow into over the years — with optional annual step-up.</p>
+  </div>
+  <div class="container tool-layout">
+    <section class="card" aria-label="Inputs">
+      <h2 class="card-title">🌱 Investment details</h2>
+      <div class="field" data-slider><label for="sip">Monthly investment</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="sip" value="10000" min="500" max="500000" step="500"></div></div>
+      <div class="field" data-slider><label for="ret">Expected return (p.a.)</label>
+        <div class="input-wrap"><input type="number" id="ret" value="12" min="1" max="30" step="0.5"><span class="suf">%</span></div></div>
+      <div class="field" data-slider><label for="yrs">Time period (years)</label>
+        <div class="input-wrap"><input type="number" id="yrs" value="15" min="1" max="40" step="1"><span class="suf">yrs</span></div></div>
+      <div class="field" data-slider><label for="step">Yearly step-up</label>
+        <div class="input-wrap"><input type="number" id="step" value="0" min="0" max="25" step="1"><span class="suf">%</span></div><span class="hint">Increase your SIP by this % every year as your income grows.</span></div>
+    </section>
+
+    <section class="results" aria-live="polite">
+      <div class="hero-result"><div class="lbl">Estimated future value</div><div class="big" id="fv">—</div><div class="sub" id="fvSub"></div></div>
+      <div class="kpis"><div class="kpi"><div class="k">Amount invested</div><div class="v" id="kI"></div></div><div class="kpi good"><div class="k">Wealth gained</div><div class="v" id="kG"></div></div></div>
+      <div class="card"><h2 class="card-title">🥧 Invested vs returns</h2>
+        <div class="chart-row"><svg class="donut" id="donut" viewBox="0 0 170 170"></svg><div class="legend" id="legend"></div></div></div>
+      <div class="offer"><div><b>Ready to start your SIP?</b><small>Open a zero-commission direct mutual fund account.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="mutual-funds">Compare offers</a></div>
+    </section>
+
+  </div>
+  <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
+  <article class="container prose">
+    <h2>How does a SIP work?</h2>
+    <p>A Systematic Investment Plan invests a fixed amount in a mutual fund every month. Returns compound, so the longer you stay invested the faster your corpus grows. This calculator uses the effective monthly rate equivalent to your expected annual return and assumes investment at the start of each month.</p>
+    <h2>Why step-up matters</h2>
+    <p>Raising your SIP by even 10% each year as your salary grows can increase your final corpus dramatically compared with a flat SIP.</p>
+    <h2>Frequently asked questions</h2>
+    <div class="faq"><details><summary>Are SIP returns guaranteed?</summary><p>No. Mutual fund returns are market-linked. The figures here are projections based on the return you enter, not a promise.</p></details><details><summary>What return rate should I assume?</summary><p>Equity funds have historically delivered roughly 10–14% over long periods, but be conservative in planning.</p></details><details><summary>Is tax included?</summary><p>No. Capital-gains tax on redemption is not deducted from the result.</p></details></div>
+  </article>
+  <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
+</main>
+<script src="assets/tax.js"></script>
+<script src="assets/common.js"></script>
+<script>
+  Common.init('sip');
+  const $ = id => document.getElementById(id), f = Common.fmt;
+  function calc() {
+    const r = Math.pow(1 + Common.num('ret') / 100, 1 / 12) - 1, yrs = Math.round(Common.num('yrs')), step = Common.num('step') / 100;
+    let fv = 0, inv = 0, s = Common.num('sip');
+    for (let y = 0; y < yrs; y++) { for (let m = 0; m < 12; m++) { fv = (fv + s) * (1 + r); inv += s; } s *= 1 + step; }
+    $('fv').textContent = f(fv); $('fvSub').textContent = Common.fmtCompact(fv) + ' after ' + yrs + ' years';
+    $('kI').textContent = f(inv); $('kG').textContent = f(fv - inv);
+    Common.donut($('donut'), $('legend'), [{ label: 'Invested', value: inv }, { label: 'Returns', value: fv - inv }], 'Total', Common.fmtCompact(fv));
+  }
+  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc)); calc();
+</script>
+</body>
+</html>

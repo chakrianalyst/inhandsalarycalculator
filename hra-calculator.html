@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HRA Exemption Calculator — Save Tax on Rent | InHand</title>
+<meta name="description" content="Free HRA calculator: find your tax-exempt HRA using the three-way test for metro and non-metro cities.">
+<link rel="canonical" href="https://inhand.example/hra-calculator.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"HRA Exemption Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero">
+    <div class="crumbs"><a href="index.html">Home</a> › HRA calculator</div>
+    <h1>HRA Exemption Calculator <span class="grad-text">save tax on rent</span></h1>
+    <p>See how much of your House Rent Allowance is tax-free under the old regime.</p>
+  </div>
+  <div class="container tool-layout">
+    <section class="card" aria-label="Inputs">
+      <h2 class="card-title">🏠 Rent & salary</h2>
+      <div class="field" data-slider><label for="basic">Basic salary (monthly, incl. DA)</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="basic" value="50000" min="5000" max="500000" step="1000"></div></div>
+      <div class="field" data-slider><label for="hra">HRA received (monthly)</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="hra" value="25000" min="0" max="300000" step="500"></div></div>
+      <div class="field" data-slider><label for="rent">Rent paid (monthly)</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="rent" value="28000" min="0" max="300000" step="500"></div></div>
+      <div class="field"><span class="lbl">City type</span><div class="seg" id="metro"><button data-v="0.5" class="on">Metro (50%)</button><button data-v="0.4">Non-metro (40%)</button></div></div>
+    </section>
+
+    <section class="results" aria-live="polite">
+      <div class="hero-result"><div class="lbl">Tax-exempt HRA (per year)</div><div class="big" id="ex">—</div><div class="sub" id="exSub"></div></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">📐 The three-way test</h2><div class="tbl-wrap"><table class="tbl" id="tbl"></table></div>
+        <p class="hint" style="margin-top:10px;color:var(--muted);font-size:.82rem">Exempt HRA is the <b>lowest</b> of the three amounts. HRA exemption is only available under the old tax regime.</p></div>
+      <div class="kpis"><div class="kpi good"><div class="k">Exempt HRA</div><div class="v" id="kE"></div></div><div class="kpi bad"><div class="k">Taxable HRA</div><div class="v" id="kT"></div></div></div>
+      <div class="offer"><div><b>Pay rent via credit card?</b><small>Earn rewards on rent payments with select cards.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="rent">Compare offers</a></div>
+    </section>
+
+  </div>
+  <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
+  <article class="container prose">
+    <h2>HRA exemption rules</h2>
+    <p>If you live in rented accommodation and receive HRA, the least of the following is exempt from tax under section 10(13A): (1) actual HRA received, (2) rent paid minus 10% of basic salary, (3) 50% of basic for metro cities (Delhi, Mumbai, Kolkata, Chennai) or 40% for others.</p>
+    <p>You must submit rent receipts to your employer, and landlord PAN is required if annual rent exceeds ₹1 lakh.</p>
+    <h2>Frequently asked questions</h2>
+    <div class="faq"><details><summary>Can I claim HRA in the new tax regime?</summary><p>No. HRA exemption is available only under the old tax regime.</p></details><details><summary>Can I claim HRA if I live with my parents?</summary><p>Yes, if you actually pay them rent, they declare it as income, and you can prove payment.</p></details></div>
+  </article>
+  <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
+</main>
+<script src="assets/tax.js"></script>
+<script src="assets/common.js"></script>
+<script>
+  Common.init('hra');
+  const $ = id => document.getElementById(id), f = Common.fmt;
+  const metro = Common.seg($('metro'), calc);
+  function calc() {
+    const b = Common.num('basic') * 12, h = Common.num('hra') * 12, r = Common.num('rent') * 12, pct = +metro();
+    const a = h, c = Math.max(0, r - 0.1 * b), d = b * pct, ex = Math.max(0, Math.min(a, c, d));
+    $('ex').textContent = f(ex); $('exSub').textContent = f(ex / 12) + ' per month';
+    $('kE').textContent = f(ex); $('kT').textContent = f(h - ex);
+    const min = Math.min(a, c, d), row = (l, v) => `<tr class="${v === min ? 'pos' : ''}"><td>${l}</td><td>${f(v)}${v === min ? ' ✓' : ''}</td></tr>`;
+    $('tbl').innerHTML = row('Actual HRA received', a) + row('Rent paid − 10% of basic', c) + row(`${pct * 100}% of basic`, d);
+  }
+  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc)); calc();
+</script>
+</body>
+</html>

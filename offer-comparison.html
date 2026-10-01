@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job Offer Comparison Calculator — In-Hand Salary Side by Side | InHand</title>
+<meta name="description" content="Compare 2–3 job offers in India on real in-hand salary, joining bonus, ESOPs, rent and 4-year value. Free tool.">
+<link rel="canonical" href="https://inhand.example/offer-comparison.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Job Offer Comparison","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero">
+    <div class="crumbs"><a href="index.html">Home</a> › Offer comparison</div>
+    <h1>Job Offer Comparison <span class="grad-text">pick the real winner</span></h1>
+    <p>Stop comparing CTCs. Compare what actually lands in your bank account — after tax, rent and living costs.</p>
+  </div>
+  <div class="container offers-grid">
+    <section class="card offer-card" id="card0" aria-label="Offer 1">
+      <input class="oname" id="n0" value="Offer A — Startup" aria-label="Offer name">
+      <div class="field"><label for="ctc0">Annual CTC</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="ctc0" value="1800000" min="300000" max="20000000" step="50000"></div></div>
+      <div class="row-2">
+      <div class="field"><label for="var0">Variable (% of CTC)</label>
+        <div class="input-wrap"><input type="number" id="var0" value="15" min="0" max="50" step="1"><span class="suf">%</span></div></div>
+      <div class="field"><label for="bonus0">Joining bonus</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="bonus0" value="100000" min="0" max="5000000" step="10000"></div></div>
+      <div class="field"><label for="esop0">ESOP / RSU value per year</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="esop0" value="300000" min="0" max="20000000" step="10000"></div></div>
+      <div class="field"><label for="rent0">Monthly rent there</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="rent0" value="30000" min="0" max="300000" step="500"></div></div>
+      </div>
+      <div class="field"><label for="oth0">Other monthly costs (commute etc.)</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="oth0" value="3000" min="0" max="100000" step="500"></div></div>
+      <div class="field" style="margin:0"><span class="lbl">City type</span><select id="metro0"><option value="1" selected>Metro</option><option value="0">Non-metro</option></select></div>
+    </section>
+    <section class="card offer-card" id="card1" aria-label="Offer 2">
+      <input class="oname" id="n1" value="Offer B — Big company" aria-label="Offer name">
+      <div class="field"><label for="ctc1">Annual CTC</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="ctc1" value="2400000" min="300000" max="20000000" step="50000"></div></div>
+      <div class="row-2">
+      <div class="field"><label for="var1">Variable (% of CTC)</label>
+        <div class="input-wrap"><input type="number" id="var1" value="10" min="0" max="50" step="1"><span class="suf">%</span></div></div>
+      <div class="field"><label for="bonus1">Joining bonus</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="bonus1" value="0" min="0" max="5000000" step="10000"></div></div>
+      <div class="field"><label for="esop1">ESOP / RSU value per year</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="esop1" value="0" min="0" max="20000000" step="10000"></div></div>
+      <div class="field"><label for="rent1">Monthly rent there</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="rent1" value="36000" min="0" max="300000" step="500"></div></div>
+      </div>
+      <div class="field"><label for="oth1">Other monthly costs (commute etc.)</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="oth1" value="6000" min="0" max="100000" step="500"></div></div>
+      <div class="field" style="margin:0"><span class="lbl">City type</span><select id="metro1"><option value="1" selected>Metro</option><option value="0">Non-metro</option></select></div>
+    </section>
+    <section class="card offer-card off" id="card2" aria-label="Offer 3">
+      <input class="oname" id="n2" value="Offer C — Small town" aria-label="Offer name">
+      <div class="field"><label for="ctc2">Annual CTC</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="ctc2" value="1500000" min="300000" max="20000000" step="50000"></div></div>
+      <div class="row-2">
+      <div class="field"><label for="var2">Variable (% of CTC)</label>
+        <div class="input-wrap"><input type="number" id="var2" value="0" min="0" max="50" step="1"><span class="suf">%</span></div></div>
+      <div class="field"><label for="bonus2">Joining bonus</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="bonus2" value="0" min="0" max="5000000" step="10000"></div></div>
+      <div class="field"><label for="esop2">ESOP / RSU value per year</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="esop2" value="0" min="0" max="20000000" step="10000"></div></div>
+      <div class="field"><label for="rent2">Monthly rent there</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="rent2" value="18000" min="0" max="300000" step="500"></div></div>
+      </div>
+      <div class="field"><label for="oth2">Other monthly costs (commute etc.)</label>
+        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="oth2" value="2000" min="0" max="100000" step="500"></div></div>
+      <div class="field" style="margin:0"><span class="lbl">City type</span><select id="metro2"><option value="1">Metro</option><option value="0" selected>Non-metro</option></select></div>
+    </section>
+  </div>
+  <div class="container">
+    <div class="toolbar" style="justify-content:center;margin:18px 0 0">
+      <label class="toggle" style="margin:0;width:auto;gap:18px"><span>Compare a third offer<small>Switch on to include Offer C</small></span><span class="switch"><input type="checkbox" id="third"><i></i></span></label>
+    </div>
+    <div class="hero-result full-card" id="hero"><div class="lbl">Best offer over 4 years</div><div class="big" id="wBig">—</div><div class="sub" id="wSub"></div></div>
+    <div class="card full-card"><h2 class="card-title">📋 Side-by-side</h2><div class="tbl-wrap"><table class="tbl cmp-table" id="tbl"></table></div></div>
+    <div class="card full-card"><h2 class="card-title">💸 Money left each month after rent &amp; costs</h2><div class="bars" id="bars"></div></div>
+      <div class="offer"><div><b>Negotiating an offer?</b><small>See what the extra rupees do for you — try the hike calculator.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="career">Compare offers</a></div>
+  </div>
+  <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
+  <article class="container prose">
+    <h2>Why compare offers on in-hand pay, not CTC?</h2>
+    <p>CTC is a marketing number. It includes employer PF, gratuity and variable pay you may never fully receive. Two offers with the same CTC can differ by ₹5,000–₹15,000 a month in what reaches your account. This tool converts every offer into <strong>monthly in-hand salary</strong> using the same tax engine as our salary calculator.</p>
+    <h2>Remember cost of living</h2>
+    <p>A higher salary in an expensive city can leave you with less. That's why the comparison subtracts rent and other monthly costs to show <strong>money left each month</strong> — the number that actually builds your wealth.</p>
+    <h2>How joining bonus and ESOPs are treated</h2>
+    <p>The joining bonus and annual ESOP value are taxed at your marginal slab rate and shown after tax. ESOPs are paper value until you can sell, so treat them with healthy scepticism, especially at startups.</p>
+    <h2>Frequently asked questions</h2>
+    <div class="faq"><details><summary>Is the variable pay guaranteed?</summary><p>No. This tool assumes you earn 100% of the variable pay. Try setting it lower to see a conservative case.</p></details><details><summary>Does the 4-year surplus include salary hikes?</summary><p>No. It assumes today's pay for four years, which keeps the comparison fair between offers.</p></details><details><summary>Which tax regime is used?</summary><p>For each offer the regime with the higher take-home is applied automatically.</p></details></div>
+  </article>
+  <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
+</main>
+<script src="assets/tax.js"></script>
+<script src="assets/common.js"></script>
+<script>
+  Common.init('offers');
+  const $ = id => document.getElementById(id), f = Common.fmt;
+  const base = { basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200 };
+  const N = 3, active = () => [0, 1, 2].filter(i => i < 2 || $('third').checked);
+  function compute(i) {
+    const ctc = Common.num('ctc' + i), bonus = Common.num('bonus' + i), esop = Common.num('esop' + i), rent = Common.num('rent' + i), oth = Common.num('oth' + i);
+    const r = Tax.salary({ ...base, ctc, variablePct: Common.num('var' + i), metro: $('metro' + i).value === '1', rentMonthly: rent });
+    const b = r[r.best], extraTax = x => Tax.computeTax(b.taxable + x, r.best).total - b.tax;
+    const bonusAT = bonus - extraTax(bonus), esopAT = esop - extraTax(esop);
+    const left = b.inHandMonth - rent - oth;
+    return { name: $('n' + i).value || 'Offer ' + (i + 1), ctc, regime: r.best, inHand: b.inHandMonth, inHandYear: b.inHandYear, tax: b.tax, bonusAT, esopAT, rent, oth, left,
+             yr1: b.inHandYear + bonusAT + esopAT, four: 4 * (b.inHandYear + esopAT) + bonusAT, surplus4: 48 * left + 4 * esopAT + bonusAT };
+  }
+  function calc() {
+    const ids = active(), o = ids.map(compute);
+    [0, 1, 2].forEach(i => $('card' + i).classList.toggle('off', !ids.includes(i)));
+    const best = k => Math.max(...o.map(x => x[k]));
+    const win = o.findIndex(x => x.surplus4 === best('surplus4'));
+    ids.forEach((id, j) => $('card' + id).classList.toggle('win', j === win && o.length > 1));
+    $('wBig').textContent = o[win].name;
+    const second = o.filter((_, j) => j !== win).sort((a, b) => b.surplus4 - a.surplus4)[0];
+    $('wSub').textContent = second ? `Keeps ${f(o[win].surplus4 - second.surplus4)} more than ${second.name} over 4 years, after rent and living costs.` : '';
+    const rows = [
+      ['grp', 'Pay'], ['CTC', 'ctc', 'max'], ['Tax regime used', x => x.regime === 'new' ? 'New' : 'Old'], ['Monthly in-hand', 'inHand', 'max'], ['Yearly in-hand', 'inHandYear', 'max'],
+      ['grp', 'Cost of living'], ['Rent / month', x => f(x.rent)], ['Other costs / month', x => f(x.oth)], ['Left after costs / month', 'left', 'max'],
+      ['grp', 'Bonus & equity (after tax)'], ['Joining bonus', 'bonusAT', 'max'], ['ESOP / RSU per year', 'esopAT', 'max'],
+      ['grp', 'The big picture'], ['Year-1 cash (in-hand + bonus + ESOP)', 'yr1', 'max'], ['4-year cash surplus', 'surplus4', 'max'],
+    ];
+    let html = '<tr><th></th>' + o.map(x => `<th>${x.name.replace(/</g, '&lt;')}</th>`).join('') + '</tr>';
+    rows.forEach(([label, key, mode]) => {
+      if (label === 'grp') { html += `<tr class="grp"><td colspan="${o.length + 1}">${key}</td></tr>`; return; }
+      html += `<tr><td>${label}</td>` + o.map(x => {
+        if (typeof key === 'function') return `<td>${key(x)}</td>`;
+        const isBest = o.length > 1 && mode === 'max' && x[key] === best(key) && o.filter(y => y[key] === x[key]).length === 1;
+        return `<td class="${isBest ? 'best' : ''}">${f(x[key])}</td>`; }).join('') + '</tr>';
+    });
+    $('tbl').innerHTML = html;
+    const mx = Math.max(1, ...o.map(x => Math.abs(x.left)));
+    $('bars').innerHTML = o.map(x => `<div class="vs-row"><div class="top"><span>${x.name.replace(/</g, '&lt;')}</span><span>${f(x.left)}</span></div><div class="track"><i style="width:${Math.max(0, x.left) / mx * 100}%"></i></div></div>`).join('');
+  }
+  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc)); calc();
+</script>
+</body>
+</html>

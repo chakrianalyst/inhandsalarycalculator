@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact | {{SITE_NAME}}</title>
+<meta name="description" content="Get in touch with feedback, corrections or partnership questions.">
+<link rel="canonical" href="https://inhand.example/contact.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero"><div class="crumbs"><a href="index.html">Home</a> › Contact</div><h1>Contact us</h1></div>
+  <article class="container prose" style="padding-top:10px">
+<p>We read every message. The fastest way to reach us is email:</p>
+<p style="font-size:1.25rem"><a href="mailto:{{CONTACT_EMAIL}}"><strong>{{CONTACT_EMAIL}}</strong></a></p>
+<h2>What to write about</h2>
+<ul><li><strong>A wrong number?</strong> Tell us the calculator, what you entered, and what you expected. We will investigate and fix confirmed errors.</li>
+<li><strong>A tool you would like?</strong> Suggest it, we keep a running wish list.</li>
+<li><strong>Partnerships and advertising.</strong> Mention your company and what you have in mind.</li></ul>
+<p>Please do not send personal financial documents or passwords; we will never ask for them.</p>
+  </article>
+
+</main>
+<script src="assets/tax.js"></script>
+<script src="assets/common.js"></script>
+<script>Common.init('contact');</script>
+</body>
+</html>

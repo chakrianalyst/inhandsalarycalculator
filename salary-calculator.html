@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>In-Hand Salary Calculator India (CTC to Take-Home) — FY 2026-27 | InHand</title>
+<meta name="description" content="Free in-hand salary calculator for India. Enter your CTC or payslip with basic, HRA, bonus, PF, NPS and deductions. Compare old vs new tax regime for FY 2026-27.">
+<link rel="canonical" href="https://inhand.example/salary-calculator.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"In-Hand Salary Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero">
+    <div class="crumbs"><a href="index.html">Home</a> › Salary calculator</div>
+    <h1>In-Hand Salary Calculator <span class="grad-text">(CTC → Take-Home)</span></h1>
+    <p>Enter your CTC and the calculator fills in sensible defaults. Fine-tune basic, HRA, bonus, PF, NPS and deductions, or start from your payslip. See old vs new regime side by side.</p>
+  </div>
+
+  <div class="container tool-layout">
+    <!-- ================= INPUTS ================= -->
+    <section class="card" id="inputs" aria-label="Inputs">
+      <div class="seg mode-seg" id="mode"><button type="button" data-v="ctc" class="on">💼 I have an offer (CTC)</button><button type="button" data-v="payslip">🧾 I have my payslip</button></div>
+
+      <div id="ctcMode">
+        <div class="field" data-slider>
+          <label for="ctc">Annual CTC</label>
+          <div class="input-wrap"><span class="pre">₹</span><input id="ctc" data-money data-words="ctcWords" value="1200000" min="100000" max="10000000" step="10000" aria-describedby="ctcWords"></div>
+          <div class="words" id="ctcWords" aria-live="polite"></div>
+        </div>
+        <div class="alloc" id="alloc" aria-label="How your CTC is split"></div>
+        <div class="nw-groups" id="ctcSecs"></div>
+      </div>
+
+      <div id="payMode" hidden><div class="nw-groups" id="paySecs"></div></div>
+
+      <div class="sec-label" style="margin:22px 0 8px">Taxes &amp; deductions</div>
+      <div class="nw-groups" id="taxSecs"></div>
+      <div class="toolbar"><button class="btn btn-ghost btn-sm" id="btnReset" type="button">↺ Reset everything</button></div>
+    </section>
+
+    <!-- ================= RESULTS ================= -->
+    <section class="results" id="results" aria-live="polite" aria-label="Results">
+      <div class="hero-result">
+        <div class="lbl" id="rLbl">Monthly in-hand salary</div>
+        <div class="big" id="rMonth">—</div>
+        <div class="sub" id="rYear"></div>
+        <span class="pill" id="rPill"></span>
+      </div>
+      <div class="pay-tools" style="margin-top:-6px">
+        <div class="seg" id="regime" style="flex:1;min-width:230px"><button type="button" data-v="auto" class="on">Best regime</button><button type="button" data-v="new">New</button><button type="button" data-v="old">Old</button></div>
+      </div>
+      <div class="banner" id="rBanner"></div>
+      <div class="warns" id="warns"></div>
+
+      <div class="card" style="margin-bottom:18px">
+        <h2 class="card-title">⚖️ Old vs new regime</h2>
+        <div class="compare">
+          <div class="cmp" id="cmpNew"><div class="n">NEW REGIME</div><div class="v" id="cnV"></div><div class="s" id="cnS"></div></div>
+          <div class="cmp" id="cmpOld"><div class="n">OLD REGIME</div><div class="v" id="coV"></div><div class="s" id="coS"></div></div>
+        </div>
+        <div class="meter" id="meter"><i id="meterBar" style="width:0"></i></div>
+        <div class="meter-t" id="meterT"></div>
+      </div>
+
+      <div class="card" style="margin-bottom:18px" id="tdsCard" hidden>
+        <h2 class="card-title">🔎 Is your TDS right?</h2>
+        <div id="tdsBody"></div>
+      </div>
+
+      <div class="card" style="margin-bottom:18px">
+        <div class="pay-tools"><h2 class="card-title" style="margin:0">🧾 Payslip breakdown</h2>
+          <div class="seg" id="view"><button type="button" data-v="mo" class="on">Monthly</button><button type="button" data-v="yr">Yearly</button></div></div>
+        <div class="tbl-wrap"><table class="tbl pay cmp-table" id="pay"></table></div>
+      </div>
+
+      <div class="card" id="donutCard">
+        <h2 class="card-title">🥧 Where your CTC goes</h2>
+        <div class="chart-row"><svg class="donut" id="donut" viewBox="0 0 170 170" role="img" aria-label="CTC breakdown chart"></svg><div class="legend" id="legend"></div></div>
+      </div>
+
+      <div class="offer">
+        <div><b>Want to grow your take-home?</b><small>Compare tax-saving investments and top-rated credit cards in minutes.</small></div>
+        <a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="tax-saving">Explore options</a>
+      </div>
+    </section>
+  </div>
+
+  <div class="m-bar" id="mBar"><div><small id="mBarLbl">Monthly in-hand</small><b id="mBarVal">—</b></div><a href="#results">See details ▸</a></div>
+
+  <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
+
+  <article class="container prose">
+    <h2>How is in-hand salary calculated?</h2>
+    <p>Your <strong>CTC (Cost to Company)</strong> is the total an employer spends on you in a year. It includes items you never receive as cash, such as employer PF, gratuity and employer-paid insurance, so your take-home is always lower than CTC ÷ 12.</p>
+    <ol>
+      <li><strong>Gross salary</strong> = CTC − employer PF − gratuity − employer NPS − employer-paid benefits. It is made of basic, HRA, special and other allowances, and bonus.</li>
+      <li>Subtract your <strong>employee PF</strong> (and any voluntary PF) and <strong>professional tax</strong>.</li>
+      <li>Subtract <strong>income tax (TDS)</strong> on taxable income after your deductions.</li>
+      <li>Divide what remains by 12 for your <strong>monthly in-hand salary</strong>. Bonus is shown separately because it is paid at a different time.</li>
+    </ol>
+    <h2>New tax regime slabs (FY 2026-27)</h2>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Taxable income</th><th>Rate</th></tr>
+      <tr><td>Up to ₹4,00,000</td><td>Nil</td></tr><tr><td>₹4,00,001 – ₹8,00,000</td><td>5%</td></tr>
+      <tr><td>₹8,00,001 – ₹12,00,000</td><td>10%</td></tr><tr><td>₹12,00,001 – ₹16,00,000</td><td>15%</td></tr>
+      <tr><td>₹16,00,001 – ₹20,00,000</td><td>20%</td></tr><tr><td>₹20,00,001 – ₹24,00,000</td><td>25%</td></tr>
+      <tr><td>Above ₹24,00,000</td><td>30%</td></tr>
+    </table></div>
+    <p>A rebate under section 87A makes income up to <strong>₹12 lakh</strong> tax-free (₹12.75 lakh of salary after the ₹75,000 standard deduction). Plus 4% health &amp; education cess, and surcharge on very high incomes.</p>
+    <h2>Which regime is better?</h2>
+    <p>The new regime wins for most people. The old regime can win if you claim large HRA, 80C, 80D and home-loan interest deductions. The meter above shows exactly how much deduction you would need. Read the <a href="old-vs-new-tax-regime.html">old vs new regime guide</a> and see <a href="in-hand-salary-by-ctc.html">in-hand salary at every CTC</a>.</p>
+    <h2>Frequently asked questions</h2>
+    <div class="faq">
+      <details><summary>Why is my in-hand salary much lower than CTC/12?</summary><p>Because CTC includes employer PF and gratuity, and your own PF, professional tax and income tax are deducted before payout.</p></details>
+      <details><summary>What PF should I choose?</summary><p>PF is 12% of basic. Many employers cap it at ₹15,000 of basic (₹1,800 a month). Choose the option that matches your offer letter or payslip, or enter a custom amount.</p></details>
+      <details><summary>How is bonus treated?</summary><p>Bonus or variable pay is taxed together with your other income. The calculator shows your fixed monthly in-hand separately and the bonus after tax, because the bonus is not paid every month. You can also set an expected payout percentage.</p></details>
+      <details><summary>Is professional tax deductible?</summary><p>Yes under the old regime. It is not allowed as a deduction in the new regime, but it is still deducted from your pay.</p></details>
+      <details><summary>Can I use my payslip instead of CTC?</summary><p>Yes. Switch to “I have my payslip”, enter your monthly lines, and the calculator estimates your yearly tax, compares the regimes, and checks whether the TDS your employer deducts looks right.</p></details>
+    </div>
+  </article>
+
+  <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
+</main>
+
+<script src="assets/tax.js"></script>
+<script src="assets/words.js"></script>
+<script src="assets/common.js"></script>
+<script>
+  Common.init('salary');
+  const $ = id => document.getElementById(id), f = Common.fmt, num = Common.num, raw = Common.raw;
+  const modeGet = Common.seg($('mode'), () => calc()), regimeGet = Common.seg($('regime'), () => calc()), viewGet = Common.seg($('view'), () => calc());
+
+  /* ---------- builders ---------- */
+  function sec(id, icon, title, sub, open) {
+    const d = document.createElement('details'); d.className = 'grp'; d.open = !!open; d.id = 'sec-' + id;
+    d.innerHTML = `<summary><div class="gi">${icon}</div><div class="gt">${title}<small>${sub}</small></div><div class="gv" id="v-${id}"></div><span class="chev">›</span></summary><div class="grp-body" id="b-${id}"></div>`;
+    return d;
+  }
+  const mfield = (id, label, val, hint, suf) => `<div class="field"><label for="${id}">${label}</label><div class="input-wrap"><span class="pre">₹</span><input id="${id}" data-money value="${val}" placeholder="0">${suf ? `<span class="suf">${suf}</span>` : ''}</div>${hint ? `<span class="hint">${hint}</span>` : ''}</div>`;
+  const toggle = (id, title, small, on) => `<label class="toggle"><span>${title}<small>${small}</small></span><span class="switch"><input type="checkbox" id="${id}"${on ? ' checked' : ''}><i></i></span></label>`;
+  const sub = t => `<div class="sub-h">${t}</div>`;
+
+  /** A value entered as % of a base, ₹/year or ₹/month. Switching mode converts the number so its meaning is preserved. */
+  const DUALS = {};
+  function dual(id, label, o) {
+    const el = document.createElement('div'); el.className = 'field dual';
+    el.innerHTML = `<label for="${id}">${label}</label><div class="dual-row"><div class="input-wrap"><span class="pre">₹</span><input id="${id}" data-money value="${o.val}" placeholder="0"><span class="suf">%</span></div>` +
+      `<div class="seg seg-sm" id="${id}M"><button type="button" data-v="pct">%</button><button type="button" data-v="yr">₹/yr</button><button type="button" data-v="mo">₹/mo</button></div></div><div class="cap"></div>${o.hint ? `<span class="hint">${o.hint}</span>` : ''}`;
+    const inp = el.querySelector('input'), segEl = el.querySelector('.seg'), pre = el.querySelector('.pre'), suf = el.querySelector('.suf'), capEl = el.querySelector('.cap');
+    Common.segSet(segEl, o.mode); let last = o.mode;
+    const mode = Common.seg(segEl, nm => { const A = Tax.per(last, val(), o.base()); last = nm; fromAnnual(A); calc(); });
+    const val = () => parseFloat(Common.raw(inp)) || 0;
+    const annual = () => Tax.per(mode(), val(), o.base());
+    const fromAnnual = A => { const m = mode(), b = o.base(); const v = m === 'pct' ? (b > 0 ? +(A / b * 100).toFixed(2) : 0) : m === 'yr' ? Math.round(A) : Math.round(A / 12); Common.setVal(inp, v || ''); };
+    Common.attachMoney(inp, { decimals: () => mode() === 'pct' });
+    const refresh = () => { last = mode(); const pct = last === 'pct'; pre.hidden = pct; suf.hidden = !pct; const A = annual(), b = o.base();
+      capEl.textContent = A > 0 ? `= ${f(A)}/yr · ${f(A / 12)}/mo` + (b > 0 && last !== 'pct' ? ` · ${+(A / b * 100).toFixed(2)}% of ${o.baseName}` : '') : ''; };
+    return (DUALS[id] = { el, mode, val, annual, refresh });
+  }
+
+  /* ---------- CTC-mode sections (in the order a payslip reads) ---------- */
+  const ctcSecs = $('ctcSecs'), ctcAnnual = () => num('ctc');
+  const sBasic = sec('basic', '💼', 'Basic salary', 'The base of your pay; PF and gratuity are calculated on it', true);
+  ctcSecs.appendChild(sBasic); $('b-basic').appendChild(dual('basic', 'Basic salary', { mode: 'pct', val: 40, base: ctcAnnual, baseName: 'CTC', hint: 'Most offers set basic at about 40–50% of CTC.' }).el);
+
+  const sHra = sec('hra', '🏠', 'HRA', 'House rent allowance', false);
+  ctcSecs.appendChild(sHra); $('b-hra').appendChild(dual('hra', 'HRA', { mode: 'pct', val: 50, base: () => DUALS.basic.annual(), baseName: 'basic', hint: 'Usually 40–50% of basic. HRA is only partly tax-free, and only in the old regime.' }).el);
+
+  const sBonus = sec('bonus', '🎯', 'Bonus / variable pay', 'Performance bonus, incentives', false);
+  ctcSecs.appendChild(sBonus);
+  $('b-bonus').appendChild(dual('bonus', 'Variable pay (target)', { mode: 'pct', val: 0, base: ctcAnnual, baseName: 'CTC', hint: 'Part of CTC that is paid only if targets are met.' }).el);
+  $('b-bonus').insertAdjacentHTML('beforeend', `<div class="field"><label for="payout">Expected payout</label><div class="input-wrap"><input type="number" id="payout" value="100" min="0" max="200" step="5"><span class="suf">%</span></div><span class="hint">Try 70–80% for a conservative estimate. Unpaid variable is simply not received.</span></div>`);
+
+  const sOther = sec('other', '🧩', 'Other components', 'Special allowance fills whatever CTC is left', false);
+  ctcSecs.appendChild(sOther);
+  $('b-other').innerHTML = `<div id="orows" style="display:grid;gap:10px"></div><div class="special" id="specialRow"></div><div class="chips" id="ochips"><span class="chips-l">Quick add:</span></div>` +
+    `<input type="hidden" id="othersData" value=""><p class="grp-hint">Special allowance is calculated for you so everything adds up to your CTC. Add allowances your offer lists separately; they reduce the special allowance.</p>`;
+
+  const sRet = sec('ret', '🛡️', 'Retirals', 'PF, gratuity and NPS, paid for you by your employer', false);
+  ctcSecs.appendChild(sRet);
+  $('b-ret').innerHTML = sub('Provident fund (PF)') +
+    `<div class="field"><span class="lbl">PF is calculated on</span><div class="seg" id="pfMode"><button type="button" data-v="full" class="on">12% of basic</button><button type="button" data-v="cap">Minimum (₹1,800/mo)</button><button type="button" data-v="custom">Custom</button></div><div class="cap" id="pfInfo"></div></div><div id="pfCustom"></div>` +
+    mfield('vpf', 'Voluntary PF (VPF)', '', 'Extra PF you choose to put in each month. Comes out of your pay; counts under 80C (old regime).', '/month') +
+    sub('Gratuity') + toggle('grat', 'Gratuity is included in my CTC', '4.81% of basic; paid only when you leave after 5 years', true) +
+    sub('NPS (employer contribution)') + `<div id="npsBox"></div><div class="cap" id="npsInfo"></div>` +
+    sub('Other employer benefits') + mfield('ins', 'Employer-paid insurance & other non-cash benefits', '', 'Group health or term cover and similar items listed inside your CTC.', '/year');
+  $('pfCustom').appendChild(dual('pfc', 'Custom PF contribution', { mode: 'pct', val: 10, base: () => DUALS.basic.annual(), baseName: 'basic', hint: 'Your PF deduction equals the employer contribution.' }).el);
+  $('npsBox').appendChild(dual('nps', 'Employer NPS contribution', { mode: 'yr', val: 0, base: () => DUALS.basic.annual(), baseName: 'basic' }).el);
+  const pfGet = Common.seg($('pfMode'), () => calc());
+
+  /* ---------- Payslip-mode sections ---------- */
+  const paySecs = $('paySecs');
+  const pE = sec('pearn', '🧾', 'Monthly earnings', 'Copy these from your payslip', true); paySecs.appendChild(pE);
+  $('b-pearn').innerHTML = mfield('pBasic', 'Basic salary', '40,000', '', '/month') + mfield('pHra', 'HRA', '20,000', '', '/month') +
+    mfield('pOther', 'Special & other allowances (total)', '33,000', 'Everything else that is paid every month and taxable.', '/month') +
+    mfield('pBonus', 'Bonus / variable expected this year', '', 'Total you expect to receive in the year.', '/year');
+  const pD = sec('pded', '➖', 'Deductions on your payslip', 'Employee-side lines', true); paySecs.appendChild(pD);
+  $('b-pded').innerHTML = mfield('pPf', 'Employee PF', '4,800', 'Your employer’s PF is assumed equal.', '/month') + mfield('pVpf', 'Voluntary PF', '', '', '/month') +
+    mfield('pNps', 'Employer NPS contribution (if any)', '', 'Shown on the payslip as an employer contribution.', '/month') +
+    mfield('pTds', 'TDS deducted per month', '', 'Optional. We will check it against your expected tax.', '/month');
+
+  /* ---------- Tax & deductions (shared by both modes) ---------- */
+  const taxSecs = $('taxSecs');
+  const sTax = sec('tax', '🏛️', 'Location & professional tax', 'Affects HRA and take-home', false); taxSecs.appendChild(sTax);
+  $('b-tax').innerHTML = mfield('pt', 'Professional tax', '200', 'Charged by your state (capped at ₹2,500 a year). ₹200 a month is common.', '/month') +
+    `<div class="field"><span class="lbl">City type (for HRA)</span><div class="seg" id="metro"><button type="button" data-v="1" class="on">Metro</button><button type="button" data-v="0">Non-metro</button></div><span class="hint">Delhi, Mumbai, Kolkata, Chennai count as metro.</span></div>`;
+
+  const sOld = sec('old', '🧮', 'Old-regime benefits', 'Used only if the old regime comes out better', false); taxSecs.appendChild(sOld);
+  $('b-old').innerHTML = `<p class="grp-hint">The new regime ignores these. We use them to check if the old regime would leave you with more.</p>` +
+    sub('HRA') + mfield('rent', 'Rent you pay', '', 'Used for the HRA exemption. Needs HRA in your salary.', '/month') + `<div class="cap" id="hraInfo"></div>` +
+    sub('Section 80C (limit ₹1.5 lakh, your PF counts first)') +
+    mfield('c80ppf', 'PPF', '', '', '/year') + mfield('c80elss', 'ELSS / tax-saving mutual funds', '', '', '/year') + mfield('c80lic', 'Life insurance premium', '', '', '/year') +
+    mfield('c80hl', 'Home-loan principal repaid', '', '', '/year') + mfield('c80tui', 'Children’s tuition fees', '', '', '/year') + mfield('c80oth', 'Other (NSC, 5-yr FD, SSY…)', '', '', '/year') +
+    `<div class="meter" id="m80"><i id="m80b" style="width:0"></i></div><div class="meter-t" id="m80t"></div>` +
+    sub('Health insurance (80D)') + mfield('d80s', 'Premium for self, spouse & children', '', 'Limit ₹25,000 (₹50,000 if 60+).', '/year') + toggle('d80ss', 'Self / spouse is 60 or older', 'Raises the limit to ₹50,000', false) +
+    mfield('d80p', 'Premium for parents', '', 'Limit ₹25,000 (₹50,000 if 60+).', '/year') + toggle('d80ps', 'Parents are 60 or older', 'Raises the limit to ₹50,000', false) +
+    sub('NPS and home loan') + mfield('nps1b', 'Your own NPS contribution — 80CCD(1B)', '', 'Extra deduction up to ₹50,000.', '/year') + mfield('hli', 'Home-loan interest (self-occupied) — 24(b)', '', 'Up to ₹2,00,000.', '/year') +
+    `<details class="adv"><summary>More deductions</summary>` + mfield('ltac', 'LTA you claim as exempt', '', 'Limited to the LTA in your salary; allowed for travel on two journeys in a four-year block.', '/year') +
+    mfield('edu', 'Education-loan interest — 80E', '', 'No upper limit; for up to 8 years.', '/year') + mfield('don', 'Donations — 80G (eligible amount)', '', '', '/year') +
+    mfield('dis', 'Disability — 80DD / 80U', '', 'Up to ₹1,25,000.', '/year') + mfield('othd', 'Any other old-regime deduction', '', '', '/year') + `</details>`;
+
+  /* ---------- "Other components" rows ---------- */
+  const orows = $('orows'), hidden = $('othersData');
+  const CHIPS = [['LTA / leave travel', 'lta'], ['Conveyance / transport'], ['Phone & internet'], ['Meal card / food coupons'], ['Fuel allowance'], ['Gadget / wellness'], ['Education allowance'], ['Other allowance']];
+  let synced = '';
+  function addOther(name, val, period, kind) {
+    const r = document.createElement('div'); r.className = 'orow'; r.dataset.kind = kind || 'other';
+    r.innerHTML = `<input class="nm" type="text" maxlength="30" aria-label="Allowance name"><div class="input-wrap"><span class="pre">₹</span><input class="ov" data-money placeholder="0" aria-label="Amount"></div><select class="op" aria-label="Period"><option value="mo">/mo</option><option value="yr">/yr</option></select><button type="button" class="x" aria-label="Remove allowance">×</button>`;
+    r.querySelector('.nm').value = name || ''; r.querySelector('.ov').value = val || ''; r.querySelector('.op').value = period || 'mo';
+    Common.attachMoney(r.querySelector('.ov')); r.querySelector('.x').onclick = () => { r.remove(); sync(); calc(); };
+    ['input', 'change'].forEach(ev => r.addEventListener(ev, sync)); orows.appendChild(r); sync(); return r;
+  }
+  const rowsData = () => [...orows.children].map(r => ({ name: r.querySelector('.nm').value.trim() || 'Allowance', kind: r.dataset.kind, val: parseFloat(raw(r.querySelector('.ov'))) || 0, mode: r.querySelector('.op').value }));
+  function sync() { synced = rowsData().map(o => [o.name.replace(/[~;]/g, ' '), o.val, o.mode, o.kind].join('~')).join(';'); hidden.value = synced; chipVis(); }
+  function rebuild(str) { orows.innerHTML = ''; (str || '').split(';').filter(Boolean).slice(0, 12).forEach(p => { const [n, v, m, k] = p.split('~'); addOther(n, v, m === 'yr' ? 'yr' : 'mo', k === 'lta' ? 'lta' : 'other'); }); sync(); }
+  hidden.addEventListener('input', () => { if (hidden.value !== synced) rebuild(hidden.value); calc(); });
+  const chipEls = CHIPS.map(([n, k]) => { const c = document.createElement('button'); c.type = 'button'; c.className = 'chip'; c.textContent = '+ ' + n;
+    c.onclick = () => { const r = addOther(n === 'LTA / leave travel' ? 'LTA' : n, '', k === 'lta' ? 'yr' : 'mo', k); r.querySelector('.ov').focus(); calc(); }; $('ochips').appendChild(c); return [n, k, c]; });
+  function chipVis() { chipEls.forEach(([n, k, c]) => { c.hidden = k === 'lta' && [...orows.children].some(r => r.dataset.kind === 'lta'); }); }
+  chipVis();
+
+  /* ---------- read inputs ---------- */
+  const readCtc = () => {
+    const pf = pfGet(), cust = DUALS.pfc;
+    return { ctc: num('ctc'), basicMode: DUALS.basic.mode(), basicVal: DUALS.basic.val(), hraMode: DUALS.hra.mode(), hraVal: DUALS.hra.val(),
+      bonusMode: DUALS.bonus.mode(), bonusVal: DUALS.bonus.val(), payoutPct: $('payout').value === '' ? 100 : num('payout'), others: rowsData(),
+      pfMode: pf === 'custom' ? cust.mode() : pf, pfVal: cust.val(), vpfVal: num('vpf'), vpfMode: 'mo', gratuityOn: $('grat').checked,
+      npsMode: DUALS.nps.mode(), npsVal: DUALS.nps.val(), insVal: num('ins'), insMode: 'yr' };
+  };
+  const readPay = () => ({ basicM: num('pBasic'), hraM: num('pHra'), otherM: num('pOther'), bonusYr: num('pBonus'), pfM: num('pPf'), vpfM: num('pVpf'), employerNpsM: num('pNps') });
+  const readDed = () => ({ ptMonthly: num('pt'), metro: $('metro').querySelector('.on').dataset.v === '1', rentMonthly: num('rent'),
+    other80c: num('c80ppf') + num('c80elss') + num('c80lic') + num('c80hl') + num('c80tui') + num('c80oth'), nps1b: num('nps1b'),
+    d80Self: num('d80s'), d80Parents: num('d80p'), selfSenior: $('d80ss').checked, parentsSenior: $('d80ps').checked, homeLoanInt: num('hli'),
+    eduLoanInt: num('edu'), donations: num('don'), disability: num('dis'), ltaClaim: num('ltac'), otherDed: num('othd') });
+
+  /* ---------- render ---------- */
+  const ALLOC = ['var(--c1)', 'var(--c5)', 'var(--c3)', 'var(--c2)', 'var(--c4)', 'var(--c6)', '#a78bfa'];
+  function calc() {
+    const m = modeGet(), isCtc = m === 'ctc';
+    $('ctcMode').hidden = !isCtc; $('payMode').hidden = isCtc; $('donutCard').hidden = !isCtc; $('tdsCard').hidden = isCtc || num('pTds') <= 0;
+    Object.values(DUALS).forEach(d => d.refresh());
+    $('pfCustom').hidden = pfGet() !== 'custom';
+    const a = isCtc ? Tax.structure(readCtc()) : Tax.fromPayslip(readPay()), d = readDed(), r = Tax.assess(a, d);
+    const reg = regimeGet(), key = reg === 'auto' ? r.best : reg, b = r[key], o = r[key === 'new' ? 'old' : 'new'], keyName = key === 'new' ? 'New' : 'Old';
+    const hasBonus = r.bonus > 0, pct = r.ctc ? Math.round(b.inHandYear / r.ctc * 100) : null;
+
+    // hero
+    $('rLbl').textContent = (isCtc ? 'Monthly in-hand salary' : 'Expected monthly in-hand') + (hasBonus ? ' (fixed pay)' : '');
+    $('rMonth').textContent = f(b.fixedMonthly);
+    $('rYear').textContent = hasBonus ? `+ ${f(b.bonusAfterTax)} bonus after tax each year · ${f(b.inHandMonth)}/mo on average` : `${f(b.inHandYear)} per year` + (pct !== null ? ` · ${pct}% of CTC` : '');
+    $('rPill').textContent = keyName + ' regime' + (reg === 'auto' ? ' (best for you)' : ' selected');
+    const diff = b.inHandYear - o.inHandYear;
+    $('rBanner').className = 'banner' + (Math.abs(diff) < 1 ? ' info' : '');
+    $('rBanner').innerHTML = Math.abs(diff) < 1 ? '<span>ℹ️</span><span>Both regimes give the same take-home for your inputs.</span>'
+      : reg === 'auto' ? `<span>💡</span><span>The <b>${key} regime</b> is better for you: you keep <b>${f(r.saving)}</b> more per year (${f(r.saving / 12)}/month) than under the ${key === 'new' ? 'old' : 'new'} regime.</span>`
+      : `<span>${diff >= 0 ? '✅' : '⚠️'}</span><span>You chose the <b>${key} regime</b>. It gives you <b>${f(Math.abs(diff))}</b> ${diff >= 0 ? 'more' : 'less'} per year than the ${key === 'new' ? 'old' : 'new'} regime.</span>`;
+    $('cnV').textContent = f(r.new.fixedMonthly) + '/mo'; $('cnS').textContent = 'Tax ' + f(r.new.tax) + '/yr'; $('coV').textContent = f(r.old.fixedMonthly) + '/mo'; $('coS').textContent = 'Tax ' + f(r.old.tax) + '/yr';
+    $('cmpNew').classList.toggle('best', r.best === 'new' && r.saving >= 1); $('cmpOld').classList.toggle('best', r.best === 'old' && r.saving >= 1);
+
+    // break-even meter
+    const D = r.old.deductions, need = r.breakeven; $('meter').classList.toggle('full', D >= need);
+    $('meterBar').style.width = need <= 0 ? '100%' : Math.min(100, D / need * 100) + '%';
+    $('meterT').innerHTML = need <= 0 ? 'The old regime already wins, even with no extra deductions.' : `Old-regime deductions you claim: <b>${f(D)}</b> · needed for old to match new: <b>${f(need)}</b>` + (D >= need ? ' ✓' : ` (${f(need - D)} short)`);
+
+    // warnings
+    const W = [], w = (cls, t) => W.push(`<div class="warn ${cls}"><span>${cls === 'bad' ? '⛔' : '⚠️'}</span><span>${t}</span></div>`);
+    if (isCtc && r.shortfall > 0) w('bad', `Your components add up to <b>${f(r.shortfall)}</b> more than your CTC. Reduce basic, HRA, bonus or other items.`);
+    if (a.employerNps > a.basic * 0.10 + 1) w('', `Employer NPS above ${f(a.basic * 0.10)} (10% of basic) is not deductible in the old regime; the new regime allows up to ${f(a.basic * 0.14)} (14%).`);
+    const c80in = a.employeePf + a.vpf + d.other80c; if (c80in > 150000 + 1) w('', `Your 80C investments (${f(c80in)}) exceed the ₹1.5 lakh limit. The extra ${f(c80in - 150000)} is ignored.`);
+    if (r.excess > 0) w('', `Employer PF + NPS above ₹7.5 lakh a year is taxable. ${f(r.excess)} has been added to your taxable income.`);
+    if (isCtc && r.bonusTarget > r.bonus + 1) w('', `Only ${f(r.bonus)} of the ${f(r.bonusTarget)} variable pay is assumed to be paid.`);
+    if (d.ltaClaim > r.ltaAmt + 1) w('', `LTA exemption is limited to the LTA in your salary (${f(r.ltaAmt)}).`);
+    $('warns').innerHTML = W.join('');
+
+    // allocation bar (CTC mode)
+    if (isCtc) {
+      const parts = [['Basic', a.basic], ['HRA', a.hra], ['Bonus', a.bonusTarget], ['Allowances', a.otherSum + a.special], ['Employer PF', a.employerPf], ['Gratuity', a.gratuity], ['NPS & benefits', a.employerNps + a.insurance]];
+      const tot = Math.max(a.ctc, a.allocated, 1); $('alloc').classList.toggle('over', a.shortfall > 0);
+      $('alloc').innerHTML = `<div class="alloc-bar">${parts.map((p, i) => `<i style="width:${p[1] / tot * 100}%;background:${ALLOC[i]}"></i>`).join('')}</div><div class="alloc-legend">${parts.filter(p => p[1] > 0).map(p => `<span><i style="background:${ALLOC[parts.indexOf(p)]}"></i>${p[0]} ${Math.round(p[1] / tot * 100)}%</span>`).join('')}</div>`;
+      const sp = $('specialRow'); sp.className = 'special' + (a.shortfall > 0 ? ' bad' : '');
+      sp.innerHTML = a.shortfall > 0 ? `<span>Special allowance</span><b>₹0 · over by ${f(a.shortfall)}</b>` : `<span>Special allowance (auto)</span><b>${f(a.special)}/yr · ${f(a.special / 12)}/mo</b>`;
+    }
+
+    // section summaries
+    const setV = (id, t) => { const e = $('v-' + id); if (e) e.textContent = t; };
+    setV('basic', f(a.basic) + '/yr'); setV('hra', f(a.hra) + '/yr'); setV('bonus', hasBonus ? f(r.bonus) + '/yr' : 'None'); setV('other', f(a.otherSum + a.special) + '/yr');
+    setV('ret', f(a.employerPf + a.gratuity + a.employerNps + a.insurance) + '/yr'); setV('pearn', f((a.basic + a.hra + a.otherSum) / 12) + '/mo'); setV('pded', f(a.employeePf / 12) + '/mo PF');
+    setV('tax', f(r.pt) + '/yr PT'); setV('old', f(r.old.deductions) + ' total');
+    const pfAmt = a.employerPf; $('pfInfo').textContent = isCtc ? `Employer PF ${f(pfAmt)}/yr (${f(pfAmt / 12)}/mo). Your own PF deduction is the same.` : '';
+    $('npsInfo').textContent = a.basic > 0 ? `Tax-free up to ${f(a.basic * 0.14)} (new regime, 14% of basic) or ${f(a.basic * 0.10)} (old regime, 10% of basic).` : '';
+    const hi = $('hraInfo'); hi.textContent = a.hra > 0 && d.rentMonthly > 0 ? `HRA exemption: ${f(r.old.hraExempt)} of your ${f(a.hra)} HRA is tax-free.` : '';
+    const u80 = Math.min(150000, c80in), mb = $('m80b'); mb.style.width = u80 / 150000 * 100 + '%'; $('m80').classList.toggle('full', u80 >= 150000);
+    $('m80t').textContent = `₹${Math.round(u80).toLocaleString('en-IN')} of ₹1,50,000 used (includes your PF ${f(a.employeePf + a.vpf)})`;
+
+    // payslip table
+    const dv = viewGet() === 'mo' ? 12 : 1, per = viewGet() === 'mo' ? '/mo' : '/yr', row = (l, v, c = '') => `<tr class="${c}"><td>${l}</td><td>${f(v / dv)}</td></tr>`, head = t => `<tr class="grp"><td colspan="2">${t}</td></tr>`;
+    let h = `<tr><th>${keyName} regime</th><th>${per === '/mo' ? 'Per month' : 'Per year'}</th></tr>` + head('Earnings') + row('Basic', a.basic) + row('HRA', a.hra);
+    a.others.forEach(x => { if (x.amt > 0) h += row(x.name, x.amt); });
+    if (isCtc) h += row('Special allowance', a.special); else if (a.otherSum > 0 && !a.others.length) h += row('Special & other allowances', a.otherSum);
+    if (hasBonus) h += row(`Bonus / variable${dv === 12 ? ' (averaged over 12 months)' : ''}`, r.bonus);
+    h += row('Gross salary', r.gross, 'total') + head('Deductions') + row('Employee PF', -a.employeePf, 'neg');
+    if (a.vpf > 0) h += row('Voluntary PF', -a.vpf, 'neg');
+    h += row('Professional tax', -r.pt, 'neg') + row('Income tax (TDS) + cess', -b.tax, 'neg') + row('Net in-hand' + (hasBonus ? ' (incl. bonus after tax)' : ''), b.inHandYear, 'total net');
+    const emp = [['Employer PF', a.employerPf], ['Gratuity', a.gratuity], ['Employer NPS', a.employerNps], ['Insurance & benefits', a.insurance]].filter(x => x[1] > 0);
+    if (emp.length && isCtc) h += head('Paid by your employer, not in your hands') + emp.map(x => row(x[0], x[1], 'off')).join('');
+    $('pay').innerHTML = h;
+
+    // donut (CTC mode)
+    if (isCtc) {
+      const items = [{ label: 'In-hand salary', value: b.inHandYear }, { label: 'Income tax', value: b.tax }, { label: 'Employee PF', value: a.employeePf + a.vpf }, { label: 'Employer PF', value: a.employerPf },
+        { label: 'Gratuity, NPS, benefits & PT', value: a.gratuity + a.employerNps + a.insurance + r.pt }];
+      if (r.bonusTarget > r.bonus) items.push({ label: 'Unpaid variable', value: r.bonusTarget - r.bonus });
+      Common.donut($('donut'), $('legend'), items, 'CTC', Common.fmtCompact(r.ctc));
+    }
+
+    // TDS check (payslip mode)
+    if (!isCtc && num('pTds') > 0) {
+      const act = num('pTds') * 12, exp = b.tax, gap = act - exp;
+      $('tdsBody').innerHTML = `<div class="kpis" style="margin-bottom:12px"><div class="kpi"><div class="k">Your TDS / year</div><div class="v">${f(act)}</div></div><div class="kpi"><div class="k">Expected (${key} regime)</div><div class="v">${f(exp)}</div></div></div>` +
+        (Math.abs(gap) < Math.max(1000, exp * 0.03) ? `<div class="banner"><span>✅</span><span>Your TDS looks right for your declared deductions.</span></div>`
+        : gap > 0 ? `<div class="banner info"><span>💰</span><span>About <b>${f(gap)}</b> more tax is being deducted than needed this year. Declare your investments and rent to your employer, or claim the refund when you file your return.</span></div>`
+        : `<div class="banner info"><span>⚠️</span><span>About <b>${f(-gap)}</b> less tax is being deducted than expected. You may owe this at year end; consider setting some aside.</span></div>`);
+    }
+
+    // mobile sticky bar
+    $('mBarVal').textContent = f(b.fixedMonthly) + '/mo'; $('mBarLbl').textContent = keyName + ' regime · in-hand';
+  }
+
+  /* ---------- wiring ---------- */
+  document.querySelectorAll('input[data-money]').forEach(e => Common.attachMoney(e));
+  document.addEventListener('input', e => { if (e.target.closest && e.target.closest('#inputs')) calc(); });
+  document.addEventListener('change', e => { if (e.target.closest && e.target.closest('#inputs')) calc(); });
+  Common.seg($('metro'), () => calc());
+  $('btnReset').onclick = () => { location.href = location.pathname; };
+  Common.restore(); calc();
+  if ('IntersectionObserver' in window) { const bar = $('mBar'); new IntersectionObserver(es => bar.classList.toggle('show', !es[0].isIntersecting), { threshold: 0.05 }).observe($('results')); }
+</script>
+</body>
+</html>

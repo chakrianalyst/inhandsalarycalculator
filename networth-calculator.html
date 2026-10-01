@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Net Worth Calculator India — Assets, Liabilities & Health Score</title>
+<meta name="description" content="Free net worth calculator for India. Add assets and liabilities — bank, FD, stocks, EPF, property, gold, loans — and get your net worth, allocation and health score.">
+<link rel="canonical" href="https://inhand.example/networth-calculator.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Net Worth Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero">
+    <div class="crumbs"><a href="index.html">Home</a> › Net worth calculator</div>
+    <h1>Net Worth Calculator <span class="grad-text">& Health Score</span></h1>
+    <p>List everything you own and owe. Get your net worth, a clear picture of where your wealth sits, and a financial health score with tips. Saved privately in your browser.</p>
+  </div>
+
+  <div class="container tool-layout">
+    <!-- INPUTS -->
+    <section class="card" aria-label="Inputs">
+      <h2 class="card-title">🧾 About you <span style="font-weight:500;color:var(--muted);font-size:.8rem">(for benchmarks)</span></h2>
+      <div class="row-2">
+        <div class="field"><label for="age">Age</label><div class="input-wrap"><input type="number" id="age" min="18" max="90" step="1"><span class="suf">yrs</span></div></div>
+        <div class="field"><label for="inc">Annual income</label><div class="input-wrap"><span class="pre">₹</span><input type="number" id="inc" min="0" step="10000"></div></div>
+      </div>
+      <div class="field"><label for="exp">Monthly expenses (incl. EMIs)</label><div class="input-wrap"><span class="pre">₹</span><input type="number" id="exp" min="0" step="1000"></div>
+        <span class="hint">Used to check your emergency fund. Leave blank to skip.</span></div>
+
+      <div class="sec-label">Assets — what you own</div>
+      <div class="nw-groups" id="assets"></div>
+      <div class="sec-label" style="margin-top:18px">Liabilities — what you owe</div>
+      <div class="nw-groups" id="liabs"></div>
+
+      <div class="toolbar">
+        <button class="btn btn-ghost btn-sm" id="btnSample">Load sample data</button>
+        <button class="btn btn-ghost btn-sm" id="btnClear">Clear all</button>
+        <button class="btn btn-ghost btn-sm" id="btnPrint">🖨 Print / save PDF</button>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="results" aria-live="polite" aria-label="Results">
+      <div class="hero-result" id="hero">
+        <div class="lbl">Your net worth</div>
+        <div class="big" id="nw">—</div>
+        <div class="sub" id="nwSub"></div>
+        <span class="pill" id="nwPill"></span>
+      </div>
+      <div class="kpis">
+        <div class="kpi good"><div class="k">Total assets</div><div class="v" id="kA"></div></div>
+        <div class="kpi bad"><div class="k">Total liabilities</div><div class="v" id="kL"></div></div>
+        <div class="kpi"><div class="k">Liquid assets</div><div class="v" id="kLiq"></div></div>
+        <div class="kpi"><div class="k">Debt-to-asset ratio</div><div class="v" id="kD"></div></div>
+      </div>
+
+      <div class="card" style="margin-bottom:18px">
+        <h2 class="card-title">❤️ Financial health score</h2>
+        <div class="gauge-wrap">
+          <svg class="gauge" id="gauge" viewBox="0 0 200 120" role="img" aria-label="Financial health score"></svg>
+          <div class="score-side"><div class="lab" id="sLab"></div><p id="sNote"></p><div class="parts" id="parts"></div></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:18px">
+        <h2 class="card-title">🥧 Where your wealth sits</h2>
+        <div class="chart-row"><svg class="donut" id="donut" viewBox="0 0 170 170" role="img" aria-label="Asset allocation"></svg><div class="legend" id="legend"></div></div>
+      </div>
+
+      <div class="card" style="margin-bottom:18px">
+        <h2 class="card-title">⚖️ Assets vs liabilities</h2>
+        <div class="vs" id="vs"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">💡 Insights for you</h2>
+        <div class="insights" id="insights"></div>
+      </div>
+
+      <div class="offer">
+        <div><b>Turn idle cash into growth</b><small>Compare high-yield savings, FDs and direct mutual funds.</small></div>
+        <a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="wealth">Explore options</a>
+      </div>
+    </section>
+  </div>
+
+  <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
+
+  <article class="container prose">
+    <h2>What is net worth?</h2>
+    <p><strong>Net worth = total assets − total liabilities.</strong> It is the single best snapshot of your financial position: what you would be left with if you sold everything you own and paid off every debt. Track it once a quarter and watch the trend, not just the number.</p>
+    <h2>How is the financial health score calculated?</h2>
+    <p>The score (0–100) blends up to five signals. Signals you leave blank are skipped and the rest are re-scaled.</p>
+    <ul>
+      <li><strong>Debt-to-asset ratio (30 pts):</strong> full marks at 20% or lower, falling to zero when debts equal assets.</li>
+      <li><strong>Emergency fund (25 pts):</strong> cash &amp; bank balances ÷ monthly expenses; 6 months or more scores full marks.</li>
+      <li><strong>Growth assets (20 pts):</strong> share of assets in investments and retirement accounts; 50% or more scores full marks.</li>
+      <li><strong>Diversification (10 pts):</strong> penalises having more than half of your wealth in a single bucket (for most Indians, the home).</li>
+      <li><strong>Age benchmark (15 pts):</strong> your net worth versus the rule-of-thumb target of <em>age × annual income ÷ 10</em>.</li>
+    </ul>
+    <p>The score is an educational guide, not a rating from any bureau or a substitute for advice from a qualified planner.</p>
+    <h2>What counts as an asset?</h2>
+    <p>Include the current <strong>market value</strong> of bank balances, deposits, stocks, mutual funds, EPF/PPF/NPS balances, property, gold and vehicles. Use what you could realistically sell them for, not what you paid. Do not double-count a home: enter its value as an asset and the outstanding home loan as a liability.</p>
+    <h2>Frequently asked questions</h2>
+    <div class="faq">
+      <details><summary>Is my data saved anywhere?</summary><p>Only in your own browser (local storage) so the page remembers your entries next time. Nothing is ever uploaded. Use “Clear all” to wipe it.</p></details>
+      <details><summary>Is my home part of my net worth?</summary><p>Yes — it is usually the biggest asset. But it is illiquid, so the calculator separates liquid assets (cash, deposits, stocks, funds) from locked-in ones (home, EPF, gold).</p></details>
+      <details><summary>Is a negative net worth bad?</summary><p>It is common early in a career with an education or home loan. What matters is that the number is improving over time.</p></details>
+      <details><summary>How can I increase my net worth faster?</summary><p>Raise your savings rate, clear high-interest debt first, invest regularly for the long term, and keep 6 months of expenses as an emergency fund.</p></details>
+    </div>
+  </article>
+
+  <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
+</main>
+
+<script src="assets/tax.js"></script>
+<script src="assets/common.js"></script>
+<script>
+  Common.init('networth');
+  const $ = id => document.getElementById(id), f = Common.fmt;
+  const KEY = 'inhand-networth-v1';
+
+  const GROUPS = [
+    { id: 'cash',   type: 'asset', liquid: true,  icon: '💵', name: 'Cash & bank',          sub: 'Instantly available',   items: [['Savings accounts', 350000], ['Cash in hand', 20000], ['Liquid funds', 100000]] },
+    { id: 'fixed',  type: 'asset', liquid: true,  icon: '🔒', name: 'Fixed income',         sub: 'FDs, RDs, bonds',        items: [['Fixed deposits', 400000], ['Recurring deposits', 0], ['Bonds / debentures', 0]] },
+    { id: 'market', type: 'asset', liquid: true,  icon: '📈', name: 'Stocks & funds',       sub: 'Market-linked',          items: [['Stocks', 300000], ['Mutual funds', 600000], ['Crypto / other', 0]] },
+    { id: 'retire', type: 'asset', liquid: false, icon: '🏖️', name: 'Retirement',           sub: 'EPF, PPF, NPS',          items: [['EPF', 650000], ['PPF', 200000], ['NPS', 150000]] },
+    { id: 'real',   type: 'asset', liquid: false, icon: '🏠', name: 'Property & valuables', sub: 'Home, gold, vehicles',   items: [['Home (market value)', 6500000], ['Gold & jewellery', 350000], ['Vehicle(s)', 400000]] },
+    { id: 'otherA', type: 'asset', liquid: false, icon: '🧩', name: 'Other assets',         sub: 'Business, ESOPs, lent',  items: [['Business / ESOPs', 0], ['Money lent to others', 0]] },
+    { id: 'loans',  type: 'liab',  icon: '🏦', name: 'Loans',                   sub: 'Home, car, personal',    items: [['Home loan', 3800000], ['Car loan', 180000], ['Personal loan', 0], ['Education loan', 0]] },
+    { id: 'cards',  type: 'liab',  icon: '💳', name: 'Credit cards & dues',     sub: 'Short-term obligations', items: [['Credit card outstanding', 25000], ['Other dues', 0]] },
+  ];
+
+  /* Quick-add suggestions (kept out of the default view so the form stays simple) and valuation tips */
+  const CHIPS = {
+    cash:   ['Salary / joint account', 'Foreign-currency balance', 'Wallets & prepaid cards'],
+    fixed:  ['Post office schemes (MIS / TD)', 'SCSS (Senior Citizens)', 'NSC / KVP', 'Corporate FDs / NCDs', 'Government bonds / T-bills', 'Debt mutual funds'],
+    market: ['ETFs', 'International stocks / funds', 'REITs / InvITs', 'PMS / AIF', 'Vested ESOPs / RSUs', 'Unlisted shares'],
+    retire: ['Sukanya Samriddhi (SSY)', 'Gratuity accrued', 'Superannuation fund', 'Employee pension (EPS)', 'Atal Pension Yojana'],
+    real:   ['Second home', 'Land / plots', 'Rental / commercial property', 'Sovereign Gold Bonds', 'Gold ETF / digital gold', 'Silver', 'Art & collectibles', 'Two-wheeler'],
+    otherA: ['Insurance surrender value (ULIP / endowment)', 'Rental / security deposits', 'Tax refund due', 'Receivables / advances', 'Provident fund of a past employer'],
+    loans:  ['Loan against property', 'Gold loan', 'Two-wheeler loan', 'Business loan', 'Loan from family / friends', 'Overdraft'],
+    cards:  ['BNPL / pay-later dues', 'Income tax due', 'Unpaid bills / rent', 'Credit line / EMI card'],
+  };
+  const HINTS = {
+    cash:   'Use today’s balance. Money you may need within days belongs here.',
+    fixed:  'Use the current value including accrued interest. Your total, not the amount originally invested.',
+    market: 'Use today’s market value. For ESOPs, count only vested shares you could actually sell.',
+    retire: 'Use the latest passbook / statement balance, including your employer’s contribution. Locked until retirement, so counted as illiquid.',
+    real:   'Use today’s resale value, not what you paid. Jewellery: weight × today’s rate (making charges are usually not recovered). Enter gold you hold physically or as SGB / ETF separately if you like.',
+    otherA: 'Insurance counts only at surrender value. The sum assured or life cover is not an asset.',
+    loans:  'Enter the outstanding principal today, not the original loan amount.',
+    cards:  'Include anything you owe and would have to pay soon.',
+  };
+  const sample = () => ({ age: 32, inc: 1800000, exp: 60000, g: Object.fromEntries(GROUPS.map(g => [g.id, g.items.map(([n, v]) => ({ n, v }))])) });
+  const blank = () => ({ age: '', inc: '', exp: '', g: Object.fromEntries(GROUPS.map(g => [g.id, g.items.map(([n]) => ({ n, v: '' }))])) });
+  let S;
+  try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+  if (!S || !S.g) S = sample();
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+  const val = v => { const n = parseFloat(v); return isNaN(n) || n < 0 ? 0 : n; };
+  const gTotal = id => (S.g[id] || []).reduce((s, r) => s + val(r.v), 0);
+
+
+  /* Optional gold helper: grams x purity x today's 24K rate (no price is hard-coded; it changes daily) */
+  function goldHelper(body, gid) {
+    const d = document.createElement('details'); d.className = 'gold';
+    const fld = (label, inner) => `<div class="field"><label>${label}</label>${inner}</div>`;
+    d.innerHTML = `<summary>🪙 Gold value helper <small>grams × today’s rate</small></summary>
+      <div class="gold-grid">
+        ${fld('Weight (grams)', '<div class="input-wrap"><input type="number" class="g-w" min="0" step="0.1" placeholder="e.g. 50"><span class="suf">g</span></div>')}
+        ${fld('Today’s 24K rate (₹/gram)', '<div class="input-wrap"><span class="pre">₹</span><input type="number" class="g-r" min="0" step="1" placeholder="from a jeweller / rate site"></div>')}
+        ${fld('Purity', '<select class="g-p"><option value="1">24K (99.9%)</option><option value="0.916667" selected>22K</option><option value="0.75">18K</option><option value="0.583333">14K</option></select>')}
+        ${fld('Form', '<select class="g-f"><option value="1">Coins / bars</option><option value="0.9" selected>Jewellery (−10%)</option></select>')}
+      </div>
+      <div class="gold-out"><span class="g-o">Enter the weight and today’s rate.</span><button type="button" class="btn btn-primary btn-sm g-use" disabled>Use for “Gold &amp; jewellery”</button></div>
+      <p class="grp-hint">Jewellery is reduced by ~10% because making charges are usually not recovered on resale; coins and bars are not. For Sovereign Gold Bonds, gold ETFs or digital gold, use their own rows — they are valued by units or market price, not weight.</p>`;
+    const q = c => d.querySelector(c), rateKey = 'inhand-gold-rate';
+    try { const r = localStorage.getItem(rateKey); if (r) q('.g-r').value = r; } catch (e) {}
+    let value = 0;
+    const calc = () => {
+      const w = parseFloat(q('.g-w').value) || 0, r = parseFloat(q('.g-r').value) || 0;
+      value = Math.round(w * r * parseFloat(q('.g-p').value) * parseFloat(q('.g-f').value));
+      q('.g-o').innerHTML = value > 0 ? `Estimated resale value: <b>${f(value)}</b>` : 'Enter the weight and today’s rate.';
+      q('.g-use').disabled = value <= 0;
+      try { if (r > 0) localStorage.setItem(rateKey, String(r)); } catch (e) {}
+    };
+    d.addEventListener('input', calc);
+    q('.g-use').onclick = () => {
+      let rowEl = [...body.querySelectorAll('.item')].find(el => el.querySelector('.nm').value.trim().toLowerCase() === 'gold & jewellery');
+      if (!rowEl) { const row = { n: 'Gold & jewellery', v: '' }; S.g[gid].push(row); addRow(body, gid, row, body.querySelector('.add-item')); rowEl = [...body.querySelectorAll('.item')].pop(); }
+      const num = rowEl.querySelector('input[type=number]'); num.value = value; num.dispatchEvent(new Event('input', { bubbles: true }));
+      Common.toast('Gold value added: ' + f(value));
+    };
+    calc(); return d;
+  }
+
+  /* ---------- build inputs ---------- */
+  const groupEls = {}, refreshers = {};
+  function addRow(body, gid, row, before) {
+    const el = document.createElement('div'); el.className = 'item';
+    const nm = document.createElement('input'); nm.className = 'nm'; nm.type = 'text'; nm.value = row.n; nm.placeholder = 'Name'; nm.setAttribute('aria-label', 'Item name');
+    const w = document.createElement('div'); w.className = 'input-wrap';
+    const pre = document.createElement('span'); pre.className = 'pre'; pre.textContent = '₹';
+    const v = document.createElement('input'); v.type = 'number'; v.min = 0; v.step = 1000; v.value = row.v; v.placeholder = '0'; v.setAttribute('aria-label', (row.n || 'Item') + ' value');
+    w.append(pre, v);
+    const x = document.createElement('button'); x.className = 'x'; x.type = 'button'; x.textContent = '×'; x.setAttribute('aria-label', 'Remove item');
+    nm.oninput = () => { row.n = nm.value; save(); refreshers[gid] && refreshers[gid](); };
+    v.oninput = () => { row.v = v.value; update(); };
+    x.onclick = () => { S.g[gid].splice(S.g[gid].indexOf(row), 1); el.remove(); refreshers[gid] && refreshers[gid](); update(); };
+    el.append(nm, w, x); body.insertBefore(el, before || null);
+  }
+  function build() {
+    $('assets').innerHTML = ''; $('liabs').innerHTML = '';
+    $('age').value = S.age; $('inc').value = S.inc; $('exp').value = S.exp;
+    GROUPS.forEach((g, i) => {
+      const d = document.createElement('details'); d.className = 'grp' + (g.type === 'liab' ? ' liab' : ''); if (i === 0 || i === 6) d.open = true;
+      d.innerHTML = `<summary><div class="gi">${g.icon}</div><div class="gt">${g.name}<small>${g.sub}</small></div><div class="gv" id="gv-${g.id}"></div><span class="chev">›</span></summary>`;
+      const body = document.createElement('div'); body.className = 'grp-body';
+      const add = document.createElement('button'); add.type = 'button'; add.className = 'add-item'; add.textContent = '+ Add item';
+      body.appendChild(add);
+      (S.g[g.id] = S.g[g.id] || []).forEach(r => addRow(body, g.id, r, add));
+      add.onclick = () => { const r = { n: '', v: '' }; S.g[g.id].push(r); addRow(body, g.id, r, add); const last = [...body.querySelectorAll('.item')].pop(); last.querySelector('.nm').focus(); };
+      if (HINTS[g.id]) { const h = document.createElement('p'); h.className = 'grp-hint'; h.textContent = HINTS[g.id]; body.insertBefore(h, body.firstChild); }
+      const chips = document.createElement('div'); chips.className = 'chips'; chips.innerHTML = '<span class="chips-l">Quick add:</span>';
+      const chipEls = (CHIPS[g.id] || []).map(name => { const c = document.createElement('button'); c.type = 'button'; c.className = 'chip'; c.textContent = '+ ' + name;
+        c.onclick = () => { const r = { n: name, v: '' }; S.g[g.id].push(r); addRow(body, g.id, r, add); refreshers[g.id](); const last = [...body.querySelectorAll('.item')].pop(); last.querySelector('input[type=number]').focus(); update(); };
+        chips.appendChild(c); return [name, c]; });
+      refreshers[g.id] = () => { const have = new Set(S.g[g.id].map(r => (r.n || '').trim().toLowerCase())); chipEls.forEach(([n, c]) => c.hidden = have.has(n.toLowerCase())); chips.hidden = chipEls.every(([, c]) => c.hidden); };
+      body.appendChild(chips); refreshers[g.id]();
+      if (g.id === 'real') body.insertBefore(goldHelper(body, g.id), chips);
+      d.appendChild(body); groupEls[g.id] = d;
+      $(g.type === 'asset' ? 'assets' : 'liabs').appendChild(d);
+    });
+  }
+
+  /* ---------- compute + render ---------- */
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  function gauge(score) {
+    const L = Math.PI * 80, col = score >= 75 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
+    $('gauge').innerHTML =
+      `<path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="var(--line)" stroke-width="16" stroke-linecap="round"/>` +
+      `<path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="${col}" stroke-width="16" stroke-linecap="round" stroke-dasharray="${score / 100 * L} ${L}"/>` +
+      `<text x="100" y="92" text-anchor="middle" font-size="38" font-weight="800">${Math.round(score)}</text>` +
+      `<text x="100" y="114" text-anchor="middle" font-size="11" opacity=".6">out of 100</text>`;
+  }
+  function update() {
+    S.age = $('age').value; S.inc = $('inc').value; S.exp = $('exp').value; save();
+    const gt = {}; GROUPS.forEach(g => { gt[g.id] = gTotal(g.id); $('gv-' + g.id).textContent = f(gt[g.id]); });
+    const aG = GROUPS.filter(g => g.type === 'asset'), lG = GROUPS.filter(g => g.type === 'liab');
+    const assets = aG.reduce((s, g) => s + gt[g.id], 0), liabs = lG.reduce((s, g) => s + gt[g.id], 0), nw = assets - liabs;
+    const liquid = aG.filter(g => g.liquid).reduce((s, g) => s + gt[g.id], 0);
+    const ratio = assets > 0 ? liabs / assets : (liabs > 0 ? 1 : 0);
+    const age = val(S.age), inc = val(S.inc), exp = val(S.exp);
+
+    $('hero').classList.toggle('neg', nw < 0);
+    $('nw').textContent = (nw < 0 ? '−' : '') + f(Math.abs(nw));
+    $('nwSub').textContent = Common.fmtCompact(nw) + (assets ? ` · you keep ${Math.round(clamp(nw / assets, -9, 1) * 100)}% of what you own` : '');
+    $('nwPill').textContent = nw < 0 ? 'Liabilities exceed assets' : nw === 0 ? 'Add your assets to begin' : 'Positive net worth ✓';
+    $('kA').textContent = f(assets); $('kL').textContent = f(liabs); $('kLiq').textContent = f(liquid);
+    $('kD').textContent = Math.round(ratio * 100) + '%';
+
+    /* score */
+    const parts = [];
+    parts.push({ n: 'Debt level', max: 30, s: 30 * clamp(1 - (Math.max(ratio, 0.2) - 0.2) / 0.8, 0, 1) });
+    const cashMonths = exp > 0 ? gt.cash / exp : null;
+    if (cashMonths !== null) parts.push({ n: 'Emergency fund', max: 25, s: 25 * clamp(cashMonths / 6, 0, 1) });
+    const growth = gt.fixed + gt.market + gt.retire, growthShare = assets > 0 ? growth / assets : 0;
+    if (assets > 0) parts.push({ n: 'Growth assets', max: 20, s: 20 * clamp(growthShare / 0.5, 0, 1) });
+    const topG = Math.max(0, ...aG.map(g => gt[g.id])), topShare = assets > 0 ? topG / assets : 0;
+    if (assets > 0) parts.push({ n: 'Diversification', max: 10, s: 10 * clamp(1 - (Math.max(topShare, 0.5) - 0.5) / 0.5, 0, 1) });
+    const target = age * inc / 10;
+    if (age > 0 && inc > 0) parts.push({ n: 'Age benchmark', max: 15, s: 15 * clamp(nw / target, 0, 1) });
+    const score = assets + liabs === 0 ? 0 : clamp(parts.reduce((s, p) => s + p.s, 0) / parts.reduce((s, p) => s + p.max, 0) * 100, 0, 100);
+    gauge(score);
+    const lab = score >= 80 ? ['Excellent', '🌟'] : score >= 60 ? ['Healthy', '💪'] : score >= 40 ? ['Fair', '🙂'] : ['Needs attention', '⚠️'];
+    $('sLab').textContent = assets + liabs === 0 ? 'Add some numbers' : `${lab[1]} ${lab[0]}`;
+    $('sNote').textContent = `Based on ${parts.length} signal${parts.length === 1 ? '' : 's'}${parts.length < 5 ? ' — add age, income and expenses for a fuller score' : ''}.`;
+    $('parts').innerHTML = parts.map(p => `<div class="part"><span>${p.n}</span><div class="bar"><i style="width:${Math.round(p.s / p.max * 100)}%"></i></div></div>`).join('');
+
+    /* donut */
+    const items = aG.map(g => ({ label: g.icon + ' ' + g.name, value: gt[g.id] })).filter(i => i.value > 0);
+    const dItems = items.length ? items : [{ label: 'No assets yet', value: 0 }];
+    Common.donut($('donut'), $('legend'), dItems, 'Assets', Common.fmtCompact(assets));
+    if (assets > 0) $('legend').querySelectorAll('div').forEach((row, i) => { if (items[i]) row.querySelector('b').textContent = Math.round(items[i].value / assets * 100) + '% · ' + Common.fmtCompact(items[i].value); });
+
+    /* assets vs liabilities */
+    const mx = Math.max(assets, liabs, 1);
+    $('vs').innerHTML =
+      `<div class="vs-row"><div class="top"><span>Assets</span><span>${f(assets)}</span></div><div class="track"><i style="width:${assets / mx * 100}%;background:linear-gradient(90deg,#10b981,#34d399)"></i></div></div>` +
+      `<div class="vs-row"><div class="top"><span>Liabilities</span><span>${f(liabs)}</span></div><div class="track"><i style="width:${liabs / mx * 100}%;background:linear-gradient(90deg,#ef4444,#f97316)"></i></div></div>` +
+      lG.filter(g => gt[g.id] > 0).map(g => `<div class="vs-row"><div class="top" style="font-weight:500;color:var(--muted)"><span>${g.icon} ${g.name}</span><span>${f(gt[g.id])}</span></div></div>`).join('');
+
+    /* insights */
+    const out = [], add = (t, icon, msg) => out.push(`<div class="insight ${t}"><span>${icon}</span><span>${msg}</span></div>`);
+    if (assets + liabs === 0) add('', '👋', 'Enter your assets and liabilities on the left — insights will appear here.');
+    else {
+      if (nw < 0) add('bad', '🚨', `Your liabilities exceed your assets by <b>${f(-nw)}</b>. Focus on paying down the most expensive debt first.`);
+      if (ratio > 0.5 && nw >= 0) add('warn', '⚖️', `Debts are <b>${Math.round(ratio * 100)}%</b> of your assets. Bringing this under 30% gives you a much bigger safety cushion.`);
+      else if (ratio <= 0.3 && assets > 0) add('good', '✅', `Low leverage: debts are only <b>${Math.round(ratio * 100)}%</b> of assets.`);
+      if (cashMonths !== null) {
+        if (cashMonths < 3) add('bad', '🛟', `Your cash &amp; bank balance covers only <b>${cashMonths.toFixed(1)} months</b> of expenses. Build it to 6 months (<b>${f(exp * 6)}</b>) before investing more.`);
+        else if (cashMonths < 6) add('warn', '🛟', `Emergency fund covers <b>${cashMonths.toFixed(1)} months</b>. Top up ${f(exp * 6 - gt.cash)} to reach the 6-month mark.`);
+        else add('good', '🛟', `Emergency fund covers <b>${cashMonths.toFixed(1)} months</b> — solid.`);
+      }
+      if (topShare > 0.6) { const tg = aG.find(g => gt[g.id] === topG); add('warn', '🧺', `<b>${Math.round(topShare * 100)}%</b> of your wealth is in “${tg.name}”. Adding liquid, diversified investments reduces concentration risk.`); }
+      if (assets > 0 && liquid / assets < 0.15) add('warn', '💧', `Only <b>${Math.round(liquid / assets * 100)}%</b> of your assets are liquid — most of your wealth is locked in property and retirement accounts.`);
+      if (age > 0 && inc > 0) add(nw >= target ? 'good' : 'warn', '🎯', `Rule-of-thumb target for age ${age} on ${Common.fmtCompact(inc)} income is <b>${Common.fmtCompact(target)}</b> (age × income ÷ 10). You are at <b>${Common.fmtCompact(nw)}</b>${nw >= target ? ' — ahead of the curve!' : '.'}`);
+      if (growthShare < 0.3 && assets > 0) add('warn', '🌱', `Just <b>${Math.round(growthShare * 100)}%</b> of assets work for you in investments. Regular SIPs can lift this over time — try the <a href="sip-calculator.html">SIP calculator</a>.`);
+    }
+    $('insights').innerHTML = out.join('');
+  }
+
+  ['age', 'inc', 'exp'].forEach(id => $(id).addEventListener('input', update));
+  $('btnSample').onclick = () => { S = sample(); build(); update(); };
+  $('btnClear').onclick = () => { if (confirm('Clear all your entries?')) { S = blank(); build(); update(); } };
+  $('btnPrint').onclick = () => { document.querySelectorAll('.grp').forEach(d => d.open = true); window.print(); };
+  build(); update();
+</script>
+</body>
+</html>

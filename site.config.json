@@ -1,0 +1,18 @@
+{
+  "siteUrl": "https://inhand.example",
+  "siteName": "InHand",
+  "tagline": "Free money calculators for India",
+  "contactEmail": "hello@inhand.example",
+  "googleSiteVerification": "",
+  "analytics": { "gaId": "" },
+  "adsense": { "client": "", "slot": "" },
+  "affiliates": {
+    "tax-saving": "",
+    "home-loan": "",
+    "mutual-funds": "",
+    "fd": "",
+    "career": "",
+    "wealth": "",
+    "rent": ""
+  }
+}
