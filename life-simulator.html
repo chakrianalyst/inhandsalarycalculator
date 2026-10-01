@@ -67,6 +67,7 @@
           <div class="field"><label for="eduInfl">Education fee rise each year</label><div class="input-wrap"><input type="number" id="eduInfl" value="10" min="0" max="20" step="0.5"><span class="suf">%</span></div><span class="hint">School and college fees usually rise faster than other prices. Used for your child’s higher education.</span></div>
           <div class="field"><label for="homeG">Home price rise each year</label><div class="input-wrap"><input type="number" id="homeG" value="" placeholder="same as prices" min="0" max="15" step="0.5"><span class="suf">%</span></div><span class="hint">Leave empty to use the price rise above. Used for the price you pay and for your home’s value.</span></div>
         </div>
+        <div class="field"><label for="retRet">Return after you stop working</label><div class="input-wrap"><input type="number" id="retRet" value="" placeholder="same as above" min="0" max="20" step="0.5"><span class="suf">%</span></div><span class="hint">Many people move to safer investments after retiring and earn less. Leave empty to use the same return.</span></div>
         <div class="field"><label for="ret">Investment return each year</label><div class="input-wrap"><input type="number" id="ret" value="10" min="0" max="20" step="0.5"><span class="suf">%</span></div><span class="hint">Average growth of your savings after costs. Not guaranteed.</span></div>
         <div class="sub-h">Your habits</div>
         <div class="field"><label for="invest">Share of your spare money you actually invest</label><div class="input-wrap"><input type="number" id="invest" value="80" min="0" max="100" step="5"><span class="suf">%</span></div>
@@ -107,6 +108,10 @@
         <div class="banner info" id="nomNote" style="margin:0 0 12px" hidden></div>
         <div id="chart"></div>
       </div>
+      <div class="card" style="margin-bottom:18px" id="planCard"><h2 class="card-title">⚖️ Compare two plans</h2>
+        <p class="grp-hint" id="planHint">Save this plan as <b>Plan A</b>, then change anything on the left, such as buying a home later or retiring earlier. We show both plans side by side, and Plan A as a dashed line on the chart.</p>
+        <div class="pay-tools"><button class="btn btn-primary btn-sm" id="planSave" type="button">📌 Save this as Plan A</button><button class="btn btn-ghost btn-sm" id="planClear" type="button" hidden>Clear Plan A</button></div>
+        <div class="tbl-wrap" style="margin-top:12px"><table class="tbl cmp-table" id="planTbl" hidden></table></div></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">📍 Key moments</h2><div class="timeline" id="timeline"></div></div>
       <details class="card howcalc" id="yearly" open><summary>📊 Year by year</summary><div class="how">
         <div class="yr-tools"><p class="grp-hint" style="margin:0">Each row is one year of your life, starting at the age shown. Pay, costs and events are for that year. Savings and net worth are at the end of it. Amounts follow the Today’s money / Future rupees choice above. Scroll sideways to see every column.</p><button class="btn btn-ghost btn-sm" id="btnCsv" type="button">⬇ Download CSV</button></div>
@@ -162,11 +167,14 @@
     { id: 'kid', icon: '👶', name: 'Child', blurb: 'Already have a child, or planning one? Choose below.', pastLabel: 'I already have a child', fields: [
       ['cost', 'One-time cost today', '₹', 'Birth, setup and first-year costs.', null, 'planned'], ['monthly', 'Extra cost per month today', '₹', 'Until your child turns 22.', null, 'planned'],
       ['childAge', 'Your child’s age now', 'yrs', '', 30, 'past'], ['share', 'Child’s share of your living costs', '₹', 'Per month, already inside your living costs. We drop it when your child turns 22. Enter 0 if unsure.', null, 'past'],
-      ['edu', 'Higher-education cost today', '₹', 'Paid over your child’s ages 18 to 21. Only the years still to come are counted.']] },
-    { id: 'kid2', icon: '🍼', name: 'Another child', blurb: 'Planning another child?', fields: [['cost', 'One-time cost today', '₹', 'Birth, setup and first-year costs.'], ['monthly', 'Extra cost per month today', '₹', 'Until the child turns 22.'], ['edu', 'Higher-education cost today', '₹', 'Paid over the child’s ages 18 to 21.']] },
+      ['edu', 'Higher-education cost today', '₹', 'Paid over your child’s ages 18 to 21. Only the years still to come are counted.'],
+      ['wedCost', 'Child’s wedding cost today', '₹', 'Optional. Leave 0 to ignore it.'], ['wedAge', 'Child’s age at the wedding', 'yrs', '', 45]] },
+    { id: 'kid2', icon: '🍼', name: 'Another child', blurb: 'Planning another child?', fields: [['cost', 'One-time cost today', '₹', 'Birth, setup and first-year costs.'], ['monthly', 'Extra cost per month today', '₹', 'Until the child turns 22.'], ['edu', 'Higher-education cost today', '₹', 'Paid over the child’s ages 18 to 21.'], ['wedCost', 'Child’s wedding cost today', '₹', 'Optional. Leave 0 to ignore it.'], ['wedAge', 'Child’s age at the wedding', 'yrs', '', 45]] },
     { id: 'jump', icon: '🚀', name: 'Career jump', blurb: 'A promotion or a better job.', fields: [['pct', 'Your pay rises by', '%', 'A rise on top of normal yearly increases.', 300], ['every', 'Repeat every', 'yrs', '0 means one jump only. Otherwise you change jobs or get promoted every this many years until you stop working.', 40]] },
     { id: 'car', icon: '🚗', name: 'Buy or replace a car', blurb: 'Paid in cash from your savings.', fields: [['cost', 'Car price today', '₹', ''], ['every', 'Replace it every', 'yrs', '0 means you buy only one car.', 40]] },
     { id: 'parents', icon: '👪', name: 'Support your parents', blurb: 'If you already support them and it is in your living costs above, leave this off.', fields: [['monthly', 'Support per month today', '₹', ''], ['yrs', 'For how many years', 'yrs', '', 60]] },
+    { id: 'pension', icon: '💰', name: 'Pension or rental income', blurb: 'Income that starts later, such as a pension, rent from a property or a business. Taxes are not included.', fields: [['monthly', 'Income per month today', '₹', 'In today’s rupees; it rises with price rises.']] },
+    { id: 'crash', icon: '📉', name: 'Market crash', blurb: 'Test your plan against a bad year. A crash just before or after you stop working hurts the most.', fields: [['drop', 'Your savings fall by', '%', 'In that one year. Markets usually recover, and this plan keeps earning your normal return afterwards.', 90]] },
     { id: 'break', icon: '🌴', name: 'Career break', blurb: 'A sabbatical, study leave or time off.', fields: [['yrs', 'Years without income', 'yrs', 'Your spending carries on.', 10]] },
   ];
   const host = $('events');
@@ -196,9 +204,30 @@
   document.addEventListener('change', x => { if (x.target.closest && x.target.closest('#inputs')) calc(); });
 
   const params = () => ({ age: num('age'), retire: num('retire'), end: num('end'), inflation: num('infl'), growth: num('growth'), ret: num('ret'), incomeMode: incGet(),
-    income: num('inc'), living: num('expenses'), rent: num('rent'), savings: num('corp'), investPct: num('invest'), creep: num('creep'), eduInfl: num('eduInfl'), homeGrowth: $('homeG').value === '' ? null : num('homeG'), events: ev });
+    income: num('inc'), living: num('expenses'), rent: num('rent'), savings: num('corp'), investPct: num('invest'), creep: num('creep'), retReturn: $('retRet').value === '' ? null : num('retRet'), eduInfl: num('eduInfl'), homeGrowth: $('homeG').value === '' ? null : num('homeG'), events: ev });
 
   /* ---------- results ---------- */
+  /* ---------- Plan A vs the plan you are editing ---------- */
+  let planA = null;
+  $('planSave').onclick = () => { planA = JSON.parse(JSON.stringify(params())); calc(); };
+  $('planClear').onclick = () => { planA = null; calc(); };
+  function planCompare(A, S, real) {
+    $('planClear').hidden = !A; $('planTbl').hidden = !A; $('planSave').textContent = A ? '📌 Replace Plan A with this plan' : '📌 Save this as Plan A';
+    if (!A) return;
+    const m = (X, row) => real ? row.nw / row.idx : row.nw, lft = (X, row) => real ? row.corp / row.idx : row.corp, fin = X => X.rows[X.rows.length - 1], atR = X => X.rows.find(r => r.a === X.ret) || fin(X);
+    const rows = [
+      ['You stop working at', 'Age ' + A.S.ret, 'Age ' + S.ret, null],
+      ['Net worth when you stop working', m(A.S, atR(A.S)), m(S, atR(S)), 'money'],
+      [`Net worth at the end of the plan`, A.S.crunch !== null ? null : m(A.S, fin(A.S)), S.crunch !== null ? null : m(S, fin(S)), 'money'],
+      ['Savings left at the end', A.S.crunch !== null ? null : lft(A.S, fin(A.S)), S.crunch !== null ? null : lft(S, fin(S)), 'money'],
+      ['Savings run out?', A.S.crunch !== null ? 'Yes, at ' + A.S.crunch : 'No ✓', S.crunch !== null ? 'Yes, at ' + S.crunch : 'No ✓', null],
+      ['Earliest age you could stop working', A.S.free ? 'Age ' + A.S.free : 'Not reached', S.free ? 'Age ' + S.free : 'Not reached', null],
+    ];
+    const cell = v => v === null ? '—' : typeof v === 'number' ? cr(v) : v;
+    $('planTbl').innerHTML = `<thead><tr><th></th><th>Plan A (saved)</th><th>This plan</th><th>Difference</th></tr></thead><tbody>` + rows.map(([l, a, b, t]) => {
+      const d = t === 'money' && a !== null && b !== null ? b - a : null, cls = d === null ? '' : d >= 0 ? 'pos' : 'neg';
+      return `<tr><td>${l}</td><td>${cell(a)}</td><td><b>${cell(b)}</b></td><td class="${cls}">${d === null ? '' : (d >= 0 ? '+' : '−') + cr(Math.abs(d))}</td></tr>`; }).join('') + `</tbody>`;
+  }
   /** Events can only happen from today on, and (for pay-related ones) before you stop working: keep every age slider inside that range. */
   function syncAges() {
     const a0 = Math.round(num('age')) || 18, ret = Math.max(a0 + 1, Math.round(num('retire')) || 58), end = Math.max(ret + 1, Math.round(num('end')) || 85);
@@ -286,8 +315,11 @@
     const nw = S.rows.map(r => cut(r) ? NaN : sc(r)), liq = S.rows.map(r => cut(r) ? NaN : scl(r));
     const marks = active.filter(e => !ev[e.id].past && ev[e.id].age >= S.a0 && ev[e.id].age < S.end && (!failed || ev[e.id].age <= S.crunch)).map(e => ({ x: ev[e.id].age, label: e.icon }));
     if (S.ret <= S.end && (!failed || S.ret <= S.crunch)) marks.push({ x: S.ret, label: '🏖️' });
-    Common.lineChart($('chart'), { xs, xfmt: v => v, xlabel: v => 'Age ' + v, label: 'Net worth by age', area: true, markers: marks,
-      series: [{ name: 'Net worth', color: 'var(--c1)', ys: nw }, { name: 'Savings', color: 'var(--c2)', ys: liq }] });
+    const series = [{ name: 'Net worth', color: 'var(--c1)', ys: nw }, { name: 'Savings', color: 'var(--c2)', ys: liq }];
+    const A = planA && { P: planA, S: LifeSim.run(planA) };
+    if (A) series.push({ name: 'Plan A net worth', color: 'var(--muted)', dash: true, ys: xs.map(x => { const r = A.S.rows.find(q => q.a === x); return !r || (A.S.crunch !== null && r.a > A.S.crunch) ? NaN : (real ? r.nw / r.idx : r.nw); }) });
+    Common.lineChart($('chart'), { xs, xfmt: v => v, xlabel: v => 'Age ' + v, label: 'Net worth by age', area: true, markers: marks, series });
+    planCompare(A, S, real);
 
     // timeline
     const items = happen.filter(e => !ev[e.id].past && (!failed || ev[e.id].age <= S.crunch)).map(e => ({ a: ev[e.id].age, icon: e.icon, t: names[e.id][0].toUpperCase() + names[e.id].slice(1) }));
@@ -304,11 +336,13 @@
       : `At ${H.age} the home costs about ${cr(H.price * idxH(H.age))}. You pay ${cr(H.price * idxH(H.age) * H.dp / 100)} upfront, then about ${f(S.emiMonthly)} a month for ${H.tenure} years.`);
     info('wed', `Costs about ${cr(ev.wed.cost * i0(ev.wed.age))} at age ${ev.wed.age}.`);
     info('kid', K.past ? `Your child is ${K.childAge} now. Their costs are already in your living costs${K.share > 0 ? ` (${f(K.share)} a month), which we drop when they turn 22, at your age ${born + 22}` : ''}. Education costs about ${cr(K.edu * idxE(Math.max(S.a0, born + 18)))} over your ages ${Math.max(S.a0, born + 18)} to ${born + 21}.`
-      : `About ${cr(K.cost * i0(K.age))} at ${K.age}, then ${f(K.monthly * i0(K.age))} a month until ${K.age + 22}, and about ${cr(K.edu * idxE(K.age + 18))} for education.`);
-    info('kid2', `About ${cr(ev.kid2.cost * i0(ev.kid2.age))} at ${ev.kid2.age}, then ${f(ev.kid2.monthly * i0(ev.kid2.age))} a month until ${ev.kid2.age + 22}, and about ${cr(ev.kid2.edu * idxE(ev.kid2.age + 18))} for education.`);
+      : `About ${cr(K.cost * i0(K.age))} at ${K.age}, then ${f(K.monthly * i0(K.age))} a month until ${K.age + 22}, and about ${cr(K.edu * idxE(K.age + 18))} for education.` + (K.wedCost > 0 ? ` Their wedding at your age ${K.age + K.wedAge} costs about ${cr(K.wedCost * i0(K.age + K.wedAge))}.` : ''));
+    info('kid2', `About ${cr(ev.kid2.cost * i0(ev.kid2.age))} at ${ev.kid2.age}, then ${f(ev.kid2.monthly * i0(ev.kid2.age))} a month until ${ev.kid2.age + 22}, and about ${cr(ev.kid2.edu * idxE(ev.kid2.age + 18))} for education.` + (ev.kid2.wedCost > 0 ? ` Their wedding at your age ${ev.kid2.age + ev.kid2.wedAge} costs about ${cr(ev.kid2.wedCost * i0(ev.kid2.age + ev.kid2.wedAge))}.` : ''));
     info('jump', `Your pay rises ${ev.jump.pct}% at age ${ev.jump.age}` + (ev.jump.every > 0 ? `, and again every ${ev.jump.every} years until ${S.ret}.` : '. One jump only.'));
     info('car', `About ${cr(ev.car.cost * i0(ev.car.age))} at age ${ev.car.age}` + (ev.car.every > 0 ? `, and again every ${ev.car.every} years.` : '. You buy one car only.'));
     info('parents', `About ${f(ev.parents.monthly * i0(ev.parents.age))} a month from age ${ev.parents.age} for ${ev.parents.yrs} years.`);
+    info('pension', `About ${f(ev.pension.monthly * i0(ev.pension.age))} a month from age ${ev.pension.age} (today’s ${f(ev.pension.monthly)}, raised for price rises).`);
+    info('crash', `Your savings fall by ${ev.crash.drop}% at age ${ev.crash.age}.`);
     info('break', `No income for ${ev.break.yrs} year${ev.break.yrs === 1 ? '' : 's'} from age ${ev.break.age}. Your spending carries on.`);
 
     // year-by-year table (stops at the year the money runs out, like the chart)
@@ -337,7 +371,7 @@
       <li><b>Costs.</b> Living costs and rent rise with inflation (${P.inflation}% a year). Lifestyle creep adds more: ${crp}% of every <i>real</i> pay rise (pay growth above inflation, or a jump) becomes permanent extra spending. Life events add their own costs, priced in the year they happen: most rise with inflation, higher education at ${P.eduInfl}% a year and home prices at ${P.homeGrowth == null ? P.inflation : P.homeGrowth}% a year.</li>
       <li><b>Spare money.</b> Pay minus costs. You invest <b>${inv}%</b> of it; the rest is spent on everyday extras. If spare money is negative, your savings cover the gap.</li>
       <li><b>Savings grow.</b> Savings × (1 + ${P.ret}%) + money invested × (1 + ${+(P.ret / 2).toFixed(1)}%). New money earns half a year of growth because it arrives through the year.</li>
-      <li><b>After you stop working</b> at ${S.ret}, pay is zero. Spending comes out of savings, which keep earning the same return. If savings reach zero, the plan has failed.</li></ol>
+      <li><b>After you stop working</b> at ${S.ret}, pay is zero apart from any pension or rental income you added. Spending comes out of savings, which keep earning ${P.retReturn == null ? 'the same return' : P.retReturn + '% a year'}. If savings reach zero, the plan has failed.</li></ol>
       <p class="how-eg"><b>Year 1 with your numbers:</b> pay ${f(fy.takeHome)} − costs and events ${f(costs)} = ${fy.flow >= 0 ? `${f(fy.flow)} spare. You invest ${inv}% = ${f(fy.invested)}` : `a gap of ${f(-fy.flow)} taken from savings`}.
       Savings: ${f(P.savings)} × ${(1 + r).toFixed(2)} + ${f(fy.invested)} × ${(1 + r / 2).toFixed(3)} = <b>${f(S.rows[1].corp)}</b>.</p>
       <p><b>Net worth</b> is savings plus home value minus any loan. A home grows with inflation. <b>Today’s money</b> divides future rupees by the price rise so far, so numbers stay comparable with what you know.</p>
