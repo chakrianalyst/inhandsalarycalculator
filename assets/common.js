@@ -98,8 +98,9 @@ const Common = (() => {
     const cap = el.dataset.words ? document.getElementById(el.dataset.words) : null;
     const fmtVal = () => {
       let r = String(el.value).replace(/[^\d.]/g, '');
-      if (dec()) { const i = r.indexOf('.'); if (i >= 0) r = r.slice(0, i + 1) + r.slice(i + 1).replace(/\./g, '').slice(0, 2); return r; }
-      r = r.split('.')[0].slice(0, 12); return r ? IN.format(parseInt(r, 10)) : '';
+      const mx = typeof opts.max === 'function' ? opts.max() : opts.max, cap = mx != null ? mx : 1e11;
+      if (dec()) { const i = r.indexOf('.'); if (i >= 0) r = r.slice(0, i + 1) + r.slice(i + 1).replace(/\./g, '').slice(0, 2); if (parseFloat(r) > cap) { r = String(cap); flash(el, `Maximum is ${cap}${mx != null ? '%' : ''}`); } return r; }
+      r = r.split('.')[0].slice(0, 12); if (r && parseInt(r, 10) > cap) { r = String(cap); flash(el, `Maximum is ${IN.format(cap)}`); } return r ? IN.format(parseInt(r, 10)) : '';
     };
     const words = () => { if (cap) { const n = parseFloat(raw(el)); cap.textContent = n > 0 && window.IndianWords ? window.IndianWords.sentence(n) : ''; } };
     el.addEventListener('input', () => {
@@ -109,6 +110,36 @@ const Common = (() => {
     });
     el.value = fmtVal(); words();
   }
+
+  /* ---------- Input limits: percentages stop at their maximum, negatives are refused, ₹ amounts stay free ---------- */
+  function flash(el, msg) {
+    if (document.activeElement !== el) return;                                   // stay quiet when values are restored from a link
+    const wrap = el.closest('.input-wrap') || el, anchor = wrap.parentElement && wrap.parentElement.classList.contains('dual-row') ? wrap.parentElement : wrap;   // below the whole field
+    let n = anchor.parentElement.querySelector(':scope > .limit-note');
+    if (!n) { n = document.createElement('div'); n.className = 'limit-note'; n.setAttribute('role', 'status'); anchor.insertAdjacentElement('afterend', n); }
+    n.textContent = msg; wrap.classList.add('limit-hit'); clearTimeout(n._t);
+    n._t = setTimeout(() => { n.remove(); wrap.classList.remove('limit-hit'); }, 2600);
+  }
+  function limitsOf(el) {
+    const w = el.closest('.input-wrap'), pre = w && w.querySelector('.pre'), suf = w && w.querySelector('.suf');
+    const money = !!(pre && /₹/.test(pre.textContent)), pct = !!(suf && /%/.test(suf.textContent));
+    const mx = el.getAttribute('max'), mn = el.getAttribute('min');
+    return { money, pct, max: mx !== null && mx !== '' ? parseFloat(mx) : (pct ? 100 : null), min: mn !== null && mn !== '' ? parseFloat(mn) : null };
+  }
+  function initLimits() {
+    document.addEventListener('input', e => {                                    // capture phase: runs before any page calculates
+      const el = e.target; if (!el || el.tagName !== 'INPUT' || el.type !== 'number') return;
+      const L = limitsOf(el), v = parseFloat(el.value); if (isNaN(v)) return;
+      if (!L.money && L.max !== null && v > L.max) { el.value = L.max; flash(el, `Maximum is ${L.max}${L.pct ? '%' : ''}`); }
+      else if (v < 0 && (L.min === null || L.min >= 0)) { el.value = L.min === null ? 0 : L.min; flash(el, 'Negative values are not allowed'); }
+    }, true);
+    document.addEventListener('change', e => {                                   // when the field is left: lift values below the minimum
+      const el = e.target; if (!el || el.tagName !== 'INPUT' || el.type !== 'number' || el.value === '') return;
+      const L = limitsOf(el), v = parseFloat(el.value);
+      if (!L.money && L.min !== null && v < L.min) { el.value = L.min; flash(el, `Minimum is ${L.min}${L.pct ? '%' : ''}`); el.dispatchEvent(new Event('input', { bubbles: true })); }
+    }, true);
+  }
+
   /** Set a formatted input programmatically (fires the normal input pipeline). */
   function setVal(el, v) { el.value = String(v); el.dispatchEvent(new Event('input', { bubbles: true })); }
 
@@ -298,7 +329,7 @@ const Common = (() => {
   window.addEventListener('error', e => { try { track('js_error', { msg: String(e.message).slice(0, 100), src: (e.filename || '').split('/').pop() }); } catch (x) {} });
 
   function init(activeId) {
-    layout(activeId); a11y(); document.querySelectorAll('input[data-money]').forEach(e => attachMoney(e)); state.restore(); enhanceFields(); related(activeId);
+    layout(activeId); a11y(); initLimits(); document.querySelectorAll('input[data-money]').forEach(e => attachMoney(e)); state.restore(); enhanceFields(); related(activeId);
     placeAds(); placeAffiliates(); addShare(); consentBanner(); startThirdParties();
     window.addEventListener('load', () => { state.watch(); let used = false; document.addEventListener('input', () => { if (!used) { used = true; track('calculator_used', { tool: activeId }); } }); });
   }

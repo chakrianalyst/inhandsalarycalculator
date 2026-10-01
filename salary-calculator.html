@@ -164,7 +164,7 @@
     const val = () => parseFloat(Common.raw(inp)) || 0;
     const annual = () => Tax.per(mode(), val(), o.base());
     const fromAnnual = A => { const m = mode(), b = o.base(); const v = m === 'pct' ? (b > 0 ? +(A / b * 100).toFixed(2) : 0) : m === 'yr' ? Math.round(A) : Math.round(A / 12); Common.setVal(inp, v || ''); };
-    Common.attachMoney(inp, { decimals: () => mode() === 'pct' });
+    Common.attachMoney(inp, { decimals: () => mode() === 'pct', max: () => mode() === 'pct' ? 100 : null });
     const refresh = () => { last = mode(); const pct = last === 'pct'; pre.hidden = pct; suf.hidden = !pct; const A = annual(), b = o.base();
       capEl.textContent = A > 0 ? `= ${f(A)}/yr · ${f(A / 12)}/mo` + (b > 0 && last !== 'pct' ? ` · ${+(A / b * 100).toFixed(2)}% of ${o.baseName}` : '') : ''; };
     return (DUALS[id] = { el, mode, val, annual, refresh });

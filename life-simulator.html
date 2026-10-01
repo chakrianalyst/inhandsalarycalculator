@@ -138,18 +138,18 @@
 
   /* ---------- life-event cards ---------- */
   const EVENTS = [
-    { id: 'home', icon: '🏠', name: 'Buy a home', fields: [['price', 'Home price today', '₹', 'The price of a similar home today.'], ['dp', 'Down payment', '%', 'Paid from your savings on the day.'], ['rate', 'Loan interest rate', '%', ''], ['tenure', 'Loan period', 'yrs', 'Rent stops when you buy.']] },
-    { id: 'wed', icon: '💍', name: 'Get married', fields: [['cost', 'Wedding cost today', '₹', ''], ['uplift', 'Living costs rise by', '%', 'Two people spend more than one.']] },
+    { id: 'home', icon: '🏠', name: 'Buy a home', fields: [['price', 'Home price today', '₹', 'The price of a similar home today.'], ['dp', 'Down payment', '%', 'Paid from your savings on the day.', 100], ['rate', 'Loan interest rate', '%', '', 30], ['tenure', 'Loan period', 'yrs', 'Rent stops when you buy.', 40]] },
+    { id: 'wed', icon: '💍', name: 'Get married', fields: [['cost', 'Wedding cost today', '₹', ''], ['uplift', 'Living costs rise by', '%', 'Two people spend more than one.', 300]] },
     { id: 'kid', icon: '👶', name: 'Have a child', fields: [['cost', 'One-time cost today', '₹', 'Birth, setup and first-year costs.'], ['monthly', 'Extra cost per month today', '₹', 'Until your child turns 22.'], ['edu', 'Higher-education fund today', '₹', 'Paid over your child’s ages 18 to 21.']] },
-    { id: 'jump', icon: '🚀', name: 'Career jump', fields: [['pct', 'Your pay rises by', '%', 'A one-time rise on top of normal yearly increases.']] },
-    { id: 'car', icon: '🚗', name: 'Buy a car', fields: [['cost', 'Car price today', '₹', 'Paid in cash from your savings.'], ['every', 'Replace it every', 'yrs', '0 means you buy only one car.']] },
-    { id: 'parents', icon: '👪', name: 'Support your parents', fields: [['monthly', 'Support per month today', '₹', ''], ['yrs', 'For how many years', 'yrs', '']] },
-    { id: 'break', icon: '🌴', name: 'Career break', fields: [['yrs', 'Years without income', 'yrs', 'Your spending carries on.']] },
+    { id: 'jump', icon: '🚀', name: 'Career jump', fields: [['pct', 'Your pay rises by', '%', 'A one-time rise on top of normal yearly increases.', 300]] },
+    { id: 'car', icon: '🚗', name: 'Buy a car', fields: [['cost', 'Car price today', '₹', 'Paid in cash from your savings.'], ['every', 'Replace it every', 'yrs', '0 means you buy only one car.', 40]] },
+    { id: 'parents', icon: '👪', name: 'Support your parents', fields: [['monthly', 'Support per month today', '₹', ''], ['yrs', 'For how many years', 'yrs', '', 60]] },
+    { id: 'break', icon: '🌴', name: 'Career break', fields: [['yrs', 'Years without income', 'yrs', 'Your spending carries on.', 10]] },
   ];
   const host = $('events');
   EVENTS.forEach(e => {
     const d = document.createElement('div'); d.className = 'ev' + (ev[e.id].on ? ' on' : '');
-    const fld = ([k, label, unit, hint]) => `<div class="field"><label>${label}</label><div class="input-wrap">${unit === '₹' ? '<span class="pre">₹</span>' : ''}<input ${unit === '₹' ? 'type="text" data-money' : 'type="number" min="0" step="any"'} data-e="${e.id}" data-k="${k}" value="${ev[e.id][k]}">${unit !== '₹' ? `<span class="suf">${unit}</span>` : ''}</div>${hint ? `<span class="hint">${hint}</span>` : ''}</div>`;
+    const fld = ([k, label, unit, hint, max]) => `<div class="field"><label>${label}</label><div class="input-wrap">${unit === '₹' ? '<span class="pre">₹</span>' : ''}<input ${unit === '₹' ? 'type="text" data-money' : `type="number" min="0" ${max ? `max="${max}"` : ''} step="any"`} data-e="${e.id}" data-k="${k}" value="${ev[e.id][k]}">${unit !== '₹' ? `<span class="suf">${unit}</span>` : ''}</div>${hint ? `<span class="hint">${hint}</span>` : ''}</div>`;
     d.innerHTML = `<div class="ev-top"><div class="gi">${e.icon}</div><span class="t">${e.name}</span><label class="switch"><input type="checkbox" data-e="${e.id}" data-k="on" ${ev[e.id].on ? 'checked' : ''} aria-label="${e.name}"><i></i></label></div>
       <div class="ev-body"><div class="field"><label>It happens at age <b id="age-${e.id}">${ev[e.id].age}</b></label><input type="range" data-e="${e.id}" data-k="age" min="20" max="75" step="1" value="${ev[e.id].age}"></div>
       <div class="row-2">${e.fields.map(fld).join('')}</div><div class="cap ev-info" id="info-${e.id}"></div></div>`;
