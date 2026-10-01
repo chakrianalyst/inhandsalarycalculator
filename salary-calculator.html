@@ -215,7 +215,8 @@
   /* ---------- Tax & deductions (shared by both modes) ---------- */
   const taxSecs = $('taxSecs');
   const sTax = sec('tax', '🏛️', 'Location & professional tax', 'Affects HRA and take-home', false); taxSecs.appendChild(sTax);
-  $('b-tax').innerHTML = mfield('pt', 'Professional tax', '200', 'Charged by your state (capped at ₹2,500 a year). ₹200 a month is common.', '/month') +
+  $('b-tax').innerHTML = `<div class="field"><label for="ptState">State (for professional tax)</label><select id="ptState">${Tax.PT_STATES.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}<option value="manual">Another state (I will enter it)</option></select><span class="hint" id="ptInfo"></span></div>` +
+    mfield('pt', 'Professional tax', '200', 'Charged by your state (capped at ₹2,500 a year). Check your payslip for the exact amount.', '/month') +
     `<div class="field"><label for="city">City you live in (for HRA)</label><select id="city" data-cities data-default="Bengaluru"></select><span class="hint">From FY 2026-27, HRA exemption can be up to 50% of basic in Delhi, Mumbai, Kolkata, Chennai, Bengaluru, Hyderabad, Pune and Ahmedabad, and 40% elsewhere. Old regime only. Please confirm with your employer.</span></div>`;
 
   const sOld = sec('old', '🧮', 'Old-regime benefits', 'Used only if the old regime comes out better', false); taxSecs.appendChild(sOld);
@@ -261,7 +262,7 @@
       npsMode: DUALS.nps.mode(), npsVal: DUALS.nps.val(), insVal: num('ins'), insMode: 'yr' };
   };
   const readPay = () => ({ basicM: num('pBasic'), hraM: num('pHra'), otherM: num('pOther'), bonusYr: num('pBonus'), pfM: num('pPf'), vpfM: num('pVpf'), employerNpsM: num('pNps') });
-  const readDed = () => ({ ptMonthly: num('pt'), metro: $('city').value !== 'other', rentMonthly: num('rent'),
+  const readDed = () => ({ ptState: $('ptState').value === 'manual' ? '' : $('ptState').value, ptMonthly: num('pt'), metro: $('city').value !== 'other', rentMonthly: num('rent'),
     other80c: num('c80ppf') + num('c80elss') + num('c80lic') + num('c80hl') + num('c80tui') + num('c80oth'), nps1b: num('nps1b'),
     d80Self: num('d80s'), d80Parents: num('d80p'), selfSenior: $('d80ss').checked, parentsSenior: $('d80ps').checked, homeLoanInt: num('hli'),
     eduLoanInt: num('edu'), donations: num('don'), disability: num('dis'), ltaClaim: num('ltac'), otherDed: num('othd') });
@@ -274,6 +275,8 @@
     Object.values(DUALS).forEach(d => d.refresh());
     $('pfCustom').hidden = pfGet() !== 'custom'; $('gratCustom').hidden = gratGet() !== 'custom';
     const a = isCtc ? Tax.structure(readCtc()) : Tax.fromPayslip(readPay()), d = readDed(), r = Tax.assess(a, d);
+    $('pt').closest('.field').hidden = !!d.ptState; const ps = Tax.PT_STATES.find(x => x.id === d.ptState);
+    $('ptInfo').textContent = ps ? `${ps.name}: about ${f(r.pt)} a year at your pay.${ps.note ? ' ' + ps.note : ''} Rules change, so check your payslip.` : 'Enter the amount your payslip shows per month.';
     const reg = regimeGet(), key = reg === 'auto' ? r.best : reg, b = r[key], o = r[key === 'new' ? 'old' : 'new'], keyName = key === 'new' ? 'New' : 'Old';
     const hasBonus = r.bonus > 0, pct = r.ctc ? Math.round(b.inHandYear / r.ctc * 100) : null;
 
