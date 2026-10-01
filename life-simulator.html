@@ -56,13 +56,19 @@
       <div class="field"><label for="end">Plan until age</label><div class="input-wrap"><input type="number" id="end" value="85" min="65" max="100" step="1"><span class="suf">years</span></div>
         <span class="hint">How long your money needs to last. 85 is a common choice.</span></div>
 
-      <details class="adv" open><summary>Three assumptions that matter a lot</summary>
+      <details class="adv" open><summary>Assumptions that matter a lot</summary>
         <p class="grp-hint">These are typical long-run guesses. Try your own and watch the result change.</p>
+        <div class="sub-h">The economy</div>
         <div class="row-2">
           <div class="field"><label for="growth">Pay rise each year</label><div class="input-wrap"><input type="number" id="growth" value="8" min="0" max="25" step="0.5"><span class="suf">%</span></div><span class="hint">How fast your income grows.</span></div>
           <div class="field"><label for="infl">Price rise each year</label><div class="input-wrap"><input type="number" id="infl" value="6" min="0" max="15" step="0.5"><span class="suf">%</span></div><span class="hint">Inflation: makes future costs bigger.</span></div>
         </div>
         <div class="field"><label for="ret">Investment return each year</label><div class="input-wrap"><input type="number" id="ret" value="10" min="0" max="20" step="0.5"><span class="suf">%</span></div><span class="hint">Average growth of your savings after costs. Not guaranteed.</span></div>
+        <div class="sub-h">Your habits</div>
+        <div class="field"><label for="invest">Share of your spare money you actually invest</label><div class="input-wrap"><input type="number" id="invest" value="80" min="0" max="100" step="5"><span class="suf">%</span></div>
+          <span class="hint">Spare money is pay minus the costs you listed. Real life leaks: gifts, medical bills, trips, gadgets. 80% is a cautious guess; 100% means every spare rupee is invested.</span></div>
+        <div class="field"><label for="creep">Lifestyle creep: share of each real pay rise you spend</label><div class="input-wrap"><input type="number" id="creep" value="25" min="0" max="100" step="5"><span class="suf">%</span></div>
+          <span class="hint">A real raise is pay growth above inflation (or a career jump). At 25%, a quarter of every raise goes into a better lifestyle for good, and the rest to savings. 0% means your spending only ever rises with inflation.</span></div>
       </details>
 
       <h2 class="card-title" style="margin-top:24px">🎛️ Life events <span style="font-weight:500;color:var(--muted);font-size:.8rem">(switch on, then set the age)</span></h2>
@@ -84,8 +90,8 @@
       <div class="card" style="margin-bottom:18px" id="storyCard"><h2 class="card-title">💬 Your plan in plain English</h2><div class="story" id="story"></div></div>
 
       <div class="kpis">
-        <div class="kpi"><div class="k" id="k1l">Net worth at the end</div><div class="v" id="kEnd"></div><div class="kd">Everything you own minus loans, at the end of your plan.</div></div>
-        <div class="kpi"><div class="k" id="k2l">Savings left at the end</div><div class="v" id="kLeft"></div><div class="kd">Investments you could still spend, without counting your home.</div></div>
+        <div class="kpi"><div class="k" id="k1l">Net worth at the end</div><div class="v" id="kEnd"></div><div class="kv2" id="kEnd2"></div><div class="kd">Everything you own minus loans, at the end of your plan.</div></div>
+        <div class="kpi"><div class="k" id="k2l">Savings left at the end</div><div class="v" id="kLeft"></div><div class="kv2" id="kLeft2"></div><div class="kd">Investments you could still spend, without counting your home.</div></div>
         <div class="kpi"><div class="k">Financial freedom age</div><div class="v" id="kFree"></div><div class="kd">First age your savings could pay for a year’s spending by withdrawing 3.5% a year, even if you stopped working.</div></div>
         <div class="kpi"><div class="k">Money runs out?</div><div class="v" id="kCrunch"></div><div class="kd">The first age at which your savings would hit zero.</div></div>
       </div>
@@ -94,10 +100,15 @@
         <h2 class="card-title">🧭 Your money story</h2>
         <div class="seg" id="mode" style="margin-bottom:14px"><button type="button" data-v="nom">Future rupees</button><button type="button" data-v="real" class="on">Today’s money</button></div>
         <p class="grp-hint" style="margin:-4px 0 8px">“Today’s money” removes inflation, so ₹1 Cr means what ₹1 Cr buys today.</p>
+        <div class="banner info" id="nomNote" style="margin:0 0 12px" hidden></div>
         <div id="chart"></div>
       </div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">📍 Key moments</h2><div class="timeline" id="timeline"></div></div>
-      <div class="banner info"><span>ℹ️</span><span>A simplified model: pay is taxed on new-regime slabs if you enter gross pay, savings are invested every year, a home grows with inflation, and a shortfall would be borrowed at 12%. Use it to compare choices, not to predict your future.</span></div>
+      <details class="card howcalc" id="yearly" open><summary>📊 Year by year</summary><div class="how">
+        <div class="yr-tools"><p class="grp-hint" style="margin:0">Each row is one year of your life, starting at the age shown. Pay, costs and events are for that year. Savings and net worth are at the end of it. Amounts follow the Today’s money / Future rupees choice above. Scroll sideways to see every column.</p><button class="btn btn-ghost btn-sm" id="btnCsv" type="button">⬇ Download CSV</button></div>
+        <div class="yr-wrap"><table class="tbl yr" id="yrTable"></table></div></div></details>
+      <details class="card howcalc" id="howCalc"><summary>ℹ️ How this is calculated</summary><div class="how" id="how"></div></details>
+      <div class="banner info"><span>ℹ️</span><span>A simplified model, best used to compare choices rather than predict your future. See “How this is calculated” above for exactly what it assumes and leaves out.</span></div>
       <div class="offer"><div><b>Turn the plan into action</b><small>Start a SIP and protect your family with term insurance.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="wealth">Explore options</a></div>
     </section>
   </div>
@@ -138,20 +149,30 @@
 
   /* ---------- life-event cards ---------- */
   const EVENTS = [
-    { id: 'home', icon: '🏠', name: 'Buy a home', fields: [['price', 'Home price today', '₹', 'The price of a similar home today.'], ['dp', 'Down payment', '%', 'Paid from your savings on the day.', 100], ['rate', 'Loan interest rate', '%', '', 30], ['tenure', 'Loan period', 'yrs', 'Rent stops when you buy.', 40]] },
-    { id: 'wed', icon: '💍', name: 'Get married', fields: [['cost', 'Wedding cost today', '₹', ''], ['uplift', 'Living costs rise by', '%', 'Two people spend more than one.', 300]] },
-    { id: 'kid', icon: '👶', name: 'Have a child', fields: [['cost', 'One-time cost today', '₹', 'Birth, setup and first-year costs.'], ['monthly', 'Extra cost per month today', '₹', 'Until your child turns 22.'], ['edu', 'Higher-education fund today', '₹', 'Paid over your child’s ages 18 to 21.']] },
-    { id: 'jump', icon: '🚀', name: 'Career jump', fields: [['pct', 'Your pay rises by', '%', 'A one-time rise on top of normal yearly increases.', 300]] },
-    { id: 'car', icon: '🚗', name: 'Buy a car', fields: [['cost', 'Car price today', '₹', 'Paid in cash from your savings.'], ['every', 'Replace it every', 'yrs', '0 means you buy only one car.', 40]] },
-    { id: 'parents', icon: '👪', name: 'Support your parents', fields: [['monthly', 'Support per month today', '₹', ''], ['yrs', 'For how many years', 'yrs', '', 60]] },
-    { id: 'break', icon: '🌴', name: 'Career break', fields: [['yrs', 'Years without income', 'yrs', 'Your spending carries on.', 10]] },
+    { id: 'home', icon: '🏠', name: 'Home', blurb: 'Planning to buy one, or already own one with a loan? Choose below.', pastLabel: 'I already own a home (with a loan)', fields: [
+      ['price', 'Home price today', '₹', 'The price of a similar home today.', null, 'planned'], ['dp', 'Down payment', '%', 'Paid from your savings on the day.', 100, 'planned'],
+      ['value', 'Home value today', '₹', 'What it would sell for now.', null, 'past'], ['loan', 'Loan still to repay', '₹', 'The outstanding principal.', null, 'past'],
+      ['emi', 'EMI you pay', '₹', 'Per month. Not part of the living costs above.', null, 'past'], ['yearsLeft', 'Years of EMI left', 'yrs', '', 40, 'past'],
+      ['rate', 'Loan interest rate', '%', '', 30], ['tenure', 'Loan period', 'yrs', 'Rent stops when you buy.', 40, 'planned']] },
+    { id: 'wed', icon: '💍', name: 'Wedding', blurb: 'Planning one? Skip this if you are already married: your family is already in your living costs.', fields: [['cost', 'Wedding cost today', '₹', ''], ['uplift', 'Living costs rise by', '%', 'Two people spend more than one.', 300]] },
+    { id: 'kid', icon: '👶', name: 'Child', blurb: 'Already have a child, or planning one? Choose below.', pastLabel: 'I already have a child', fields: [
+      ['cost', 'One-time cost today', '₹', 'Birth, setup and first-year costs.', null, 'planned'], ['monthly', 'Extra cost per month today', '₹', 'Until your child turns 22.', null, 'planned'],
+      ['childAge', 'Your child’s age now', 'yrs', '', 30, 'past'], ['share', 'Child’s share of your living costs', '₹', 'Per month, already inside your living costs. We drop it when your child turns 22. Enter 0 if unsure.', null, 'past'],
+      ['edu', 'Higher-education cost today', '₹', 'Paid over your child’s ages 18 to 21. Only the years still to come are counted.']] },
+    { id: 'kid2', icon: '🍼', name: 'Another child', blurb: 'Planning another child?', fields: [['cost', 'One-time cost today', '₹', 'Birth, setup and first-year costs.'], ['monthly', 'Extra cost per month today', '₹', 'Until the child turns 22.'], ['edu', 'Higher-education cost today', '₹', 'Paid over the child’s ages 18 to 21.']] },
+    { id: 'jump', icon: '🚀', name: 'Career jump', blurb: 'A promotion or a better job.', fields: [['pct', 'Your pay rises by', '%', 'A one-time rise on top of normal yearly increases.', 300]] },
+    { id: 'car', icon: '🚗', name: 'Buy or replace a car', blurb: 'Paid in cash from your savings.', fields: [['cost', 'Car price today', '₹', ''], ['every', 'Replace it every', 'yrs', '0 means you buy only one car.', 40]] },
+    { id: 'parents', icon: '👪', name: 'Support your parents', blurb: 'If you already support them and it is in your living costs above, leave this off.', fields: [['monthly', 'Support per month today', '₹', ''], ['yrs', 'For how many years', 'yrs', '', 60]] },
+    { id: 'break', icon: '🌴', name: 'Career break', blurb: 'A sabbatical, study leave or time off.', fields: [['yrs', 'Years without income', 'yrs', 'Your spending carries on.', 10]] },
   ];
   const host = $('events');
   EVENTS.forEach(e => {
-    const d = document.createElement('div'); d.className = 'ev' + (ev[e.id].on ? ' on' : '');
-    const fld = ([k, label, unit, hint, max]) => `<div class="field"><label>${label}</label><div class="input-wrap">${unit === '₹' ? '<span class="pre">₹</span>' : ''}<input ${unit === '₹' ? 'type="text" data-money' : `type="number" min="0" ${max ? `max="${max}"` : ''} step="any"`} data-e="${e.id}" data-k="${k}" value="${ev[e.id][k]}">${unit !== '₹' ? `<span class="suf">${unit}</span>` : ''}</div>${hint ? `<span class="hint">${hint}</span>` : ''}</div>`;
-    d.innerHTML = `<div class="ev-top"><div class="gi">${e.icon}</div><span class="t">${e.name}</span><label class="switch"><input type="checkbox" data-e="${e.id}" data-k="on" ${ev[e.id].on ? 'checked' : ''} aria-label="${e.name}"><i></i></label></div>
-      <div class="ev-body"><div class="field"><label>It happens at age <b id="age-${e.id}">${ev[e.id].age}</b></label><input type="range" data-e="${e.id}" data-k="age" min="20" max="75" step="1" value="${ev[e.id].age}"></div>
+    const st = ev[e.id], d = document.createElement('div'); d.className = 'ev' + (st.on ? ' on' : ''); d.dataset.past = st.past ? '1' : '0';
+    const fld = ([k, label, unit, hint, max, scope]) => `<div class="field${scope === 'planned' ? ' only-planned' : scope === 'past' ? ' only-past' : ''}"><label>${label}</label><div class="input-wrap">${unit === '₹' ? '<span class="pre">₹</span>' : ''}<input ${unit === '₹' ? 'type="text" data-money' : `type="number" min="0" ${max ? `max="${max}"` : ''} step="any"`} data-e="${e.id}" data-k="${k}" value="${st[k]}">${unit !== '₹' ? `<span class="suf">${unit}</span>` : ''}</div>${hint ? `<span class="hint">${hint}</span>` : ''}</div>`;
+    const pastToggle = e.pastLabel ? `<label class="toggle"><span>${e.pastLabel}</span><span class="switch"><input type="checkbox" data-e="${e.id}" data-k="past" ${st.past ? 'checked' : ''}><i></i></span></label>` : '';
+    d.innerHTML = `<div class="ev-top"><div class="gi">${e.icon}</div><span class="t">${e.name}</span><label class="switch"><input type="checkbox" data-e="${e.id}" data-k="on" ${st.on ? 'checked' : ''} aria-label="${e.name}"><i></i></label></div>
+      <div class="ev-blurb">${e.blurb}</div>
+      <div class="ev-body">${pastToggle}<div class="field${e.pastLabel ? ' only-planned' : ''}"><label>It happens at age <b id="age-${e.id}">${st.age}</b></label><input type="range" data-e="${e.id}" data-k="age" min="20" max="75" step="1" value="${st.age}"></div>
       <div class="row-2">${e.fields.map(fld).join('')}</div><div class="cap ev-info" id="info-${e.id}"></div></div>`;
     host.appendChild(d);
   });
@@ -163,6 +184,7 @@
     if (t.dataset && t.dataset.e) {
       const e = t.dataset.e, k = t.dataset.k;
       if (k === 'on') { ev[e].on = t.checked; t.closest('.ev').classList.toggle('on', t.checked); }
+      else if (k === 'past') { ev[e].past = t.checked; t.closest('.ev').dataset.past = t.checked ? '1' : '0'; }
       else { ev[e][k] = parseFloat(Common.raw(t)) || 0; if (t.type === 'range') { paintRange(t); $('age-' + e).textContent = t.value; } }
     }
     calc();
@@ -170,25 +192,27 @@
   document.addEventListener('change', x => { if (x.target.closest && x.target.closest('#inputs')) calc(); });
 
   const params = () => ({ age: num('age'), retire: num('retire'), end: num('end'), inflation: num('infl'), growth: num('growth'), ret: num('ret'), incomeMode: incGet(),
-    income: num('inc'), living: num('expenses'), rent: num('rent'), savings: num('corp'), events: ev });
+    income: num('inc'), living: num('expenses'), rent: num('rent'), savings: num('corp'), investPct: num('invest'), creep: num('creep'), events: ev });
 
   /* ---------- results ---------- */
   function calc() {
     const P = params(), S = LifeSim.run(P), real = modeGet() === 'real', net = P.incomeMode === 'net', infl = P.inflation / 100;
-    const idxAt = a => Math.pow(1 + infl, Math.max(0, a - S.a0));
+    const inv = Math.min(100, Math.max(0, P.investPct)), crp = Math.min(100, Math.max(0, P.creep)), idxAt = a => Math.pow(1 + infl, Math.max(0, a - S.a0));
     const sc = p => p ? (real ? p.nw / p.idx : p.nw) : NaN, scl = p => p ? (real ? p.corp / p.idx : p.corp) : NaN;
-    const failed = S.crunch !== null, last = S.rows[S.rows.length - 1], atAge = a => S.rows[Math.min(S.rows.length - 1, Math.max(0, a - S.a0))];
+    const failed = S.crunch !== null, last = S.rows[S.rows.length - 1], atAge = a => S.rows[Math.min(S.rows.length - 1, Math.max(0, a - S.a0))], names = LifeSim.NAMES;
+    const nameOf = id => id === 'kid' && ev.kid.past ? 'your child' : id === 'home' && ev.home.past ? 'your current home loan' : names[id];
 
     // pay field wording
     $('incLabel').textContent = net ? 'Monthly take-home pay' : 'Yearly gross pay (before tax)'; $('incSuf').textContent = net ? '/month' : '/year';
     $('incHint').textContent = net ? 'What lands in your bank account each month, after tax and PF.' : 'Your yearly pay before tax. We work out the tax for you.';
-    const thMonth = S.firstYear.takeHome / 12, spend = P.living + P.rent, left = thMonth - spend;
+    const fy = S.firstYear, thMonth = fy.takeHome / 12, otherM = fy.extra / 12, homeM = (fy.emi + (S.firstYear.maint || 0)) / 12, spend = (fy.living + fy.rent + fy.extra + fy.emi + fy.maint) / 12, left = thMonth - spend;
     $('incCap').textContent = P.income > 0 ? (net ? `= ${f(P.income * 12)} a year after tax` : `After tax you would take home about ${f(thMonth)} a month`) : '';
 
     // your month today
     const row = (l, v, c = '') => `<tr class="${c}"><td>${l}</td><td>${f(v)}</td></tr>`;
-    $('month').innerHTML = `<tr><th>Every month, today</th><th>Amount</th></tr>` + row('Take-home pay', thMonth) + row('Living costs', -P.living, 'neg') + (P.rent > 0 ? row('Rent', -P.rent, 'neg') : '') +
-      row(left >= 0 ? 'Left to save and invest' : 'Short each month', left, 'total net');
+    $('month').innerHTML = `<tr><th>Every month, today</th><th>Amount</th></tr>` + row('Take-home pay', thMonth) + row('Living costs', -fy.living / 12, 'neg') + (fy.rent > 0 ? row('Rent', -fy.rent / 12, 'neg') : '') +
+      (otherM > 0 ? row('Child / parent costs', -otherM, 'neg') : '') + (homeM > 0 ? row('Home EMI & upkeep', -homeM, 'neg') : '') + row(left >= 0 ? 'Left over' : 'Short each month', left, 'total net') +
+      (left > 0 ? `<tr class="off"><td>You invest ${inv}% of it</td><td>${f(left * inv / 100)}</td></tr>` : '');
     const pctSaved = thMonth > 0 ? Math.round(left / thMonth * 100) : 0;
     $('monthNote').className = 'banner' + (left < 0 ? ' bad' : left < thMonth * 0.1 ? ' info' : '');
     $('monthNote').innerHTML = left < 0 ? `<span>⚠️</span><span>You spend <b>${f(-left)}</b> more than you take home every month. Your savings shrink from day one.</span>`
@@ -202,53 +226,58 @@
       $('hSub').textContent = `That year you would spend about ${f(short)} more than you have coming in (in today’s money).`; $('hPill').textContent = 'This plan needs a change. See below.';
     } else {
       const R = atAge(S.ret);
-      $('hLbl').textContent = `Net worth at ${S.ret}` + (real ? ' (today’s money)' : ''); $('hBig').textContent = cr(sc(R));
-      $('hSub').textContent = real ? `${cr(R.nw)} in future rupees` : `${cr(R.nw / R.idx)} in today’s money`; $('hPill').textContent = `Your money lasts beyond ${S.end} ✓`;
+      $('hLbl').textContent = `Net worth at ${S.ret}` + (real ? ' (today’s money)' : ' (future rupees)'); $('hBig').textContent = cr(sc(R));
+      $('hSub').textContent = real ? `${cr(R.nw)} in future rupees` : `≈ ${cr(R.nw / R.idx)} in today’s money`; $('hPill').textContent = `Your money lasts beyond ${S.end} ✓`;
     }
 
     // plain-English story
-    const fx = failed ? LifeSim.fixes(P) : {}, names = LifeSim.NAMES, active = EVENTS.filter(e => ev[e.id].on);
-    let st = `<p>You take home <b>${f(thMonth)}</b> a month and spend <b>${f(spend)}</b>${P.rent > 0 ? ` (${f(P.living)} living + ${f(P.rent)} rent)` : ''}. ` +
-      (left >= 0 ? `That leaves about <b>${f(left)}</b> a month to invest.` : `You are spending <b class="neg-t">${f(-left)}</b> more than you earn each month.`) + `</p>`;
-    const happen = active.filter(e => ev[e.id].age >= S.a0 && ev[e.id].age < S.end).sort((x, y) => ev[x.id].age - ev[y.id].age);
-    if (happen.length) st += `<p>Your plan includes: ${happen.map(e => `${e.icon} ${names[e.id]} at ${ev[e.id].age}`).join(', ')}. You stop working at <b>${S.ret}</b>.</p>`; else st += `<p>No life events are switched on. You stop working at <b>${S.ret}</b>.</p>`;
+    const fx = failed ? LifeSim.fixes(P) : {}, active = EVENTS.filter(e => ev[e.id].on);
+    let st = `<p>You take home <b>${f(thMonth)}</b> a month and spend <b>${f(spend)}</b>` + (fy.rent > 0 || otherM > 0 || homeM > 0 ? ` (${[`${f(fy.living / 12)} living`, fy.rent > 0 ? `${f(fy.rent / 12)} rent` : '', otherM > 0 ? `${f(otherM)} child / parent costs` : '', homeM > 0 ? `${f(homeM)} home EMI & upkeep` : ''].filter(Boolean).join(' + ')})` : '') + '. ' +
+      (left >= 0 ? `That leaves about <b>${f(left)}</b> a month, and you invest ${inv}% of it.` : `You are spending <b class="neg-t">${f(-left)}</b> more than you earn each month.`) + `</p>`;
+    const happen = active.filter(e => ev[e.id].past || (ev[e.id].age >= S.a0 && ev[e.id].age < S.end)).sort((x, y) => (ev[x.id].past ? -1 : ev[x.id].age) - (ev[y.id].past ? -1 : ev[y.id].age));
+    st += happen.length ? `<p>Your plan includes: ${happen.map(e => `${e.icon} ${ev[e.id].past ? nameOf(e.id) : `${names[e.id]} at ${ev[e.id].age}`}`).join(', ')}. You stop working at <b>${S.ret}</b>.</p>` : `<p>No life events are switched on. You stop working at <b>${S.ret}</b>.</p>`;
     if (failed) {
       const ci = S.crunchInfo; let why;
       if (left < 0 && S.crunch <= S.a0 + 3) why = 'You spend more than you earn, so your savings drain from the start.';
       else if (ci.retired) why = `After you stop working at ${S.ret}, your savings cannot cover ${S.end - S.ret} years of spending.`;
-      else { const big = Object.keys(S.eventCost).filter(id => ev[id].age <= ci.age).sort((x, y) => S.eventCost[y] - S.eventCost[x])[0];
-        why = big ? `The ${names[big]} at age ${ev[big].age} (about ${cr(S.eventCost[big] / idxAt(ev[big].age))} in today’s money) is what pushes you under.` : 'Your spending grows faster than your income.'; }
+      else { const big = Object.keys(S.eventCost).filter(id => ev[id].past || ev[id].age <= ci.age).sort((x, y) => S.eventCost[y] - S.eventCost[x])[0];
+        why = big ? `The ${nameOf(big)} (about ${cr(S.eventCost[big] / idxAt(ev[big].past ? S.a0 : ev[big].age))} in today’s money) is what pushes you under.` : 'Your spending grows faster than your income.'; }
       st += `<p class="verdict bad">⚠️ Your savings run out at age <b>${S.crunch}</b>. ${why}</p><div class="fixes"><b>What would fix it</b><ul>`;
       const items = [];
       if (fx.living !== undefined) items.push(`Spend <b>${f(P.living - fx.living)}</b> less on living costs each month (about ${f(fx.living)} instead of ${f(P.living)}).`);
       if (fx.retire) items.push(`Keep working until age <b>${fx.retire}</b> instead of ${S.ret}.`);
       if (fx.skip) items.push(`Skip the <b>${names[fx.skip]}</b>. Without it the plan works.`);
+      if (fx.invest) items.push(`Invest <b>all</b> of your spare money instead of ${inv}%.`);
+      if (fx.creep) items.push(`Keep your spending flat when your pay rises (no lifestyle creep).`);
       if (!items.length) items.push('No single change is enough. Try a mix: higher income, lower spending, and a later retirement age.');
       st += items.map(i => `<li>${i}</li>`).join('') + `</ul></div>`;
     } else {
       const endReal = last.corp / last.idx, annual = (P.living + P.rent) * 12, years = annual > 0 ? endReal / annual : 99, yrsTxt = years > 30 ? 'more than 30 years' : (years < 1 ? 'about a year' : 'about ' + Math.round(years) + ' years');
       const tone = years < 3 ? 'thin' : years < 10 ? 'ok' : 'comfortable';
       st += `<p class="verdict good">✅ Your money lasts beyond age <b>${S.end}</b>. ` + (tone === 'thin' ? `But it is a thin margin: at ${S.end} you would have only ${yrsTxt} of today’s spending left, so a surprise could break the plan.` : tone === 'ok' ? `At ${S.end} you would still have ${yrsTxt} of today’s spending left.` : `At ${S.end} you would still have ${yrsTxt} of today’s spending left. Comfortable.`) + `</p>`;
-      st += S.free ? (S.free <= S.a0 ? '<p>You could already stop working and live off your savings.</p>' : S.free < S.ret ? `<p>🎯 You could stop working as early as age <b>${S.free}</b> and still be fine.</p>` : `<p>🎯 Your savings could carry you without working from age <b>${S.free}</b>.</p>`) : `<p>Your savings would not fully replace your pay before age ${S.end}, so you rely on working until ${S.ret}.</p>`;
+      st += S.free ? (S.free <= S.a0 ? '<p>You could already stop working and live off your savings.</p>' : S.free < S.ret ? `<p>🎯 You could stop working as early as age <b>${S.free}</b> and still be fine.</p>` : `<p>🎯 Your savings could carry you without working from age <b>${S.free}</b>.</p>`) : `<p>A steady 3.5% withdrawal would not quite cover your spending at ${S.ret}, but your plan spends savings down gradually and still lasts to ${S.end}.</p>`;
     }
+    st += `<p class="grp-hint">Assumes you invest ${inv}% of spare money and spend ${crp}% of each real pay rise. <a href="#howCalc" onclick="document.getElementById('howCalc').open=true">See how this is calculated</a>.</p>`;
     $('story').innerHTML = st;
 
-    // KPIs
+    // KPIs (future-rupee view always shows today's money too)
     $('k1l').textContent = `Net worth at ${S.end}`; $('k2l').textContent = `Savings left at ${S.end}`;
     $('kEnd').textContent = failed ? '—' : cr(sc(last)); $('kLeft').textContent = failed ? '—' : cr(scl(last));
+    $('kEnd2').textContent = failed || real ? '' : `≈ ${cr(last.nw / last.idx)} in today’s money`; $('kLeft2').textContent = failed || real ? '' : `≈ ${cr(last.corp / last.idx)} in today’s money`;
     $('kFree').textContent = S.free ? 'Age ' + S.free : 'Not reached'; $('kCrunch').textContent = failed ? 'Yes, at age ' + S.crunch : 'No ✓';
     $('kCrunch').parentElement.className = 'kpi ' + (failed ? 'bad' : 'good');
+    $('nomNote').hidden = real; $('nomNote').innerHTML = `<span>💡</span><span>Future rupees look huge because prices keep rising. At ${P.inflation}% inflation, prices are about <b>${last.idx.toFixed(0)}× higher</b> by age ${S.end}, so ${cr(1e7)} then buys what about ${cr(1e7 / last.idx)} buys today. Switch to <b>Today’s money</b> to compare with what you know.</span>`;
 
     // chart: stop drawing once the plan has failed
     const xs = S.rows.map(r => r.a), cut = r => failed && r.a > S.crunch;
     const nw = S.rows.map(r => cut(r) ? NaN : sc(r)), liq = S.rows.map(r => cut(r) ? NaN : scl(r));
-    const marks = EVENTS.filter(e => ev[e.id].on && ev[e.id].age >= S.a0 && ev[e.id].age < S.end && (!failed || ev[e.id].age <= S.crunch)).map(e => ({ x: ev[e.id].age, label: e.icon }));
+    const marks = active.filter(e => !ev[e.id].past && ev[e.id].age >= S.a0 && ev[e.id].age < S.end && (!failed || ev[e.id].age <= S.crunch)).map(e => ({ x: ev[e.id].age, label: e.icon }));
     if (S.ret <= S.end && (!failed || S.ret <= S.crunch)) marks.push({ x: S.ret, label: '🏖️' });
     Common.lineChart($('chart'), { xs, xfmt: v => v, xlabel: v => 'Age ' + v, label: 'Net worth by age', area: true, markers: marks,
       series: [{ name: 'Net worth', color: 'var(--c1)', ys: nw }, { name: 'Savings', color: 'var(--c2)', ys: liq }] });
 
     // timeline
-    const items = happen.filter(e => !failed || ev[e.id].age <= S.crunch).map(e => ({ a: ev[e.id].age, icon: e.icon, t: names[e.id][0].toUpperCase() + names[e.id].slice(1) }));
+    const items = happen.filter(e => !ev[e.id].past && (!failed || ev[e.id].age <= S.crunch)).map(e => ({ a: ev[e.id].age, icon: e.icon, t: names[e.id][0].toUpperCase() + names[e.id].slice(1) }));
     if (!failed || S.ret <= S.crunch) items.push({ a: S.ret, icon: '🏖️', t: 'You stop working' });
     if (S.free) items.push({ a: S.free, icon: '🎯', t: 'Financial freedom (savings could pay your way)' });
     if (failed) items.push({ a: S.crunch, icon: '⚠️', t: 'Savings run out' });
@@ -257,14 +286,49 @@
 
     // what each event will really cost
     const info = (id, t) => { const el = $('info-' + id); if (el) el.textContent = ev[id].on ? t : ''; };
-    const i0 = a => idxAt(a);
-    info('home', `At ${ev.home.age} the home costs about ${cr(ev.home.price * i0(ev.home.age))}. You pay ${cr(ev.home.price * i0(ev.home.age) * ev.home.dp / 100)} upfront, then about ${f(S.emiMonthly)} a month for ${ev.home.tenure} years.`);
+    const i0 = a => idxAt(a), H = ev.home, K = ev.kid, born = S.a0 - K.childAge;
+    info('home', H.past ? `You own a home worth ${cr(H.value)} with ${cr(H.loan)} left to repay. EMI of ${f(H.emi)} a month for ${H.yearsLeft} more years. Your rent is ignored because you own.`
+      : `At ${H.age} the home costs about ${cr(H.price * i0(H.age))}. You pay ${cr(H.price * i0(H.age) * H.dp / 100)} upfront, then about ${f(S.emiMonthly)} a month for ${H.tenure} years.`);
     info('wed', `Costs about ${cr(ev.wed.cost * i0(ev.wed.age))} at age ${ev.wed.age}.`);
-    info('kid', `About ${cr(ev.kid.cost * i0(ev.kid.age))} at ${ev.kid.age}, then ${f(ev.kid.monthly * i0(ev.kid.age))} a month until ${ev.kid.age + 22}, and about ${cr(ev.kid.edu * i0(ev.kid.age + 18))} for education.`);
+    info('kid', K.past ? `Your child is ${K.childAge} now. Their costs are already in your living costs${K.share > 0 ? ` (${f(K.share)} a month), which we drop when they turn 22, at your age ${born + 22}` : ''}. Education costs about ${cr(K.edu * i0(Math.max(S.a0, born + 18)))} over your ages ${Math.max(S.a0, born + 18)} to ${born + 21}.`
+      : `About ${cr(K.cost * i0(K.age))} at ${K.age}, then ${f(K.monthly * i0(K.age))} a month until ${K.age + 22}, and about ${cr(K.edu * i0(K.age + 18))} for education.`);
+    info('kid2', `About ${cr(ev.kid2.cost * i0(ev.kid2.age))} at ${ev.kid2.age}, then ${f(ev.kid2.monthly * i0(ev.kid2.age))} a month until ${ev.kid2.age + 22}, and about ${cr(ev.kid2.edu * i0(ev.kid2.age + 18))} for education.`);
     info('jump', `Your pay rises ${ev.jump.pct}% at age ${ev.jump.age}.`);
     info('car', `About ${cr(ev.car.cost * i0(ev.car.age))} at age ${ev.car.age}` + (ev.car.every > 0 ? `, and again every ${ev.car.every} years.` : '. You buy one car only.'));
     info('parents', `About ${f(ev.parents.monthly * i0(ev.parents.age))} a month from age ${ev.parents.age} for ${ev.parents.yrs} years.`);
     info('break', `No income for ${ev.break.yrs} year${ev.break.yrs === 1 ? '' : 's'} from age ${ev.break.age}. Your spending carries on.`);
+
+    // year-by-year table (stops at the year the money runs out, like the chart)
+    const tag = a => { const out = [];
+      if (ev.home.on && !ev.home.past && a === ev.home.age) out.push('🏠'); if (ev.wed.on && a === ev.wed.age) out.push('💍');
+      if (ev.kid.on && !ev.kid.past && a === ev.kid.age) out.push('👶'); if (ev.kid2.on && a === ev.kid2.age) out.push('🍼');
+      [['kid', ev.kid.past ? S.a0 - ev.kid.childAge : ev.kid.age], ['kid2', ev.kid2.age]].forEach(([id, born]) => { if (ev[id].on && a >= born + 18 && a < born + 22) out.push('🎓'); });
+      if (ev.car.on && a >= ev.car.age && (ev.car.every > 0 ? (a - ev.car.age) % ev.car.every === 0 : a === ev.car.age)) out.push('🚗');
+      if (ev.jump.on && a === ev.jump.age) out.push('🚀'); if (ev.parents.on && a === ev.parents.age) out.push('👪');
+      if (ev.break.on && a >= ev.break.age && a < ev.break.age + ev.break.yrs) out.push('🌴'); if (a === S.ret) out.push('🏖️'); return out.join(' '); };
+    const yrs = S.years.filter(y => !failed || y.a < S.crunch), fl = y => real ? 1 / y.idx : 1, bal = y => real ? 1 / y.endIdx : 1, hasHome = S.years.some(y => Math.abs(y.home) > 1);
+    const sg = v => `<span class="${v < -0.5 ? 'neg-t' : ''}">${cr(v)}</span>`;
+    $('yrTable').innerHTML = `<tr><th>Age</th><th>Pay after tax</th><th>Costs</th><th>One-off events</th><th>Spare money</th><th>Added to savings</th><th>Savings (end)</th>${hasHome ? '<th>Home equity (end)</th>' : ''}<th>Net worth (end)</th></tr>` +
+      yrs.map(y => `<tr class="${y.a === S.ret ? 'ret' : ''}${failed && y.a === S.crunch - 1 ? ' bad' : ''}"><td>${y.a} ${tag(y.a)}</td><td>${cr(y.pay * fl(y))}</td><td>${cr(y.running * fl(y))}</td><td>${y.one > 0.5 ? cr(y.one * fl(y)) : '–'}</td><td>${sg(y.flow * fl(y))}</td><td>${sg(y.invested * fl(y))}</td><td>${sg(y.corp * bal(y))}</td>${hasHome ? `<td>${cr(y.home * bal(y))}</td>` : ''}<td>${sg(y.nw * bal(y))}</td></tr>`).join('') +
+      (failed ? `<tr class="bad"><td colspan="${hasHome ? 9 : 8}" style="text-align:left">⚠️ Savings run out at age ${S.crunch}. Later years are not shown.</td></tr>` : '');
+    $('btnCsv').onclick = () => {
+      const q = v => Math.round(v), head = ['Age', 'Pay after tax', 'Costs', 'One-off events', 'Spare money', 'Added to savings', 'Savings (end)', 'Home equity (end)', 'Net worth (end)'];
+      const csv = [head.join(',')].concat(yrs.map(y => [y.a, q(y.pay * fl(y)), q(y.running * fl(y)), q(y.one * fl(y)), q(y.flow * fl(y)), q(y.invested * fl(y)), q(y.corp * bal(y)), q(y.home * bal(y)), q(y.nw * bal(y))].join(','))).join('\n');
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = `life-money-plan-${real ? 'todays-money' : 'future-rupees'}.csv`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    };
+
+    // how this is calculated, with this person's own year-1 numbers
+    const costs = fy.living + fy.rent + fy.extra + fy.emi + fy.maint + fy.one, r = P.ret / 100;
+    $('how').innerHTML = `<ol>
+      <li><b>Pay.</b> ${net ? 'Your take-home pay' : 'Your gross pay (taxed on new-regime slabs)'} rises ${P.growth}% a year, plus any career jump.</li>
+      <li><b>Costs.</b> Living costs and rent rise with inflation (${P.inflation}% a year). Lifestyle creep adds more: ${crp}% of every <i>real</i> pay rise (pay growth above inflation, or a jump) becomes permanent extra spending. Life events add their own costs.</li>
+      <li><b>Spare money.</b> Pay minus costs. You invest <b>${inv}%</b> of it; the rest is spent on everyday extras. If spare money is negative, your savings cover the gap.</li>
+      <li><b>Savings grow.</b> Savings × (1 + ${P.ret}%) + money invested × (1 + ${+(P.ret / 2).toFixed(1)}%). New money earns half a year of growth because it arrives through the year.</li>
+      <li><b>After you stop working</b> at ${S.ret}, pay is zero. Spending comes out of savings, which keep earning the same return. If savings reach zero, the plan has failed.</li></ol>
+      <p class="how-eg"><b>Year 1 with your numbers:</b> pay ${f(fy.takeHome)} − costs and events ${f(costs)} = ${fy.flow >= 0 ? `${f(fy.flow)} spare. You invest ${inv}% = ${f(fy.invested)}` : `a gap of ${f(-fy.flow)} taken from savings`}.
+      Savings: ${f(P.savings)} × ${(1 + r).toFixed(2)} + ${f(fy.invested)} × ${(1 + r / 2).toFixed(3)} = <b>${f(S.rows[1].corp)}</b>.</p>
+      <p><b>Net worth</b> is savings plus home value minus any loan. A home grows with inflation. <b>Today’s money</b> divides future rupees by the price rise so far, so numbers stay comparable with what you know.</p>
+      <p><b>Left out:</b> a partner’s income, tax on investment gains, market ups and downs, fees, health shocks, inheritances, selling the home, and EPF/PPF lock-ins (include any money you could use in “savings”). Treat the result as a way to compare choices, not a forecast. The <b>Year by year</b> table above shows every step.</p>`;
   }
   $('btnReset').onclick = () => { location.href = location.pathname; };
   Common.restore(); calc();
