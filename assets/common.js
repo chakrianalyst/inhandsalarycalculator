@@ -124,22 +124,23 @@ const Common = (() => {
 
   const COLORS = ['var(--c1)', 'var(--c2)', 'var(--c3)', 'var(--c4)', 'var(--c5)', 'var(--c6)'];
   /** Render donut + legend. items: [{label, value}] */
-  function donut(svgEl, legendEl, items, centerTop, centerBottom) {
+  function donut(svgEl, legendEl, items, centerTop, centerBottom, opts) {
+    opts = opts || {};
     const total = items.reduce((s, i) => s + Math.max(0, i.value), 0) || 1;
+    const pct = v => +(Math.max(0, v) / total * 100).toFixed(1), val = it => it.fmt ? it.fmt(it.value) : fmt(it.value);
     const R = 66, C = 2 * Math.PI * R; let off = 0;
     let segs = `<circle cx="85" cy="85" r="${R}" fill="none" stroke="var(--line)" stroke-width="22"/>`;
     items.forEach((it, i) => {
       const len = (Math.max(0, it.value) / total) * C;
-      if (len > 0.01) segs += `<circle cx="85" cy="85" r="${R}" fill="none" stroke="${COLORS[i % COLORS.length]}" stroke-width="22" stroke-dasharray="${len} ${C - len}" stroke-dashoffset="${-off}" transform="rotate(-90 85 85)"/>`;
+      if (len > 0.01) segs += `<circle cx="85" cy="85" r="${R}" fill="none" stroke="${COLORS[i % COLORS.length]}" stroke-width="22" stroke-dasharray="${len} ${C - len}" stroke-dashoffset="${-off}" transform="rotate(-90 85 85)"><title>${it.label}: ${val(it)} (${pct(it.value)}%)</title></circle>`;
       off += len;
     });
     svgEl.innerHTML = segs +
       `<text x="85" y="82" text-anchor="middle" font-size="11" opacity=".65">${centerTop || ''}</text>` +
       `<text x="85" y="101" text-anchor="middle" font-size="15" font-weight="800">${centerBottom || ''}</text>`;
     legendEl.innerHTML = items.map((it, i) =>
-      `<div><span><span class="dot" style="background:${COLORS[i % COLORS.length]}"></span>${it.label}</span><b>${it.fmt ? it.fmt(it.value) : fmt(it.value)}</b></div>`).join('');
+      `<div><span><span class="dot" style="background:${COLORS[i % COLORS.length]}"></span>${it.label}</span><b>${val(it)}${opts.pct ? `<span class="pc">${pct(it.value)}%</span>` : ''}</b></div>`).join('');
   }
-
 
   /** Interactive multi-series line chart.
    *  o = { xs:[num], series:[{name,color,ys,dash?}], xfmt, yfmt, markers:[{x,label}], area?:bool, height? } */

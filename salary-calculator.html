@@ -78,6 +78,12 @@
         <div class="tbl-wrap"><table class="tbl pay cmp-table" id="pay"></table></div>
       </div>
 
+      <div class="card" style="margin-bottom:18px" id="taxCard">
+        <h2 class="card-title">🧮 How your tax is calculated <span class="tag" id="taxTag"></span></h2>
+        <div id="taxCalc"></div>
+        <p class="cap" style="margin-top:10px">Showing the regime selected above. Switch regime to see the other one’s working.</p>
+      </div>
+
       <div class="card" id="donutCard">
         <h2 class="card-title">🥧 Where your CTC goes</h2>
         <div class="chart-row"><svg class="donut" id="donut" viewBox="0 0 170 170" role="img" aria-label="CTC breakdown chart"></svg><div class="legend" id="legend"></div></div>
@@ -119,6 +125,7 @@
       <details><summary>Why is my in-hand salary much lower than CTC/12?</summary><p>Because CTC includes employer PF and gratuity, and your own PF, professional tax and income tax are deducted before payout.</p></details>
       <details><summary>What PF should I choose?</summary><p>PF is 12% of basic. Many employers cap it at ₹15,000 of basic (₹1,800 a month). Choose the option that matches your offer letter or payslip, or enter a custom amount.</p></details>
       <details><summary>How is bonus treated?</summary><p>Bonus or variable pay is taxed together with your other income. The calculator shows your fixed monthly in-hand separately and the bonus after tax, because the bonus is not paid every month. You can also set an expected payout percentage.</p></details>
+      <details><summary>Does NPS reduce my tax?</summary><p>Employer NPS up to 14% of basic (new regime) or 10% (old regime) is not taxed, so opting for it lowers your tax. It also lowers your take-home, because the amount comes out of your CTC and goes into your NPS account. The calculator shows both effects. Voluntary PF comes out of your pay and only reduces tax in the old regime, through the 80C limit.</p></details>
       <details><summary>Is professional tax deductible?</summary><p>Yes under the old regime. It is not allowed as a deduction in the new regime, but it is still deducted from your pay.</p></details>
       <details><summary>Can I use my payslip instead of CTC?</summary><p>Yes. Switch to “I have my payslip”, enter your monthly lines, and the calculator estimates your yearly tax, compares the regimes, and checks whether the TDS your employer deducts looks right.</p></details>
     </div>
@@ -185,13 +192,13 @@
   ctcSecs.appendChild(sRet);
   $('b-ret').innerHTML = sub('Provident fund (PF)') +
     `<div class="field"><span class="lbl">PF is calculated on</span><div class="seg" id="pfMode"><button type="button" data-v="full" class="on">12% of basic</button><button type="button" data-v="cap">Minimum (₹1,800/mo)</button><button type="button" data-v="custom">Custom</button></div><div class="cap" id="pfInfo"></div></div><div id="pfCustom"></div>` +
-    mfield('vpf', 'Voluntary PF (VPF)', '', 'Extra PF you choose to put in each month. Comes out of your pay; counts under 80C (old regime).', '/month') +
+    mfield('vpf', 'Voluntary PF (VPF)', '', 'Extra PF you choose to put in each month. Comes out of your pay; counts under 80C (old regime).', '/month') + `<div class="cap" id="vpfEffect"></div>` +
     sub('Gratuity') + `<div class="field"><span class="lbl">Gratuity is calculated on</span><div class="seg" id="gratMode"><button type="button" data-v="basic" class="on">Basic</button><button type="button" data-v="wages">Wages (50% rule)</button><button type="button" data-v="custom">Custom</button><button type="button" data-v="off">None</button></div><div class="cap" id="gratInfo"></div><span class="hint">Gratuity is 4.81% of the base. Many employers now use “wages”, which is at least 50% of total pay, instead of basic. Choose the one your offer uses, or enter your own figure under Custom.</span></div><div id="gratCustom"></div>` +
-    sub('NPS (employer contribution)') + `<div id="npsBox"></div><div class="cap" id="npsInfo"></div>` +
+    sub('NPS (employer contribution)') + `<div id="npsBox"></div><div class="cap" id="npsInfo"></div><div class="cap" id="npsEffect" style="color:var(--text);font-weight:600"></div>` +
     sub('Other employer benefits') + mfield('ins', 'Employer-paid insurance & other non-cash benefits', '', 'Group health or term cover and similar items listed inside your CTC.', '/year');
   $('pfCustom').appendChild(dual('pfc', 'Custom PF contribution', { mode: 'pct', val: 10, base: () => DUALS.basic.annual(), baseName: 'basic', hint: 'Your PF deduction equals the employer contribution.' }).el);
   $('gratCustom').appendChild(dual('gratc', 'Gratuity in your offer', { mode: 'yr', val: 0, base: () => DUALS.basic.annual(), baseName: 'basic', hint: 'Copy the gratuity line from your offer letter.' }).el);
-  $('npsBox').appendChild(dual('nps', 'Employer NPS contribution', { mode: 'yr', val: 0, base: () => DUALS.basic.annual(), baseName: 'basic' }).el);
+  $('npsBox').appendChild(dual('nps', 'Employer NPS contribution', { mode: 'pct', val: 0, base: () => DUALS.basic.annual(), baseName: 'basic' }).el);
   const pfGet = Common.seg($('pfMode'), () => calc()), gratGet = Common.seg($('gratMode'), () => calc());
 
   /* ---------- Payslip-mode sections ---------- */
@@ -321,25 +328,56 @@
     const u80 = Math.min(150000, c80in), mb = $('m80b'); mb.style.width = u80 / 150000 * 100 + '%'; $('m80').classList.toggle('full', u80 >= 150000);
     $('m80t').textContent = `₹${Math.round(u80).toLocaleString('en-IN')} of ₹1,50,000 used (includes your PF ${f(a.employeePf + a.vpf)})`;
 
-    // payslip table
+    // payslip table (employer NPS and VPF appear as deductions, as on a payslip)
     const dv = viewGet() === 'mo' ? 12 : 1, per = viewGet() === 'mo' ? '/mo' : '/yr', row = (l, v, c = '') => `<tr class="${c}"><td>${l}</td><td>${f(v / dv)}</td></tr>`, head = t => `<tr class="grp"><td colspan="2">${t}</td></tr>`;
+    const nps = a.employerNps;
     let h = `<tr><th>${keyName} regime</th><th>${per === '/mo' ? 'Per month' : 'Per year'}</th></tr>` + head('Earnings') + row('Basic', a.basic) + row('HRA', a.hra);
     a.others.forEach(x => { if (x.amt > 0) h += row(x.name, x.amt); });
     if (isCtc) h += row('Special allowance', a.special); else if (a.otherSum > 0 && !a.others.length) h += row('Special & other allowances', a.otherSum);
     if (hasBonus) h += row(`Bonus / variable${dv === 12 ? ' (averaged over 12 months)' : ''}`, r.bonus);
-    h += row('Gross salary', r.gross, 'total') + head('Deductions') + row('Employee PF', -a.employeePf, 'neg');
-    if (a.vpf > 0) h += row('Voluntary PF', -a.vpf, 'neg');
+    if (nps > 0) h += row('Employer NPS contribution', nps);
+    h += row(nps > 0 ? 'Gross salary (incl. employer NPS)' : 'Gross salary', r.gross + nps, 'total') + head('Deductions') + row('Employee PF', -a.employeePf, 'neg');
+    if (a.vpf > 0) h += row('Voluntary PF (VPF)', -a.vpf, 'neg');
+    if (nps > 0) h += row('Employer NPS (goes to your NPS account)', -nps, 'neg');
     h += row('Professional tax', -r.pt, 'neg') + row('Income tax (TDS) + cess', -b.tax, 'neg') + row('Net in-hand' + (hasBonus ? ' (incl. bonus after tax)' : ''), b.inHandYear, 'total net');
-    const emp = [['Employer PF', a.employerPf], ['Gratuity', a.gratuity], ['Employer NPS', a.employerNps], ['Insurance & benefits', a.insurance]].filter(x => x[1] > 0);
+    const emp = [['Employer PF', a.employerPf], ['Gratuity', a.gratuity], ['Insurance & benefits', a.insurance]].filter(x => x[1] > 0);
     if (emp.length && isCtc) h += head('Paid by your employer, not in your hands') + emp.map(x => row(x[0], x[1], 'off')).join('');
     $('pay').innerHTML = h;
+
+    // step-by-step tax working for the selected regime
+    const bd = b.breakdown, L = (l, v, c = '') => `<tr class="${c}"><td>${l}</td><td>${f(v)}</td></tr>`, G = t => `<tr class="grp"><td colspan="2">${t}</td></tr>`;
+    let tx = `<div class="tbl-wrap"><table class="tbl pay cmp-table"><tr><th>Step 1 · Taxable income</th><th>Amount</th></tr>` + L('Gross salary (cash pay)', r.gross);
+    if (nps > 0) tx += L('+ Employer NPS (counted as salary, then deducted below)', nps);
+    if (r.excess > 0) tx += L('+ Employer PF/NPS above ₹7.5 lakh (taxable)', r.excess);
+    tx += L('Gross taxable salary', b.taxableGross, 'total') + b.list.map(x => L('− ' + x[0], -x[1], 'pos')).join('') + L('Taxable income', b.taxable, 'total net') + `</table></div>`;
+    tx += `<div class="tbl-wrap" style="margin-top:14px"><table class="tbl pay cmp-table"><tr><th>Step 2 · Tax on each slab</th><th>Income in slab</th><th>Tax</th></tr>`;
+    bd.rows.forEach(x => { const lo = x.from === 0 ? 'Up to ' + f(x.to) : f(x.from) + ' – ' + (x.to === Infinity ? 'above' : f(x.to)); tx += `<tr><td>${x.from > 0 && x.to === Infinity ? 'Above ' + f(x.from) : lo} · ${+(x.rate * 100).toFixed(0)}%</td><td>${f(x.amount)}</td><td>${f(x.tax)}</td></tr>`; });
+    if (!bd.rows.length) tx += `<tr><td colspan="3" style="text-align:left">No taxable income</td></tr>`;
+    const R3 = (l, v, c = '') => `<tr class="${c}"><td colspan="2">${l}</td><td>${f(v)}</td></tr>`;
+    tx += R3('Tax before rebate', bd.slabTax, 'total');
+    if (bd.kind === 'rebate') tx += R3(`Rebate under section 87A (taxable income up to ${key === 'new' ? '₹12 lakh' : '₹5 lakh'})`, -bd.rebate, 'pos');
+    if (bd.kind === 'relief') tx += R3('Marginal relief (tax limited to income above ₹12 lakh)', -bd.rebate, 'pos');
+    if (bd.surcharge > 0) tx += R3('+ Surcharge (after marginal relief)', bd.surcharge);
+    tx += R3('+ Health & education cess (4%)', bd.cess) + R3('Total income tax', bd.total, 'total net') + R3('Per month (TDS)', bd.total / 12, 'off') + `</table></div>`;
+    $('taxCalc').innerHTML = tx; $('taxTag').textContent = keyName + ' regime';
+
+    // what NPS / VPF really cost you
+    const npsE = $('npsEffect'), vpfE = $('vpfEffect'); npsE.textContent = ''; vpfE.textContent = '';
+    if (isCtc && nps > 0) {
+      const nv = Tax.assess(Tax.structure({ ...readCtc(), npsVal: 0 }), d)[key], cost = (nv.inHandYear - b.inHandYear) / 12, saved = nv.tax - b.tax;
+      npsE.textContent = `NPS ${f(nps)}/yr: your take-home falls by ${f(cost)}/mo, ${saved >= 1 ? `income tax falls by ${f(saved)}/yr` : 'income tax stays the same (you are within the rebate)'}, and ${f(nps)} goes into your NPS account.`;
+    }
+    if (isCtc && a.vpf > 0) {
+      const nv = Tax.assess(Tax.structure({ ...readCtc(), vpfVal: 0 }), d)[key], cost = (nv.inHandYear - b.inHandYear) / 12, saved = nv.tax - b.tax;
+      vpfE.textContent = `VPF ${f(a.vpf)}/yr comes out of your pay (take-home falls by ${f(cost)}/mo)` + (key === 'old' ? (saved >= 1 ? `, and saves ${f(saved)}/yr in tax under 80C.` : '. It saves no extra tax because your 80C limit is already used.') : '. It gives no tax benefit in the new regime.');
+    }
 
     // donut (CTC mode)
     if (isCtc) {
       const items = [{ label: 'In-hand salary', value: b.inHandYear }, { label: 'Income tax', value: b.tax }, { label: 'Employee PF', value: a.employeePf + a.vpf }, { label: 'Employer PF', value: a.employerPf },
         { label: 'Gratuity, NPS, benefits & PT', value: a.gratuity + a.employerNps + a.insurance + r.pt }];
       if (r.bonusTarget > r.bonus) items.push({ label: 'Unpaid variable', value: r.bonusTarget - r.bonus });
-      Common.donut($('donut'), $('legend'), items, 'CTC', Common.fmtCompact(r.ctc));
+      Common.donut($('donut'), $('legend'), items, 'CTC', Common.fmtCompact(r.ctc), { pct: true });
     }
 
     // TDS check (payslip mode)

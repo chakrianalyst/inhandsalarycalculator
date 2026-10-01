@@ -55,6 +55,19 @@ const Tax = (() => {
     return { base, surcharge, cess, total: withSur + cess };
   }
 
+  /** The working behind computeTax: tax slab by slab, then rebate or marginal relief, surcharge and cess. Totals always equal computeTax. */
+  function breakdown(income, regime) {
+    income = Math.max(0, Math.round(income));
+    const slabs = regime === 'new' ? NEW_SLABS : OLD_SLABS, rows = []; let prev = 0, slabTax = 0;
+    for (const [lim, rate] of slabs) {
+      if (income > prev) { const to = Math.min(income, lim), amt = to - prev; rows.push({ from: prev, to: lim, rate, amount: amt, tax: amt * rate }); slabTax += amt * rate; }
+      if (income <= lim) break; prev = lim;
+    }
+    const full = computeTax(income, regime), rebate = Math.max(0, slabTax - full.base);
+    const kind = rebate < 0.5 ? 'none' : (regime === 'new' ? (income <= 1200000 ? 'rebate' : 'relief') : 'rebate');
+    return { income, rows, slabTax, rebate, kind, afterRebate: full.base, surcharge: full.surcharge, cess: full.cess, total: full.total };
+  }
+
   /* ====================================================================================
      Salary engine v2.  Three layers, all pure functions:
        structure(inp)   CTC mode: turns % / ₹ choices into annual amounts (special allowance balances the CTC)
@@ -131,7 +144,7 @@ const Tax = (() => {
     const ltaAmt = a.others.filter(o => o.kind === 'lta').reduce((s, o) => s + o.amt, 0);
     const gross = a.basic + a.hra + a.bonus + a.otherSum + a.special;                      // cash salary actually paid
     const excess = Math.max(0, a.employerPf + a.employerNps - K.empCap);                    // employer contributions above ₹7.5L are taxable
-    const taxableGross = gross + excess;
+    const taxableGross = gross + a.employerNps + excess;                                    // employer NPS counts as salary; 80CCD(2) then deducts the eligible part
 
     // New regime
     const newNps = Math.min(a.employerNps, a.basic * K.npsNew);
@@ -155,10 +168,11 @@ const Tax = (() => {
       const fixedPay = gross - a.bonus, ptDed = pt;
       const inHandYear = gross - a.employeePf - a.vpf - ptDed - t.total;
       const bonusTax = t.total - tNo.total;
-      return { taxable, tax: t.total, cess: t.cess, surcharge: t.surcharge, deductions: ded, inHandYear, inHandMonth: inHandYear / 12,
+      return { taxable, taxableGross, breakdown: breakdown(taxable, regime), tax: t.total, cess: t.cess, surcharge: t.surcharge, deductions: ded, inHandYear, inHandMonth: inHandYear / 12,
                fixedMonthly: (fixedPay - a.employeePf - a.vpf - ptDed - tNo.total) / 12, bonusTax, bonusAfterTax: a.bonus - bonusTax, monthlyTds: t.total / 12, ...extra };
     };
-    const n = mk('new', newRaw, K.stdNew + newNps, {});
+    const newList = [['Standard deduction', K.stdNew], ['Employer NPS 80CCD(2)', newNps]].filter(x => x[1] > 0);
+    const n = mk('new', newRaw, K.stdNew + newNps, { list: newList });
     const o = mk('old', oldRaw, oldDed, { hraExempt, c80, list: oldList, ltaExempt });
     const best = n.inHandYear >= o.inHandYear ? 'new' : 'old';
     return { ...a, variable: a.bonus, gross, pt, excess, ltaAmt, new: n, old: o, best, saving: Math.abs(n.inHandYear - o.inHandYear),
@@ -174,6 +188,6 @@ const Tax = (() => {
       homeLoanInt: inp.homeLoanInt, otherDed: inp.otherDed });
   }
 
-  return { computeTax, salary, structure, fromPayslip, assess, breakevenOldDeductions, slabTax, per, NEW_SLABS, OLD_SLABS, K };
+  return { computeTax, breakdown, salary, structure, fromPayslip, assess, breakevenOldDeductions, slabTax, per, NEW_SLABS, OLD_SLABS, K };
 })();
 if (typeof module !== 'undefined') module.exports = Tax;
