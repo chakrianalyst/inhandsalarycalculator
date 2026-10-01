@@ -43,10 +43,14 @@ if (chromium) {
     }
   });
 
-  test('no horizontal overflow on mobile', async () => {
-    for (const f of ['index.html', 'salary-calculator.html', 'life-simulator.html', 'offer-comparison.html', 'fire-calculator.html', 'rent-vs-buy-calculator.html', 'networth-calculator.html', '12-lpa-in-hand-salary.html', 'in-hand-salary-by-ctc.html']) {
-      const pg = await open(SITE, f, 390); assert.equal(await pg.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, f); await pg.close();
+  test('no horizontal overflow on phones (320, 360 and 390px) on any page, with every section expanded', async () => {
+    const pages = pagesOf(SITE).filter(f => !/^\d+-lpa-/.test(f) || f === '12-lpa-in-hand-salary.html'); const bad = [];
+    for (const w of [320, 360, 390]) for (const f of pages) {
+      const pg = await browser.newPage({ viewport: { width: w, height: 800 } });
+      await pg.goto(url(SITE, f) + (f === 'salary-calculator.html' ? '?bonus=10' : '')); await pg.waitForTimeout(80); await pg.$$eval('details', ds => ds.forEach(d => (d.open = true)));
+      if (await pg.evaluate(() => document.documentElement.scrollWidth > innerWidth)) bad.push(`${f}@${w}`); await pg.close();
     }
+    assert.deepEqual(bad, []);
   });
 
   test('share link restores exact inputs from the URL', async () => {
@@ -134,6 +138,18 @@ if (chromium) {
     await typeIn(e, '#rate', '80'); assert.equal(await e.inputValue('#rate'), '30'); await typeIn(e, '#amt', '70000000'); assert.equal(await e.inputValue('#amt'), '70000000');
     await typeIn(e, '#yrs', '-5'); assert.equal(await e.inputValue('#yrs'), '1'); await e.close();
     const life = await open(SITE, 'life-simulator.html'); await typeIn(life, 'input[data-e=home][data-k=dp]', '500'); assert.equal(await life.inputValue('input[data-e=home][data-k=dp]'), '100'); await life.close();
+  });
+
+  test('HRA city list: eight metros plus "any other city" drive the 50% / 40% limit on every page that uses it, and survive a share link', async () => {
+    const sal = await open(SITE, 'salary-calculator.html'); const opts = await sal.$$eval('#city option', os => os.map(o => o.textContent));
+    assert.deepEqual(opts, ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad', 'Any other city']); assert.equal(await sal.inputValue('#city'), 'Bengaluru');
+    await sal.$eval('#sec-old', e => (e.open = true)); await sal.$eval('#sec-tax', e => (e.open = true)); await sal.fill('#rent', '30,000');
+    assert.match(await sal.$eval('#hraInfo', e => e.textContent), /₹2,40,000 of your/);                         // 50% of ₹4.8L basic
+    await sal.selectOption('#city', 'other'); assert.match(await sal.$eval('#hraInfo', e => e.textContent), /₹1,92,000 of your/);   // 40% of ₹4.8L basic
+    assert.deepEqual(sal.errs, []); await sal.close();
+    const link = await browser.newPage(); await link.goto(url(SITE, 'salary-calculator.html') + '?city=other'); assert.equal(await link.inputValue('#city'), 'other'); await link.close();
+    const hra = await open(SITE, 'hra-calculator.html'); assert.match(await hra.$eval('#tbl', e => e.innerText), /50% of basic/); await hra.selectOption('#city', 'other'); assert.match(await hra.$eval('#tbl', e => e.innerText), /40% of basic/); await hra.close();
+    const off = await open(SITE, 'offer-comparison.html'); assert.equal(await off.$$eval('select[data-cities]', e => e.length), 3); assert.equal(await off.inputValue('#city2'), 'other'); await off.close();
   });
 
   test('salary: payslip mode estimates tax and checks TDS', async () => {

@@ -36,7 +36,7 @@
       </div>
       <div class="field"><label for="oth0">Other monthly costs (commute etc.)</label>
         <div class="input-wrap"><span class="pre">₹</span><input type="number" id="oth0" value="3000" min="0" max="100000" step="500"></div></div>
-      <div class="field" style="margin:0"><span class="lbl">City type</span><select id="metro0"><option value="1" selected>Metro</option><option value="0">Non-metro</option></select></div>
+      <div class="field" style="margin:0"><label for="city0">City</label><select id="city0" data-cities data-default="Bengaluru"></select></div>
     </section>
     <section class="card offer-card" id="card1" aria-label="Offer 2">
       <input class="oname" id="n1" value="Offer B — Big company" aria-label="Offer name">
@@ -54,7 +54,7 @@
       </div>
       <div class="field"><label for="oth1">Other monthly costs (commute etc.)</label>
         <div class="input-wrap"><span class="pre">₹</span><input type="number" id="oth1" value="6000" min="0" max="100000" step="500"></div></div>
-      <div class="field" style="margin:0"><span class="lbl">City type</span><select id="metro1"><option value="1" selected>Metro</option><option value="0">Non-metro</option></select></div>
+      <div class="field" style="margin:0"><label for="city1">City</label><select id="city1" data-cities data-default="Mumbai"></select></div>
     </section>
     <section class="card offer-card off" id="card2" aria-label="Offer 3">
       <input class="oname" id="n2" value="Offer C — Small town" aria-label="Offer name">
@@ -72,7 +72,7 @@
       </div>
       <div class="field"><label for="oth2">Other monthly costs (commute etc.)</label>
         <div class="input-wrap"><span class="pre">₹</span><input type="number" id="oth2" value="2000" min="0" max="100000" step="500"></div></div>
-      <div class="field" style="margin:0"><span class="lbl">City type</span><select id="metro2"><option value="1">Metro</option><option value="0" selected>Non-metro</option></select></div>
+      <div class="field" style="margin:0"><label for="city2">City</label><select id="city2" data-cities data-default="other"></select></div>
     </section>
   </div>
   <div class="container">
@@ -106,7 +106,7 @@
   const N = 3, active = () => [0, 1, 2].filter(i => i < 2 || $('third').checked);
   function compute(i) {
     const ctc = Common.num('ctc' + i), bonus = Common.num('bonus' + i), esop = Common.num('esop' + i), rent = Common.num('rent' + i), oth = Common.num('oth' + i);
-    const r = Tax.salary({ ...base, ctc, variablePct: Common.num('var' + i), metro: $('metro' + i).value === '1', rentMonthly: rent });
+    const r = Tax.salary({ ...base, ctc, variablePct: Common.num('var' + i), metro: $('city' + i).value !== 'other', rentMonthly: rent });
     const b = r[r.best], extraTax = x => Tax.computeTax(b.taxable + x, r.best).total - b.tax;
     const bonusAT = bonus - extraTax(bonus), esopAT = esop - extraTax(esop);
     const left = b.inHandMonth - rent - oth;

@@ -182,3 +182,7 @@ test('breakdown: rebate, marginal relief and surcharge are labelled correctly', 
   assert.equal(Tax.breakdown(1230000, 'new').kind, 'relief'); assert.equal(Tax.breakdown(1500000, 'new').kind, 'none');
   assert.equal(Tax.breakdown(500000, 'old').kind, 'rebate'); assert.ok(Tax.breakdown(6000000, 'new').surcharge > 0);
 });
+
+test('HRA metro list: the eight cities of the Income-tax Rules 2026 (FY 2026-27)', () => {
+  assert.deepEqual(Tax.METRO_CITIES, ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad']);
+});

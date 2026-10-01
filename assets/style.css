@@ -538,3 +538,21 @@ table.yr th:first-child { z-index: 3; background: var(--surface-2); }
 table.yr tr.ret td { background: var(--grad-soft); }
 table.yr tr.ret td:first-child { background: color-mix(in srgb, var(--brand) 12%, var(--surface)); }
 table.yr tr.bad td, table.yr tr.bad td:first-child { background: color-mix(in srgb, var(--danger) 10%, var(--surface)); }
+
+/* ---------- Small phones (<= 420px): nothing may force the page to scroll sideways ---------- */
+@media (max-width: 420px) {
+  .card { padding: 20px 16px; }
+  .grp-body { padding: 4px 12px 14px; }
+  .grp > summary { padding: 12px; }
+  .seg { flex-wrap: wrap; }
+  .seg button { flex: 1 1 auto; min-width: 0; padding-inline: 8px; }
+  .kpis { gap: 8px; }
+  .kpi { padding: 12px; min-width: 0; }
+  .kpi .v { font-size: 1.05rem; overflow-wrap: anywhere; }
+  .compare { grid-template-columns: minmax(0, 1fr); }
+  .cmp .v { font-size: 1.15rem; }
+  .hero-result { padding: 20px; }
+  .hero-result .big { font-size: 2rem; }
+  .tool-card { padding: 18px; }
+  .consent { left: 8px; right: 8px; bottom: 8px; }
+}
