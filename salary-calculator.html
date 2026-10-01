@@ -48,7 +48,7 @@
       <div class="hero-result">
         <div class="lbl" id="rLbl">Monthly in-hand salary</div>
         <div class="big" id="rMonth">—</div>
-        <div class="sub" id="rYear"></div>
+        <div class="sub" id="rYear"></div><div class="chips" id="rChips"></div>
         <span class="pill" id="rPill"></span>
       </div>
       <div class="pay-tools" style="margin-top:-6px">
@@ -191,7 +191,7 @@
   const sRet = sec('ret', '🛡️', 'Retirals', 'PF, gratuity and NPS, paid for you by your employer', false);
   ctcSecs.appendChild(sRet);
   $('b-ret').innerHTML = sub('Provident fund (PF)') +
-    `<div class="field"><span class="lbl">PF is calculated on</span><div class="seg" id="pfMode"><button type="button" data-v="full" class="on">12% of basic</button><button type="button" data-v="cap">Minimum (₹1,800/mo)</button><button type="button" data-v="custom">Custom</button></div><div class="cap" id="pfInfo"></div></div><div id="pfCustom"></div>` +
+    `<div class="field"><span class="lbl">PF is calculated on</span><div class="seg" id="pfMode"><button type="button" data-v="full" class="on">12% of basic</button><button type="button" data-v="cap">Capped at ₹15,000 basic (₹1,800/mo)</button><button type="button" data-v="custom">Custom</button></div><div class="cap" id="pfInfo"></div></div><div id="pfCustom"></div>` +
     mfield('vpf', 'Voluntary PF (VPF)', '', 'Extra PF you choose to put in each month. Comes out of your pay; counts under 80C (old regime).', '/month') + `<div class="cap" id="vpfEffect"></div>` +
     sub('Gratuity') + `<div class="field"><span class="lbl">Gratuity is calculated on</span><div class="seg" id="gratMode"><button type="button" data-v="basic" class="on">Basic</button><button type="button" data-v="wages">Wages (50% rule)</button><button type="button" data-v="custom">Custom</button><button type="button" data-v="off">None</button></div><div class="cap" id="gratInfo"></div><span class="hint">Gratuity is 4.81% of the base. Many employers now use “wages”, which is at least 50% of total pay, instead of basic. Choose the one your offer uses, or enter your own figure under Custom.</span></div><div id="gratCustom"></div>` +
     sub('NPS (employer contribution)') + `<div id="npsBox"></div><div class="cap" id="npsInfo"></div><div class="cap" id="npsEffect" style="color:var(--text);font-weight:600"></div>` +
@@ -283,8 +283,9 @@
     // hero
     $('rLbl').textContent = (isCtc ? 'Monthly in-hand salary' : 'Expected monthly in-hand') + (hasBonus ? ' (fixed pay)' : '');
     $('rMonth').textContent = f(b.fixedMonthly);
-    $('rYear').textContent = hasBonus ? `+ ${f(b.bonusAfterTax)} bonus after tax each year · ${f(b.inHandMonth)}/mo on average` : `${f(b.inHandYear)} per year` + (pct !== null ? ` · ${pct}% of CTC` : '');
-    $('rPill').textContent = keyName + ' regime' + (reg === 'auto' ? ' (best for you)' : ' selected');
+    $('rYear').textContent = hasBonus ? `Bonus: ${f(r.bonus)} before tax, ${f(b.bonusAfterTax)} after tax · ${f(b.inHandMonth)}/mo on average` : `${f(b.inHandYear)} per year` + (pct !== null ? ` · ${pct}% of CTC` : '');
+    $('rPill').textContent = keyName + ' regime' + (reg === 'auto' ? ' (best for you)' + (r.saving >= 1 ? ` · saves you ${f(r.saving)}/yr` : '') : ' selected');
+    $('rChips').innerHTML = hasBonus ? `<span class="chip">Fixed pay: ${f(b.fixedMonthly)}/mo</span><span class="chip">Bonus after tax: ${f(b.bonusAfterTax)}/yr</span>` : '';
     const diff = b.inHandYear - o.inHandYear;
     $('rBanner').className = 'banner' + (Math.abs(diff) < 1 ? ' info' : '');
     $('rBanner').innerHTML = Math.abs(diff) < 1 ? '<span>ℹ️</span><span>Both regimes give the same take-home for your inputs.</span>'
@@ -296,7 +297,7 @@
     // break-even meter
     const D = r.old.deductions, need = r.breakeven; $('meter').classList.toggle('full', D >= need);
     $('meterBar').style.width = need <= 0 ? '100%' : Math.min(100, D / need * 100) + '%';
-    $('meterT').innerHTML = need <= 0 ? 'The old regime already wins, even with no extra deductions.' : `Old-regime deductions you claim: <b>${f(D)}</b> · needed for old to match new: <b>${f(need)}</b>` + (D >= need ? ' ✓' : ` (${f(need - D)} short)`);
+    $('meterT').innerHTML = need <= 0 ? 'The old regime already wins, even with no extra deductions.' : `Old-regime deductions you claim: <b>${f(D)}</b> · needed for old to match new: <b>${f(need)}</b>` + (D >= need ? ' ✓ The old regime wins.' : ` · you are ${f(need - D)} short of the point where the old regime wins`);
 
     // warnings
     const W = [], w = (cls, t) => W.push(`<div class="warn ${cls}"><span>${cls === 'bad' ? '⛔' : '⚠️'}</span><span>${t}</span></div>`);
