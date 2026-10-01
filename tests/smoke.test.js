@@ -60,9 +60,9 @@ if (chromium) {
     await pg.fill('#ctc', '3000000'); await pg.waitForTimeout(450); assert.match(pg.url(), /ctc=3000000/); await pg.close();
   });
 
-  test('salary: default is exactly ₹88,276 and the CTC is spelled out in words', async () => {
+  test('salary: default (Karnataka PT) is exactly ₹88,268 and the CTC is spelled out in words', async () => {
     const pg = await open(SITE, 'salary-calculator.html'); const t = id => pg.$eval('#' + id, e => e.textContent.trim());
-    assert.equal(await t('rMonth'), '₹88,276'); assert.equal(await t('ctcWords'), 'Twelve lakh rupees only');
+    assert.equal(await t('rMonth'), '₹88,268'); assert.equal(await t('ctcWords'), 'Twelve lakh rupees only');
     await pg.fill('#ctc', '475000'); assert.equal(await pg.inputValue('#ctc'), '4,75,000'); assert.equal(await t('ctcWords'), 'Four lakh seventy-five thousand rupees only');
     await pg.fill('#ctc', '15000000'); assert.equal(await t('ctcWords'), 'One crore fifty lakh rupees only'); assert.deepEqual(pg.errs, []); await pg.close();
   });
@@ -157,6 +157,15 @@ if (chromium) {
     assert.equal(await b.getAttribute('aria-expanded'), 'true'); assert.match(await sal.locator('.help-tip:visible').first().textContent(), /Cost to Company/);
     await sal.keyboard.press('Escape'); assert.equal(await b.getAttribute('aria-expanded'), 'false'); assert.equal(await sal.locator('.help-tip:visible').count(), 0);
     assert.match(await sal.$eval('#ctc', e => e.getAttribute('aria-describedby')), /help-ctc/);
+    assert.deepEqual(sal.errs, []); await sal.close();
+  });
+
+  test('professional tax: state picker drives the amount; "another state" shows the manual field', async () => {
+    const sal = await open(SITE, 'salary-calculator.html'); await sal.$eval('#sec-tax', e => (e.open = true));
+    assert.equal(await sal.isVisible('#pt'), false); assert.match(await sal.$eval('#ptInfo', e => e.textContent), /Karnataka: about ₹2,500 a year/);
+    await sal.selectOption('#ptState', 'NONE'); assert.match(await sal.$eval('#ptInfo', e => e.textContent), /about ₹0 a year/);
+    await sal.selectOption('#ptState', 'manual'); assert.equal(await sal.isVisible('#pt'), true);
+    const link = await browser.newPage(); await link.goto(url(SITE, 'salary-calculator.html') + '?ptState=TG'); assert.equal(await link.inputValue('#ptState'), 'TG'); await link.close();
     assert.deepEqual(sal.errs, []); await sal.close();
   });
 

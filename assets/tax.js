@@ -135,14 +135,33 @@ const Tax = (() => {
     return hi;
   }
 
+  /* ---------- Professional tax (state-wise) ----------
+     Annual PT from monthly gross pay. Slabs as published for FY 2026-27 by TaxGuru / HR-compliance guides; states change them, so the UI tells users to check their payslip.
+     Each state: list of [monthly salary at or above, PT per month]; extra = bonus charged in February (Karnataka, Maharashtra). Kerala charges by half-year pay. */
+  const slab = (list, v) => list.reduce((t, [from, amt]) => (v >= from ? amt : t), 0);
+  const PT_STATES = [
+    { id: 'KA', name: 'Karnataka', annual: m => (m >= 25000 ? 200 * 11 + 300 : 0) },
+    { id: 'MH', name: 'Maharashtra', annual: m => { const t = slab([[7500.01, 175]], m); return m > 10000 ? 200 * 11 + 300 : t * 12; }, note: 'Women earning up to ₹25,000 a month pay nothing.' },
+    { id: 'TG', name: 'Telangana', annual: m => slab([[15000.01, 150], [20000.01, 200]], m) * 12 },
+    { id: 'AP', name: 'Andhra Pradesh', annual: m => slab([[15000.01, 150], [20000.01, 200]], m) * 12 },
+    { id: 'GJ', name: 'Gujarat', annual: m => slab([[6000, 80], [9000, 150], [12000, 200]], m) * 12 },
+    { id: 'WB', name: 'West Bengal', annual: m => slab([[10000.01, 110], [15000.01, 130], [25000.01, 150], [40000.01, 200]], m) * 12 },
+    { id: 'MP', name: 'Madhya Pradesh', annual: m => (m > 33333 ? 2500 : slab([[18750.01, 125], [25000.01, 167]], m) * 12) },
+    { id: 'KL', name: 'Kerala', annual: m => slab([[12000, 120], [18000, 180], [30000, 360], [45000, 600], [60000, 900], [75000, 1200]], m * 6) * 2 },
+    { id: 'NONE', name: 'Delhi, Haryana, Uttar Pradesh or Rajasthan (no professional tax)', annual: () => 0 },
+  ];
+  /** Annual professional tax for a state id at a monthly gross pay; null if the state is not in the table (enter it yourself). */
+  function professionalTax(id, monthlyGross) { const s = PT_STATES.find(x => x.id === id); return s ? Math.round(s.annual(Math.max(0, Number(monthlyGross) || 0))) : null; }
+
   /**
-   * d: { ptMonthly, metro, rentMonthly,
+   * d: { ptState (id from PT_STATES; overrides ptMonthly), ptMonthly, metro, rentMonthly,
    *      other80c, nps1b, d80 (flat) | d80Self, d80Parents, selfSenior, parentsSenior,
    *      homeLoanInt, eduLoanInt, donations, disability, ltaClaim, otherDed }
    */
   function assess(a, d) {
     d = d || {};
-    const pt = (Number(d.ptMonthly) || 0) * 12;
+    const fixedMonthly = (a.basic + a.hra + a.otherSum + a.special) / 12, stPt = d.ptState ? professionalTax(d.ptState, fixedMonthly) : null;
+    const pt = stPt !== null ? stPt : (Number(d.ptMonthly) || 0) * 12;
     const ltaAmt = a.others.filter(o => o.kind === 'lta').reduce((s, o) => s + o.amt, 0);
     const gross = a.basic + a.hra + a.bonus + a.otherSum + a.special;                      // cash salary actually paid
     const excess = Math.max(0, a.employerPf + a.employerNps - K.empCap);                    // employer contributions above ₹7.5L are taxable
@@ -190,6 +209,6 @@ const Tax = (() => {
       homeLoanInt: inp.homeLoanInt, otherDed: inp.otherDed });
   }
 
-  return { computeTax, breakdown, METRO_CITIES, salary, structure, fromPayslip, assess, breakevenOldDeductions, slabTax, per, NEW_SLABS, OLD_SLABS, K };
+  return { computeTax, breakdown, METRO_CITIES, PT_STATES, professionalTax, salary, structure, fromPayslip, assess, breakevenOldDeductions, slabTax, per, NEW_SLABS, OLD_SLABS, K };
 })();
 if (typeof module !== 'undefined') module.exports = Tax;

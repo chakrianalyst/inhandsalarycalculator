@@ -186,3 +186,16 @@ test('breakdown: rebate, marginal relief and surcharge are labelled correctly', 
 test('HRA metro list: the eight cities of the Income-tax Rules 2026 (FY 2026-27)', () => {
   assert.deepEqual(Tax.METRO_CITIES, ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad']);
 });
+
+test('state professional tax: slabs from the published tables', () => {
+  const P = Tax.professionalTax;
+  assert.equal(P('KA', 24999), 0); assert.equal(P('KA', 100000), 2500);
+  assert.equal(P('MH', 8000), 2100); assert.equal(P('MH', 50000), 2500);
+  assert.equal(P('TG', 18000), 1800); assert.equal(P('TG', 90000), 2400);
+  assert.equal(P('GJ', 5000), 0); assert.equal(P('GJ', 100000), 2400);
+  assert.equal(P('WB', 50000), 2400); assert.equal(P('MP', 40000), 2500);
+  assert.equal(P('KL', 50000), 2400); assert.equal(P('NONE', 90000), 0); assert.equal(P('TN', 90000), null);
+  const a = Tax.structure({ ctc: 1200000 });
+  assert.equal(Tax.assess(a, { ptState: 'KA' }).pt, 2500); assert.equal(Tax.assess(a, { ptState: '', ptMonthly: 100 }).pt, 1200);
+  assert.equal(Tax.assess(a, { ptState: 'NONE', ptMonthly: 200 }).pt, 0);
+});
