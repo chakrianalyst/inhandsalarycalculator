@@ -305,6 +305,15 @@ if (chromium) {
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
+  test('FIRE calculator: lasting-corpus target, lean/fat styles, coast number, stress test and pension', async () => {
+    const pg = await open(SITE, 'fire-calculator.html'); const txt = sel => pg.$eval(sel, e => e.innerText);
+    assert.match(await txt('#hero'), /Age 48/); assert.match(await txt('.kpis'), /₹5\.30 Cr/); assert.match(await txt('#verdict'), /short at 45/);
+    assert.match(await txt('#styles'), /Lean[\s\S]*Regular[\s\S]*Fat/); assert.match(await txt('#coast'), /Coast|invested today/); assert.equal((await pg.$$('#grid tr')).length, 4);
+    await pg.$eval('details.adv', e => (e.open = true)); await pg.fill('#pension', '30,000'); assert.match(await txt('.kpis'), /Corpus needed[\s\S]*₹2\./);        // a ₹30,000 pension roughly halves the corpus
+    await pg.fill('#pension', '0'); await pg.fill('#sav', '2,00,000'); assert.match(await txt('#verdict'), /on track/);
+    assert.deepEqual(pg.errs, []); await pg.close();
+  });
+
   test('HRA city list: eight metros plus "any other city" drive the 50% / 40% limit on every page that uses it, and survive a share link', async () => {
     const sal = await open(SITE, 'salary-calculator.html'); const opts = await sal.$$eval('#city option', os => os.map(o => o.textContent));
     assert.deepEqual(opts, ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad', 'Any other city']); assert.equal(await sal.inputValue('#city'), 'Bengaluru');

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FIRE Calculator India — Early Retirement Planner | InHand</title>
-<meta name="description" content="Free FIRE and retirement calculator for India. Find the corpus you need, your earliest retirement age, and whether your money lasts.">
+<meta name="description" content="Free FIRE calculator for India. Corpus needed, earliest retirement age, lean and fat FIRE, coast FIRE, pension income and a stress test.">
 <link rel="canonical" href="https://inhand.example/fire-calculator.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -29,13 +29,13 @@
         <div class="input-wrap"><input type="number" id="retAge" value="45" min="30" max="75" step="1"><span class="suf">yrs</span></div></div>
       </div>
       <div class="field" data-slider><label for="exp">Monthly expenses today</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="exp" value="60000" min="10000" max="1000000" step="1000"></div><span class="hint">Everything you spend now, including rent / EMI.</span></div>
+        <div class="input-wrap"><span class="pre">₹</span><input id="exp" data-money data-words="expWords" value="60000" min="1000" max="10000000" step="1000" aria-describedby="expWords"></div><div class="words" id="expWords"></div><span class="hint">Everything you spend now, including rent and EMIs. If an EMI will end before you retire, leave it out.</span></div>
       <div class="field" data-slider><label for="corp">Investments today</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="corp" value="1500000" min="0" max="100000000" step="50000"></div></div>
+        <div class="input-wrap"><span class="pre">₹</span><input id="corp" data-money data-words="corpWords" value="1500000" min="0" max="1000000000" step="50000" aria-describedby="corpWords"></div><div class="words" id="corpWords"></div><span class="hint">Mutual funds, stocks, EPF, PPF, NPS, FDs, gold. Not your home.</span></div>
       <div class="field" data-slider><label for="sav">Monthly investing</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="sav" value="50000" min="0" max="1000000" step="1000"></div></div>
+        <div class="input-wrap"><span class="pre">₹</span><input id="sav" data-money data-words="savWords" value="50000" min="0" max="10000000" step="1000" aria-describedby="savWords"></div><div class="words" id="savWords"></div></div>
       <div class="row-2">
-      <div class="field"><label for="step">Yearly step-up in SIP</label>
+      <div class="field"><label for="step">Raise your investing every year by</label>
         <div class="input-wrap"><input type="number" id="step" value="8" min="0" max="25" step="1"><span class="suf">%</span></div></div>
       <div class="field"><label for="ret">Return before retirement</label>
         <div class="input-wrap"><input type="number" id="ret" value="11" min="4" max="18" step="0.5"><span class="suf">%</span></div></div>
@@ -51,6 +51,8 @@
       <div class="field"><label for="life">Plan until age</label>
         <div class="input-wrap"><input type="number" id="life" value="90" min="60" max="105" step="1"><span class="suf">yrs</span></div></div>
         </div>
+      <div class="field"><label for="pension">Pension or rental income after you retire</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="pension" data-money value="0" placeholder="0"></div><span class="hint">Per month, in today’s rupees. It rises with inflation and lowers the corpus you need.</span></div>
       <div class="field"><label for="ratio">Retirement spending vs today</label>
         <div class="input-wrap"><input type="number" id="ratio" value="100" min="40" max="200" step="5"><span class="suf">%</span></div><span class="hint">100% = same lifestyle as now, adjusted for inflation.</span></div>
       </details>
@@ -65,6 +67,9 @@
       </div>
       <div class="banner info" id="verdict"></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">🚀 Your wealth journey</h2><div id="chart"></div></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🧭 Lean, regular or fat FIRE?</h2><p class="grp-hint" style="margin-top:0">The same plan with a smaller or bigger retirement lifestyle. Your “regular” row is the spending you entered.</p><div class="tbl-wrap"><table class="tbl" id="styles"></table></div></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">⛵ Coast FIRE</h2><div id="coast"></div></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🌪️ Stress test</h2><p class="grp-hint" style="margin-top:0">Your corpus at retirement compared with what you need, for other retirement ages and returns. Below 100% means a shortfall.</p><div class="tbl-wrap"><table class="tbl" id="grid"></table></div></div>
       <div class="card"><h2 class="card-title">🧮 How it adds up</h2><div class="tbl-wrap"><table class="tbl" id="tbl"></table></div></div>
       <div class="offer"><div><b>Start building your FIRE corpus</b><small>Open a direct mutual fund account and automate your SIP.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="mutual-funds">Compare offers</a></div>
     </section>
@@ -78,61 +83,58 @@
     <h2>How to read the chart</h2>
     <p>The blue area is your corpus growing while you invest and then drawn down after retirement. The dashed line is the corpus you would need if you retired at each age — where the blue line crosses it is your earliest retirement age.</p>
     <h2>Frequently asked questions</h2>
-    <div class="faq"><details><summary>Is the 4% rule safe in India?</summary><p>The 4% rule comes from US data. With higher inflation in India, many planners prefer 3–3.5%, which is why 3.5% is the default here.</p></details><details><summary>Does this include taxes?</summary><p>No. Returns are treated as after-tax. Reduce the return assumptions if you expect a significant tax drag.</p></details><details><summary>What about EPF, PPF and NPS?</summary><p>Add their current balances to 'Investments today' and their contributions to 'Monthly investing' to include them.</p></details></div>
+    <div class="faq"><details><summary>What are lean, regular and fat FIRE?</summary><p>Lean FIRE means a frugal retirement, about 70% of today’s spending. Fat FIRE means a generous one, about 150%. The more you spend in retirement, the more you need. The table shows all three for your numbers.</p></details><details><summary>What is Coast FIRE?</summary><p>Coast FIRE is the amount that, left alone with no more savings, grows by itself to your retirement corpus. Once you hold that amount, you only need to cover your living costs until you retire. The calculator shows your Coast number for today.</p></details><details><summary>Is the 4% rule safe in India?</summary><p>The 4% rule comes from US data. With higher inflation in India, many planners prefer 3–3.5%, which is why 3.5% is the default here.</p></details><details><summary>Does this include taxes?</summary><p>No. Returns are treated as after-tax. Reduce the return assumptions if you expect a significant tax drag. Equity gains above ₹1.25 lakh a year are taxed at 12.5%, and FD interest at your slab rate.</p></details><details><summary>What about healthcare costs?</summary><p>Medical costs usually rise faster than other prices and are highest late in life. Add a buffer by raising “Retirement spending vs today”, and consider health insurance before you retire.</p></details><details><summary>What about EPF, PPF and NPS?</summary><p>Add their current balances to 'Investments today' and their contributions to 'Monthly investing' to include them.</p></details></div>
   </article>
   <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
 </main>
 <script src="assets/tax.js"></script>
+<script src="assets/words.js"></script>
+<script src="assets/fire.js"></script>
 <script src="assets/common.js"></script>
 <script>
   Common.init('fire');
-  const $ = id => document.getElementById(id), f = Common.fmt;
-  function accumulate(monthly, years, corp0, stepPct, retPct) {
-    const mr = Math.pow(1 + retPct / 100, 1 / 12) - 1; let c = corp0, s = monthly;
-    for (let y = 0; y < years; y++) { for (let m = 0; m < 12; m++) c = (c + s) * (1 + mr); s *= 1 + stepPct / 100; }
-    return c;
-  }
+  const $ = id => document.getElementById(id), f = Common.fmt, num = Common.num, cr = Common.fmtCompact;
   function calc() {
-    const age = Math.round(Common.num('age')), ra = Math.max(age, Math.round(Common.num('retAge'))), life = Math.max(ra + 1, Math.round(Common.num('life')));
-    const infl = Common.num('infl') / 100, swr = Common.num('swr') / 100 || 0.035, ratio = Common.num('ratio') / 100;
-    const exp0 = Common.num('exp') * 12 * ratio, corp0 = Common.num('corp'), sav = Common.num('sav'), step = Common.num('step'), pre = Common.num('ret'), post = Common.num('postRet') / 100;
-    const need = a => exp0 * Math.pow(1 + infl, a - age) / swr;           // corpus needed if retiring at age a
-    const n = ra - age, needRA = need(ra), projRA = accumulate(sav, n, corp0, step, pre);
-
-    // earliest age at which accumulated corpus >= corpus needed
-    let fireAge = null; for (let a = age; a <= 80; a++) if (accumulate(sav, a - age, corp0, step, pre) >= need(a)) { fireAge = a; break; }
-
-    // required monthly SIP to hit target at chosen retirement age
-    let lo = 0, hi = 5e6; for (let i = 0; i < 60; i++) { const mid = (lo + hi) / 2; accumulate(mid, n, corp0, step, pre) >= needRA ? hi = mid : lo = mid; }
-    const sipNeed = accumulate(0, n, corp0, step, pre) >= needRA ? 0 : hi;
-
-    // full journey: accumulate until ra, then draw down with inflation-adjusted spending
-    const xs = [], ys = [], tg = []; let c = corp0, s = sav, runOut = null; const mr = Math.pow(1 + pre / 100, 1 / 12) - 1;
+    const age = Math.round(num('age')), ra = Math.max(age + 1, Math.round(num('retAge'))), life = Math.max(ra + 1, Math.round(num('life'))), ratio = num('ratio') / 100;
+    const P = { age, life, exp0: num('exp') * 12 * ratio, pension: num('pension') * 12, infl: num('infl'), swr: num('swr') || 3.5, post: num('postRet') };
+    const Q = { sav: num('sav'), step: num('step'), pre: num('ret'), corp0: num('corp') }, n = ra - age;
+    const T = Fire.target(P, ra), projRA = Fire.accumulate(Q.sav, n, Q.corp0, Q.step, Q.pre), fireAge = Fire.earliest(P, Q, Math.max(80, life - 1)), sipNeed = Fire.requiredSip(P, Q, ra);
+    const gap = projRA - T, ok = gap >= 0, infl = P.infl / 100, W = [];
+    // journey: accumulate until ra, then draw down
+    const xs = [], ys = [], tg = []; let c = Q.corp0, s = Q.sav, out = null; const mr = Math.pow(1 + Q.pre / 100, 1 / 12) - 1;
     for (let a = age; a <= life; a++) {
-      xs.push(a); ys.push(Math.max(0, c)); tg.push(a <= ra ? need(a) : NaN);
-      if (a < ra) { for (let m = 0; m < 12; m++) c = (c + s) * (1 + mr); s *= 1 + step / 100; }
-      else { c = (c - exp0 * Math.pow(1 + infl, a - age)) * (1 + post); if (c < 0 && runOut === null) { runOut = a + 1; c = 0; } }
+      xs.push(a); ys.push(Math.max(0, c)); tg.push(a <= ra ? Fire.target(P, a) : NaN);
+      if (a < ra) { for (let m = 0; m < 12; m++) c = (c + s) * (1 + mr); s *= 1 + Q.step / 100; }
+      else { c = (c - Math.max(0, P.exp0 - P.pension) * Math.pow(1 + infl, a - age)) * (1 + P.post / 100); if (c < 0 && out === null) { out = a + 1; c = 0; } }
     }
-    const gap = projRA - needRA, ok = gap >= 0 && runOut === null;
     $('hero').classList.toggle('neg', fireAge === null || fireAge > ra);
-    if (fireAge !== null) { $('fTitle').textContent = 'Earliest possible retirement'; $('fBig').textContent = 'Age ' + fireAge; $('fSub').textContent = fireAge <= age ? 'You are already financially independent 🎉' : `${fireAge - age} years from now at your current savings pace`; }
-    else { $('fTitle').textContent = 'Earliest possible retirement'; $('fBig').textContent = 'After 80'; $('fSub').textContent = 'Raise your monthly investing to bring this forward.'; }
+    $('fTitle').textContent = 'Earliest possible retirement';
+    if (fireAge !== null) { $('fBig').textContent = 'Age ' + fireAge; $('fSub').textContent = fireAge <= age ? 'You are already financially independent 🎉' : `${fireAge - age} years from now at your current savings pace`; }
+    else { $('fBig').textContent = 'After ' + Math.max(80, life - 1); $('fSub').textContent = 'Raise your monthly investing or lower your retirement spending to bring this forward.'; }
     $('fPill').textContent = `Target: retire at ${ra}`;
-    $('kNeed').textContent = Common.fmtCompact(needRA); $('kProj').textContent = Common.fmtCompact(projRA);
-    $('kReal').textContent = Common.fmtCompact(needRA / Math.pow(1 + infl, n)); $('kSip').textContent = sipNeed ? f(sipNeed) : 'On track ✓';
+    $('kNeed').textContent = cr(T); $('kProj').textContent = cr(projRA); $('kReal').textContent = cr(T / Math.pow(1 + infl, n)); $('kSip').textContent = sipNeed > 0 ? f(sipNeed) : 'On track ✓';
+    if (num('retAge') <= age) W.push('Your retirement age must be after your current age. We used ' + ra + '.');
+    if (P.post >= Q.pre) W.push('You expect a higher return after retiring than before. Most people shift to safer investments, which earn less.');
     $('verdict').className = 'banner' + (ok ? '' : ' info');
-    $('verdict').innerHTML = ok ? `<span>✅</span><span>You're on track. At age ${ra} you'll have about <b>${Common.fmtCompact(projRA)}</b>, ${Common.fmtCompact(gap)} more than needed, and it lasts beyond age ${life}.</span>`
-      : gap < 0 ? `<span>📉</span><span>You'd be <b>${Common.fmtCompact(-gap)}</b> short at ${ra}. Invest about <b>${f(sipNeed)}/month</b> (vs ${f(sav)}) or retire around age <b>${fireAge || '80+'}</b>.</span>`
-      : `<span>⚠️</span><span>You reach the target, but with these returns your money runs out at age <b>${runOut}</b>. Lower spending, raise the corpus, or lower the withdrawal rate.</span>`;
+    $('verdict').innerHTML = (ok ? `<span>✅</span><span>You’re on track. At age ${ra} you’ll have about <b>${cr(projRA)}</b>, ${cr(gap)} more than the <b>${cr(T)}</b> needed, and it lasts beyond age ${life}.</span>`
+      : `<span>📉</span><span>You’d be <b>${cr(-gap)}</b> short at ${ra}. Invest about <b>${f(sipNeed)}/month</b> (vs ${f(Q.sav)}), or retire around age <b>${fireAge || '80+'}</b>.</span>`) + W.map(w => `<br><span>⚠️ ${w}</span>`).join('');
     Common.lineChart($('chart'), { xs, xfmt: v => v, xlabel: v => 'Age ' + v, label: 'Corpus over time', area: true,
-      series: [{ name: 'Your corpus', color: 'var(--c1)', ys }, { name: 'Needed to retire at that age', color: 'var(--c4)', ys: tg, dash: true }],
-      markers: [{ x: ra, label: '🏖️' }] });
-    const row = (a, b, cls = '') => `<tr class="${cls}"><td>${a}</td><td>${b}</td></tr>`;
-    $('tbl').innerHTML = row('Annual spending today', f(exp0)) + row(`Annual spending at ${ra} (inflated)`, f(exp0 * Math.pow(1 + infl, n))) +
-      row(`× 1 ÷ ${(swr * 100).toFixed(2)}% withdrawal rate`, f(needRA), 'total') + row(`Projected corpus at ${ra}`, f(projRA), gap >= 0 ? 'pos' : 'neg') +
-      row(runOut ? 'Money runs out at' : 'Money lasts until', runOut ? 'Age ' + runOut : 'Beyond ' + life, runOut ? 'neg' : 'pos');
+      series: [{ name: 'Your corpus', color: 'var(--c1)', ys }, { name: 'Needed to retire at that age', color: 'var(--c4)', ys: tg, dash: true }], markers: [{ x: ra, label: '🏖️' }] });
+    const row = (a, b, cls = '') => `<tr class="${cls}"><td>${a}</td><td>${b}</td></tr>`, netNow = Math.max(0, P.exp0 - P.pension);
+    $('tbl').innerHTML = row('Annual spending today', f(P.exp0)) + (P.pension > 0 ? row('Minus pension or rent (today’s rupees)', '− ' + f(P.pension)) : '') + row(`Annual spending at ${ra} (inflated)`, f(netNow * Math.pow(1 + infl, n))) +
+      row(`÷ ${P.swr.toFixed(2)}% withdrawal rate`, cr(Fire.swrNeed(P, ra))) + row('Corpus that lasts to age ' + life, cr(Fire.lastNeed(P, ra))) + row('Corpus needed (the larger)', f(T), 'total') + row(`Projected corpus at ${ra}`, f(projRA), ok ? 'pos' : 'neg');
+    // lean / regular / fat
+    const style = (name, k) => { const Pk = { ...P, exp0: P.exp0 * k }, Tk = Fire.target(Pk, ra), ea = Fire.earliest(Pk, Q, Math.max(80, life - 1)), sip = Fire.requiredSip(Pk, Q, ra); return `<tr><td>${name}</td><td>${f(Pk.exp0 / 12)}</td><td>${cr(Tk)}</td><td>${ea === null ? 'After ' + Math.max(80, life - 1) : 'Age ' + ea}</td><td>${sip > 0 ? f(sip) : 'On track ✓'}</td></tr>`; };
+    $('styles').innerHTML = '<tr><th>Style</th><th>Spending / month today</th><th>Corpus at ' + ra + '</th><th>Earliest age</th><th>Monthly investing needed</th></tr>' + style('Lean (70%)', 0.7) + style('Regular (100%)', 1) + style('Fat (150%)', 1.5);
+    // coast
+    const co = Fire.coast(P, Q, ra), have = Q.corp0 >= co;
+    $('coast').innerHTML = `<p style="margin:0 0 8px">To retire at ${ra} with no more investing, you would need about <b>${f(co)}</b> invested today. You have <b>${f(Q.corp0)}</b> (${Math.min(999, Math.round(Q.corp0 / (co || 1) * 100))}%).</p><p style="margin:0">${have ? 'You have reached your Coast number. Your investments can grow on their own to your target, so you only need to cover living costs until then.' : `You are ${f(co - Q.corp0)} away. Keep investing, and once you pass it you could ease off.`}</p>`;
+    // stress test
+    const ages = [ra - 5, ra, ra + 5].filter(a => a > age), rets = [Q.pre - 2, Q.pre, Q.pre + 2].filter(r => r > 0);
+    $('grid').innerHTML = '<tr><th>Retire at / return</th>' + rets.map(r => `<th>${r}%</th>`).join('') + '</tr>' + ages.map(a => `<tr><td>${a}</td>` + rets.map(r => { const pct = Fire.accumulate(Q.sav, a - age, Q.corp0, Q.step, r) / Fire.target(P, a) * 100; return `<td class="${pct >= 100 ? 'pos' : 'neg'}">${Math.round(pct)}%</td>`; }).join('') + '</tr>').join('');
   }
   document.querySelectorAll('input').forEach(i => i.addEventListener('input', calc)); calc();
+  Common.restore(); calc();
 </script>
 </body>
 </html>
