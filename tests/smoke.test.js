@@ -537,5 +537,38 @@ if (chromium) {
     const sal = await open(SITE, 'salary-calculator.html'); assert.ok(await sal.$('.guide-links a[href="professional-tax-by-state.html"]'), 'salary page links to the guides'); await sal.close();
   });
 
+  test('net worth: live explanations, emergency-fund toggle, and the donut highlight and breakdown', async () => {
+    const pg = await open(SITE, 'networth-calculator.html'); await pg.waitForTimeout(250);
+    await pg.fill('#exp', '60000'); await pg.waitForTimeout(300);
+    await pg.click('[data-tip=liquid]'); const tip = await pg.textContent('#kpiTip');
+    assert.match(tip, /Cash & bank ₹4,70,000 \+ Fixed income ₹4,00,000 \+ Stocks & funds ₹9,00,000 = ₹17,70,000/); assert.match(tip, /Not counted.*Retirement ₹10,00,000/);
+    assert.match(await pg.textContent('#emNote'), /₹4,70,000 = 7\.8 months/);
+    await pg.click('#assets details:nth-child(2) summary'); await pg.click('#assets details:nth-child(2) .em >> nth=0'); await pg.waitForTimeout(150);
+    assert.match(await pg.textContent('#emNote'), /₹8,70,000 = 14\.5 months.*Fixed deposits/, 'switching an FD on adds it to the emergency fund');
+    await pg.click('#legend .lrow[data-i="3"]');
+    const sub = await pg.$$eval('#legend .lsub:not([hidden]) li', l => l.map(x => x.textContent.replace(/\s+/g, ' ')));
+    assert.deepEqual(sub.map(x => x.split('₹')[0]), ['EPF', 'PPF', 'NPS']); assert.match(sub[0], /65%/);
+    assert.equal(await pg.$eval('#donut', e => e.classList.contains('hl')), true, 'pinned slice highlights the chart');
+    assert.deepEqual(await pg.$$eval('#donut text', t => t.map(x => x.textContent)), ['Retirement', '₹10.00 L', '10% of total']);
+    await pg.close();
+  });
+
+  test('result cards say what the number is per', async () => {
+    const pg = await open(SITE, 'salary-hike-calculator.html'); await pg.waitForTimeout(200);
+    assert.match(await pg.textContent('#gain'), /a month$/); assert.match(await pg.textContent('#gainSub'), /over a full year/); assert.match(await pg.textContent('#hPill'), /Monthly take-home/);
+    await pg.close();
+  });
+
+  test('SIP goal can be entered in today\'s prices or in future rupees', async () => {
+    const pg = await open(SITE, 'sip-calculator.html'); await pg.click('#mode button[data-v=goal]'); await pg.waitForTimeout(150);
+    await pg.fill('#goal', '1,00,00,000'); await pg.fill('#ret', '12'); await pg.fill('#yrs', '12'); await pg.fill('#mon', '0'); await pg.fill('#step', '0'); await pg.fill('#lump', '0'); await pg.waitForTimeout(250);
+    const sip = async () => parseInt((await pg.textContent('#fv')).replace(/[^0-9]/g, ''));
+    assert.equal(await pg.$eval('#goalIn button.on', e => e.dataset.v), 'today', 'defaults to what it costs today');
+    assert.match(await pg.textContent('#goalNote'), /at today’s prices will cost about ₹2\.01 Cr in 12 years/); const today = await sip();
+    await pg.click('#goalIn button[data-v=future]'); await pg.waitForTimeout(200); const future = await sip();
+    assert.ok(Math.abs(today / future - Math.pow(1.06, 12)) < 0.01, 'today-price goal needs about 1.06^12 times the SIP'); assert.match(await pg.textContent('#goalNote'), /worth about ₹49\.7/);
+    assert.deepEqual(pg.errs, []); await pg.close();
+  });
+
   test('teardown', async () => { await browser.close(); fs.rmSync(LIVE, { recursive: true, force: true }); });
 }

@@ -211,23 +211,56 @@ const Common = (() => {
   function segSet(el, v) { const b = [...el.querySelectorAll('button')].find(x => x.dataset.v === String(v)); if (b) { el.querySelectorAll('button').forEach(x => x.classList.remove('on')); b.classList.add('on'); } }
 
   const COLORS = ['var(--c1)', 'var(--c2)', 'var(--c3)', 'var(--c4)', 'var(--c5)', 'var(--c6)'];
-  /** Render donut + legend. items: [{label, value}] */
+  /** Render donut + legend. items: [{label, value, name?, fmt?, children?: [{label, value}]}].
+   *  Hover or focus a slice or row to highlight it (the centre shows its name, value and share). Click or tap pins it; rows with children open to show what is inside. */
   function donut(svgEl, legendEl, items, centerTop, centerBottom, opts) {
     opts = opts || {};
     const total = items.reduce((s, i) => s + Math.max(0, i.value), 0) || 1;
     const pct = v => +(Math.max(0, v) / total * 100).toFixed(1), val = it => it.fmt ? it.fmt(it.value) : fmt(it.value);
     const R = 66, C = 2 * Math.PI * R; let off = 0;
+    const st = legendEl._st || (legendEl._st = { pin: null, open: new Set() });             // survives re-renders so typing does not collapse what you opened
     let segs = `<circle cx="85" cy="85" r="${R}" fill="none" stroke="var(--line)" stroke-width="22"/>`;
     items.forEach((it, i) => {
       const len = (Math.max(0, it.value) / total) * C;
-      if (len > 0.01) segs += `<circle cx="85" cy="85" r="${R}" fill="none" stroke="${COLORS[i % COLORS.length]}" stroke-width="22" stroke-dasharray="${len} ${C - len}" stroke-dashoffset="${-off}" transform="rotate(-90 85 85)"><title>${it.label}: ${val(it)} (${pct(it.value)}%)</title></circle>`;
+      if (len > 0.01) segs += `<circle class="dseg" data-i="${i}" cx="85" cy="85" r="${R}" fill="none" stroke="${COLORS[i % COLORS.length]}" stroke-width="22" stroke-dasharray="${len} ${C - len}" stroke-dashoffset="${-off}" transform="rotate(-90 85 85)"><title>${esc(it.label)}: ${esc(val(it))} (${pct(it.value)}%)</title></circle>`;
       off += len;
     });
     svgEl.innerHTML = segs +
-      `<text x="85" y="82" text-anchor="middle" font-size="11" opacity=".65">${centerTop || ''}</text>` +
-      `<text x="85" y="101" text-anchor="middle" font-size="15" font-weight="800">${centerBottom || ''}</text>`;
-    legendEl.innerHTML = items.map((it, i) =>
-      `<div><span><span class="dot" style="background:${COLORS[i % COLORS.length]}"></span>${it.label}</span><b>${val(it)}${opts.pct ? `<span class="pc">${pct(it.value)}%</span>` : ''}</b></div>`).join('');
+      `<text x="85" y="82" text-anchor="middle" font-size="11" opacity=".65">${esc(centerTop)}</text>` +
+      `<text x="85" y="101" text-anchor="middle" font-size="15" font-weight="800">${esc(centerBottom)}</text>` +
+      `<text x="85" y="118" text-anchor="middle" font-size="10" opacity=".65"></text>`;
+    const kids = it => (it.children || []).filter(k => k.value > 0), idx = it => items.indexOf(it);
+    legendEl.innerHTML = items.map((it, i) => {
+      const ks = kids(it), open = st.open.has(it.label) && ks.length, gsum = ks.reduce((s, k) => s + k.value, 0) || 1;
+      return `<div class="lrow" data-i="${i}" tabindex="0" role="button"${ks.length ? ` aria-expanded="${!!open}"` : ''}><span><span class="dot" style="background:${COLORS[i % COLORS.length]}"></span>${esc(it.label)}${ks.length ? '<i class="car" aria-hidden="true">›</i>' : ''}</span><b>${esc(val(it))}${opts.pct ? `<span class="pc">${pct(it.value)}%</span>` : ''}</b></div>` +
+        (ks.length ? `<ul class="lsub"${open ? '' : ' hidden'}>${ks.map(k => `<li><span>${esc(k.label)}</span><span><b>${esc(fmtCompact(k.value))}</b> · ${Math.round(k.value / gsum * 100)}%</span></li>`).join('')}</ul>` : '');
+    }).join('');
+    const texts = svgEl.querySelectorAll('text');
+    const show = i => {
+      const on = i >= 0 && !!items[i];
+      svgEl.classList.toggle('hl', on); legendEl.classList.toggle('hl', on);
+      svgEl.querySelectorAll('.dseg').forEach(s => s.classList.toggle('on', +s.dataset.i === i));
+      legendEl.querySelectorAll('.lrow').forEach(r => r.classList.toggle('on', +r.dataset.i === i));
+      if (on) { const it = items[i]; texts[0].textContent = it.name || it.label; texts[1].textContent = it.fmt ? it.fmt(it.value) : fmtCompact(it.value); texts[2].textContent = pct(it.value) + '% of total'; }
+      else { texts[0].textContent = centerTop || ''; texts[1].textContent = centerBottom || ''; texts[2].textContent = ''; }
+    };
+    const pinned = () => items.findIndex(it => it.label === st.pin);
+    const toggle = i => {
+      const it = items[i]; if (!it) return; st.pin = st.pin === it.label ? null : it.label;
+      if (kids(it).length) { st.open[st.pin === it.label ? 'add' : 'delete'](it.label); const row = legendEl.querySelector(`.lrow[data-i="${i}"]`), sub = row.nextElementSibling, o = st.open.has(it.label); row.setAttribute('aria-expanded', String(o)); if (sub && sub.classList.contains('lsub')) sub.hidden = !o; }
+      show(pinned());
+    };
+    const seg = e => e.target.closest && e.target.closest('.dseg'), row = e => e.target.closest && e.target.closest('.lrow');
+    svgEl.onpointerover = e => { const s = seg(e); if (s) show(+s.dataset.i); };
+    svgEl.onpointerleave = () => show(pinned());
+    svgEl.onclick = e => { const s = seg(e); if (s) toggle(+s.dataset.i); };
+    legendEl.onpointerover = e => { const r = row(e); if (r) show(+r.dataset.i); };
+    legendEl.onpointerleave = () => show(pinned());
+    legendEl.onfocusin = e => { const r = row(e); if (r) show(+r.dataset.i); };
+    legendEl.onfocusout = () => show(pinned());
+    legendEl.onclick = e => { const r = row(e); if (r) toggle(+r.dataset.i); };
+    legendEl.onkeydown = e => { if ((e.key === 'Enter' || e.key === ' ') && row(e)) { e.preventDefault(); toggle(+row(e).dataset.i); } };
+    show(pinned());
   }
 
   /** Interactive multi-series line chart.
@@ -371,7 +404,7 @@ const Common = (() => {
     }
     function watch() { if (ready) return; ready = true; snapshot();
       const later = () => { clearTimeout(timer); timer = setTimeout(write, 300); };
-      document.addEventListener('input', later); document.addEventListener('click', e => { if (e.target.closest && e.target.closest('.seg')) later(); }); }
+      document.addEventListener('input', later); document.addEventListener('click', e => { if (e.target.closest && e.target.closest('.dseg')) later(); }); }
     return { restore, watch, write };
   })();
   function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.classList.add('show'), 10); setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2200); }

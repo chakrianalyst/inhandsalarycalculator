@@ -24,7 +24,9 @@
       <h2 class="card-title">🌱 Investment details</h2>
       <div class="seg" id="mode" style="margin-bottom:16px"><button type="button" data-v="sip" class="on">Monthly SIP</button><button type="button" data-v="lump">Lump sum</button><button type="button" data-v="goal">Plan for a goal</button></div>
       <div class="field" id="fGoal" hidden><label for="goal">The amount you want</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="goal" data-money data-words="goalWords" value="10000000" min="10000" max="10000000000" step="100000" aria-describedby="goalWords"></div><div class="words" id="goalWords"></div><span class="hint">In future rupees. Prices rise, so a goal in 15 years needs a bigger number than today’s cost. The result shows today’s value too.</span></div>
+        <div class="input-wrap"><span class="pre">₹</span><input id="goal" data-money data-words="goalWords" value="10000000" min="10000" max="10000000000" step="100000" aria-describedby="goalWords"></div><div class="words" id="goalWords"></div><span class="hint">Choose below how you want to enter it. If you only know what it costs today, pick “Today’s prices” and we add the price rise for you.</span>
+        <div class="seg" id="goalIn" role="group" aria-label="Is the goal amount in today’s prices or future rupees?" style="margin-top:10px"><button type="button" data-v="today" class="on">Today’s prices</button><button type="button" data-v="future">Future rupees</button></div>
+        <p class="grp-hint" id="goalNote" style="margin:8px 0 0"></p></div>
       <div class="field" id="fSip" data-slider><label for="sip">Monthly investment</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="sip" data-money data-words="sipWords" value="10000" min="500" max="200000" step="500" aria-describedby="sipWords"></div><div class="words" id="sipWords"></div></div>
       <div class="field" id="fLump"><label for="lump" id="lumpL">Amount you already have to invest (optional)</label>
@@ -88,7 +90,7 @@
 <script>
   Common.init('sip');
   const $ = id => document.getElementById(id), f = Common.fmt, num = Common.num, cr = Common.fmtCompact;
-  const modeGet = Common.seg($('mode'), () => calc());
+  const modeGet = Common.seg($('mode'), () => calc()), goalInGet = Common.seg($('goalIn'), () => calc());
   const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
   const span = n => { const y = Math.floor(n / 12), m = n % 12; return [y && plural(y, 'year'), m && plural(m, 'month')].filter(Boolean).join(' ') || '0 months'; };
   document.querySelectorAll('#tenChips .chip').forEach(b => b.addEventListener('click', () => { $('yrs').value = b.dataset.t; $('mon').value = 0; calc(); }));
@@ -104,12 +106,14 @@
     if (ret > 18) warn('', `A return of ${ret}% a year is higher than what most funds have delivered over long periods. The result may be too hopeful.`);
     if (months < 12 && !lumpMode) warn('', 'A SIP is meant for a few years or more. Over less than a year, markets can move more than the return you enter.');
 
-    let sip = num('sip'); const target = num('goal');
+    const fut = Math.pow(1 + infl / 100, months / 12), goalToday = goal && goalInGet() === 'today';
+    let sip = num('sip'); const entered = num('goal'), target = goalToday ? entered * fut : entered;
+    $('goalNote').textContent = !goal ? '' : goalToday ? `${cr(entered)} at today’s prices will cost about ${cr(target)} in ${span(months)}, allowing for ${infl}% price rise a year. The plan aims for that future amount. Change the price rise under “Tax, inflation and settings”.` : `${cr(entered)} in future rupees is worth about ${cr(entered / fut)} in today’s prices, at ${infl}% price rise a year.`;
     if (goal) { sip = Invest.requiredSip({ target, ret, months, step, lump, nominal }); if (lump >= target) warn('', 'The money you already have grows past your goal on its own, so no SIP is needed.'); }
     const R = Invest.run({ sip: lumpMode ? 0 : sip, step, lump, ret, months, nominal }), tax = Invest.tax(R.gain, taxk, months, slab), net = R.value - tax, t = months / 12, realVal = net / Math.pow(1 + infl / 100, t);
     $('hLbl').textContent = goal ? 'Start with a monthly SIP of' : lumpMode ? 'Your lump sum would grow to' : 'Estimated future value';
     $('fv').textContent = goal ? f(sip) : f(R.value);
-    $('fvSub').textContent = goal ? `${step > 0 ? `rising ${step}% every year, ` : ''}to reach ${cr(target)} in ${span(months)}` : `${cr(R.value)} after ${span(months)}`;
+    $('fvSub').textContent = goal ? `${step > 0 ? `rising ${step}% every year, ` : ''}to reach ${cr(target)} in ${span(months)}${goalToday ? ` (${cr(entered)} in today’s prices)` : ''}` : `${cr(R.value)} after ${span(months)}`;
     $('hPill').textContent = goal ? (step > 0 ? `By the last year your SIP is ${f(R.lastSip)} a month` : `Total you invest: ${cr(R.invested)}`) : `That is ${cr(realVal)} in today’s money` + (taxk !== 'none' ? ' after tax' : '');
     $('kpis').innerHTML = K('', 'Amount invested', f(R.invested)) + K('good', goal ? 'Wealth gained' : 'Wealth gained', f(R.gain), R.invested > 0 ? `${(R.value / R.invested).toFixed(2)}× your money` : '') +
       (taxk !== 'none' ? K('bad', 'Estimated tax', f(tax), 'If sold at the end') + K('', 'You keep', f(net), 'After tax') : '') + K('', 'Worth in today’s money', f(realVal), `At ${infl}% inflation`) + (taxk === 'none' ? K('', 'Growth per year', ret + '%', 'Effective yearly return') : '');

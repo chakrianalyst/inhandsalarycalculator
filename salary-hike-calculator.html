@@ -90,8 +90,8 @@
     const c0 = num('ctc'), infl = num('infl') / 100, c1 = byCtc ? num('newctc') : c0 * (1 + num('hike') / 100), h = c0 > 0 ? (c1 / c0 - 1) * 100 : 0, W = [];
     const warn = (cls, t) => W.push(`<div class="warn ${cls}"><span>${cls === 'bad' ? '⛔' : '⚠️'}</span><span>${t}</span></div>`);
     const ra = sal(c0), rb = sal(c1), a = pick(ra), b = pick(rb), m0 = a.inHandMonth, m1 = b.inHandMonth, gain = m1 - m0, realHike = m0 ? (gain / m0) * 100 : 0, powerHike = m0 ? (m1 / (m0 * (1 + infl)) - 1) * 100 : 0;
-    $('gain').textContent = (gain >= 0 ? '+' : '−') + f(Math.abs(gain)); $('gainSub').textContent = `per month · ${f(Math.abs(gain) * 12)} per year`;
-    $('hPill').textContent = `${f(m0)} → ${f(m1)} a month`;
+    $('gain').innerHTML = (gain >= 0 ? '+' : '−') + f(Math.abs(gain)) + '<span class="per">a month</span>'; $('gainSub').textContent = `That is ${f(Math.abs(gain) * 12)} ${gain >= 0 ? 'more' : 'less'} in your bank account over a full year.`;
+    $('hPill').textContent = `Monthly take-home: ${f(m0)} → ${f(m1)}`;
     if (h < 0) warn('', 'Your new CTC is lower than your current one. This is a pay cut.');
     else if (h > 0 && h / 100 < infl) warn('', `A ${h.toFixed(1)}% hike is below inflation (${(infl * 100).toFixed(1)}%), so you can buy less than before even though the number is higher.`);
     const dCtc = c1 - c0, keep = dCtc ? (b.inHandYear - a.inHandYear) / dCtc * 100 : 0;
