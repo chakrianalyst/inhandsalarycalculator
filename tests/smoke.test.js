@@ -335,6 +335,17 @@ if (chromium) {
     assert.deepEqual(errs, []); await ctx.close();
   });
 
+  test('salary: other payslip deductions (cab, lunch, ESPP) lower in-hand by that amount after tax, show in the breakdown, and survive a share link', async () => {
+    const pg = await open(SITE, 'salary-calculator.html'); const t = id => pg.$eval('#' + id, e => e.textContent.trim());
+    assert.equal(await t('rMonth'), '₹88,268'); await pg.$eval('#sec-ded', e => (e.open = true));
+    await pg.click('#dchips .chip:text("Cab")'); await pg.fill('#drows .orow:nth-child(1) .ov', '3,000'); assert.equal(await t('rMonth'), '₹85,268');
+    await pg.click('#dchips .chip:text("Lunch")'); await pg.fill('#drows .orow:nth-child(2) .ov', '2,000'); assert.equal(await t('rMonth'), '₹83,268');
+    assert.match(await pg.$eval('#pay', e => e.innerText), /Cab \/ transport[\s\S]*Lunch \/ cafeteria/); assert.match(await t('dedTotal'), /Total: ₹5,000 a month/); assert.match(await pg.$eval('#rChips', e => e.textContent), /₹5,000\/mo of other deductions/);
+    await pg.click('#drows .orow:nth-child(2) .x'); assert.equal(await t('rMonth'), '₹85,268');
+    const lk = await browser.newPage(); await lk.goto(url(SITE, 'salary-calculator.html') + '?dedData=' + encodeURIComponent('Cab~3000~mo')); await lk.waitForTimeout(300); assert.equal(await lk.$eval('#rMonth', e => e.textContent.trim()), '₹85,268'); await lk.close();
+    assert.deepEqual(pg.errs, []); await pg.close();
+  });
+
   test('HRA city list: eight metros plus "any other city" drive the 50% / 40% limit on every page that uses it, and survive a share link', async () => {
     const sal = await open(SITE, 'salary-calculator.html'); const opts = await sal.$$eval('#city option', os => os.map(o => o.textContent));
     assert.deepEqual(opts, ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad', 'Any other city']); assert.equal(await sal.inputValue('#city'), 'Bengaluru');

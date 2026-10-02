@@ -156,7 +156,7 @@ const Tax = (() => {
   function professionalTax(id, monthlyGross) { const s = PT_STATES.find(x => x.id === id); return s ? Math.round(s.annual(Math.max(0, Number(monthlyGross) || 0))) : null; }
 
   /**
-   * d: { ptState (id from PT_STATES; overrides ptMonthly), ptMonthly, metro, rentMonthly,
+   * d: { postTaxYear (₹ a year of other payslip deductions, taken after tax), ptState (id from PT_STATES; overrides ptMonthly), ptMonthly, metro, rentMonthly,
    *      other80c, nps1b, d80 (flat) | d80Self, d80Parents, selfSenior, parentsSenior,
    *      homeLoanInt, eduLoanInt, donations, disability, ltaClaim, otherDed }
    */
@@ -186,13 +186,14 @@ const Tax = (() => {
       ['Donations 80G', don], ['Disability 80DD/80U', dis], ['Other deductions', oth]].filter(x => x[1] > 0);
     const oldDed = oldList.reduce((s, x) => s + x[1], 0), oldRaw = taxableGross - oldDed;
 
+    const postTax = Math.max(0, Number(d.postTaxYear) || 0);                                // cab, lunch, ESPP and similar: taken from take-home after tax, so they change nothing about tax
     const mk = (regime, raw, ded, extra) => {
       const taxable = Math.max(0, raw), t = computeTax(taxable, regime), tNo = computeTax(Math.max(0, raw - a.bonus), regime);
       const fixedPay = gross - a.bonus, ptDed = pt;
-      const inHandYear = gross - a.employeePf - a.vpf - ptDed - t.total;
+      const inHandYear = gross - a.employeePf - a.vpf - ptDed - t.total - postTax;
       const bonusTax = t.total - tNo.total;
       return { taxable, taxableGross, breakdown: breakdown(taxable, regime), tax: t.total, cess: t.cess, surcharge: t.surcharge, deductions: ded, inHandYear, inHandMonth: inHandYear / 12,
-               fixedMonthly: (fixedPay - a.employeePf - a.vpf - ptDed - tNo.total) / 12, bonusTax, bonusAfterTax: a.bonus - bonusTax, monthlyTds: t.total / 12, ...extra };
+               fixedMonthly: (fixedPay - a.employeePf - a.vpf - ptDed - tNo.total - postTax) / 12, otherDed: postTax, bonusTax, bonusAfterTax: a.bonus - bonusTax, monthlyTds: t.total / 12, ...extra };
     };
     const newList = [['Standard deduction', K.stdNew], ['Employer NPS 80CCD(2)', newNps]].filter(x => x[1] > 0);
     const n = mk('new', newRaw, K.stdNew + newNps, { list: newList });
