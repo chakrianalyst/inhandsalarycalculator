@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HRA Exemption Calculator — Save Tax on Rent | InHand</title>
-<meta name="description" content="Free HRA calculator: find your tax-exempt HRA using the three-way test for the eight metro cities and other cities.">
+<title>HRA Exemption Calculator — Old Regime, Rent &amp; Metro Rules | InHand</title>
+<meta name="description" content="Free HRA exemption calculator for India. Three-way test, metro city list by financial year, months of rent, rent needed for full exemption and tax saved.">
 <link rel="canonical" href="https://inhand.example/hra-calculator.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -16,26 +16,31 @@
 <main>
   <div class="container page-hero">
     <div class="crumbs"><a href="index.html">Home</a> › HRA calculator</div>
-    <h1>HRA Exemption Calculator <span class="grad-text">save tax on rent</span></h1>
-    <p>See how much of your House Rent Allowance is tax-free under the old regime.</p>
+    <h1>HRA Exemption Calculator <span class="grad-text">claim what you are owed</span></h1>
+    <p>See how much of your HRA is tax-free, which of the three limits holds it back, how much rent would unlock the full amount, and the tax you save. Works for last year’s return too.</p>
   </div>
   <div class="container tool-layout">
-    <section class="card" aria-label="Inputs">
-      <h2 class="card-title">🏠 Rent & salary</h2>
-      <div class="field" data-slider><label for="basic">Basic salary (monthly, incl. DA)</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="basic" value="50000" min="5000" max="500000" step="1000"></div></div>
-      <div class="field" data-slider><label for="hra">HRA received (monthly)</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="hra" value="25000" min="0" max="300000" step="500"></div></div>
-      <div class="field" data-slider><label for="rent">Rent paid (monthly)</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="rent" value="28000" min="0" max="300000" step="500"></div></div>
-      <div class="field"><label for="city">City you live in</label><select id="city" data-cities data-default="Bengaluru"></select><span class="hint">Delhi, Mumbai, Kolkata, Chennai, Bengaluru, Hyderabad, Pune and Ahmedabad get the 50% limit from FY 2026-27. Other cities get 40%.</span></div>
+    <section class="card" id="inputs" aria-label="Inputs">
+      <h2 class="card-title">🏠 Rent &amp; salary</h2>
+      <div class="field"><span class="lbl">Financial year</span><div class="seg" id="fy"><button type="button" data-v="2026" class="on">FY 2026-27</button><button type="button" data-v="2025">FY 2025-26</button></div><span class="hint" id="fyHint"></span></div>
+      <div class="field" data-slider><label for="basic">Basic salary + DA (per month)</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="basic" data-money data-words="basicWords" value="50000" min="5000" max="500000" step="1000" aria-describedby="basicWords"></div><div class="words" id="basicWords"></div><span class="hint">Include dearness allowance only if it counts for retirement benefits. If you get a fixed commission on sales, add it too.</span></div>
+      <div class="field" data-slider><label for="hra">HRA you receive (per month)</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="hra" data-money value="25000" min="0" max="300000" step="500"></div></div>
+      <div class="field" data-slider><label for="rent">Rent you pay (per month)</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="rent" data-money data-words="rentWords" value="28000" min="0" max="300000" step="500" aria-describedby="rentWords"></div><div class="words" id="rentWords"></div></div>
+      <div class="field"><label for="city">City you live in</label><select id="city" data-cities data-default="Bengaluru"></select></div>
+      <div class="field"><label for="months">Months you paid this rent in the year</label><div class="input-wrap"><input type="number" id="months" value="12" min="1" max="12" step="1"><span class="suf">of 12</span></div><span class="hint">If you moved or changed rent during the year, calculate each stay separately and add the two results.</span></div>
+      <div class="field"><label for="slab">Your income-tax rate (to estimate the tax you save)</label><select id="slab"><option value="0">Do not show tax saved</option><option value="5">5%</option><option value="10">10%</option><option value="15">15%</option><option value="20">20%</option><option value="25">25%</option><option value="30" selected>30%</option></select></div>
     </section>
 
     <section class="results" aria-live="polite">
-      <div class="hero-result"><div class="lbl">Tax-exempt HRA (per year)</div><div class="big" id="ex">—</div><div class="sub" id="exSub"></div></div>
+      <div class="hero-result"><div class="lbl" id="hLbl">Tax-exempt HRA (for the year)</div><div class="big" id="ex">—</div><div class="sub" id="exSub"></div><span class="pill" id="hPill"></span></div>
+      <div class="warns" id="warns"></div>
+      <div class="kpis" id="kpis"></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">📐 The three-way test</h2><div class="tbl-wrap"><table class="tbl" id="tbl"></table></div>
-        <p class="hint" style="margin-top:10px;color:var(--muted);font-size:.82rem">Exempt HRA is the <b>lowest</b> of the three amounts. HRA exemption is only available under the old tax regime.</p></div>
-      <div class="kpis"><div class="kpi good"><div class="k">Exempt HRA</div><div class="v" id="kE"></div></div><div class="kpi bad"><div class="k">Taxable HRA</div><div class="v" id="kT"></div></div></div>
+        <p class="hint" style="margin-top:10px;color:var(--muted);font-size:.82rem">Exempt HRA is the <b>lowest</b> of the three amounts. The limit that holds you back is marked ✓.</p></div>
+      <div class="card" style="margin-bottom:18px" id="tipCard"><h2 class="card-title">💡 What would change it</h2><div id="tips"></div></div>
       <div class="offer"><div><b>Pay rent via credit card?</b><small>Earn rewards on rent payments with select cards.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="rent">Compare offers</a></div>
     </section>
 
@@ -43,27 +48,60 @@
   <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
   <article class="container prose">
     <h2>HRA exemption rules</h2>
-    <p>If you live in rented accommodation and receive HRA, the least of the following is exempt from tax under section 10(13A): (1) actual HRA received, (2) rent paid minus 10% of basic salary, (3) 50% of basic if you live in one of the eight metro cities (Delhi, Mumbai, Kolkata, Chennai and, from FY 2026-27 under the Income-tax Rules 2026, Bengaluru, Hyderabad, Pune and Ahmedabad) or 40% for any other city.</p>
-    <p>You must submit rent receipts to your employer, and landlord PAN is required if annual rent exceeds ₹1 lakh.</p>
+    <p>If you live in rented accommodation and receive HRA, the <strong>least</strong> of the following is exempt from tax under section 10(13A): (1) the HRA you actually receive, (2) rent paid minus 10% of basic salary, and (3) 50% of basic if you live in a metro, or 40% of basic otherwise. The three amounts are worked out for the months you paid that rent.</p>
+    <p>The metro list changed. Until FY 2025-26 only Delhi, Mumbai, Kolkata and Chennai counted. From FY 2026-27, under the Income-tax Rules 2026, Bengaluru, Hyderabad, Pune and Ahmedabad were added. Use the financial-year switch to match the return you are filing.</p>
+    <h2>Documents you need</h2>
+    <p>Give your employer rent receipts or a rent agreement. If your rent is more than ₹1 lakh in the year (about ₹8,333 a month), you must also give your landlord’s PAN. If the landlord has no PAN, a declaration is needed. If you did not submit proof on time, you can still claim the exemption when you file your return.</p>
+    <h2>Which tax regime?</h2>
+    <p>HRA exemption is available only in the <strong>old</strong> tax regime. The new regime gives no HRA exemption, but it has lower slab rates and a higher standard deduction. The <a href="salary-calculator.html">salary calculator</a> compares both regimes with your HRA, so you can see which leaves you with more money.</p>
     <h2>Frequently asked questions</h2>
-    <div class="faq"><details><summary>Can I claim HRA in the new tax regime?</summary><p>No. HRA exemption is available only under the old tax regime.</p></details><details><summary>Is my city a metro for HRA?</summary><p>For FY 2026-27 the 50% limit applies to Delhi, Mumbai, Kolkata, Chennai, Bengaluru, Hyderabad, Pune and Ahmedabad. For FY 2025-26 only the first four counted. Confirm your city with your employer if it is on the border of one of these.</p></details><details><summary>Can I claim HRA if I live with my parents?</summary><p>Yes, if you actually pay them rent, they declare it as income, and you can prove payment.</p></details></div>
+    <div class="faq">
+      <details><summary>Can I claim HRA in the new tax regime?</summary><p>No. HRA exemption is available only under the old tax regime.</p></details>
+      <details><summary>Is my city a metro for HRA?</summary><p>For FY 2026-27 the 50% limit applies to Delhi, Mumbai, Kolkata, Chennai, Bengaluru, Hyderabad, Pune and Ahmedabad. For FY 2025-26 only the first four counted. The test is the city where you live and work, not your office address. Confirm with your employer if your city is on the border of one of these.</p></details>
+      <details><summary>Can I claim HRA if I live with my parents?</summary><p>Yes, if you actually pay them rent, they declare it as income in their return, and you can prove the payment, for example through bank transfers. A rent agreement helps.</p></details>
+      <details><summary>Can I claim HRA and home-loan interest together?</summary><p>Yes, if the home you own is in a different city, or you live elsewhere for work. If you live in a house you own, you cannot claim HRA for it.</p></details>
+      <details><summary>What if I get no HRA but pay rent?</summary><p>Section 80GG lets you claim a deduction for rent in the old regime even without HRA, up to ₹5,000 a month, subject to conditions. The limit is the least of ₹5,000 a month, rent minus 10% of income, and 25% of income.</p></details>
+      <details><summary>Does HRA count towards the 50% wages rule for gratuity?</summary><p>HRA is not part of basic or DA. Under the new labour codes, “wages” for gratuity can include more than basic, so check the <a href="gratuity-calculator.html">gratuity calculator</a>.</p></details>
+    </div>
   </article>
   <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
 </main>
 <script src="assets/tax.js"></script>
+<script src="assets/words.js"></script>
+<script src="assets/hra.js"></script>
 <script src="assets/common.js"></script>
 <script>
   Common.init('hra');
-  const $ = id => document.getElementById(id), f = Common.fmt;
+  const $ = id => document.getElementById(id), f = Common.fmt, num = Common.num;
+  const fyGet = Common.seg($('fy'), () => calc());
   function calc() {
-    const b = Common.num('basic') * 12, h = Common.num('hra') * 12, r = Common.num('rent') * 12, pct = $('city').value === 'other' ? 0.4 : 0.5;
-    const a = h, c = Math.max(0, r - 0.1 * b), d = b * pct, ex = Math.max(0, Math.min(a, c, d));
-    $('ex').textContent = f(ex); $('exSub').textContent = f(ex / 12) + ' per month';
-    $('kE').textContent = f(ex); $('kT').textContent = f(h - ex);
-    const min = Math.min(a, c, d), row = (l, v) => `<tr class="${v === min ? 'pos' : ''}"><td>${l}</td><td>${f(v)}${v === min ? ' ✓' : ''}</td></tr>`;
-    $('tbl').innerHTML = row('Actual HRA received', a) + row('Rent paid − 10% of basic', c) + row(`${pct * 100}% of basic`, d);
+    const fy = fyGet(), city = $('city').value, metro = HRA.isMetro(city, fy), months = Math.max(1, Math.min(12, Math.floor(num('months')) || 12));
+    $('fyHint').textContent = fy === '2026' ? 'Bengaluru, Hyderabad, Pune and Ahmedabad count as metros from FY 2026-27.' : 'For FY 2025-26 only Delhi, Mumbai, Kolkata and Chennai count as metros (50% limit). Other cities get 40%.';
+    const r = HRA.calc({ basicM: num('basic'), hraM: num('hra'), rentM: num('rent'), months, pctOfBasic: metro ? 0.5 : 0.4, slab: +$('slab').value });
+    const W = [], warn = (cls, t) => W.push(`<div class="warn ${cls}"><span>${cls === 'bad' ? '⛔' : '⚠️'}</span><span>${t}</span></div>`);
+    $('hLbl').textContent = months < 12 ? `Tax-exempt HRA (for ${months} months)` : 'Tax-exempt HRA (for the year)';
+    $('ex').textContent = f(r.exempt); $('exSub').textContent = f(r.exempt / months) + ' per month';
+    $('hPill').textContent = (metro ? 'Metro: ' : 'Non-metro: ') + (metro ? '50' : '40') + '% of basic' + (+$('slab').value > 0 ? ` · you save about ${f(r.tax)} in tax` : '');
+    if (num('rent') <= 0) warn('', 'Enter the rent you pay. Without rent there is no HRA exemption.');
+    else if (r.c === 0) warn('', 'Your rent is not more than 10% of your basic salary, so no HRA is exempt.');
+    if (r.needsPan) warn('', `Your rent is ${f(r.rentAnnual)} for the year, above ₹1 lakh. You must give your landlord’s PAN to your employer.`);
+    if (num('hra') <= 0) warn('', 'You receive no HRA. If you pay rent, you may claim a deduction under section 80GG instead (old regime).');
+    $('warns').innerHTML = W.join('');
+    const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
+    $('kpis').innerHTML = K('good', 'Exempt HRA', f(r.exempt)) + K('bad', 'Taxable HRA', f(r.taxable), 'Added to your income') + (+$('slab').value > 0 ? K('good', 'Tax you save', f(r.tax), `At ${$('slab').value}% plus cess`) : '') + K('', 'HRA received', f(r.a), `${months} months`);
+    const min = Math.min(r.a, r.c, r.d), row = (l, v) => `<tr class="${v === min ? 'pos' : ''}"><td>${l}</td><td>${f(v)}${v === min ? ' ✓' : ''}</td></tr>`;
+    $('tbl').innerHTML = row('Actual HRA received', r.a) + row('Rent paid − 10% of basic', r.c) + row(`${metro ? 50 : 40}% of basic`, r.d);
+    const tips = [];
+    if (r.exempt >= Math.min(r.a, r.d) - 0.5 && r.taxable > 0.5) tips.push(r.which === 'hra' ? '' : `The ${metro ? 50 : 40}% of basic limit is the one holding you back, so paying more rent will not help.`);
+    if (r.which === 'rent' && r.rentForFull > num('rent') + 0.5) tips.push(`You are limited by rent. If you paid <b>${f(r.rentForFull)}</b> a month (${f(r.rentForFull - num('rent'))} more), the exemption would rise to <b>${f(Math.min(r.a, r.d))}</b>.`);
+    if (r.which === 'hra' && r.exempt > 0) tips.push('All of your HRA is exempt. Nothing more can be saved on HRA.');
+    if (r.which === 'basic') tips.push(`The ${metro ? 50 : 40}% of basic limit is the lowest. A higher basic, or a city with a higher limit, would raise it.`);
+    if (!metro && fy === '2026') tips.push('Living in one of the eight metros would raise the limit from 40% to 50% of basic.');
+    $('tips').innerHTML = tips.filter(Boolean).map(t => `<p style="margin:0 0 8px">${t}</p>`).join('') || '<p style="margin:0">Nothing to change. You are using the full exemption available.</p>';
   }
-  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc)); calc();
+  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc));
+  document.addEventListener('change', e => { if (e.target.closest && e.target.closest('#inputs')) calc(); });
+  Common.fillCities(); Common.restore(); calc();
 </script>
 </body>
 </html>

@@ -26,10 +26,12 @@
       <h2 class="card-title">🧾 About you <span style="font-weight:500;color:var(--muted);font-size:.8rem">(for benchmarks)</span></h2>
       <div class="row-2">
         <div class="field"><label for="age">Age</label><div class="input-wrap"><input type="number" id="age" min="18" max="90" step="1"><span class="suf">yrs</span></div></div>
-        <div class="field"><label for="inc">Annual income</label><div class="input-wrap"><span class="pre">₹</span><input type="number" id="inc" min="0" step="10000"></div></div>
+        <div class="field"><label for="inc">Annual income</label><div class="input-wrap"><span class="pre">₹</span><input id="inc" data-money data-words="incWords" min="0" step="10000" aria-describedby="incWords"></div><div class="words" id="incWords"></div></div>
       </div>
-      <div class="field"><label for="exp">Monthly expenses (incl. EMIs)</label><div class="input-wrap"><span class="pre">₹</span><input type="number" id="exp" min="0" step="1000"></div>
+      <div class="field"><label for="exp">Monthly expenses (incl. EMIs)</label><div class="input-wrap"><span class="pre">₹</span><input id="exp" data-money data-words="expWords" min="0" step="1000" aria-describedby="expWords"></div><div class="words" id="expWords"></div>
         <span class="hint">Used to check your emergency fund. Leave blank to skip.</span></div>
+      <div class="field"><label for="emi">Loan payments (EMIs) each month</label><div class="input-wrap"><span class="pre">₹</span><input id="emi" data-money min="0" step="1000"></div>
+        <span class="hint">All home, car, personal and education loan EMIs together. Used to check your debt burden. Leave blank to skip.</span></div>
 
       <div class="sec-label">Assets — what you own</div>
       <div class="nw-groups" id="assets"></div>
@@ -76,6 +78,13 @@
         <div class="vs" id="vs"></div>
       </div>
 
+      <div class="card" style="margin-bottom:18px" id="histCard">
+        <h2 class="card-title">📈 Track it over time</h2>
+        <p class="grp-hint" style="margin-top:0">Save a snapshot every month or quarter. It stays in this browser only, so nothing is uploaded.</p>
+        <div class="toolbar" style="margin:0 0 12px"><button class="btn btn-primary btn-sm" id="btnSnap" type="button">📌 Save today’s snapshot</button><button class="btn btn-ghost btn-sm" id="btnCsv" type="button" hidden>⬇ Export CSV</button></div>
+        <div id="histChart"></div><div class="tbl-wrap"><table class="tbl" id="histTbl"></table></div>
+      </div>
+
       <div class="card">
         <h2 class="card-title">💡 Insights for you</h2>
         <div class="insights" id="insights"></div>
@@ -94,12 +103,13 @@
     <h2>What is net worth?</h2>
     <p><strong>Net worth = total assets − total liabilities.</strong> It is the single best snapshot of your financial position: what you would be left with if you sold everything you own and paid off every debt. Track it once a quarter and watch the trend, not just the number.</p>
     <h2>How is the financial health score calculated?</h2>
-    <p>The score (0–100) blends up to five signals. Signals you leave blank are skipped and the rest are re-scaled.</p>
+    <p>The score (0–100) blends up to six signals. Signals you leave blank are skipped and the rest are re-scaled.</p>
     <ul>
       <li><strong>Debt-to-asset ratio (30 pts):</strong> full marks at 20% or lower, falling to zero when debts equal assets.</li>
       <li><strong>Emergency fund (25 pts):</strong> cash &amp; bank balances ÷ monthly expenses; 6 months or more scores full marks.</li>
       <li><strong>Growth assets (20 pts):</strong> share of assets in investments and retirement accounts; 50% or more scores full marks.</li>
       <li><strong>Diversification (10 pts):</strong> penalises having more than half of your wealth in a single bucket (for most Indians, the home).</li>
+      <li><strong>EMI burden (10 pts):</strong> your monthly loan payments as a share of income; 30% or lower scores full marks and 60% scores zero.</li>
       <li><strong>Age benchmark (15 pts):</strong> your net worth versus the rule-of-thumb target of <em>age × annual income ÷ 10</em>.</li>
     </ul>
     <p>The score is an educational guide, not a rating from any bureau or a substitute for advice from a qualified planner.</p>
@@ -122,7 +132,7 @@
 <script>
   Common.init('networth');
   const $ = id => document.getElementById(id), f = Common.fmt;
-  const KEY = 'inhand-networth-v1';
+  const KEY = 'inhand-networth-v1', HKEY = 'inhand-networth-history', IN = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
 
   const GROUPS = [
     { id: 'cash',   type: 'asset', liquid: true,  icon: '💵', name: 'Cash & bank',          sub: 'Instantly available',   items: [['Savings accounts', 350000], ['Cash in hand', 20000], ['Liquid funds', 100000]] },
@@ -156,13 +166,13 @@
     loans:  'Enter the outstanding principal today, not the original loan amount.',
     cards:  'Include anything you owe and would have to pay soon.',
   };
-  const sample = () => ({ age: 32, inc: 1800000, exp: 60000, g: Object.fromEntries(GROUPS.map(g => [g.id, g.items.map(([n, v]) => ({ n, v }))])) });
-  const blank = () => ({ age: '', inc: '', exp: '', g: Object.fromEntries(GROUPS.map(g => [g.id, g.items.map(([n]) => ({ n, v: '' }))])) });
+  const sample = () => ({ age: 32, inc: 1800000, exp: 60000, emi: 55000, g: Object.fromEntries(GROUPS.map(g => [g.id, g.items.map(([n, v]) => ({ n, v }))])) });
+  const blank = () => ({ age: '', inc: '', exp: '', emi: '', g: Object.fromEntries(GROUPS.map(g => [g.id, g.items.map(([n]) => ({ n, v: '' }))])) });
   let S;
   try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
   if (!S || !S.g) S = sample();
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
-  const val = v => { const n = parseFloat(v); return isNaN(n) || n < 0 ? 0 : n; };
+  const val = v => { const n = parseFloat(String(v).replace(/,/g, '')); return isNaN(n) || n < 0 ? 0 : n; };
   const gTotal = id => (S.g[id] || []).reduce((s, r) => s + val(r.v), 0);
 
 
@@ -193,7 +203,7 @@
     q('.g-use').onclick = () => {
       let rowEl = [...body.querySelectorAll('.item')].find(el => el.querySelector('.nm').value.trim().toLowerCase() === 'gold & jewellery');
       if (!rowEl) { const row = { n: 'Gold & jewellery', v: '' }; S.g[gid].push(row); addRow(body, gid, row, body.querySelector('.add-item')); rowEl = [...body.querySelectorAll('.item')].pop(); }
-      const num = rowEl.querySelector('input[type=number]'); num.value = value; num.dispatchEvent(new Event('input', { bubbles: true }));
+      const num = rowEl.querySelector('input.val'); num.value = value; num.dispatchEvent(new Event('input', { bubbles: true }));
       Common.toast('Gold value added: ' + f(value));
     };
     calc(); return d;
@@ -206,17 +216,17 @@
     const nm = document.createElement('input'); nm.className = 'nm'; nm.type = 'text'; nm.value = row.n; nm.placeholder = 'Name'; nm.setAttribute('aria-label', 'Item name');
     const w = document.createElement('div'); w.className = 'input-wrap';
     const pre = document.createElement('span'); pre.className = 'pre'; pre.textContent = '₹';
-    const v = document.createElement('input'); v.type = 'number'; v.min = 0; v.step = 1000; v.value = row.v; v.placeholder = '0'; v.setAttribute('aria-label', (row.n || 'Item') + ' value');
+    const v = document.createElement('input'); v.type = 'text'; v.className = 'val'; v.value = row.v; v.placeholder = '0'; v.setAttribute('aria-label', (row.n || 'Item') + ' value'); Common.attachMoney(v);
     w.append(pre, v);
     const x = document.createElement('button'); x.className = 'x'; x.type = 'button'; x.textContent = '×'; x.setAttribute('aria-label', 'Remove item');
     nm.oninput = () => { row.n = nm.value; save(); refreshers[gid] && refreshers[gid](); };
-    v.oninput = () => { row.v = v.value; update(); };
+    v.oninput = () => { row.v = Common.raw(v); update(); };
     x.onclick = () => { S.g[gid].splice(S.g[gid].indexOf(row), 1); el.remove(); refreshers[gid] && refreshers[gid](); update(); };
     el.append(nm, w, x); body.insertBefore(el, before || null);
   }
   function build() {
     $('assets').innerHTML = ''; $('liabs').innerHTML = '';
-    $('age').value = S.age; $('inc').value = S.inc; $('exp').value = S.exp;
+    $('age').value = S.age; ['inc', 'exp', 'emi'].forEach(id => { $(id).value = S[id] === '' || S[id] == null ? '' : IN.format(val(S[id])); });
     GROUPS.forEach((g, i) => {
       const d = document.createElement('details'); d.className = 'grp' + (g.type === 'liab' ? ' liab' : ''); if (i === 0 || i === 6) d.open = true;
       d.innerHTML = `<summary><div class="gi">${g.icon}</div><div class="gt">${g.name}<small>${g.sub}</small></div><div class="gv" id="gv-${g.id}"></div><span class="chev">›</span></summary>`;
@@ -228,7 +238,7 @@
       if (HINTS[g.id]) { const h = document.createElement('p'); h.className = 'grp-hint'; h.textContent = HINTS[g.id]; body.insertBefore(h, body.firstChild); }
       const chips = document.createElement('div'); chips.className = 'chips'; chips.innerHTML = '<span class="chips-l">Quick add:</span>';
       const chipEls = (CHIPS[g.id] || []).map(name => { const c = document.createElement('button'); c.type = 'button'; c.className = 'chip'; c.textContent = '+ ' + name;
-        c.onclick = () => { const r = { n: name, v: '' }; S.g[g.id].push(r); addRow(body, g.id, r, add); refreshers[g.id](); const last = [...body.querySelectorAll('.item')].pop(); last.querySelector('input[type=number]').focus(); update(); };
+        c.onclick = () => { const r = { n: name, v: '' }; S.g[g.id].push(r); addRow(body, g.id, r, add); refreshers[g.id](); const last = [...body.querySelectorAll('.item')].pop(); last.querySelector('input.val').focus(); update(); };
         chips.appendChild(c); return [name, c]; });
       refreshers[g.id] = () => { const have = new Set(S.g[g.id].map(r => (r.n || '').trim().toLowerCase())); chipEls.forEach(([n, c]) => c.hidden = have.has(n.toLowerCase())); chips.hidden = chipEls.every(([, c]) => c.hidden); };
       body.appendChild(chips); refreshers[g.id]();
@@ -249,13 +259,13 @@
       `<text x="100" y="114" text-anchor="middle" font-size="11" opacity=".6">out of 100</text>`;
   }
   function update() {
-    S.age = $('age').value; S.inc = $('inc').value; S.exp = $('exp').value; save();
+    S.age = $('age').value; S.inc = Common.raw($('inc')); S.exp = Common.raw($('exp')); S.emi = Common.raw($('emi')); save();
     const gt = {}; GROUPS.forEach(g => { gt[g.id] = gTotal(g.id); $('gv-' + g.id).textContent = f(gt[g.id]); });
     const aG = GROUPS.filter(g => g.type === 'asset'), lG = GROUPS.filter(g => g.type === 'liab');
     const assets = aG.reduce((s, g) => s + gt[g.id], 0), liabs = lG.reduce((s, g) => s + gt[g.id], 0), nw = assets - liabs;
     const liquid = aG.filter(g => g.liquid).reduce((s, g) => s + gt[g.id], 0);
     const ratio = assets > 0 ? liabs / assets : (liabs > 0 ? 1 : 0);
-    const age = val(S.age), inc = val(S.inc), exp = val(S.exp);
+    const age = val(S.age), inc = val(S.inc), exp = val(S.exp), emiM = val(S.emi), burden = inc > 0 && S.emi !== '' ? emiM * 12 / inc : null;
 
     $('hero').classList.toggle('neg', nw < 0);
     $('nw').textContent = (nw < 0 ? '−' : '') + f(Math.abs(nw));
@@ -273,6 +283,7 @@
     if (assets > 0) parts.push({ n: 'Growth assets', max: 20, s: 20 * clamp(growthShare / 0.5, 0, 1) });
     const topG = Math.max(0, ...aG.map(g => gt[g.id])), topShare = assets > 0 ? topG / assets : 0;
     if (assets > 0) parts.push({ n: 'Diversification', max: 10, s: 10 * clamp(1 - (Math.max(topShare, 0.5) - 0.5) / 0.5, 0, 1) });
+    if (burden !== null) parts.push({ n: 'EMI burden', max: 10, s: 10 * clamp(1 - (Math.max(burden, 0.3) - 0.3) / 0.3, 0, 1) });
     const target = age * inc / 10;
     if (age > 0 && inc > 0) parts.push({ n: 'Age benchmark', max: 15, s: 15 * clamp(nw / target, 0, 1) });
     const score = assets + liabs === 0 ? 0 : clamp(parts.reduce((s, p) => s + p.s, 0) / parts.reduce((s, p) => s + p.max, 0) * 100, 0, 100);
@@ -307,6 +318,12 @@
         else if (cashMonths < 6) add('warn', '🛟', `Emergency fund covers <b>${cashMonths.toFixed(1)} months</b>. Top up ${f(exp * 6 - gt.cash)} to reach the 6-month mark.`);
         else add('good', '🛟', `Emergency fund covers <b>${cashMonths.toFixed(1)} months</b> — solid.`);
       }
+      if (burden !== null) {
+        if (burden > 0.5) add('bad', '🏦', `Your EMIs take <b>${Math.round(burden * 100)}%</b> of your income. Above 50% leaves little room for savings. Prepay the costliest loan first, or avoid new debt.`);
+        else if (burden > 0.3) add('warn', '🏦', `Your EMIs take <b>${Math.round(burden * 100)}%</b> of your income. Keeping this under 30% gives you more room to save and handle surprises.`);
+        else if (emiM > 0) add('good', '🏦', `Your EMIs take <b>${Math.round(burden * 100)}%</b> of your income, a comfortable level.`);
+      }
+      if (gt.cards > 0) add(gt.cash >= gt.cards ? 'warn' : 'bad', '💳', gt.cash >= gt.cards ? `You owe <b>${f(gt.cards)}</b> on cards and dues but hold more than that in cash. Pay them off in full: card interest is often 36 to 42% a year.` : `You owe <b>${f(gt.cards)}</b> on cards and dues. Pay these off first. Card interest is often 36 to 42% a year, far above any return you can earn.`);
       if (topShare > 0.6) { const tg = aG.find(g => gt[g.id] === topG); add('warn', '🧺', `<b>${Math.round(topShare * 100)}%</b> of your wealth is in “${tg.name}”. Adding liquid, diversified investments reduces concentration risk.`); }
       if (assets > 0 && liquid / assets < 0.15) add('warn', '💧', `Only <b>${Math.round(liquid / assets * 100)}%</b> of your assets are liquid — most of your wealth is locked in property and retirement accounts.`);
       if (age > 0 && inc > 0) add(nw >= target ? 'good' : 'warn', '🎯', `Rule-of-thumb target for age ${age} on ${Common.fmtCompact(inc)} income is <b>${Common.fmtCompact(target)}</b> (age × income ÷ 10). You are at <b>${Common.fmtCompact(nw)}</b>${nw >= target ? ' — ahead of the curve!' : '.'}`);
@@ -315,11 +332,28 @@
     $('insights').innerHTML = out.join('');
   }
 
-  ['age', 'inc', 'exp'].forEach(id => $(id).addEventListener('input', update));
+  ['age', 'inc', 'exp', 'emi'].forEach(id => $(id).addEventListener('input', update));
   $('btnSample').onclick = () => { S = sample(); build(); update(); };
   $('btnClear').onclick = () => { if (confirm('Clear all your entries?')) { S = blank(); build(); update(); } };
   $('btnPrint').onclick = () => { document.querySelectorAll('.grp').forEach(d => d.open = true); window.print(); };
-  build(); update();
+  /* ---------- snapshots over time ---------- */
+  const loadH = () => { try { const x = JSON.parse(localStorage.getItem(HKEY)); return Array.isArray(x) ? x : []; } catch (e) { return []; } };
+  const saveH = x => { try { localStorage.setItem(HKEY, JSON.stringify(x)); } catch (e) {} };
+  const dshort = d => { const [y, m, dd] = d.split('-'); return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][+m - 1] + ' ' + y.slice(2) ; };
+  const totals = () => { const gt = {}; GROUPS.forEach(g => { gt[g.id] = gTotal(g.id); }); const a = GROUPS.filter(g => g.type === 'asset').reduce((s, g) => s + gt[g.id], 0), l = GROUPS.filter(g => g.type === 'liab').reduce((s, g) => s + gt[g.id], 0); return { a, l, nw: a - l }; };
+  function renderHist() {
+    const H = loadH().sort((x, y) => x.d < y.d ? -1 : 1); $('btnCsv').hidden = H.length === 0;
+    $('histChart').innerHTML = H.length < 2 ? '<p class="grp-hint">Save at least two snapshots, on different dates, to see your trend.</p>' : '';
+    if (H.length >= 2) Common.lineChart($('histChart'), { xs: H.map((_, i) => i), xfmt: i => (H[i] ? dshort(H[i].d) : ''), xlabel: i => H[i] ? H[i].d : '', label: 'Net worth over time', area: true, series: [{ name: 'Net worth', color: 'var(--c1)', ys: H.map(x => x.nw) }, { name: 'Assets', color: 'var(--c2)', dash: true, ys: H.map(x => x.a) }] });
+    $('histTbl').innerHTML = H.length ? '<tr><th>Date</th><th>Assets</th><th>Liabilities</th><th>Net worth</th><th>Change</th><th></th></tr>' + H.map((x, i) => { const d = i ? x.nw - H[i - 1].nw : null;
+      return `<tr><td>${x.d}</td><td>${f(x.a)}</td><td>${f(x.l)}</td><td><b>${f(x.nw)}</b></td><td class="${d === null ? '' : d >= 0 ? 'pos' : 'neg'}">${d === null ? '–' : (d >= 0 ? '+' : '−') + f(Math.abs(d))}</td><td><button type="button" class="x" data-d="${x.d}" aria-label="Delete snapshot ${x.d}">×</button></td></tr>`; }).join('') : '';
+  }
+  $('btnSnap').onclick = () => { const t = totals(); if (t.a + t.l === 0) { Common.toast('Add some numbers first'); return; } const d = new Date(), iso = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const H = loadH().filter(x => x.d !== iso); H.push({ d: iso, nw: Math.round(t.nw), a: Math.round(t.a), l: Math.round(t.l) }); saveH(H); renderHist(); Common.toast('Snapshot saved'); };
+  $('histTbl').addEventListener('click', e => { const b = e.target.closest('button[data-d]'); if (b) { saveH(loadH().filter(x => x.d !== b.dataset.d)); renderHist(); } });
+  $('btnCsv').onclick = () => { const H = loadH().sort((x, y) => x.d < y.d ? -1 : 1), csv = ['Date,Assets,Liabilities,Net worth'].concat(H.map(x => [x.d, x.a, x.l, x.nw].join(','))).join('\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'net-worth-history.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); };
+  build(); update(); renderHist();
 </script>
 </body>
 </html>

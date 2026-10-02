@@ -48,7 +48,7 @@
       <div class="hero-result">
         <div class="lbl" id="rLbl">Monthly in-hand salary</div>
         <div class="big" id="rMonth">—</div>
-        <div class="sub" id="rYear"></div><div class="chips" id="rChips"></div>
+        <div class="sub" id="rYear"></div><div class="hchips" id="rChips"></div>
         <span class="pill" id="rPill"></span>
       </div>
       <div class="pay-tools" style="margin-top:-6px">
@@ -285,7 +285,7 @@
     $('rMonth').textContent = f(b.fixedMonthly);
     $('rYear').textContent = hasBonus ? `Bonus: ${f(r.bonus)} before tax, ${f(b.bonusAfterTax)} after tax · ${f(b.inHandMonth)}/mo on average` : `${f(b.inHandYear)} per year` + (pct !== null ? ` · ${pct}% of CTC` : '');
     $('rPill').textContent = keyName + ' regime' + (reg === 'auto' ? ' (best for you)' + (r.saving >= 1 ? ` · saves you ${f(r.saving)}/yr` : '') : ' selected');
-    $('rChips').innerHTML = hasBonus ? `<span class="chip">Fixed pay: ${f(b.fixedMonthly)}/mo</span><span class="chip">Bonus after tax: ${f(b.bonusAfterTax)}/yr</span>` : '';
+    $('rChips').innerHTML = hasBonus ? `<span>Fixed pay: ${f(b.fixedMonthly)}/mo</span><span>Bonus after tax: ${f(b.bonusAfterTax)}/yr</span>` : '';
     const diff = b.inHandYear - o.inHandYear;
     $('rBanner').className = 'banner' + (Math.abs(diff) < 1 ? ' info' : '');
     $('rBanner').innerHTML = Math.abs(diff) < 1 ? '<span>ℹ️</span><span>Both regimes give the same take-home for your inputs.</span>'

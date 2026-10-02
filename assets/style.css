@@ -566,5 +566,14 @@ table.yr tr.bad td, table.yr tr.bad td:first-child { background: color-mix(in sr
 
 /* mobile result bar sits above the cookie banner; hero chips */
 @media (max-width: 920px) { .m-bar { bottom: calc(12px + var(--consent-lift, 0px)); } }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.chips .chip { background: rgba(255,255,255,.18); color: #fff; border-radius: 999px; padding: 4px 12px; font-size: .8rem; font-weight: 600; }
+.hchips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.hchips span { background: rgba(255,255,255,.18); color: #fff; border-radius: 999px; padding: 4px 12px; font-size: .8rem; font-weight: 600; }
+
+/* tenure row */
+.row-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.row-3 .input-wrap { min-width: 0; } .sub-l { display: block; font-size: .76rem; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+.row-3 [hidden] { display: none; }
+
+[hidden] { display: none !important; }
+
+.pill:empty, .words:empty { display: none; }

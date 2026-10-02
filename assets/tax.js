@@ -76,6 +76,8 @@ const Tax = (() => {
      salary(legacy)     Backward-compatible wrapper used by the hike / offer / by-CTC pages.
      ==================================================================================== */
   /** Cities where HRA exemption is up to 50% of basic (old regime). Income-tax Rules 2026 added the last four from FY 2026-27. */
+  /** Professional-tax state for each metro city (Chennai: Tamil Nadu is not in the table, so it falls back to a manual amount). */
+  const CITY_PT = { Bengaluru: 'KA', Mumbai: 'MH', Pune: 'MH', Hyderabad: 'TG', Delhi: 'NONE', Kolkata: 'WB', Ahmedabad: 'GJ' };
   const METRO_CITIES = ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad'];
   const K = { stdNew: 75000, stdOld: 50000, npsNew: 0.14, npsOld: 0.10, cap80c: 150000, cap1b: 50000, capHome: 200000, capDis: 125000,
               empCap: 750000, pfCeiling: 15000, pfRate: 0.12, gratuityRate: 0.0481 };
@@ -204,11 +206,11 @@ const Tax = (() => {
   function salary(inp) {
     const ctc = Math.max(0, inp.ctc);
     const a = structure({ ctc, basicMode: 'pct', basicVal: inp.basicPct, hraMode: 'pct', hraVal: inp.hraPct, bonusMode: 'pct', bonusVal: inp.variablePct,
-      pfMode: inp.pfCap ? 'cap' : 'full', gratuityOn: !!inp.gratuity, npsMode: 'yr', npsVal: inp.employerNps || 0 });
-    return assess(a, { ptMonthly: inp.ptMonthly, metro: inp.metro, rentMonthly: inp.rentMonthly, other80c: inp.other80c, nps1b: inp.nps1b, d80: inp.d80 || 0,
+      pfMode: inp.pfCap ? 'cap' : 'full', gratuityOn: !!inp.gratuity, npsMode: 'yr', npsVal: inp.employerNps || 0, payoutPct: inp.payoutPct });
+    return assess(a, { ptMonthly: inp.ptMonthly, ptState: inp.ptState, metro: inp.metro, rentMonthly: inp.rentMonthly, other80c: inp.other80c, nps1b: inp.nps1b, d80: inp.d80 || 0,
       homeLoanInt: inp.homeLoanInt, otherDed: inp.otherDed });
   }
 
-  return { computeTax, breakdown, METRO_CITIES, PT_STATES, professionalTax, salary, structure, fromPayslip, assess, breakevenOldDeductions, slabTax, per, NEW_SLABS, OLD_SLABS, K };
+  return { computeTax, breakdown, METRO_CITIES, CITY_PT, PT_STATES, professionalTax, salary, structure, fromPayslip, assess, breakevenOldDeductions, slabTax, per, NEW_SLABS, OLD_SLABS, K };
 })();
 if (typeof module !== 'undefined') module.exports = Tax;

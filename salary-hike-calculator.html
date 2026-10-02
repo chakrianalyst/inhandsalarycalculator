@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Salary Hike Calculator — Real In-Hand Increase After Tax | InHand</title>
-<meta name="description" content="Free salary hike calculator: see how a percentage raise changes your monthly in-hand salary after tax and PF.">
+<title>Salary Hike Calculator — Real In-Hand Raise | InHand</title>
+<meta name="description" content="Free salary hike calculator for India. Enter a hike % or your new CTC and see the real in-hand raise after tax and PF, what is left after inflation, and a 5-year projection.">
 <link rel="canonical" href="https://inhand.example/salary-hike-calculator.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,24 +15,39 @@
 <body>
 <main>
   <div class="container page-hero">
-    <div class="crumbs"><a href="index.html">Home</a> › Hike calculator</div>
-    <h1>Salary Hike Calculator <span class="grad-text">your real raise</span></h1>
-    <p>A 15% hike rarely means 15% more in your bank. See the real number.</p>
+    <div class="crumbs"><a href="index.html">Home</a> › Salary hike calculator</div>
+    <h1>Salary Hike Calculator <span class="grad-text">what a raise really gives you</span></h1>
+    <p>Enter your hike as a percentage or your new CTC. See the extra money that reaches your bank account, what is left after inflation, and how much of each extra rupee you keep.</p>
   </div>
   <div class="container tool-layout">
-    <section class="card" aria-label="Inputs">
-      <h2 class="card-title">📈 Current pay & raise</h2>
+    <section class="card" id="inputs" aria-label="Inputs">
+      <h2 class="card-title">📈 Current pay &amp; raise</h2>
       <div class="field" data-slider><label for="ctc">Current annual CTC</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="ctc" value="1000000" min="100000" max="10000000" step="10000"></div></div>
-      <div class="field" data-slider><label for="hike">Hike percentage</label>
-        <div class="input-wrap"><input type="number" id="hike" value="15" min="0" max="100" step="1"><span class="suf">%</span></div></div>
-      <p style="color:var(--muted);font-size:.85rem">Assumes 40% basic, 50% HRA, PF on full basic, metro city, ₹200 professional tax, and the better of old/new regime for each salary. <a href="salary-calculator.html">Customise →</a></p>
+        <div class="input-wrap"><span class="pre">₹</span><input id="ctc" data-money data-words="ctcWords" value="1000000" min="100000" max="10000000" step="10000" aria-describedby="ctcWords"></div><div class="words" id="ctcWords"></div></div>
+      <div class="field"><span class="lbl">How do you know your raise?</span><div class="seg" id="hmode"><button type="button" data-v="pct" class="on">As a % hike</button><button type="button" data-v="ctc">As a new CTC</button></div></div>
+      <div class="field" id="fHike" data-slider><label for="hike">Hike percentage</label>
+        <div class="input-wrap"><input type="number" id="hike" value="15" min="0" max="300" step="1"><span class="suf">%</span></div></div>
+      <div class="field" id="fNew" hidden><label for="newctc">New annual CTC</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="newctc" data-money data-words="newWords" value="1150000" min="100000" max="1000000000" step="10000" aria-describedby="newWords"></div><div class="words" id="newWords"></div></div>
+      <div class="field" data-slider><label for="infl">Price rise each year (inflation)</label>
+        <div class="input-wrap"><input type="number" id="infl" value="6" min="0" max="15" step="0.5"><span class="suf">%</span></div><span class="hint">A raise below this number means you can buy less than before.</span></div>
+      <details class="grp" id="sec-as"><summary><div class="gi">⚙️</div><div class="gt">Salary structure<small>Defaults match the salary calculator</small></div><span class="chev">›</span></summary><div class="grp-body">
+        <div class="row-2"><div class="field"><label for="basicPct">Basic (% of CTC)</label><div class="input-wrap"><input type="number" id="basicPct" value="40" min="10" max="80" step="1"><span class="suf">%</span></div></div>
+          <div class="field"><label for="varPct">Variable (% of CTC)</label><div class="input-wrap"><input type="number" id="varPct" value="0" min="0" max="60" step="1"><span class="suf">%</span></div></div></div>
+        <label class="toggle"><span>PF only on ₹15,000 of basic<small>Switch on if your employer caps PF</small></span><span class="switch"><input type="checkbox" id="pfcap"><i></i></span></label>
+        <div class="field"><label for="regime">Tax regime</label><select id="regime"><option value="best" selected>Whichever leaves me more</option><option value="new">New regime</option><option value="old">Old regime</option></select></div>
+        <div class="field"><label for="city">City you live in (for HRA)</label><select id="city" data-cities data-default="Bengaluru"></select></div>
+        <div class="field"><label for="rent">Monthly rent you pay</label><div class="input-wrap"><span class="pre">₹</span><input id="rent" data-money value="0" placeholder="0"></div><span class="hint">Only matters in the old regime. Leave 0 if you do not claim HRA.</span></div>
+        <div class="field"><label for="ptState">State (for professional tax)</label><select id="ptState"></select></div>
+      </div></details>
+      <p class="hint" style="margin-top:12px">Everything else follows the <a href="salary-calculator.html">salary calculator</a> defaults, including gratuity inside CTC and no investments or other deductions. <a href="salary-calculator.html">Customise there →</a></p>
     </section>
-
     <section class="results" aria-live="polite">
-      <div class="hero-result"><div class="lbl">Your real monthly gain</div><div class="big" id="gain">—</div><div class="sub" id="gainSub"></div></div>
+      <div class="hero-result"><div class="lbl">Your real monthly gain</div><div class="big" id="gain">—</div><div class="sub" id="gainSub"></div><span class="pill" id="hPill"></span></div>
+      <div class="warns" id="warns"></div>
+      <div class="kpis" id="kpis"></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">🔍 Before vs after</h2><div class="tbl-wrap"><table class="tbl" id="tbl"></table></div></div>
-      <div class="kpis"><div class="kpi"><div class="k">Headline hike</div><div class="v" id="kH"></div></div><div class="kpi good"><div class="k">Real in-hand hike</div><div class="v" id="kR"></div></div></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🗓️ If you got this raise every year</h2><p class="grp-hint" style="margin-top:0">Monthly in-hand pay over the next 5 years, also shown in today’s money so you can see the real gain.</p><div class="tbl-wrap"><table class="tbl" id="proj"></table></div></div>
       <div class="offer"><div><b>Got a raise? Put it to work.</b><small>Start a SIP with your extra take-home.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="mutual-funds">Compare offers</a></div>
     </section>
 
@@ -40,31 +55,59 @@
   <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
   <article class="container prose">
     <h2>Why is my in-hand hike smaller than my CTC hike?</h2>
-    <p>Part of every raise goes to higher income tax (a bigger slice falls in higher slabs) and to extra PF and gratuity. So a 15% CTC hike usually translates to a slightly lower percentage increase in take-home pay — especially if the raise pushes you across a tax slab.</p>
+    <p>Part of every raise goes to higher income tax, because a bigger slice of your income falls in higher slabs, and to extra PF and gratuity. So a 15% CTC hike usually becomes a smaller percentage increase in take-home pay. The effect is strongest when the raise pushes you across a slab, or past the income level where the new regime’s tax rebate stops.</p>
+    <h2>Why look at the hike after inflation?</h2>
+    <p>If prices rise 6% and your in-hand pay rises 6%, you can buy exactly what you could before. A 10% hike with 6% inflation gives about 3.8% more buying power, before any tax effect. The real figure here compares your new pay with what your old pay would be worth after a year of price rises.</p>
+    <h2>How much of each extra rupee do you keep?</h2>
+    <p>Many people are surprised that only 50 to 65 paise of each extra rupee of CTC reaches them at higher incomes. The rest goes to tax, cess, PF and gratuity. The <em>keep per extra ₹100</em> figure shows this for your own raise.</p>
     <h2>Negotiating tip</h2>
-    <p>Ask for the raise in cash components (basic and special allowance) rather than in benefits you won't fully use. Always compare offers on <strong>in-hand salary</strong>, not CTC alone.</p>
+    <p>Ask for the raise in cash components (basic and special allowance) rather than in benefits you may not use. Always compare offers on <strong>in-hand salary</strong>, not CTC alone. The <a href="offer-comparison.html">offer comparison</a> tool does this side by side.</p>
     <h2>Frequently asked questions</h2>
-    <div class="faq"><details><summary>Does this include the variable pay?</summary><p>No — it models fixed pay only. Use the full salary calculator to include variable pay.</p></details><details><summary>Which tax regime is used?</summary><p>For each salary the calculator automatically picks the regime that gives higher take-home.</p></details></div>
+    <div class="faq">
+      <details><summary>Does this include variable pay?</summary><p>Yes, if you enter a variable share in Salary structure. In-hand is shown as a monthly average that includes the variable pay after tax, assuming it is paid in full.</p></details>
+      <details><summary>Which tax regime is used?</summary><p>By default, the one that leaves you with more take-home, chosen separately for your old and new salary. You can force the old or new regime under Salary structure.</p></details>
+      <details><summary>What is a good hike percentage?</summary><p>It depends on your industry and role, but a hike that does not beat inflation is a cut in real terms. A switch to a new employer often gives a larger jump than a yearly raise.</p></details>
+      <details><summary>Why is the first year lower than the average?</summary><p>PF, tax and the old-versus-new regime choice can all shift when your CTC changes, so the in-hand rise is not exactly the same percentage as the CTC rise.</p></details>
+    </div>
   </article>
   <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
 </main>
 <script src="assets/tax.js"></script>
+<script src="assets/words.js"></script>
 <script src="assets/common.js"></script>
 <script>
   Common.init('hike');
-  const $ = id => document.getElementById(id), f = Common.fmt;
-  const base = { basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, metro: true, rentMonthly: 0 };
-  function calc() {
-    const c0 = Common.num('ctc'), h = Common.num('hike'), c1 = c0 * (1 + h / 100);
-    const a = Tax.salary({ ...base, ctc: c0 }), b = Tax.salary({ ...base, ctc: c1 });
-    const m0 = a[a.best].inHandMonth, m1 = b[b.best].inHandMonth, gain = m1 - m0;
-    $('gain').textContent = '+' + f(gain); $('gainSub').textContent = `per month · ${f(gain * 12)} per year`;
-    $('kH').textContent = h + '%'; $('kR').textContent = (m0 ? (gain / m0 * 100).toFixed(1) : 0) + '%';
-    const row = (l, x, y, cls = '') => `<tr class="${cls}"><td>${l}</td><td>${f(x)}</td><td>${f(y)}</td></tr>`;
-    $('tbl').innerHTML = '<tr><th></th><th>Before</th><th>After</th></tr>' + row('Annual CTC', c0, c1) + row('Income tax / yr', -a[a.best].tax, -b[b.best].tax, 'neg') +
-      row('In-hand / year', a[a.best].inHandYear, b[b.best].inHandYear) + row('In-hand / month', m0, m1, 'total');
+  const $ = id => document.getElementById(id), f = Common.fmt, num = Common.num, pct1 = v => (Number.isFinite(v) ? v.toFixed(1) : '0.0') + '%';
+  const modeGet = Common.seg($('hmode'), () => calc());
+  $('ptState').innerHTML = Tax.PT_STATES.map(s => `<option value="${s.id}">${s.name}</option>`).join('') + '<option value="">Another state (₹200 a month)</option>';
+  function sal(ctc) {
+    return Tax.salary({ ctc, basicPct: num('basicPct'), hraPct: 50, variablePct: num('varPct'), pfCap: $('pfcap').checked, gratuity: true, employerNps: 0,
+      ptMonthly: 200, ptState: $('ptState').value, metro: $('city').value !== 'other', rentMonthly: num('rent') });
   }
-  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc)); calc();
+  const usedKey = r => $('regime').value === 'best' ? r.best : $('regime').value, pick = r => r[usedKey(r)];
+  function calc() {
+    const byCtc = modeGet() === 'ctc'; $('fHike').hidden = byCtc; $('fNew').hidden = !byCtc;
+    const c0 = num('ctc'), infl = num('infl') / 100, c1 = byCtc ? num('newctc') : c0 * (1 + num('hike') / 100), h = c0 > 0 ? (c1 / c0 - 1) * 100 : 0, W = [];
+    const warn = (cls, t) => W.push(`<div class="warn ${cls}"><span>${cls === 'bad' ? '⛔' : '⚠️'}</span><span>${t}</span></div>`);
+    const ra = sal(c0), rb = sal(c1), a = pick(ra), b = pick(rb), m0 = a.inHandMonth, m1 = b.inHandMonth, gain = m1 - m0, realHike = m0 ? (gain / m0) * 100 : 0, powerHike = m0 ? (m1 / (m0 * (1 + infl)) - 1) * 100 : 0;
+    $('gain').textContent = (gain >= 0 ? '+' : '−') + f(Math.abs(gain)); $('gainSub').textContent = `per month · ${f(Math.abs(gain) * 12)} per year`;
+    $('hPill').textContent = `${f(m0)} → ${f(m1)} a month`;
+    if (h < 0) warn('', 'Your new CTC is lower than your current one. This is a pay cut.');
+    else if (h > 0 && h / 100 < infl) warn('', `A ${h.toFixed(1)}% hike is below inflation (${(infl * 100).toFixed(1)}%), so you can buy less than before even though the number is higher.`);
+    const dCtc = c1 - c0, keep = dCtc ? (b.inHandYear - a.inHandYear) / dCtc * 100 : 0;
+    $('warns').innerHTML = W.join('');
+    const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
+    $('kpis').innerHTML = K('', 'Headline hike', pct1(h), 'The CTC rise') + K('good', 'Real in-hand hike', pct1(realHike), 'Take-home rise') + K(powerHike >= 0 ? 'good' : 'bad', 'After inflation', pct1(powerHike), 'Buying-power change') + K('', 'You keep per extra ₹100 of CTC', dCtc > 0 ? '₹' + keep.toFixed(0) : '—', 'The rest is tax, PF, gratuity');
+    const row = (l, x, y, cls = '') => `<tr class="${cls}"><td>${l}</td><td>${f(x)}</td><td>${f(y)}</td></tr>`, eff = (o, c) => c ? (o.tax / c * 100).toFixed(1) + '%' : '—';
+    $('tbl').innerHTML = '<tr><th></th><th>Before</th><th>After</th></tr>' + row('Annual CTC', c0, c1) + row('Income tax / yr', -a.tax, -b.tax, 'neg') + `<tr><td>Tax as % of CTC</td><td>${eff(a, c0)}</td><td>${eff(b, c1)}</td></tr>` + row('In-hand / year', a.inHandYear, b.inHandYear) + row('In-hand / month', m0, m1, 'total') + `<tr><td>Regime used</td><td>${usedKey(ra) === 'new' ? 'New' : 'Old'}</td><td>${usedKey(rb) === 'new' ? 'New' : 'Old'}</td></tr>`;
+    // 5-year projection
+    let rows = '<tr><th>Year</th><th>CTC</th><th>In-hand / month</th><th>In today’s money</th></tr>', c = c0;
+    for (let y = 0; y <= 5; y++) { const r = pick(sal(c)); rows += `<tr><td>${y === 0 ? 'Now' : y}</td><td>${f(c)}</td><td>${f(r.inHandMonth)}</td><td>${f(r.inHandMonth / Math.pow(1 + infl, y))}</td></tr>`; c *= 1 + h / 100; }
+    $('proj').innerHTML = rows;
+  }
+  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc));
+  document.addEventListener('change', e => { if (e.target.closest && e.target.closest('#inputs')) calc(); });
+  Common.fillCities(); Common.restore(); calc();
 </script>
 </body>
 </html>

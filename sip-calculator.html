@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SIP Calculator — Mutual Fund SIP Returns with Step-Up | InHand</title>
-<meta name="description" content="Free SIP calculator to project mutual fund returns, with optional yearly step-up. See invested amount vs wealth gained.">
+<title>SIP Calculator — SIP, Lump Sum &amp; Goal Planner | InHand</title>
+<meta name="description" content="Free SIP calculator for India. Monthly SIP, lump sum or a goal-based plan, with yearly step-up, tax, inflation and the cost of starting late.">
 <link rel="canonical" href="https://inhand.example/sip-calculator.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -17,26 +17,43 @@
   <div class="container page-hero">
     <div class="crumbs"><a href="index.html">Home</a> › SIP calculator</div>
     <h1>SIP Calculator <span class="grad-text">see your money grow</span></h1>
-    <p>Find out how much a monthly SIP could grow into over the years — with optional annual step-up.</p>
+    <p>Project a monthly SIP or a lump sum, or start from a goal and find the SIP you need. See the effect of a yearly step-up, tax, inflation and starting late.</p>
   </div>
   <div class="container tool-layout">
-    <section class="card" aria-label="Inputs">
+    <section class="card" id="inputs" aria-label="Inputs">
       <h2 class="card-title">🌱 Investment details</h2>
-      <div class="field" data-slider><label for="sip">Monthly investment</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="sip" value="10000" min="500" max="500000" step="500"></div></div>
-      <div class="field" data-slider><label for="ret">Expected return (p.a.)</label>
-        <div class="input-wrap"><input type="number" id="ret" value="12" min="1" max="30" step="0.5"><span class="suf">%</span></div></div>
-      <div class="field" data-slider><label for="yrs">Time period (years)</label>
-        <div class="input-wrap"><input type="number" id="yrs" value="15" min="1" max="40" step="1"><span class="suf">yrs</span></div></div>
-      <div class="field" data-slider><label for="step">Yearly step-up</label>
-        <div class="input-wrap"><input type="number" id="step" value="0" min="0" max="25" step="1"><span class="suf">%</span></div><span class="hint">Increase your SIP by this % every year as your income grows.</span></div>
+      <div class="seg" id="mode" style="margin-bottom:16px"><button type="button" data-v="sip" class="on">Monthly SIP</button><button type="button" data-v="lump">Lump sum</button><button type="button" data-v="goal">Plan for a goal</button></div>
+      <div class="field" id="fGoal" hidden><label for="goal">The amount you want</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="goal" data-money data-words="goalWords" value="10000000" min="10000" max="10000000000" step="100000" aria-describedby="goalWords"></div><div class="words" id="goalWords"></div><span class="hint">In future rupees. Prices rise, so a goal in 15 years needs a bigger number than today’s cost. The result shows today’s value too.</span></div>
+      <div class="field" id="fSip" data-slider><label for="sip">Monthly investment</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="sip" data-money data-words="sipWords" value="10000" min="500" max="200000" step="500" aria-describedby="sipWords"></div><div class="words" id="sipWords"></div></div>
+      <div class="field" id="fLump"><label for="lump" id="lumpL">Amount you already have to invest (optional)</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="lump" data-money data-words="lumpWords" value="0" placeholder="0" aria-describedby="lumpWords"></div><div class="words" id="lumpWords"></div></div>
+      <div class="field" data-slider><label for="ret">Expected return (per year)</label>
+        <div class="input-wrap"><input type="number" id="ret" value="12" min="1" max="30" step="0.5"><span class="suf">%</span></div><span class="hint" id="retHint">Equity funds have given roughly 10 to 12% over long periods, with big swings along the way. Use a lower number to be safe.</span></div>
+      <div class="field"><span class="lbl">For how long?</span>
+        <div class="row-2"><div><label for="yrs" class="sub-l">Years</label><div class="input-wrap"><input type="number" id="yrs" value="15" min="0" max="50" step="1"><span class="suf">yrs</span></div></div>
+          <div><label for="mon" class="sub-l">Months</label><div class="input-wrap"><input type="number" id="mon" value="0" min="0" max="11" step="1"><span class="suf">mo</span></div></div></div>
+        <div class="chips" id="tenChips"><span class="chips-l">Quick pick</span><button type="button" class="chip" data-t="1">1 year</button><button type="button" class="chip" data-t="3">3 years</button><button type="button" class="chip" data-t="5">5 years</button><button type="button" class="chip" data-t="10">10 years</button><button type="button" class="chip" data-t="15">15 years</button><button type="button" class="chip" data-t="20">20 years</button><button type="button" class="chip" data-t="30">30 years</button></div></div>
+      <div class="field" id="fStep" data-slider><label for="step">Raise the SIP every year by</label>
+        <div class="input-wrap"><input type="number" id="step" value="0" min="0" max="50" step="1"><span class="suf">%</span></div><span class="hint">Match it to your yearly pay rise. A 10% step-up helps a lot over 15 years.</span></div>
+      <details class="grp" id="sec-tax"><summary><div class="gi">🧾</div><div class="gt">Tax, inflation and settings<small>See what you actually keep</small></div><span class="chev">›</span></summary><div class="grp-body">
+        <div class="field"><label for="taxk">Type of investment</label><select id="taxk"><option value="none" selected>Do not include tax</option><option value="equity">Equity fund or ETF: 12.5% on gains above ₹1.25 lakh</option><option value="slab">Debt fund, gold or other: taxed at my slab rate</option></select><span class="hint">Tax is worked out as if you sell everything at the end. Held up to a year, equity gains are taxed at 20%. Rules change, so check the latest.</span></div>
+        <div class="field" id="fSlab" hidden><label for="slab">Your income-tax rate</label><select id="slab"><option value="0">0%</option><option value="5">5%</option><option value="10">10%</option><option value="15">15%</option><option value="20" selected>20%</option><option value="25">25%</option><option value="30">30%</option></select></div>
+        <div class="field"><label for="conv">How the yearly return is applied</label><select id="conv"><option value="eff" selected>Effective yearly return (matches fund CAGR and XIRR)</option><option value="nom">Monthly compounding: return ÷ 12 each month (many online calculators)</option></select><span class="hint">The second option gives a higher result, because 1% a month adds up to more than 12% over a year. Use it to match another calculator, and prefer the first for planning.</span></div>
+        <div class="field"><label for="infl">Price rise each year (inflation)</label><div class="input-wrap"><input type="number" id="infl" value="6" min="0" max="15" step="0.5"><span class="suf">%</span></div><span class="hint">Used to show the result in today’s money.</span></div>
+      </div></details>
     </section>
 
     <section class="results" aria-live="polite">
-      <div class="hero-result"><div class="lbl">Estimated future value</div><div class="big" id="fv">—</div><div class="sub" id="fvSub"></div></div>
-      <div class="kpis"><div class="kpi"><div class="k">Amount invested</div><div class="v" id="kI"></div></div><div class="kpi good"><div class="k">Wealth gained</div><div class="v" id="kG"></div></div></div>
+      <div class="hero-result"><div class="lbl" id="hLbl">Estimated future value</div><div class="big" id="fv">—</div><div class="sub" id="fvSub"></div><span class="pill" id="hPill"></span></div>
+      <div class="warns" id="warns"></div>
+      <div class="kpis" id="kpis"></div>
       <div class="card"><h2 class="card-title">🥧 Invested vs returns</h2>
         <div class="chart-row"><svg class="donut" id="donut" viewBox="0 0 170 170"></svg><div class="legend" id="legend"></div></div></div>
+      <div class="card"><h2 class="card-title">📈 How it grows</h2><div id="grow"></div></div>
+      <div class="card" id="delayCard"><h2 class="card-title">⏳ What waiting costs</h2><p class="grp-hint" id="delayHint" style="margin-top:0"></p><div class="tbl-wrap"><table class="tbl" id="delayTbl"></table></div></div>
+      <div class="card"><h2 class="card-title">📅 Year by year</h2><div class="tbl-wrap"><table class="tbl" id="yrTbl"></table></div></div>
       <div class="offer"><div><b>Ready to start your SIP?</b><small>Open a zero-commission direct mutual fund account.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="mutual-funds">Compare offers</a></div>
     </section>
 
@@ -44,28 +61,73 @@
   <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
   <article class="container prose">
     <h2>How does a SIP work?</h2>
-    <p>A Systematic Investment Plan invests a fixed amount in a mutual fund every month. Returns compound, so the longer you stay invested the faster your corpus grows. This calculator uses the effective monthly rate equivalent to your expected annual return and assumes investment at the start of each month.</p>
-    <h2>Why step-up matters</h2>
-    <p>Raising your SIP by even 10% each year as your salary grows can increase your final corpus dramatically compared with a flat SIP.</p>
+    <p>A Systematic Investment Plan invests a fixed amount in a mutual fund every month. Returns compound, so the longer you stay invested, the faster your money grows. This calculator turns your yearly return into the equivalent monthly rate and assumes each instalment goes in at the start of the month. A 12% yearly return therefore means 12% after a full year, not 1% a month added up.</p>
+    <h2>Monthly SIP, lump sum or a goal?</h2>
+    <p><strong>Monthly SIP</strong> shows what regular investing becomes. <strong>Lump sum</strong> shows what one amount invested today becomes. <strong>Plan for a goal</strong> works backwards: you enter the amount you want and the date, and it tells you the starting SIP, allowing for any money you already have set aside.</p>
+    <h2>Why a step-up matters</h2>
+    <p>Your income usually grows, so your SIP can too. Raising it by 10% every year turns a ₹10,000 SIP into about ₹23,600 a month by year 10, and builds a much larger corpus than a flat SIP. The calculator shows both so you can see the gap.</p>
+    <h2>Why start early?</h2>
+    <p>The last few years of a long SIP add the most money, and the early years supply the compounding that makes them large. Starting 5 years later does not cost 5 years of growth. It costs far more, as the <em>What waiting costs</em> table shows.</p>
+    <h2>Inflation and tax</h2>
+    <p>₹1 crore in 20 years will buy much less than ₹1 crore today, so the result is also shown in today’s money. Under <em>Tax and inflation</em> you can include capital-gains tax. Equity gains held over a year are taxed at 12.5% above ₹1.25 lakh of gains in a year, and debt-fund gains are added to your income. The calculator treats it as one sale at the end, which is a simplification.</p>
     <h2>Frequently asked questions</h2>
-    <div class="faq"><details><summary>Are SIP returns guaranteed?</summary><p>No. Mutual fund returns are market-linked. The figures here are projections based on the return you enter, not a promise.</p></details><details><summary>What return rate should I assume?</summary><p>Equity funds have historically delivered roughly 10–14% over long periods, but be conservative in planning.</p></details><details><summary>Is tax included?</summary><p>No. Capital-gains tax on redemption is not deducted from the result.</p></details></div>
+    <div class="faq">
+      <details><summary>Are SIP returns guaranteed?</summary><p>No. Mutual fund returns are market-linked and uneven. The figures here are projections from the return you enter, not a promise. Real returns can be negative for years.</p></details>
+      <details><summary>What return rate should I assume?</summary><p>Equity funds have delivered roughly 10 to 12% over long periods in India, but with large falls along the way. Debt funds and FDs earn about 6 to 7.5%. For planning, use a lower figure than the best you have seen.</p></details>
+      <details><summary>Can I pause or stop a SIP?</summary><p>Yes. You can pause, change or stop a SIP at any time. Stopping during a market fall hurts most, because you miss the cheap units that help later returns.</p></details>
+      <details><summary>What is the difference between SIP and lump sum?</summary><p>A SIP spreads your money over time, which reduces the risk of investing everything just before a fall. A lump sum has more time in the market if you already have the money. Neither is better in every market.</p></details>
+      <details><summary>Does this include fund charges?</summary><p>No. Enter a return after fund expenses. A direct plan has a lower expense ratio than a regular plan, and the difference compounds over time.</p></details>
+    </div>
   </article>
   <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
 </main>
 <script src="assets/tax.js"></script>
+<script src="assets/words.js"></script>
+<script src="assets/invest.js"></script>
 <script src="assets/common.js"></script>
 <script>
   Common.init('sip');
-  const $ = id => document.getElementById(id), f = Common.fmt;
+  const $ = id => document.getElementById(id), f = Common.fmt, num = Common.num, cr = Common.fmtCompact;
+  const modeGet = Common.seg($('mode'), () => calc());
+  const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+  const span = n => { const y = Math.floor(n / 12), m = n % 12; return [y && plural(y, 'year'), m && plural(m, 'month')].filter(Boolean).join(' ') || '0 months'; };
+  document.querySelectorAll('#tenChips .chip').forEach(b => b.addEventListener('click', () => { $('yrs').value = b.dataset.t; $('mon').value = 0; calc(); }));
+
   function calc() {
-    const r = Math.pow(1 + Common.num('ret') / 100, 1 / 12) - 1, yrs = Math.round(Common.num('yrs')), step = Common.num('step') / 100;
-    let fv = 0, inv = 0, s = Common.num('sip');
-    for (let y = 0; y < yrs; y++) { for (let m = 0; m < 12; m++) { fv = (fv + s) * (1 + r); inv += s; } s *= 1 + step; }
-    $('fv').textContent = f(fv); $('fvSub').textContent = Common.fmtCompact(fv) + ' after ' + yrs + ' years';
-    $('kI').textContent = f(inv); $('kG').textContent = f(fv - inv);
-    Common.donut($('donut'), $('legend'), [{ label: 'Invested', value: inv }, { label: 'Returns', value: fv - inv }], 'Total', Common.fmtCompact(fv));
+    const mode = modeGet(), goal = mode === 'goal', lumpMode = mode === 'lump';
+    $('fGoal').hidden = !goal; $('fSip').hidden = lumpMode || goal; $('fStep').hidden = lumpMode; $('delayCard').hidden = false;
+    $('lumpL').textContent = lumpMode ? 'Amount you invest today' : goal ? 'Money you already have set aside for this goal (optional)' : 'Amount you already have to invest (optional)';
+    const ret = num('ret'), months = Math.floor(num('yrs')) * 12 + Math.floor(num('mon')), step = lumpMode ? 0 : num('step'), lump = num('lump'), infl = num('infl'), taxk = $('taxk').value, slab = +$('slab').value, nominal = $('conv').value === 'nom'; $('fSlab').hidden = taxk !== 'slab';
+    const W = [], warn = (cls, t) => W.push(`<div class="warn ${cls}"><span>${cls === 'bad' ? '⛔' : '⚠️'}</span><span>${t}</span></div>`);
+    const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
+    if (months <= 0) { $('fv').textContent = '—'; $('fvSub').textContent = ''; $('hPill').textContent = ''; $('kpis').innerHTML = ''; warn('bad', 'Enter a period of at least 1 month.'); $('warns').innerHTML = W.join(''); return; }
+    if (ret > 18) warn('', `A return of ${ret}% a year is higher than what most funds have delivered over long periods. The result may be too hopeful.`);
+    if (months < 12 && !lumpMode) warn('', 'A SIP is meant for a few years or more. Over less than a year, markets can move more than the return you enter.');
+
+    let sip = num('sip'); const target = num('goal');
+    if (goal) { sip = Invest.requiredSip({ target, ret, months, step, lump, nominal }); if (lump >= target) warn('', 'The money you already have grows past your goal on its own, so no SIP is needed.'); }
+    const R = Invest.run({ sip: lumpMode ? 0 : sip, step, lump, ret, months, nominal }), tax = Invest.tax(R.gain, taxk, months, slab), net = R.value - tax, t = months / 12, realVal = net / Math.pow(1 + infl / 100, t);
+    $('hLbl').textContent = goal ? 'Start with a monthly SIP of' : lumpMode ? 'Your lump sum would grow to' : 'Estimated future value';
+    $('fv').textContent = goal ? f(sip) : f(R.value);
+    $('fvSub').textContent = goal ? `${step > 0 ? `rising ${step}% every year, ` : ''}to reach ${cr(target)} in ${span(months)}` : `${cr(R.value)} after ${span(months)}`;
+    $('hPill').textContent = goal ? (step > 0 ? `By the last year your SIP is ${f(R.lastSip)} a month` : `Total you invest: ${cr(R.invested)}`) : `That is ${cr(realVal)} in today’s money` + (taxk !== 'none' ? ' after tax' : '');
+    $('kpis').innerHTML = K('', 'Amount invested', f(R.invested)) + K('good', goal ? 'Wealth gained' : 'Wealth gained', f(R.gain), R.invested > 0 ? `${(R.value / R.invested).toFixed(2)}× your money` : '') +
+      (taxk !== 'none' ? K('bad', 'Estimated tax', f(tax), 'If sold at the end') + K('', 'You keep', f(net), 'After tax') : '') + K('', 'Worth in today’s money', f(realVal), `At ${infl}% inflation`) + (taxk === 'none' ? K('', 'Growth per year', ret + '%', 'Effective yearly return') : '');
+    Common.donut($('donut'), $('legend'), [{ label: 'Invested', value: R.invested }, { label: 'Returns', value: Math.max(0, R.gain) }], 'Total', cr(R.value));
+    const xs = []; R.years.forEach(y => xs.push(y.to)); xs.unshift(0);
+    Common.lineChart($('grow'), { xs, xfmt: v => +v.toFixed(2), xlabel: v => v === 0 ? 'Start' : 'After ' + (+v.toFixed(2)) + ' yr', label: 'Investment growth', area: true,
+      series: [{ name: 'Value', color: 'var(--c1)', ys: [lump].concat(R.years.map(y => y.value)) }, { name: 'Invested', color: 'var(--c2)', dash: true, ys: [lump].concat(R.years.map(y => y.invested)) }] });
+    $('yrTbl').innerHTML = `<tr><th>Year</th>${lumpMode ? '' : '<th>SIP that year</th>'}<th>Invested so far</th><th>Value</th><th>Gain</th></tr>` + R.years.map((y, i) => `<tr><td>${y.year}${y.to < y.year ? ' (part)' : ''}</td>${lumpMode ? '' : `<td>${f(y.sip)}</td>`}<td>${f(y.invested)}</td><td>${f(y.value)}</td><td>${f(y.gain)}</td></tr>`).join('');
+    // cost of waiting
+    const rows = [1, 3, 5].filter(d => months > d * 12).map(d => { const v = lumpMode ? Invest.run({ sip: 0, lump, ret, months: months - d * 12, nominal }).value : Invest.run({ sip, step, lump: 0, ret, months: months - d * 12, nominal }).value + Invest.run({ sip: 0, lump, ret, months, nominal }).value; return { d, v, loss: R.value - v }; });
+    $('delayCard').hidden = rows.length === 0;
+    $('delayHint').textContent = lumpMode ? 'Same end date, but you invest later, so the money grows for fewer years.' : 'Same end date, same SIP, but you start later. The money you skip is the money that grows the longest.';
+    $('delayTbl').innerHTML = `<tr><th>If you start</th><th>You would have</th><th>You lose</th></tr>` + rows.map(r => `<tr><td>${plural(r.d, 'year')} later</td><td>${f(r.v)}</td><td class="neg-t">−${f(r.loss)}</td></tr>`).join('');
+    $('warns').innerHTML = W.join('');
   }
-  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc)); calc();
+  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc));
+  document.addEventListener('change', e => { if (e.target.closest && e.target.closest('#inputs')) calc(); });
+  Common.restore(); calc();
 </script>
 </body>
 </html>

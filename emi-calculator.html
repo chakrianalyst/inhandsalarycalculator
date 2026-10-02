@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>EMI Calculator — Home, Car & Personal Loan EMI | InHand</title>
-<meta name="description" content="Free EMI calculator for home, car and personal loans with amortisation schedule, total interest and payment breakup.">
+<title>EMI Calculator — Home, Car &amp; Personal Loan with Prepayment | InHand</title>
+<meta name="description" content="Free EMI calculator for India. Tenure in years and months, extra payments, processing fee, loan eligibility and a full repayment schedule.">
 <link rel="canonical" href="https://inhand.example/emi-calculator.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -17,62 +17,146 @@
   <div class="container page-hero">
     <div class="crumbs"><a href="index.html">Home</a> › EMI calculator</div>
     <h1>EMI Calculator <span class="grad-text">for any loan</span></h1>
-    <p>Work out your monthly instalment, total interest and a year-by-year repayment schedule in seconds.</p>
+    <p>Work out your monthly instalment, see what extra payments save you, or find the loan you can afford. Includes a full repayment schedule.</p>
   </div>
   <div class="container tool-layout">
-    <section class="card" aria-label="Inputs">
+    <section class="card" id="inputs" aria-label="Inputs">
       <h2 class="card-title">🏦 Loan details</h2>
-      <div class="field" data-slider><label for="amt">Loan amount</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="amt" value="5000000" min="50000" max="50000000" step="50000"></div></div>
-      <div class="field" data-slider><label for="rate">Interest rate (p.a.)</label>
-        <div class="input-wrap"><input type="number" id="rate" value="8.5" min="1" max="30" step="0.05"><span class="suf">%</span></div></div>
-      <div class="field" data-slider><label for="yrs">Tenure (years)</label>
-        <div class="input-wrap"><input type="number" id="yrs" value="20" min="1" max="30" step="1"><span class="suf">yrs</span></div></div>
+      <div class="seg" id="mode" style="margin-bottom:16px"><button type="button" data-v="emi" class="on">Find my EMI</button><button type="button" data-v="afford">How much loan can I afford?</button></div>
+
+      <div id="emiOnly">
+        <div class="chips" id="typeChips" style="margin-bottom:12px"><span class="chips-l">Typical loan</span><button type="button" class="chip" data-t="5000000,8.5,20,0">Home</button><button type="button" class="chip" data-t="800000,9,5,0">Car</button><button type="button" class="chip" data-t="300000,12,3,0">Personal</button><button type="button" class="chip" data-t="1000000,9.5,10,0">Education</button></div>
+        <div class="field" data-slider><label for="amt">Loan amount</label>
+          <div class="input-wrap"><span class="pre">₹</span><input id="amt" data-money data-words="amtWords" value="5000000" min="100000" max="30000000" step="50000" aria-describedby="amtWords"></div><div class="words" id="amtWords"></div></div>
+      </div>
+      <div id="affOnly" hidden>
+        <div class="field"><label for="inc">Your monthly take-home pay</label>
+          <div class="input-wrap"><span class="pre">₹</span><input id="inc" data-money data-words="incWords" value="100000" min="0" max="100000000" step="5000" aria-describedby="incWords"></div><div class="words" id="incWords"></div></div>
+        <div class="field"><label for="old">EMIs you already pay each month</label>
+          <div class="input-wrap"><span class="pre">₹</span><input id="old" data-money value="0" placeholder="0"></div><span class="hint">Include credit-card minimums and other loans.</span></div>
+        <div class="field" data-slider><label for="foir">Share of your pay that can go to EMIs</label>
+          <div class="input-wrap"><input type="number" id="foir" value="40" min="10" max="70" step="5"><span class="suf">%</span></div><span class="hint">Lenders usually allow 40 to 50% of take-home for all EMIs together. Keeping it at 30 to 40% is safer.</span></div>
+        <div class="field"><label for="dp">Down payment you can add (optional)</label>
+          <div class="input-wrap"><span class="pre">₹</span><input id="dp" data-money value="0" placeholder="0"></div><span class="hint">We add it to the loan to show the price of the home or car you could buy.</span></div>
+      </div>
+
+      <div class="field" data-slider><label for="rate">Interest rate (per year)</label>
+        <div class="input-wrap"><input type="number" id="rate" value="8.5" min="1" max="36" step="0.05"><span class="suf">%</span></div>
+        <span class="hint">Use the rate your lender quotes. The typical-loan buttons only fill in a starting point.</span></div>
+      <div class="field"><span class="lbl">Loan period</span>
+        <div class="row-2"><div><label for="yrs" class="sub-l">Years</label><div class="input-wrap"><input type="number" id="yrs" value="20" min="0" max="30" step="1"><span class="suf">yrs</span></div></div>
+          <div><label for="mon" class="sub-l">Months</label><div class="input-wrap"><input type="number" id="mon" value="0" min="0" max="11" step="1"><span class="suf">mo</span></div></div></div>
+        <span class="hint" id="tenHint"></span></div>
+
+      <div id="emiExtra">
+        <details class="grp" id="sec-pre"><summary><div class="gi">⚡</div><div class="gt">Pay extra to save interest<small>Monthly extra or a one-time prepayment</small></div><span class="chev">›</span></summary><div class="grp-body">
+          <div class="field"><label for="extra">Extra amount you pay every month</label><div class="input-wrap"><span class="pre">₹</span><input id="extra" data-money value="0" placeholder="0"></div><span class="hint">It goes straight to the principal, so the loan ends sooner.</span></div>
+          <div class="row-2"><div class="field"><label for="lump">One-time prepayment</label><div class="input-wrap"><span class="pre">₹</span><input id="lump" data-money value="0" placeholder="0"></div></div>
+            <div class="field"><label for="lumpM">Paid after month</label><div class="input-wrap"><input type="number" id="lumpM" value="24" min="1" max="360" step="1"><span class="suf">mo</span></div></div></div>
+          <span class="hint">Some lenders charge a fee for prepaying fixed-rate loans. Home loans on a floating rate usually have none for individuals.</span>
+        </div></details>
+        <details class="grp" id="sec-fee"><summary><div class="gi">🧾</div><div class="gt">Processing fee<small>See the rate you really pay</small></div><span class="chev">›</span></summary><div class="grp-body">
+          <div class="field"><label for="fee">Processing fee</label><div class="input-wrap"><input type="number" id="fee" value="0" min="0" max="5" step="0.05"><span class="suf">% of loan</span></div><span class="hint">Usually 0.25 to 2%. Most lenders add 18% GST on the fee, and we include it.</span></div>
+        </div></details>
+      </div>
     </section>
 
     <section class="results" aria-live="polite">
-      <div class="hero-result"><div class="lbl">Monthly EMI</div><div class="big" id="emi">—</div><div class="sub" id="emiSub"></div></div>
-      <div class="kpis"><div class="kpi"><div class="k">Principal</div><div class="v" id="kP"></div></div><div class="kpi bad"><div class="k">Total interest</div><div class="v" id="kI"></div></div>
-        <div class="kpi"><div class="k">Total payment</div><div class="v" id="kT"></div></div><div class="kpi"><div class="k">Interest share</div><div class="v" id="kS"></div></div></div>
-      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🥧 Principal vs interest</h2>
-        <div class="chart-row"><svg class="donut" id="donut" viewBox="0 0 170 170"></svg><div class="legend" id="legend"></div></div></div>
-      <div class="card"><h2 class="card-title">📅 Year-wise schedule</h2><div class="tbl-wrap"><table class="tbl" id="sched"></table></div></div>
-      <div class="offer"><div><b>Looking for a lower rate?</b><small>Compare home loan offers from top lenders.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="home-loan">Compare offers</a></div>
+      <div class="hero-result"><div class="lbl" id="hLbl">Monthly EMI</div><div class="big" id="emi">—</div><div class="sub" id="emiSub"></div><span class="pill" id="hPill"></span></div>
+      <div class="warns" id="warns"></div>
+      <div class="kpis" id="kpis"></div>
+      <div id="emiRes">
+        <div class="card" style="margin-bottom:18px"><h2 class="card-title">🥧 Principal vs interest</h2>
+          <div class="chart-row"><svg class="donut" id="donut" viewBox="0 0 170 170"></svg><div class="legend" id="legend"></div></div></div>
+        <div class="card" style="margin-bottom:18px"><h2 class="card-title">📉 How your balance falls</h2><div id="balChart"></div></div>
+        <div class="card"><h2 class="card-title">📅 Repayment schedule</h2>
+          <div class="seg" id="view" style="margin-bottom:10px"><button type="button" data-v="year" class="on">Year by year</button><button type="button" data-v="month">Month by month</button></div>
+          <div class="tbl-wrap"><table class="tbl" id="sched"></table></div></div>
+      </div>
+      <div class="offer"><div><b>Looking for a lower rate?</b><small>Compare home, car and personal loan offers from top lenders.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="home-loan">Compare offers</a></div>
     </section>
 
   </div>
   <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
   <article class="container prose">
     <h2>How is EMI calculated?</h2>
-    <p>EMI = P × r × (1 + r)<sup>n</sup> ÷ [(1 + r)<sup>n</sup> − 1], where <strong>P</strong> is the loan amount, <strong>r</strong> the monthly interest rate (annual rate ÷ 12 ÷ 100) and <strong>n</strong> the number of monthly instalments.</p>
+    <p>EMI = P × r × (1 + r)<sup>n</sup> ÷ [(1 + r)<sup>n</sup> − 1], where <strong>P</strong> is the loan amount, <strong>r</strong> the monthly interest rate (annual rate ÷ 12 ÷ 100) and <strong>n</strong> the number of monthly instalments. Each month the bank charges interest on what you still owe, and the rest of your EMI reduces the loan. That is why the early years of a long loan are mostly interest.</p>
+    <h2>How extra payments help</h2>
+    <p>Anything you pay above the EMI goes straight to the principal, so the next month’s interest is charged on a smaller balance. A small monthly extra, or one bonus used as a prepayment, can cut years from a home loan. Use <em>Pay extra to save interest</em> to see the exact interest and months saved.</p>
+    <h2>How much loan can I afford?</h2>
+    <p>Lenders look at how much of your take-home pay goes to EMIs. Most allow 40 to 50% for all loans together. The affordability tab turns that into a maximum EMI, and then into the largest loan that EMI can repay at your rate and period. Treat it as the ceiling, and borrow less if you want room for other goals.</p>
+    <h2>Tax benefits on a home loan</h2>
+    <p>In the old tax regime, interest on a self-occupied home loan is deductible up to ₹2 lakh a year under Section 24(b), and principal repaid counts within the ₹1.5 lakh Section 80C limit. The new regime gives neither. Check the latest rules, or use the <a href="salary-calculator.html">salary calculator</a> to compare regimes with your home-loan interest included.</p>
     <h2>How to reduce your EMI burden</h2>
-    <ul><li>Make a larger down payment to lower the principal.</li><li>Negotiate or transfer your loan for a lower interest rate.</li><li>Prepay part of the principal whenever you get a bonus — early years are mostly interest.</li></ul>
+    <ul><li>Make a larger down payment to lower the principal.</li><li>Negotiate, or move the loan to a lender with a lower rate.</li><li>Prepay whenever you get a bonus. Early prepayments save the most interest.</li><li>Pick the shortest period you can comfortably afford.</li></ul>
     <h2>Frequently asked questions</h2>
-    <div class="faq"><details><summary>Is a longer tenure better?</summary><p>A longer tenure lowers your EMI but increases the total interest paid. Choose the shortest tenure you can comfortably afford.</p></details><details><summary>Does this include processing fees?</summary><p>No. The calculator covers principal and interest only; processing fees and insurance are extra.</p></details><details><summary>Is interest calculated on reducing balance?</summary><p>Yes. Banks charge interest on the outstanding balance, which is what this calculator models.</p></details></div>
+    <div class="faq">
+      <details><summary>Is a longer tenure better?</summary><p>A longer tenure lowers your EMI but increases the total interest. Choose the shortest tenure you can comfortably afford.</p></details>
+      <details><summary>Does this include processing fees?</summary><p>Only if you enter one under <em>Processing fee</em>. The fee is paid upfront, so we show the rate you really pay once it is included. Insurance and other charges are not included.</p></details>
+      <details><summary>Is interest calculated on the reducing balance?</summary><p>Yes. Banks charge interest on the outstanding balance, which is what this calculator models. Some personal and vehicle loans quote a flat rate on the original amount, which costs much more. Ask for the reducing-balance rate before comparing.</p></details>
+      <details><summary>What happens when the interest rate changes?</summary><p>On a floating-rate loan, lenders usually keep your EMI and change the tenure when rates move. Your total interest changes with it. Re-run the calculator with the new rate and the balance you still owe.</p></details>
+      <details><summary>Should I prepay my loan or invest the money?</summary><p>If your loan rate is higher than the after-tax return you expect from investing, prepaying is a certain gain. If it is lower, investing may win, but returns are not guaranteed. Many people do a bit of both.</p></details>
+    </div>
   </article>
   <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
 </main>
 <script src="assets/tax.js"></script>
+<script src="assets/words.js"></script>
+<script src="assets/loan.js"></script>
 <script src="assets/common.js"></script>
 <script>
   Common.init('emi');
-  const $ = id => document.getElementById(id), f = Common.fmt;
+  const $ = id => document.getElementById(id), f = Common.fmt, num = Common.num, cr = Common.fmtCompact;
+  const modeGet = Common.seg($('mode'), () => calc()), viewGet = Common.seg($('view'), () => calc());
+  const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+  const span = n => { const y = Math.floor(n / 12), m = n % 12; return [y && plural(y, 'year'), m && plural(m, 'month')].filter(Boolean).join(' ') || '0 months'; };
+
+  document.querySelectorAll('#typeChips .chip').forEach(b => b.addEventListener('click', () => {
+    const [a, r, y] = b.dataset.t.split(',').map(Number); Common.setVal($('amt'), a); $('rate').value = r; $('yrs').value = y; $('mon').value = 0; calc();
+  }));
+
   function calc() {
-    const P = Common.num('amt'), r = Common.num('rate') / 1200, n = Math.round(Common.num('yrs') * 12);
-    const emi = r === 0 ? P / n : P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
-    const total = emi * n, int = total - P;
-    $('emi').textContent = f(emi); $('emiSub').textContent = `for ${n} months`;
-    $('kP').textContent = f(P); $('kI').textContent = f(int); $('kT').textContent = f(total); $('kS').textContent = (total ? Math.round(int / total * 100) : 0) + '%';
-    Common.donut($('donut'), $('legend'), [{ label: 'Principal', value: P }, { label: 'Interest', value: int }], 'Total', Common.fmtCompact(total));
-    let bal = P, rows = '<tr><th>Year</th><th>Principal</th><th>Interest</th><th>Balance</th></tr>';
-    for (let y = 1; y <= Math.ceil(n / 12); y++) {
-      let pp = 0, ii = 0;
-      for (let m = 0; m < 12 && (y - 1) * 12 + m < n; m++) { const i = bal * r, p = emi - i; ii += i; pp += p; bal -= p; }
-      rows += `<tr><td>${y}</td><td>${f(pp)}</td><td>${f(ii)}</td><td>${f(Math.max(0, bal))}</td></tr>`;
+    const aff = modeGet() === 'afford'; $('emiOnly').hidden = aff; $('affOnly').hidden = !aff; $('emiExtra').hidden = aff; $('emiRes').hidden = aff;
+    const rate = num('rate'), n = Math.floor(num('yrs')) * 12 + Math.floor(num('mon')), W = [];
+    const warn = (cls, t) => W.push(`<div class="warn ${cls}"><span>${cls === 'bad' ? '⛔' : '⚠️'}</span><span>${t}</span></div>`);
+    const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
+    $('tenHint').textContent = n > 0 ? `= ${plural(n, 'month')} of EMIs` : '';
+    if (n <= 0) { $('emi').textContent = '—'; $('emiSub').textContent = ''; $('hPill').textContent = ''; $('kpis').innerHTML = ''; $('warns').innerHTML = ''; warn('bad', 'Enter a loan period of at least 1 month.'); $('warns').innerHTML = W.join(''); return; }
+    if (n > 480) warn('', 'Most lenders offer loans for up to 30 years. Check that this period is possible for your loan.');
+    if (rate > 24) warn('', 'This rate is very high. Check whether your lender quotes a flat rate on the original amount; a flat rate is much more expensive than the reducing-balance rate this calculator uses.');
+
+    if (aff) {
+      const inc = num('inc'), foir = num('foir') / 100, old = num('old'), maxEmi = Math.max(0, inc * foir - old), loan = Loan.affordable(maxEmi, rate, n), dp = num('dp');
+      $('hLbl').textContent = 'You could borrow up to'; $('emi').textContent = f(loan); $('emiSub').textContent = `with an EMI of ${f(maxEmi)} a month for ${span(n)}`; $('hPill').textContent = dp > 0 ? `With your down payment, a price of about ${cr(loan + dp)}` : '';
+      if (inc <= 0) warn('', 'Enter your monthly take-home pay.');
+      else if (maxEmi <= 0) warn('bad', `Your existing EMIs already use ${Math.round(old / inc * 100)}% of your pay, which is above the ${Math.round(foir * 100)}% limit. A new loan is unlikely to be approved.`);
+      if (foir > 0.5) warn('', 'Above 50% of your pay going to EMIs leaves little room for living costs and savings. Most lenders will not approve this.');
+      const total = maxEmi * n;
+      $('kpis').innerHTML = K('', 'Largest EMI', f(maxEmi), `${Math.round(foir * 100)}% of ${cr(inc)}, less ${f(old)} existing`) + K('bad', 'Interest on that loan', f(Math.max(0, total - loan)), 'Over the full period') + K('', 'Total you would repay', f(total)) + K('', 'A safer EMI (30%)', f(Math.max(0, inc * 0.3 - old)), `Loan of ${cr(Loan.affordable(Math.max(0, inc * 0.3 - old), rate, n))}`);
+      $('warns').innerHTML = W.join(''); return;
     }
-    $('sched').innerHTML = rows;
+
+    const P = num('amt'), feePct = num('fee'), fee = P * feePct / 100 * 1.18, lumpAmt = num('lump');
+    const lumps = lumpAmt > 0 ? [{ month: Math.max(1, Math.floor(num('lumpM'))), amount: lumpAmt }] : [], extra = num('extra'), prepay = extra > 0 || lumpAmt > 0;
+    const base = Loan.schedule({ P, rate, n }), S = prepay ? Loan.schedule({ P, rate, n, extra, lumps }) : base, emi = base.emi;
+    if (lumps[0] && lumps[0].month > n) warn('', 'The one-time prepayment month is after the loan ends, so it is ignored.');
+    $('hLbl').textContent = 'Monthly EMI'; $('emi').textContent = f(emi); $('emiSub').textContent = extra > 0 ? `${f(emi + extra)} a month with your extra payment` : lumpAmt > 0 && lumps[0].month <= n ? `${cr(lumpAmt)} prepaid after month ${lumps[0].month}, so the loan ends sooner` : `for ${span(n)} (${n} months)`;
+    const eff = Loan.effectiveRate(P, rate, n, fee); $('hPill').textContent = fee > 0 ? `Rate you really pay with the fee: ${eff.toFixed(2)}%` : '';
+    const total = S.paid + fee, intr = S.interest;
+    $('kpis').innerHTML = K('', 'Loan amount', f(P)) + K('bad', 'Total interest', f(intr), prepay ? `Without extra: ${f(base.interest)}` : '') + K('', fee > 0 ? 'Total you pay (with fee)' : 'Total you pay', f(total), fee > 0 ? `Fee with GST: ${f(fee)}` : '') + K('', 'Interest share', (total ? Math.round(intr / total * 100) : 0) + '%', 'Of everything you pay') +
+      (prepay ? K('good', 'Interest you save', f(base.interest - S.interest), 'By paying extra') + K('good', 'Loan ends', span(S.months), `${span(n - S.months)} sooner`) : '');
+    Common.donut($('donut'), $('legend'), [{ label: 'Principal', value: P }, { label: 'Interest', value: intr }].concat(fee > 0 ? [{ label: 'Fee with GST', value: fee }] : []), 'Total', cr(total));
+    const xs = []; for (let m = 0; m <= n; m += Math.max(1, Math.round(n / 60))) xs.push(m); if (xs[xs.length - 1] !== n) xs.push(n);
+    Common.lineChart($('balChart'), { xs, xfmt: v => (v % 12 === 0 ? v / 12 : ''), xlabel: v => 'Month ' + v + ' (year ' + (v / 12).toFixed(1) + ')', label: 'Outstanding loan', area: true,
+      series: [{ name: prepay ? 'With extra payments' : 'Balance owed', color: 'var(--c1)', ys: xs.map(m => S.bals[Math.min(m, S.bals.length - 1)]) }].concat(prepay ? [{ name: 'Without extra payments', color: 'var(--c2)', dash: true, ys: xs.map(m => base.bals[Math.min(m, base.bals.length - 1)]) }] : []) });
+    const hasPre = S.years.some(y => y.prepaid > 0.5);
+    if (viewGet() === 'month') $('sched').innerHTML = `<tr><th>Month</th><th>Principal</th><th>Interest</th>${hasPre ? '<th>Prepaid</th>' : ''}<th>Balance</th></tr>` + S.rows.map(r => `<tr><td>${r.month}</td><td>${f(r.principal)}</td><td>${f(r.interest)}</td>${hasPre ? `<td>${r.prepaid > 0.5 ? f(r.prepaid) : '–'}</td>` : ''}<td>${f(r.balance)}</td></tr>`).join('');
+    else $('sched').innerHTML = `<tr><th>Year</th><th>Principal</th><th>Interest</th>${hasPre ? '<th>Prepaid</th>' : ''}<th>Balance</th></tr>` + S.years.map(y => `<tr><td>${y.year}</td><td>${f(y.principal)}</td><td>${f(y.interest)}</td>${hasPre ? `<td>${y.prepaid > 0.5 ? f(y.prepaid) : '–'}</td>` : ''}<td>${f(y.balance)}</td></tr>`).join('');
+    $('warns').innerHTML = W.join('');
   }
-  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc)); calc();
+  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc));
+  document.addEventListener('change', e => { if (e.target.closest && e.target.closest('#inputs')) calc(); });
+  Common.restore(); calc();
 </script>
 </body>
 </html>

@@ -199,3 +199,8 @@ test('state professional tax: slabs from the published tables', () => {
   assert.equal(Tax.assess(a, { ptState: 'KA' }).pt, 2500); assert.equal(Tax.assess(a, { ptState: '', ptMonthly: 100 }).pt, 1200);
   assert.equal(Tax.assess(a, { ptState: 'NONE', ptMonthly: 200 }).pt, 0);
 });
+
+test('Tax.salary forwards payout % and state PT; city → state mapping', () => {
+  const a = Tax.salary({ ctc: 2000000, basicPct: 40, hraPct: 50, variablePct: 20, gratuity: true, ptMonthly: 200, metro: true, rentMonthly: 0 }), b = Tax.salary({ ctc: 2000000, basicPct: 40, hraPct: 50, variablePct: 20, gratuity: true, ptMonthly: 200, metro: true, rentMonthly: 0, payoutPct: 50 });
+  assert.ok(b.new.inHandYear < a.new.inHandYear); assert.equal(Tax.salary({ ctc: 1200000, basicPct: 40, hraPct: 50, ptMonthly: 200, ptState: 'NONE', metro: true }).pt, 0); assert.equal(Tax.CITY_PT.Bengaluru, 'KA');
+});
