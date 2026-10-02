@@ -1,6 +1,6 @@
 {
-  "name": "InHand — Money calculators for India",
-  "short_name": "InHand",
+  "name": "RupeeCheck — Money calculators for India",
+  "short_name": "RupeeCheck",
   "description": "Free in-hand salary, tax, net worth, FIRE, rent vs buy and more.",
   "start_url": "./",
   "scope": "./",

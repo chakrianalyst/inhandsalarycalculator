@@ -1,4 +1,4 @@
-/* InHand — shared layout + helpers */
+/* RupeeCheck — shared layout + helpers */
 const TOOLS = [
   { id: 'salary', href: 'salary-calculator.html', icon: '💼', name: 'In-Hand Salary Calculator', short: 'Salary', desc: 'CTC to monthly take-home with old vs new tax regime, PF, HRA and more.', hot: true },
   { id: 'lifesim', href: 'life-simulator.html', icon: '🧭', name: 'Life Money Simulator', short: 'Life Sim', desc: 'Drag life events — home, marriage, kids, career jumps — and watch your net worth unfold.', isNew: true },
@@ -51,7 +51,7 @@ const Common = (() => {
     const header = `
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header"><div class="container nav">
-      <a href="index.html" class="logo" aria-label="InHand home"><div class="logo-mark">₹</div><span>In<b>Hand</b></span></a>
+      <a href="index.html" class="logo" aria-label="RupeeCheck home"><div class="logo-mark">₹</div><span>Rupee<b>Check</b></span></a>
       <nav class="nav-links" id="navLinks" aria-label="Main">${links}</nav>
       <div class="nav-actions">
         <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode" title="Toggle theme">🌓</button>
@@ -61,13 +61,13 @@ const Common = (() => {
     const foot = `
     <footer class="site-footer"><div class="container">
       <div class="foot-grid">
-        <div><a href="index.html" class="logo"><div class="logo-mark">₹</div><span>In<b>Hand</b></span></a>
+        <div><a href="index.html" class="logo"><div class="logo-mark">₹</div><span>Rupee<b>Check</b></span></a>
           <p>Fast, free, private money calculators for India. Everything runs in your browser — your numbers never leave your device.</p></div>
         <div><h4>Calculators</h4><ul>${TOOLS.slice(0, 6).map(t => `<li><a href="${t.href}">${t.name}</a></li>`).join('')}</ul></div>
         <div><h4>More</h4><ul>${TOOLS.slice(6).map(t => `<li><a href="${t.href}">${t.name}</a></li>`).join('')}<li><a href="in-hand-salary-by-ctc.html">Salary by CTC chart</a></li></ul></div>
         <div><h4>Learn &amp; about</h4><ul>${GUIDES.map(g => `<li><a href="${g[0]}">${g[1]}</a></li>`).join('')}<li><a href="methodology.html">How we calculate</a></li><li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li><li><a href="privacy.html">Privacy &amp; Disclaimer</a></li></ul></div>
       </div>
-      <p class="legal">© ${new Date().getFullYear()} InHand. Calculators give estimates for educational purposes based on FY 2026-27 (AY 2027-28) rules and common salary structures; they are not tax, legal or investment advice. Your employer's actual payslip may differ.</p>
+      <p class="legal">© ${new Date().getFullYear()} RupeeCheck. Calculators give estimates for educational purposes based on FY 2026-27 (AY 2027-28) rules and common salary structures; they are not tax, legal or investment advice. Your employer's actual payslip may differ.</p>
     </div></footer>`;
     document.body.insertAdjacentHTML('afterbegin', header);
     document.body.insertAdjacentHTML('beforeend', foot);

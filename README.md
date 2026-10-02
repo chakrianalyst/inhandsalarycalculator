@@ -1,4 +1,4 @@
-# InHand — money calculators for India
+# RupeeCheck — money calculators for India
 
 A fast, beautiful, dependency-free static site: in-hand salary (old vs new regime), life money simulator, net worth & health score, FIRE planner, rent vs buy, job-offer comparison, salary hike, HRA, EMI, SIP, FD and gratuity calculators.
 
