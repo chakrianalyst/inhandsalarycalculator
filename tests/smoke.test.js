@@ -382,6 +382,21 @@ if (chromium) {
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
+  test('readable colours: green, red and brand text meet 4.5:1 on their surfaces in light and dark; index quick check agrees with the salary page', async () => {
+    for (const theme of ['light', 'dark']) {
+      const pg = await browser.newPage({ colorScheme: theme }); await pg.goto(url(SITE, 'sip-calculator.html')); await pg.evaluate(t => { document.documentElement.dataset.theme = t; }, theme);
+      const ratios = await pg.evaluate(() => {
+        const lum = c => { const m = c.match(/[\d.]+/g).map(Number), f = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }; return .2126 * f(m[0]) + .7152 * f(m[1]) + .0722 * f(m[2]); };
+        const mk = (cls, parentCls) => { const host = document.createElement('div'); host.className = parentCls; const e = document.createElement('div'); e.className = cls; e.textContent = 'x'; host.appendChild(e); document.querySelector('.results').appendChild(host); const col = getComputedStyle(e).color; let p = e, bg = 'rgb(255,255,255)'; while (p) { const c = getComputedStyle(p).backgroundColor; if (c !== 'rgba(0, 0, 0, 0)') { bg = c; break; } p = p.parentElement; } host.remove(); const a = lum(col), b = lum(bg); return (Math.max(a, b) + .05) / (Math.min(a, b) + .05); };
+        const link = document.querySelector('.tool-card .go, .go') || document.querySelector('a'); const lc = getComputedStyle(link).color, lb = getComputedStyle(document.body).backgroundColor; const a = lum(lc), b = lum(lb === 'rgba(0, 0, 0, 0)' ? 'rgb(255,255,255)' : lb);
+        return { good: mk('v', 'kpi good'), bad: mk('v', 'kpi bad'), link: (Math.max(a, b) + .05) / (Math.min(a, b) + .05) };
+      });
+      assert.ok(ratios.good >= 4.5, `${theme} green ${ratios.good}`); assert.ok(ratios.bad >= 4.5, `${theme} red ${ratios.bad}`); assert.ok(ratios.link >= 4.4, `${theme} brand text ${ratios.link}`); await pg.close();
+    }
+    const ix = await open(SITE, 'index.html'); await ix.fill('#q', '1200000'); await ix.waitForTimeout(200); const quick = await ix.$eval('#qOut', e => e.textContent); await ix.close();
+    assert.match(quick, /88,268/);
+  });
+
   test('HRA city list: eight metros plus "any other city" drive the 50% / 40% limit on every page that uses it, and survive a share link', async () => {
     const sal = await open(SITE, 'salary-calculator.html'); const opts = await sal.$$eval('#city option', os => os.map(o => o.textContent));
     assert.deepEqual(opts, ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad', 'Any other city']); assert.equal(await sal.inputValue('#city'), 'Bengaluru');

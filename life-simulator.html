@@ -181,11 +181,11 @@
   const host = $('events');
   EVENTS.forEach(e => {
     const st = ev[e.id], d = document.createElement('div'); d.className = 'ev' + (st.on ? ' on' : ''); d.dataset.past = st.past ? '1' : '0';
-    const fld = ([k, label, unit, hint, max, scope]) => `<div class="field${scope === 'planned' ? ' only-planned' : scope === 'past' ? ' only-past' : ''}"><label>${label}</label><div class="input-wrap">${unit === '₹' ? '<span class="pre">₹</span>' : ''}<input ${unit === '₹' ? 'type="text" data-money' : `type="number" min="0" ${max ? `max="${max}"` : ''} step="any"`} data-e="${e.id}" data-k="${k}" value="${st[k]}">${unit !== '₹' ? `<span class="suf">${unit}</span>` : ''}</div>${hint ? `<span class="hint">${hint}</span>` : ''}</div>`;
+    const fld = ([k, label, unit, hint, max, scope]) => `<div class="field${scope === 'planned' ? ' only-planned' : scope === 'past' ? ' only-past' : ''}"><label>${label}</label><div class="input-wrap">${unit === '₹' ? '<span class="pre">₹</span>' : ''}<input ${unit === '₹' ? 'type="text" data-money' : `type="number" min="0" ${max ? `max="${max}"` : ''} step="any"`} data-e="${e.id}" data-k="${k}" aria-label="${e.name}: ${label}" value="${st[k]}">${unit !== '₹' ? `<span class="suf">${unit}</span>` : ''}</div>${hint ? `<span class="hint">${hint}</span>` : ''}</div>`;
     const pastToggle = e.pastLabel ? `<label class="toggle"><span>${e.pastLabel}</span><span class="switch"><input type="checkbox" data-e="${e.id}" data-k="past" ${st.past ? 'checked' : ''}><i></i></span></label>` : '';
     d.innerHTML = `<div class="ev-top"><div class="gi">${e.icon}</div><span class="t">${e.name}</span><label class="switch"><input type="checkbox" data-e="${e.id}" data-k="on" ${st.on ? 'checked' : ''} aria-label="${e.name}"><i></i></label></div>
       <div class="ev-blurb">${e.blurb}</div>
-      <div class="ev-body">${pastToggle}<div class="field${e.pastLabel ? ' only-planned' : ''}"><label>It happens at age <b id="age-${e.id}">${st.age}</b></label><input type="range" data-e="${e.id}" data-k="age" min="20" max="75" step="1" value="${st.age}"></div>
+      <div class="ev-body">${pastToggle}<div class="field${e.pastLabel ? ' only-planned' : ''}"><label>It happens at age <b id="age-${e.id}">${st.age}</b></label><input type="range" aria-label="${e.name}: age it happens" data-e="${e.id}" data-k="age" min="20" max="75" step="1" value="${st.age}"></div>
       <div class="row-2">${e.fields.map(fld).join('')}</div><div class="cap ev-info" id="info-${e.id}"></div></div>`;
     host.appendChild(d);
   });
