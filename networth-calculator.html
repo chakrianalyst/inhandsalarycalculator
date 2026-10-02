@@ -54,23 +54,26 @@
         <span class="pill" id="nwPill"></span>
       </div>
       <div class="kpis">
-        <div class="kpi good"><div class="k">Total assets</div><div class="v" id="kA"></div></div>
-        <div class="kpi bad"><div class="k">Total liabilities</div><div class="v" id="kL"></div></div>
-        <div class="kpi"><div class="k">Liquid assets</div><div class="v" id="kLiq"></div></div>
-        <div class="kpi"><div class="k">Debt-to-asset ratio</div><div class="v" id="kD"></div></div>
+        <div class="kpi good"><div class="k">Total assets <button type="button" class="help-btn" data-tip="assets" data-box="kpiTip" aria-expanded="false" aria-controls="kpiTip" aria-label="How is total assets worked out?">?</button></div><div class="v" id="kA"></div></div>
+        <div class="kpi bad"><div class="k">Total liabilities <button type="button" class="help-btn" data-tip="liabs" data-box="kpiTip" aria-expanded="false" aria-controls="kpiTip" aria-label="How is total liabilities worked out?">?</button></div><div class="v" id="kL"></div></div>
+        <div class="kpi"><div class="k">Liquid assets <button type="button" class="help-btn" data-tip="liquid" data-box="kpiTip" aria-expanded="false" aria-controls="kpiTip" aria-label="How is liquid assets worked out?">?</button></div><div class="v" id="kLiq"></div></div>
+        <div class="kpi"><div class="k">Debt-to-asset ratio <button type="button" class="help-btn" data-tip="ratio" data-box="kpiTip" aria-expanded="false" aria-controls="kpiTip" aria-label="How is the debt-to-asset ratio worked out?">?</button></div><div class="v" id="kD"></div></div>
       </div>
+      <div class="help-tip" id="kpiTip" role="note" hidden></div>
 
       <div class="card" style="margin-bottom:18px">
-        <h2 class="card-title">❤️ Financial health score</h2>
+        <h2 class="card-title">❤️ Financial health score <button type="button" class="help-btn" data-tip="score" data-box="scoreTip" aria-expanded="false" aria-controls="scoreTip" aria-label="How is the health score worked out?">?</button></h2>
+        <div class="help-tip" id="scoreTip" role="note" hidden></div>
         <div class="gauge-wrap">
           <svg class="gauge" id="gauge" viewBox="0 0 200 120" role="img" aria-label="Financial health score"></svg>
-          <div class="score-side"><div class="lab" id="sLab"></div><p id="sNote"></p><div class="parts" id="parts"></div></div>
+          <div class="score-side"><div class="lab" id="sLab"></div><p id="sNote"></p><p class="grp-hint" id="emNote" style="margin:0 0 8px"></p><div class="parts" id="parts"></div></div>
         </div>
       </div>
 
       <div class="card" style="margin-bottom:18px">
         <h2 class="card-title">🥧 Where your wealth sits</h2>
         <div class="chart-row"><svg class="donut" id="donut" viewBox="0 0 170 170" role="img" aria-label="Asset allocation"></svg><div class="legend" id="legend"></div></div>
+        <p class="grp-hint" style="margin:10px 0 0">Hover or tap a slice to highlight it. Tap a row to see what is inside it.</p>
       </div>
 
       <div class="card" style="margin-bottom:18px">
@@ -106,7 +109,7 @@
     <p>The score (0–100) blends up to six signals. Signals you leave blank are skipped and the rest are re-scaled.</p>
     <ul>
       <li><strong>Debt-to-asset ratio (30 pts):</strong> full marks at 20% or lower, falling to zero when debts equal assets.</li>
-      <li><strong>Emergency fund (25 pts):</strong> cash &amp; bank balances ÷ monthly expenses; 6 months or more scores full marks.</li>
+      <li><strong>Emergency fund (25 pts):</strong> the money you mark with 🛟 ÷ monthly expenses; 6 months or more scores full marks. Cash and bank balances count by default, and you can also count fixed deposits, liquid or debt funds if you would use them in an emergency.</li>
       <li><strong>Growth assets (20 pts):</strong> share of assets in investments and retirement accounts; 50% or more scores full marks.</li>
       <li><strong>Diversification (10 pts):</strong> penalises having more than half of your wealth in a single bucket (for most Indians, the home).</li>
       <li><strong>EMI burden (10 pts):</strong> your monthly loan payments as a share of income; 30% or lower scores full marks and 60% scores zero.</li>
@@ -157,15 +160,35 @@
     cards:  ['BNPL / pay-later dues', 'Income tax due', 'Unpaid bills / rent', 'Credit line / EMI card'],
   };
   const HINTS = {
-    cash:   'Use today’s balance. Money you may need within days belongs here.',
-    fixed:  'Use the current value including accrued interest. Your total, not the amount originally invested.',
-    market: 'Use today’s market value. For ESOPs, count only vested shares you could actually sell.',
+    cash:   'Use today’s balance. Money you may need within days belongs here. The 🛟 button marks money you would use in an emergency, and it is on for everything in this group.',
+    fixed:  'Use the current value including accrued interest. Your total, not the amount originally invested. Tap 🛟 on any row you would break in an emergency, such as an FD.',
+    market: 'Use today’s market value. For ESOPs, count only vested shares you could actually sell. Tap 🛟 on a liquid or debt fund if you treat it as emergency money.',
     retire: 'Use the latest passbook / statement balance, including your employer’s contribution. Locked until retirement, so counted as illiquid.',
     real:   'Use today’s resale value, not what you paid. Jewellery: weight × today’s rate (making charges are usually not recovered). Enter gold you hold physically or as SGB / ETF separately if you like.',
     otherA: 'Insurance counts only at surrender value. The sum assured or life cover is not an asset.',
     loans:  'Enter the outstanding principal today, not the original loan amount.',
     cards:  'Include anything you owe and would have to pay soon.',
   };
+
+  /* ---------- "?" explanations: live, built from your own numbers ---------- */
+  let tipData = null, tipOpen = null;
+  const sumLine = (gs, gt) => gs.filter(g => gt[g.id] > 0).map(g => `${g.name} <b>${f(gt[g.id])}</b>`).join(' + ') || 'nothing entered yet';
+  const TIPS = {
+    assets: d => `<b>Total assets</b> is everything you own, added up.<span class="eq">${sumLine(d.aG, d.gt)} = <b>${f(d.assets)}</b></span>Use today’s value, not what you paid.`,
+    liabs: d => `<b>Total liabilities</b> is everything you owe.<span class="eq">${sumLine(d.lG, d.gt)} = <b>${f(d.liabs)}</b></span>Use the outstanding amount today, not the original loan.`,
+    liquid: d => { const L = d.aG.filter(g => g.liquid), X = d.aG.filter(g => !g.liquid && d.gt[g.id] > 0);
+      return `<b>Liquid assets</b> is money you could reach within days or weeks without selling something you need to live in or wait years for.<span class="eq">${sumLine(L, d.gt)} = <b>${f(d.liquid)}</b></span>` +
+        (X.length ? `<b>Not counted</b> (locked in or slow to sell): ${X.map(g => `${g.name} ${f(d.gt[g.id])}`).join(', ')}.` : 'Nothing is left out right now.'); },
+    ratio: d => `<b>Debt-to-asset ratio</b> is how much of what you own is matched by debt.<span class="eq">Liabilities ${f(d.liabs)} ÷ assets ${f(d.assets)} = <b>${Math.round(d.ratio * 100)}%</b></span>Lower is better. The health score gives full marks at 20% or below and none at 100% or more.`,
+    score: () => `The score is out of 100 and is built from up to six signals. You only get the ones you have filled in.<ul><li><b>Debt level (30):</b> full marks at debt of 20% of assets or less, none at 100%.</li><li><b>Emergency fund (25):</b> the money you mark with 🛟, divided by monthly expenses. Cash &amp; bank counts by default; switch on FDs or liquid and debt funds if you would use them. Six months is full marks.</li><li><b>Growth assets (20):</b> deposits, stocks, funds and retirement as a share of assets. Half or more is full marks.</li><li><b>Diversification (10):</b> full marks if no single group is more than half of your assets.</li><li><b>EMI burden (10):</b> yearly EMIs as a share of income. 30% or less is full marks, 60% or more none.</li><li><b>Age benchmark (15):</b> your net worth against age × income ÷ 10.</li></ul>`
+  };
+  function refreshTip() { if (!tipOpen || !tipData) return; const b = tipOpen, box = $(b.dataset.box); box.innerHTML = TIPS[b.dataset.tip](tipData); }
+  document.querySelectorAll('[data-tip]').forEach(b => b.addEventListener('click', () => {
+    const box = $(b.dataset.box), was = tipOpen === b && !box.hidden;
+    document.querySelectorAll('.help-tip').forEach(t => { t.hidden = true; }); document.querySelectorAll('.help-btn').forEach(x => x.setAttribute('aria-expanded', 'false'));
+    if (was) { tipOpen = null; return; }
+    tipOpen = b; if (tipData || b.dataset.tip === 'score') { box.innerHTML = TIPS[b.dataset.tip](tipData); } box.hidden = false; b.setAttribute('aria-expanded', 'true');
+  }));
   const sample = () => ({ age: 32, inc: 1800000, exp: 60000, emi: 55000, g: Object.fromEntries(GROUPS.map(g => [g.id, g.items.map(([n, v]) => ({ n, v }))])) });
   const blank = () => ({ age: '', inc: '', exp: '', emi: '', g: Object.fromEntries(GROUPS.map(g => [g.id, g.items.map(([n]) => ({ n, v: '' }))])) });
   let S;
@@ -173,6 +196,7 @@
   if (!S || !S.g) S = sample();
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
   const val = v => { const n = parseFloat(String(v).replace(/,/g, '')); return isNaN(n) || n < 0 ? 0 : n; };
+  const isEm = (gid, r) => r.e === undefined ? gid === 'cash' : !!r.e;                  // what counts as emergency money: cash & bank by default; any liquid row can be switched on
   const gTotal = id => (S.g[id] || []).reduce((s, r) => s + val(r.v), 0);
 
 
@@ -222,7 +246,13 @@
     nm.oninput = () => { row.n = nm.value; save(); refreshers[gid] && refreshers[gid](); };
     v.oninput = () => { row.v = Common.raw(v); update(); };
     x.onclick = () => { S.g[gid].splice(S.g[gid].indexOf(row), 1); el.remove(); refreshers[gid] && refreshers[gid](); update(); };
-    el.append(nm, w, x); body.insertBefore(el, before || null);
+    const G = GROUPS.find(g => g.id === gid);
+    if (G && G.liquid) {
+      el.classList.add('has-e'); const em = document.createElement('button'); em.type = 'button'; em.className = 'em'; em.textContent = '🛟';
+      const sync = () => { const on = isEm(gid, row); em.setAttribute('aria-pressed', String(on)); em.title = on ? 'Counted as emergency fund. Tap to stop counting it.' : 'Tap to count this as emergency fund.'; em.setAttribute('aria-label', (row.n || 'Item') + ': ' + (on ? 'counted as emergency fund' : 'not counted as emergency fund')); };
+      em.onclick = () => { row.e = !isEm(gid, row); sync(); update(); }; sync(); el.append(nm, w, em, x);
+    } else el.append(nm, w, x);
+    body.insertBefore(el, before || null);
   }
   function build() {
     $('assets').innerHTML = ''; $('liabs').innerHTML = '';
@@ -277,7 +307,8 @@
     /* score */
     const parts = [];
     parts.push({ n: 'Debt level', max: 30, s: 30 * clamp(1 - (Math.max(ratio, 0.2) - 0.2) / 0.8, 0, 1) });
-    const cashMonths = exp > 0 ? gt.cash / exp : null;
+    const emRows = aG.filter(g => g.liquid).flatMap(g => (S.g[g.id] || []).filter(r => isEm(g.id, r) && val(r.v) > 0)), emerg = emRows.reduce((t, r) => t + val(r.v), 0);
+    const cashMonths = exp > 0 ? emerg / exp : null;
     if (cashMonths !== null) parts.push({ n: 'Emergency fund', max: 25, s: 25 * clamp(cashMonths / 6, 0, 1) });
     const growth = gt.fixed + gt.market + gt.retire, growthShare = assets > 0 ? growth / assets : 0;
     if (assets > 0) parts.push({ n: 'Growth assets', max: 20, s: 20 * clamp(growthShare / 0.5, 0, 1) });
@@ -291,13 +322,15 @@
     const lab = score >= 80 ? ['Excellent', '🌟'] : score >= 60 ? ['Healthy', '💪'] : score >= 40 ? ['Fair', '🙂'] : ['Needs attention', '⚠️'];
     $('sLab').textContent = assets + liabs === 0 ? 'Add some numbers' : `${lab[1]} ${lab[0]}`;
     $('sNote').textContent = `Based on ${parts.length} signal${parts.length === 1 ? '' : 's'}${parts.length < 5 ? ' — add age, income and expenses for a fuller score' : ''}.`;
+    $('emNote').innerHTML = cashMonths === null ? 'Add your monthly expenses to check your emergency fund.' : `Emergency fund counted: <b>${f(emerg)}</b> = <b>${cashMonths.toFixed(1)} months</b> of expenses${emRows.length ? ' (' + emRows.map(r => Common.esc((r.n || '').trim() || 'Item')).join(', ') + ')' : ''}. Tap the 🛟 on any cash, deposit or fund row to change what counts.`;
     $('parts').innerHTML = parts.map(p => `<div class="part"><span>${p.n}</span><div class="bar"><i style="width:${Math.round(p.s / p.max * 100)}%"></i></div></div>`).join('');
 
     /* donut */
-    const items = aG.map(g => ({ label: g.icon + ' ' + g.name, value: gt[g.id] })).filter(i => i.value > 0);
+    const items = aG.map(g => ({ label: g.icon + ' ' + g.name, name: g.name, value: gt[g.id], fmt: Common.fmtCompact, children: (S.g[g.id] || []).map(r => ({ label: (r.n || '').trim() || 'Item', value: val(r.v) })) })).filter(i => i.value > 0);
     const dItems = items.length ? items : [{ label: 'No assets yet', value: 0 }];
-    Common.donut($('donut'), $('legend'), dItems, 'Assets', Common.fmtCompact(assets));
-    if (assets > 0) $('legend').querySelectorAll('div').forEach((row, i) => { if (items[i]) row.querySelector('b').textContent = Math.round(items[i].value / assets * 100) + '% · ' + Common.fmtCompact(items[i].value); });
+    Common.donut($('donut'), $('legend'), dItems, 'Assets', Common.fmtCompact(assets), { pct: true });
+
+    tipData = { gt, aG, lG, assets, liabs, liquid, ratio }; refreshTip();
 
     /* assets vs liabilities */
     const mx = Math.max(assets, liabs, 1);
@@ -314,8 +347,8 @@
       if (ratio > 0.5 && nw >= 0) add('warn', '⚖️', `Debts are <b>${Math.round(ratio * 100)}%</b> of your assets. Bringing this under 30% gives you a much bigger safety cushion.`);
       else if (ratio <= 0.3 && assets > 0) add('good', '✅', `Low leverage: debts are only <b>${Math.round(ratio * 100)}%</b> of assets.`);
       if (cashMonths !== null) {
-        if (cashMonths < 3) add('bad', '🛟', `Your cash &amp; bank balance covers only <b>${cashMonths.toFixed(1)} months</b> of expenses. Build it to 6 months (<b>${f(exp * 6)}</b>) before investing more.`);
-        else if (cashMonths < 6) add('warn', '🛟', `Emergency fund covers <b>${cashMonths.toFixed(1)} months</b>. Top up ${f(exp * 6 - gt.cash)} to reach the 6-month mark.`);
+        if (cashMonths < 3) add('bad', '🛟', `Your emergency fund (<b>${f(emerg)}</b>) covers only <b>${cashMonths.toFixed(1)} months</b> of expenses. Build it to 6 months (<b>${f(exp * 6)}</b>) before investing more.`);
+        else if (cashMonths < 6) add('warn', '🛟', `Emergency fund covers <b>${cashMonths.toFixed(1)} months</b>. Top up ${f(exp * 6 - emerg)} to reach the 6-month mark.`);
         else add('good', '🛟', `Emergency fund covers <b>${cashMonths.toFixed(1)} months</b> — solid.`);
       }
       if (burden !== null) {
