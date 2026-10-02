@@ -575,3 +575,5 @@ table.yr tr.bad td, table.yr tr.bad td:first-child { background: color-mix(in sr
 .row-3 [hidden] { display: none; }
 
 [hidden] { display: none !important; }
+
+.pill:empty, .words:empty { display: none; }

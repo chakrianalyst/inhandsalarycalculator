@@ -23,57 +23,57 @@
     <section class="card offer-card" id="card0" aria-label="Offer 1">
       <input class="oname" id="n0" value="Offer A — Startup" aria-label="Offer name">
       <div class="field"><label for="ctc0">Annual CTC</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="ctc0" value="1800000" min="300000" max="20000000" step="50000"></div></div>
+        <div class="input-wrap"><span class="pre">₹</span><input id="ctc0" data-money value="1800000" min="300000" max="20000000" step="50000"></div></div>
       <div class="row-2">
-      <div class="field"><label for="var0">Variable (% of CTC)</label>
+      <div class="field"><label for="var0">Variable pay (%)</label>
         <div class="input-wrap"><input type="number" id="var0" value="15" min="0" max="50" step="1"><span class="suf">%</span></div></div>
       <div class="field"><label for="bonus0">Joining bonus</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="bonus0" value="100000" min="0" max="5000000" step="10000"></div></div>
-      <div class="field"><label for="esop0">ESOP / RSU value per year</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="esop0" value="300000" min="0" max="20000000" step="10000"></div></div>
-      <div class="field"><label for="rent0">Monthly rent there</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="rent0" value="30000" min="0" max="300000" step="500"></div></div>
+        <div class="input-wrap"><span class="pre">₹</span><input id="bonus0" data-money value="100000" min="0" max="5000000" step="10000"></div></div>
+      <div class="field"><label for="esop0">ESOP / RSU per year</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="esop0" data-money value="300000" min="0" max="20000000" step="10000"></div></div>
+      <div class="field"><label for="rent0">Monthly rent</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="rent0" data-money value="30000" min="0" max="300000" step="500"></div></div>
       </div>
       <div class="field"><label for="oth0">Other monthly costs (commute etc.)</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="oth0" value="3000" min="0" max="100000" step="500"></div></div>
+        <div class="input-wrap"><span class="pre">₹</span><input id="oth0" data-money value="3000" min="0" max="100000" step="500"></div></div>
       <div class="field"><label for="g0">Expected yearly raise there</label><div class="input-wrap"><input type="number" id="g0" value="8" min="0" max="50" step="1"><span class="suf">%</span></div></div>
       <div class="field" style="margin:0"><label for="city0">City</label><select id="city0" data-cities data-default="Bengaluru"></select></div>
     </section>
     <section class="card offer-card" id="card1" aria-label="Offer 2">
       <input class="oname" id="n1" value="Offer B — Big company" aria-label="Offer name">
       <div class="field"><label for="ctc1">Annual CTC</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="ctc1" value="2400000" min="300000" max="20000000" step="50000"></div></div>
+        <div class="input-wrap"><span class="pre">₹</span><input id="ctc1" data-money value="2400000" min="300000" max="20000000" step="50000"></div></div>
       <div class="row-2">
-      <div class="field"><label for="var1">Variable (% of CTC)</label>
+      <div class="field"><label for="var1">Variable pay (%)</label>
         <div class="input-wrap"><input type="number" id="var1" value="10" min="0" max="50" step="1"><span class="suf">%</span></div></div>
       <div class="field"><label for="bonus1">Joining bonus</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="bonus1" value="0" min="0" max="5000000" step="10000"></div></div>
-      <div class="field"><label for="esop1">ESOP / RSU value per year</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="esop1" value="0" min="0" max="20000000" step="10000"></div></div>
-      <div class="field"><label for="rent1">Monthly rent there</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="rent1" value="36000" min="0" max="300000" step="500"></div></div>
+        <div class="input-wrap"><span class="pre">₹</span><input id="bonus1" data-money value="0" min="0" max="5000000" step="10000"></div></div>
+      <div class="field"><label for="esop1">ESOP / RSU per year</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="esop1" data-money value="0" min="0" max="20000000" step="10000"></div></div>
+      <div class="field"><label for="rent1">Monthly rent</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="rent1" data-money value="36000" min="0" max="300000" step="500"></div></div>
       </div>
       <div class="field"><label for="oth1">Other monthly costs (commute etc.)</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="oth1" value="6000" min="0" max="100000" step="500"></div></div>
+        <div class="input-wrap"><span class="pre">₹</span><input id="oth1" data-money value="6000" min="0" max="100000" step="500"></div></div>
       <div class="field"><label for="g1">Expected yearly raise there</label><div class="input-wrap"><input type="number" id="g1" value="8" min="0" max="50" step="1"><span class="suf">%</span></div></div>
       <div class="field" style="margin:0"><label for="city1">City</label><select id="city1" data-cities data-default="Mumbai"></select></div>
     </section>
     <section class="card offer-card off" id="card2" aria-label="Offer 3">
       <input class="oname" id="n2" value="Offer C — Small town" aria-label="Offer name">
       <div class="field"><label for="ctc2">Annual CTC</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="ctc2" value="1500000" min="300000" max="20000000" step="50000"></div></div>
+        <div class="input-wrap"><span class="pre">₹</span><input id="ctc2" data-money value="1500000" min="300000" max="20000000" step="50000"></div></div>
       <div class="row-2">
-      <div class="field"><label for="var2">Variable (% of CTC)</label>
+      <div class="field"><label for="var2">Variable pay (%)</label>
         <div class="input-wrap"><input type="number" id="var2" value="0" min="0" max="50" step="1"><span class="suf">%</span></div></div>
       <div class="field"><label for="bonus2">Joining bonus</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="bonus2" value="0" min="0" max="5000000" step="10000"></div></div>
-      <div class="field"><label for="esop2">ESOP / RSU value per year</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="esop2" value="0" min="0" max="20000000" step="10000"></div></div>
-      <div class="field"><label for="rent2">Monthly rent there</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="rent2" value="18000" min="0" max="300000" step="500"></div></div>
+        <div class="input-wrap"><span class="pre">₹</span><input id="bonus2" data-money value="0" min="0" max="5000000" step="10000"></div></div>
+      <div class="field"><label for="esop2">ESOP / RSU per year</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="esop2" data-money value="0" min="0" max="20000000" step="10000"></div></div>
+      <div class="field"><label for="rent2">Monthly rent</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="rent2" data-money value="18000" min="0" max="300000" step="500"></div></div>
       </div>
       <div class="field"><label for="oth2">Other monthly costs (commute etc.)</label>
-        <div class="input-wrap"><span class="pre">₹</span><input type="number" id="oth2" value="2000" min="0" max="100000" step="500"></div></div>
+        <div class="input-wrap"><span class="pre">₹</span><input id="oth2" data-money value="2000" min="0" max="100000" step="500"></div></div>
       <div class="field"><label for="g2">Expected yearly raise there</label><div class="input-wrap"><input type="number" id="g2" value="8" min="0" max="50" step="1"><span class="suf">%</span></div></div>
       <div class="field" style="margin:0"><label for="city2">City</label><select id="city2" data-cities data-default="other"></select></div>
     </section>
