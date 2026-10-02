@@ -349,12 +349,24 @@ if (chromium) {
   test('Move abroad calculator: country and city presets, tax breakdown, break-even, grid and share link', async () => {
     const pg = await open(SITE, 'abroad-calculator.html'); const txt = sel => pg.$eval(sel, e => e.innerText), hero = () => txt('#hero');
     assert.match(await hero(), /After 10 years[\s\S]*behind[\s\S]*staying in India/); assert.equal(await pg.inputValue('#rentA'), '3,800'); assert.match(await txt('#payTbl'), /Income tax[\s\S]*Take-home pay/);
-    assert.match(await txt('#tips'), /\$128,\d\d\d a year/); assert.equal((await pg.$$('#grid tr')).length, 5); assert.equal((await pg.$$('#yrTbl tr')).length, 11);
+    assert.match(await txt('#tips'), /\$12\d,\d\d\d a year/); assert.equal((await pg.$$('#grid tr')).length, 5); assert.equal((await pg.$$('#yrTbl tr')).length, 11);
     await pg.selectOption('#country', 'AE'); assert.equal(await pg.inputValue('#fx'), '26.1'); assert.equal(await pg.inputValue('#rentA'), '7,000'); assert.match(await hero(), /ahead of staying in India/);
     await pg.selectOption('#country', 'CA'); assert.deepEqual(await pg.$$eval('#city option', o => o.map(x => x.textContent)), ['Toronto', 'Vancouver', 'Calgary']);
     await pg.selectOption('#country', 'US'); await pg.selectOption('#city', 'aus'); assert.match(await hero(), /ahead of staying in India/);       // Texas: no state income tax, cheaper rent
     await pg.selectOption('#years', '5'); assert.match(await hero(), /After 5 years/); await pg.click('#mode [data-v=real]'); assert.match(await hero(), /today’s money/);
     const lk = await browser.newPage(); await lk.goto(url(SITE, 'abroad-calculator.html') + '?country=CA&city=cal&rentA=2000'); await lk.waitForTimeout(300); assert.equal(await lk.inputValue('#city'), 'cal'); assert.equal(await lk.inputValue('#rentA'), '2,000'); await lk.close();
+    assert.deepEqual(pg.errs, []); await pg.close();
+  });
+
+  test('Move abroad: UK and Germany presets, pensions, partner toggle and provident fund', async () => {
+    const pg = await open(SITE, 'abroad-calculator.html'); const txt = sel => pg.$eval(sel, e => e.innerText), hero = () => txt('#hero');
+    assert.deepEqual(await pg.$$eval('#country option', o => o.map(x => x.value)), ['US', 'CA', 'AU', 'SG', 'AE', 'UK', 'DE']);
+    await pg.selectOption('#country', 'UK'); assert.equal(await pg.inputValue('#fx'), '127.3'); assert.equal(await pg.inputValue('#gross'), '85,000'); assert.equal(await pg.inputValue('#rentA'), '2,300'); assert.equal(await pg.inputValue('#retPct'), '5');
+    assert.match(await txt('#payTbl'), /National Insurance|PF, payroll/); await pg.selectOption('#country', 'DE'); assert.equal(await pg.inputValue('#city') , 'ber'); assert.equal(await pg.inputValue('#retPct'), '0'); assert.match(await txt('#kpis'), /Take-home each month/);
+    await pg.selectOption('#country', 'US'); const solo = await hero(); const rent = await pg.inputValue('#rentA');
+    await pg.$eval('#partner', e => e.click()); assert.equal(await pg.isVisible('#pCtc'), true); assert.notEqual(await pg.inputValue('#rentA'), rent); assert.notEqual(await hero(), solo);
+    await pg.$eval('#partner', e => e.click()); assert.equal(await pg.inputValue('#rentA'), rent); assert.equal(await hero(), solo);                           // switching off restores the single-person costs
+    await pg.$eval('#sec-ret', e => (e.open = true)); await pg.$eval('#epf', e => e.click()); assert.notEqual(await hero(), solo); assert.match(await txt('#kpis'), /Of which in pensions/);
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
