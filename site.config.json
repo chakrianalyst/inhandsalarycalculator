@@ -1,11 +1,16 @@
 {
-  "siteUrl": "https://fincalculators.in",
+  "siteUrl": "https://chakrianalyst.github.io/inhandsalarycalculator",
   "siteName": "InHand",
   "tagline": "Free money calculators for India",
-  "contactEmail": "hello@inhand.example",
+  "contactEmail": "yamgantic@gmail.com",
   "googleSiteVerification": "",
-  "analytics": { "gaId": "" },
-  "adsense": { "client": "", "slot": "" },
+  "analytics": {
+    "gaId": ""
+  },
+  "adsense": {
+    "client": "",
+    "slot": ""
+  },
   "affiliates": {
     "tax-saving": "",
     "home-loan": "",
