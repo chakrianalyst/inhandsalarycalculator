@@ -205,7 +205,7 @@ const Tax = (() => {
     const ctc = Math.max(0, inp.ctc);
     const a = structure({ ctc, basicMode: 'pct', basicVal: inp.basicPct, hraMode: 'pct', hraVal: inp.hraPct, bonusMode: 'pct', bonusVal: inp.variablePct,
       pfMode: inp.pfCap ? 'cap' : 'full', gratuityOn: !!inp.gratuity, npsMode: 'yr', npsVal: inp.employerNps || 0 });
-    return assess(a, { ptMonthly: inp.ptMonthly, metro: inp.metro, rentMonthly: inp.rentMonthly, other80c: inp.other80c, nps1b: inp.nps1b, d80: inp.d80 || 0,
+    return assess(a, { ptMonthly: inp.ptMonthly, ptState: inp.ptState, metro: inp.metro, rentMonthly: inp.rentMonthly, other80c: inp.other80c, nps1b: inp.nps1b, d80: inp.d80 || 0,
       homeLoanInt: inp.homeLoanInt, otherDed: inp.otherDed });
   }
 
