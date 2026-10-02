@@ -18,7 +18,7 @@
     const N = Math.max(0, p.planEnd - p.age), out = [];
     for (let t = 0; t < N; t++) {
       const a = p.age + t; let v = 0;
-      if (p.jobCtc > 0 && a < p.workUntil) { const r = TaxIN.salary({ ctc: p.jobCtc * Math.pow(1 + (p.jobGrowth || 0) / 100, t), basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, ptState: 'KA', metro: true, rentMonthly: 0 }); v = r[r.best].inHandYear; }
+      if (p.jobCtc > 0 && a < p.workUntil) { const r = TaxIN.salary({ ctc: p.jobCtc * Math.pow(1 + (p.jobGrowth || 0) / 100, t), basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, metro: true, rentMonthly: 0 }); v = r[r.best].inHandYear; }
       out.push(v);
     }
     return out;

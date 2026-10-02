@@ -187,28 +187,20 @@ test('HRA metro list: the eight cities of the Income-tax Rules 2026 (FY 2026-27)
   assert.deepEqual(Tax.METRO_CITIES, ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad']);
 });
 
-test('state professional tax: slabs from the published tables', () => {
-  const P = Tax.professionalTax;
-  assert.equal(P('KA', 24999), 0); assert.equal(P('KA', 100000), 2500);
-  assert.equal(P('MH', 8000), 2100); assert.equal(P('MH', 50000), 2500);
-  assert.equal(P('TG', 18000), 1800); assert.equal(P('TG', 90000), 2400);
-  assert.equal(P('GJ', 5000), 0); assert.equal(P('GJ', 100000), 2400);
-  assert.equal(P('MP', 40000), 2500);
-  assert.equal(Tax.professionalTax('MH', 20000, true), 0, 'women up to ₹25,000 in Maharashtra pay nothing'); assert.equal(Tax.professionalTax('MH', 25000, true), 0); assert.equal(Tax.professionalTax('MH', 25001, true), 2500); assert.equal(Tax.professionalTax('MH', 20000, false), 2500);
-  assert.equal(P('WB', 20000), 0); assert.equal(P('WB', 20001), 1200); assert.equal(P('WB', 50000), 1680); assert.equal(P('WB', 100000), 2040); assert.equal(P('WB', 100001), 2496, 'West Bengal schedule from 1 Oct 2026');
-  assert.equal(P('KL', 10000), 1200); assert.equal(P('KL', 15000), 1500); assert.equal(P('KL', 20000), 2000); assert.equal(P('KL', 25000), 2500); assert.equal(P('KL', 50000), 2500, 'Kerala charges by half-year pay, up to ₹1,250 per half-year'); assert.equal(P('NONE', 90000), 0); assert.equal(P('TN', 90000), null);
+test('professional tax: the user enters the monthly amount from the payslip, limited to ₹2,500 a year', () => {
   const a = Tax.structure({ ctc: 1200000 });
-  assert.equal(Tax.assess(a, { ptState: 'KA' }).pt, 2500); assert.equal(Tax.assess(a, { ptState: '', ptMonthly: 100 }).pt, 1200);
-  assert.equal(Tax.assess(a, { ptState: 'NONE', ptMonthly: 200 }).pt, 0);
+  assert.equal(Tax.assess(a, { ptMonthly: 200 }).pt, 2400); assert.equal(Tax.assess(a, { ptMonthly: 0 }).pt, 0);
+  assert.equal(Tax.assess(a, { ptMonthly: 500 }).pt, 2500, 'limited to the ₹2,500 a year legal cap'); assert.equal(Tax.assess(a, { ptMonthly: -50 }).pt, 0); assert.equal(Tax.assess(a, {}).pt, 0);
+  assert.ok(!('PT_STATES' in Tax) && !('professionalTax' in Tax), 'no state tables to keep up to date');
 });
 
-test('Tax.salary forwards payout % and state PT; city → state mapping', () => {
+test('Tax.salary forwards payout % and the professional tax amount', () => {
   const a = Tax.salary({ ctc: 2000000, basicPct: 40, hraPct: 50, variablePct: 20, gratuity: true, ptMonthly: 200, metro: true, rentMonthly: 0 }), b = Tax.salary({ ctc: 2000000, basicPct: 40, hraPct: 50, variablePct: 20, gratuity: true, ptMonthly: 200, metro: true, rentMonthly: 0, payoutPct: 50 });
-  assert.ok(b.new.inHandYear < a.new.inHandYear); assert.equal(Tax.salary({ ctc: 1200000, basicPct: 40, hraPct: 50, ptMonthly: 200, ptState: 'NONE', metro: true }).pt, 0); assert.equal(Tax.CITY_PT.Bengaluru, 'KA');
+  assert.ok(b.new.inHandYear < a.new.inHandYear); assert.equal(Tax.salary({ ctc: 1200000, basicPct: 40, hraPct: 50, ptMonthly: 0, metro: true }).pt, 0); assert.equal(Tax.salary({ ctc: 1200000, basicPct: 40, hraPct: 50, ptMonthly: 200, metro: true }).pt, 2400);
 });
 
-test('pages that quote the default ₹12 L example agree with the engine (Karnataka professional tax)', () => {
-  const fs = require('fs'), r = Tax.salary({ ctc: 1200000, basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, ptState: 'KA', metro: true, rentMonthly: 0 });
+test('pages that quote the default ₹12 L example agree with the engine (₹200 a month professional tax)', () => {
+  const fs = require('fs'), r = Tax.salary({ ctc: 1200000, basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, metro: true, rentMonthly: 0 });
   const inr = n => '₹' + new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(Math.round(n));
   const guide = fs.readFileSync(__dirname + '/../ctc-vs-in-hand-salary.html', 'utf8');
   assert.ok(guide.includes(inr(r[r.best].inHandMonth)), 'guide monthly in-hand'); assert.ok(guide.includes(inr(r[r.best].inHandYear)), 'guide yearly in-hand'); assert.ok(guide.includes(inr(r.pt)), 'guide professional tax');

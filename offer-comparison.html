@@ -117,7 +117,7 @@
     let cash = 0, surplus = 0, first = null, esopAT0 = 0, bonusAT = 0;
     for (let y = 0; y < H; y++) {
       const ctc = ctc0 * Math.pow(1 + g, y), k = Math.pow(1 + cinf, y), rent = rent0 * k, oth = oth0 * k;
-      const r = Tax.salary({ ...base, ctc, variablePct: num('var' + i), payoutPct: payPct, metro: city !== 'other', rentMonthly: rent, ptState: Tax.CITY_PT[city] || '' }), b = r[r.best];
+      const r = Tax.salary({ ...base, ctc, variablePct: num('var' + i), payoutPct: payPct, metro: city !== 'other', rentMonthly: rent }), b = r[r.best];
       const extraTax = x => Tax.computeTax(b.taxable + x, r.best).total - b.tax, e = esop - extraTax(esop), jb = y === 0 ? bonus - extraTax(bonus) : 0;
       if (y === 0) { esopAT0 = e; bonusAT = jb; first = { regime: r.best, inHand: b.inHandMonth, inHandYear: b.inHandYear, tax: b.tax, rent, oth, left: b.inHandMonth - rent - oth }; }
       cash += b.inHandYear + e + jb; surplus += b.inHandYear - 12 * (rent + oth) + e + jb;

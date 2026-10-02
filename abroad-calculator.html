@@ -134,7 +134,7 @@
 
   const optOf = () => { const x = cityOf(); return { state: x.state, province: x.province, retPct: num('retPct'), matchPct: num('matchPct') }; };
   const params = () => { const c = C[$('country').value], x = cityOf(); return { years: +$('years').value, parents: num('parents'),
-    india: { ctc: num('ctc'), rent: num('rentI'), other: num('otherI'), growth: num('gI'), infl: num('iI'), ret: num('rI'), ptState: 'KA', epf: $('epf').checked },
+    india: { ctc: num('ctc'), rent: num('rentI'), other: num('otherI'), growth: num('gI'), infl: num('iI'), ret: num('rI'), epf: $('epf').checked },
     partner: { on: $('partner').checked, indiaCtc: num('pCtc'), abroadGross: num('pGross') },
     abroad: { country: $('country').value, opt: optOf(), gross: num('gross'), rent: num('rentA'), other: num('otherA'), growth: num('gA'), infl: num('iA'), ret: num('rA'), fx: num('fx'), dep: num('dep'), trips: num('trips'), oneTime: num('oneTime') } }; };
   const sgn = v => (v >= 0 ? '+' : '−') + cr(Math.abs(v));
@@ -160,7 +160,7 @@
     Common.lineChart($('chart'), { xs, xfmt: v => v + 'y', xlabel: v => v === 0 ? 'Start' : 'Year ' + v, label: 'Net worth in rupees', area: true,
       series: [{ name: `Abroad (${c.name.split(' (')[0]})`, color: 'var(--c1)', ys: [0].concat(rows.map(r => nw(r, 'a'))) }, { name: 'India', color: 'var(--c2)', ys: [0].concat(rows.map(r => nw(r, 'i'))) }] });
     // first-year pay
-    const tx = Tax.salary({ ctc: P.india.ctc, basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, ptState: 'KA', metro: true, rentMonthly: P.india.rent }), tb = tx[tx.best], k = P.abroad.fx;
+    const tx = Tax.salary({ ctc: P.india.ctc, basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, metro: true, rentMonthly: P.india.rent }), tb = tx[tx.best], k = P.abroad.fx;
     const np = y1.tax, sumItems = re => np.items.filter(i => re.test(i.label)).reduce((s, i) => s + i.amt, 0), row = (l, a, b, cls = '') => `<tr class="${cls}"><td>${l}</td><td>${f(a)}</td><td>${f(b)}</td></tr>`, pay = /Social|Medicare|CPP|Employment|National|insurance/i;
     const incTax = np.items.filter(i => !pay.test(i.label)).reduce((s, i) => s + i.amt, 0), payroll = sumItems(pay), houseA = (P.abroad.rent + P.abroad.other) * 12 * k;
     $('payTbl').innerHTML = '<tr><th>You, year 1</th><th>India</th><th>Abroad, in ₹</th></tr>' + row('Salary before tax', tx.gross, np.gross * k) + row('Income tax', -tb.tax, -incTax * k, 'neg') +

@@ -118,14 +118,14 @@
   }
 
   /** p: { years,
-   *       india:  { ctc, rent, other (₹ a month), growth, infl, ret (% a year), epf (count PF as savings), ptState },
+   *       india:  { ctc, rent, other (₹ a month), growth, infl, ret (% a year), epf (count PF as savings) },
    *       abroad: { country, opt ({state}|{province}, retPct, matchPct), gross (local currency a year), rent, other (local a month), growth, infl, ret, fx (₹ per unit), dep (% a year the rupee weakens), trips (₹ a year), oneTime (₹ at the start) },
    *       partner: { on, indiaCtc (₹), abroadGross (local currency) } (optional),
    *       parents (₹ a month, sent in both cases, rising with Indian inflation) } */
   const EPF_RATE = 8.25;
   function compare(p) {
     const I = p.india, A = p.abroad, H = Math.round(p.years), out = [], pt = p.partner && p.partner.on ? p.partner : null;
-    const base = { basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, ptState: I.ptState || 'KA', metro: true };
+    const base = { basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, metro: true };
     let nwI = 0, nwA = 0, retI = 0, retA = 0;
     for (let t = 0; t < H; t++) {
       const ki = Math.pow(1 + I.infl / 100, t), ka = Math.pow(1 + A.infl / 100, t), fx0 = A.fx * Math.pow(1 + A.dep / 100, t), fx1 = A.fx * Math.pow(1 + A.dep / 100, t + 1);

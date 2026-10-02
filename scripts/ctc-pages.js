@@ -1,6 +1,6 @@
 /* Generates the "₹X LPA in-hand salary" pages + hub from the real tax engine. */
 const LPAS = [...Array.from({ length: 28 }, (_, i) => i + 3), 35, 40, 45, 50];   // 3..30, 35, 40, 45, 50
-const BASE = { basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, ptState: 'KA', metro: true, rentMonthly: 0 };
+const BASE = { basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, metro: true, rentMonthly: 0 };
 const inr = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
 const f = n => { n = Math.round(n); return (n < 0 ? '−' : '') + '₹' + inr.format(Math.abs(n)); };
 const fileFor = l => `${l}-lpa-in-hand-salary.html`;
@@ -72,7 +72,7 @@ function ctcPage(Tax, lpa) {
   <article class="container prose">
     <h2>How ₹${lpa} LPA becomes ${f(b.inHandMonth)} a month</h2>
     <ol>${steps.map(s => `<li>${s}</li>`).join('')}</ol>
-    <p>These figures assume 40% basic salary, PF on the full basic, gratuity inside CTC, Karnataka professional tax (${f(r.pt)} a year; other states differ), a metro city and no other deductions. Your payslip can differ if your employer structures pay differently.</p>
+    <p>These figures assume 40% basic salary, PF on the full basic, gratuity inside CTC, professional tax of ₹200 a month (${f(r.pt)} a year; your state may differ), a metro city and no other deductions. Your payslip can differ if your employer structures pay differently.</p>
     ${rp || rn ? `<h2>What a raise would mean</h2><ul>${rp ? `<li>From ₹${prev} LPA to ₹${lpa} LPA adds about <strong>${f(b.inHandMonth - rp[rp.best].inHandMonth)}</strong> a month in-hand.</li>` : ''}${rn ? `<li>From ₹${lpa} LPA to ₹${next} LPA adds about <strong>${f(rn[rn.best].inHandMonth - b.inHandMonth)}</strong> a month in-hand.</li>` : ''}</ul>` : ''}
     <h2>Frequently asked questions</h2>
     <div class="faq">${faq.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</div>
@@ -105,7 +105,7 @@ function hubPage(Tax) {
     <p>Find your monthly take-home for any CTC. Click a row for the full breakdown, or use the <a href="salary-calculator.html">custom calculator</a>.</p></div>
   <div class="container" style="max-width:880px"><div class="card"><div class="tbl-wrap"><table class="tbl">
     <tr><th>CTC</th><th>Monthly in-hand (new)</th><th>Monthly in-hand (old)</th><th>Yearly tax</th><th>Better</th></tr>${rows}</table></div>
-    <p style="margin-top:14px;font-size:.85rem;color:var(--muted)">Assumes 40% basic, PF on full basic, gratuity inside CTC, Karnataka professional tax, metro city, and no deductions claimed under the old regime. Tax Year 2026-27 (FY 2026-27).</p></div></div>
+    <p style="margin-top:14px;font-size:.85rem;color:var(--muted)">Assumes 40% basic, PF on full basic, gratuity inside CTC, ₹200 a month professional tax, metro city, and no deductions claimed under the old regime. Tax Year 2026-27 (FY 2026-27).</p></div></div>
 </main>
 <script src="assets/tax.js"></script>
 <script src="assets/common.js"></script>
