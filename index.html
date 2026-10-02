@@ -46,7 +46,7 @@
             <div class="sub" id="qSub" style="position:relative;z-index:1"></div>
           </div>
         </div>
-        <p style="margin-top:14px;font-size:.88rem;color:var(--muted)">Assumes 40% basic, 12% PF, metro city and the better of old/new regime. <a href="salary-calculator.html">Customise everything →</a></p>
+        <p style="margin-top:14px;font-size:.88rem;color:var(--muted)">Assumes 40% basic, 12% PF, Karnataka professional tax, a metro city and the better of old/new regime. <a href="salary-calculator.html">Customise everything →</a></p>
       </div>
     </div>
   </section>
@@ -99,7 +99,7 @@
     `<a class="tool-card" href="${t.href}"><div class="ico">${t.icon}</div><h3>${t.name}${t.hot ? '<span class="tag">Popular</span>' : ''}${t.isNew ? '<span class="tag">New</span>' : ''}</h3><p>${t.desc}</p><span class="go">Open calculator →</span></a>`).join('');
   function quick() {
     const ctc = Common.num('q');
-    const r = Tax.salary({ ctc, basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, metro: true, rentMonthly: 0 });
+    const r = Tax.salary({ ctc, basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, ptState: 'KA', metro: true, rentMonthly: 0 });
     const best = r[r.best];
     document.getElementById('qOut').textContent = Common.fmt(best.inHandMonth);
     document.getElementById('qSub').textContent = `${Common.fmtCompact(best.inHandYear)} per year · ${r.best === 'new' ? 'New' : 'Old'} regime`;
