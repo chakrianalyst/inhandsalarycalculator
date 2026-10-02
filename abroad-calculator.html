@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Move Abroad Calculator — Is It Worth It Financially? | InHand</title>
+<meta name="description" content="Compare staying in India with a job in the US, Canada, Australia, Singapore or the UAE. Tax, living costs, rupee movement and net worth in rupees after N years.">
+<link rel="canonical" href="https://inhand.example/abroad-calculator.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Move Abroad Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero">
+    <div class="crumbs"><a href="index.html">Home</a> › Move abroad calculator</div>
+    <h1>Move Abroad Calculator <span class="grad-text">is it worth it?</span></h1>
+    <p>Compare your life in India with a job in the US, Canada, Australia, Singapore or the UAE. We take both salaries through tax and living costs, build up your savings in each place, and show where you end up in rupees.</p>
+  </div>
+  <div class="container tool-layout">
+    <section class="card" id="inputs" aria-label="Inputs">
+      <h2 class="card-title">🇮🇳 Your life in India</h2>
+      <div class="field" data-slider><label for="ctc">Your annual CTC today</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="ctc" data-money data-words="ctcWords" value="4000000" min="300000" max="20000000" step="100000" aria-describedby="ctcWords"></div><div class="words" id="ctcWords"></div></div>
+      <div class="row-2">
+        <div class="field"><label for="rentI">Rent per month</label><div class="input-wrap"><span class="pre">₹</span><input id="rentI" data-money value="35000" placeholder="0"></div></div>
+        <div class="field"><label for="otherI">Other costs per month</label><div class="input-wrap"><span class="pre">₹</span><input id="otherI" data-money value="35000" placeholder="0"></div></div>
+      </div>
+      <span class="grp-hint" style="display:block;margin-top:-6px;margin-bottom:12px">Other costs: food, travel, bills, phone, going out and everything else you spend.</span>
+
+      <h2 class="card-title" style="margin-top:8px">✈️ The offer abroad</h2>
+      <div class="row-2">
+        <div class="field"><label for="country">Country</label><select id="country"></select></div>
+        <div class="field"><label for="city">City</label><select id="city"></select></div>
+      </div>
+      <div class="field"><label for="gross" id="grossL">Yearly salary (before tax)</label>
+        <div class="input-wrap"><span class="pre" id="grossPre">$</span><input id="gross" data-money value="120000" min="20000" max="600000" step="5000"></div><span class="hint">Base pay plus bonus you expect, before tax. Stock grants are not included.</span></div>
+      <div class="row-2">
+        <div class="field"><label for="rentA" id="rentAL">Rent per month</label><div class="input-wrap"><input id="rentA" data-money value="3800" placeholder="0"></div></div>
+        <div class="field"><label for="otherA" id="otherAL">Other costs per month</label><div class="input-wrap"><input id="otherA" data-money value="1900" placeholder="0"></div></div>
+      </div>
+      <span class="grp-hint" style="display:block;margin-top:-6px;margin-bottom:12px" id="colHint"></span>
+      <div class="field"><label for="years">How long would you stay?</label><select id="years"><option value="3">3 years</option><option value="5">5 years</option><option value="10" selected>10 years</option><option value="15">15 years</option><option value="20">20 years</option></select><span class="hint">Net worth is counted in rupees at the end, as if you brought everything home.</span></div>
+
+      <details class="grp" id="sec-fx"><summary><div class="gi">💱</div><div class="gt">Exchange rate and one-off costs<small>The rupee’s movement matters a lot</small></div><span class="chev">›</span></summary><div class="grp-body">
+        <div class="field"><label for="fx" id="fxL">Exchange rate (₹ per US$)</label><div class="input-wrap"><span class="pre">₹</span><input type="number" id="fx" value="96" min="1" max="500" step="0.1"></div><span class="hint">Approximate rate on 2 October 2026. Check today’s rate and update it.</span></div>
+        <div class="field"><label for="dep">The rupee weakens against it by</label><div class="input-wrap"><input type="number" id="dep" value="3" min="-5" max="10" step="0.5"><span class="suf">% a year</span></div><span class="hint">A weaker rupee makes savings abroad worth more in rupees. The rupee has weakened against the dollar over the long run, but not every year. 0% is the cautious choice.</span></div>
+        <div class="field"><label for="oneTime">One-time cost of moving</label><div class="input-wrap"><span class="pre">₹</span><input id="oneTime" data-money value="500000" placeholder="0"></div><span class="hint">Visa and lawyer fees, flights, deposits, furniture and the first weeks before your first salary.</span></div>
+        <div class="field"><label for="trips">Trips to India each year</label><div class="input-wrap"><span class="pre">₹</span><input id="trips" data-money value="150000" placeholder="0"></div></div>
+        <div class="field"><label for="parents">Money you send to family in India each month</label><div class="input-wrap"><span class="pre">₹</span><input id="parents" data-money value="0" placeholder="0"></div><span class="hint">Counted in both cases, rising with Indian inflation.</span></div>
+      </div></details>
+      <details class="grp" id="sec-as"><summary><div class="gi">📊</div><div class="gt">Growth and returns<small>Raises, inflation and investing</small></div><span class="chev">›</span></summary><div class="grp-body">
+        <div class="row-2"><div class="field"><label for="gI">India: yearly raise</label><div class="input-wrap"><input type="number" id="gI" value="8" min="0" max="25" step="0.5"><span class="suf">%</span></div></div>
+          <div class="field"><label for="gA">Abroad: yearly raise</label><div class="input-wrap"><input type="number" id="gA" value="4" min="0" max="25" step="0.5"><span class="suf">%</span></div></div></div>
+        <div class="row-2"><div class="field"><label for="iI">India: price rise</label><div class="input-wrap"><input type="number" id="iI" value="6" min="0" max="15" step="0.5"><span class="suf">%</span></div></div>
+          <div class="field"><label for="iA">Abroad: price rise</label><div class="input-wrap"><input type="number" id="iA" value="3" min="0" max="15" step="0.5"><span class="suf">%</span></div></div></div>
+        <div class="row-2"><div class="field"><label for="rI">India: investment return</label><div class="input-wrap"><input type="number" id="rI" value="10" min="0" max="20" step="0.5"><span class="suf">%</span></div></div>
+          <div class="field"><label for="rA">Abroad: investment return</label><div class="input-wrap"><input type="number" id="rA" value="7" min="0" max="20" step="0.5"><span class="suf">%</span></div></div></div>
+        <span class="hint">Returns are after fees and tax, in each place’s own currency. Abroad is lower by default because dollar returns are lower and inflation is lower.</span>
+      </div></details>
+    </section>
+
+    <section class="results" aria-live="polite">
+      <div class="hero-result" id="hero"><div class="lbl" id="hLbl">After 10 years</div><div class="big" id="hBig">—</div><div class="sub" id="hSub"></div><span class="pill" id="hPill"></span></div>
+      <div class="warns" id="warns"></div>
+      <div class="kpis" id="kpis"></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">📈 Net worth, India vs abroad</h2>
+        <div class="seg" id="mode" style="margin-bottom:12px"><button type="button" data-v="nom" class="on">Future rupees</button><button type="button" data-v="real">Today’s money</button></div><div id="chart"></div></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🧾 Where the first year’s pay goes</h2><div class="tbl-wrap"><table class="tbl" id="payTbl"></table></div></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🎯 What would make it work</h2><div id="tips"></div></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🎚️ What if the rupee and rent move?</h2><p class="grp-hint" style="margin-top:0">Abroad minus India at the end, for a different rupee weakness (rows) and different rent abroad (columns). Green: moving wins.</p><div class="tbl-wrap"><table class="tbl" id="grid"></table></div></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">📅 Year by year</h2><div class="tbl-wrap"><table class="tbl" id="yrTbl"></table></div></div>
+      <div class="banner info"><span>ℹ️</span><span>This compares money only. Career growth, family, visa risk, healthcare, weather and quality of life matter as much. Use it to see the size of the financial gap, not to make the decision.</span></div>
+    </section>
+  </div>
+  <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
+  <article class="container prose">
+    <h2>How this comparison works</h2>
+    <p>For each year, we take your pay in India and your pay abroad through income tax and payroll contributions, subtract your living costs, and invest what is left. India uses the same tax engine as our <a href="salary-calculator.html">salary calculator</a>. For the other countries we use the 2026 tax rules for a single person with no dependants. At the end, savings abroad are converted to rupees at the exchange rate you set, so the result is net worth in rupees on both sides.</p>
+    <h2>Why a bigger salary does not mean more money</h2>
+    <p>A salary of $120,000 looks like three times your Indian pay at today’s exchange rate. But income tax and payroll contributions take a big share, and rent in cities like New York or San Francisco can use half of what is left. The same job in a state with no income tax and cheaper housing can leave you with several times more savings. Compare the amount you can <em>save each year</em>, not the salary.</p>
+    <h2>The rupee changes the answer</h2>
+    <p>Savings in dollars become more valuable in rupees if the rupee weakens, which has happened over the long run. If you plan to spend your life abroad, the rupee matters less. If you plan to return, it matters a lot. Use the grid to see how sensitive the result is.</p>
+    <h2>What is not included</h2>
+    <ul><li>Tax benefits of retirement accounts (such as a 401(k) in the US), which would make the US result better.</li><li>Employer pension contributions (such as Australian superannuation, paid on top of salary), stock grants, relocation help and signing bonuses.</li><li>Dependants, a working partner, childcare, school fees, student loans and car costs.</li><li>Tax on investments abroad and on money you bring back, and Indian tax rules after you become a non-resident.</li><li>Visa limits, job loss, medical costs and changes in tax law.</li></ul>
+    <p>Rent and living costs are rough starting estimates for one person in a one-bedroom home. Replace them with real numbers from the city you are considering. Foreign tax rules change every year and have many special cases, so confirm with a tax professional before you decide.</p>
+    <h2>Frequently asked questions</h2>
+    <div class="faq">
+      <details><summary>Will I still pay tax in India after I move?</summary><p>Whether you are taxed in India depends on your residential status, which mostly depends on the number of days you spend in India. A non-resident is generally taxed in India only on income earned or received in India, such as rent or interest on Indian accounts. Check your own case with a tax professional.</p></details>
+      <details><summary>Which country saves the most?</summary><p>It depends on your pay and city. Countries with no income tax, such as the UAE, keep more of each rupee earned, but rent can be high and there is no path to long-term residence for most expats. The US pays the highest salaries, but taxes and housing vary a lot by state and city.</p></details>
+      <details><summary>Does this include healthcare costs?</summary><p>Only as part of the other monthly costs you enter. In the US, insurance premiums, deductibles and copays can be large, so add them to your other costs if your employer does not cover them.</p></details>
+      <details><summary>What if I stay abroad for good?</summary><p>Choose a longer period and treat the end figure as the wealth you will hold, valued in rupees. Then the exchange rate matters less than the spending power of your savings in the country where you live.</p></details>
+    </div>
+  </article>
+  <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
+</main>
+<script src="assets/tax.js"></script>
+<script src="assets/words.js"></script>
+<script src="assets/abroad.js"></script>
+<script src="assets/common.js"></script>
+<script>
+  Common.init('abroad');
+  const $ = id => document.getElementById(id), f = Common.fmt, num = Common.num, cr = Common.fmtCompact, C = Abroad.COUNTRIES;
+  const modeGet = Common.seg($('mode'), () => calc());
+  const GROSS = { US: 120000, CA: 110000, AU: 140000, SG: 120000, AE: 400000 }, DEP = { US: 3, CA: 3, AU: 3, SG: 3, AE: 3 };
+  $('country').innerHTML = Object.entries(C).map(([k, c]) => `<option value="${k}">${c.name}</option>`).join('');
+  const cityOf = () => (C[$('country').value].cities.find(x => x.id === $('city').value) || C[$('country').value].cities[0]);
+  const fillCities = () => { const c = C[$('country').value]; $('city').innerHTML = c.cities.map(x => `<option value="${x.id}">${x.name}</option>`).join(''); };
+  function applyCountry() {
+    const c = C[$('country').value]; fillCities(); $('fx').value = c.fx; $('iA').value = c.infl; $('gross').value = Intl.NumberFormat('en-IN').format(GROSS[$('country').value]); $('grossPre').textContent = c.sym.trim();
+    applyCity();
+  }
+  function applyCity() { const x = cityOf(); $('rentA').value = Intl.NumberFormat('en-IN').format(x.rent); $('otherA').value = Intl.NumberFormat('en-IN').format(x.other); }
+  $('country').addEventListener('input', () => { applyCountry(); calc(); });
+  $('city').addEventListener('input', () => { applyCity(); calc(); });
+  fillCities();
+
+  const optOf = () => { const x = cityOf(); return { state: x.state, province: x.province }; };
+  const params = () => { const c = C[$('country').value], x = cityOf(); return { years: +$('years').value, parents: num('parents'),
+    india: { ctc: num('ctc'), rent: num('rentI'), other: num('otherI'), growth: num('gI'), infl: num('iI'), ret: num('rI'), ptState: 'KA' },
+    abroad: { country: $('country').value, opt: optOf(), gross: num('gross'), rent: num('rentA'), other: num('otherA'), growth: num('gA'), infl: num('iA'), ret: num('rA'), fx: num('fx'), dep: num('dep'), trips: num('trips'), oneTime: num('oneTime') } }; };
+  const sgn = v => (v >= 0 ? '+' : '−') + cr(Math.abs(v));
+
+  function calc() {
+    const key = $('country').value, c = C[key], x = cityOf(), P = params(), real = modeGet() === 'real', W = [];
+    $('grossL').textContent = `Yearly salary before tax (${c.cur})`; $('rentAL').textContent = `Rent per month (${c.cur})`; $('otherAL').textContent = `Other costs per month (${c.cur})`; $('fxL').textContent = `Exchange rate (₹ per ${c.cur})`;
+    $('colHint').textContent = `Starting estimates for ${x.name}, one person in a one-bedroom home. Replace them with your own numbers.`;
+    if (!(P.india.ctc > 0) || !(P.abroad.gross > 0)) { $('hBig').textContent = '—'; $('hSub').textContent = ''; $('hPill').textContent = ''; $('kpis').innerHTML = ''; $('warns').innerHTML = '<div class="warn"><span>⚠️</span><span>Enter your Indian CTC and the salary abroad.</span></div>'; return; }
+    const R = Abroad.compare(P), rows = R.rows, last = rows[rows.length - 1], H = R.years;
+    const nw = (r, w) => w === 'a' ? (real ? r.abroadNWReal : r.abroadNW) : (real ? r.indiaNWReal : r.indiaNW), diff = nw(last, 'a') - nw(last, 'i');
+    $('hLbl').textContent = `After ${H} years, moving abroad leaves you`; $('hBig').textContent = (diff >= 0 ? '' : '−') + f(Math.abs(diff)); $('hSub').textContent = (diff >= 0 ? 'ahead of' : 'behind') + ` staying in India, in ${real ? 'today’s money' : 'future rupees'}.`;
+    $('hPill').textContent = R.breakEven ? `Moving pulls ahead in year ${R.breakEven}` : R.abroadNW > R.indiaNW ? 'Ahead from the start' : `Moving does not catch up within ${H} years`;
+    const y1 = rows[0], monthlyI = y1.indiaInHand / 12, monthlyA = y1.abroadNet / 12, costI = P.india.rent + P.india.other, costA = (P.abroad.rent + P.abroad.other) * P.abroad.fx;
+    if (y1.abroadSaveLocal < 0) W.push(`<div class="warn bad"><span>⛔</span><span>In the first year you spend more abroad than you earn after tax, so your savings fall. Check the salary, rent and living costs.</span></div>`);
+    if (num('dep') > 5) W.push('<div class="warn"><span>⚠️</span><span>A rupee that weakens more than 5% a year is a bold assumption, and it drives much of the result. See the table below for other values.</span></div>');
+    if (P.abroad.ret > P.india.ret) W.push('<div class="warn"><span>⚠️</span><span>You assume a higher return abroad than in India. Dollar investments have usually returned less, though the rupee’s fall adds to them.</span></div>');
+    $('warns').innerHTML = W.join('');
+    const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
+    $('kpis').innerHTML = K('', 'Take-home each month, year 1', f(monthlyA), `Abroad, in rupees. India: ${f(monthlyI)}`) + K('', 'Living costs each month', f(costA / 1), `Abroad, in rupees. India: ${f(costI)}`) +
+      K(y1.abroadSave >= y1.indiaSave ? 'good' : 'bad', 'Saved in year 1', f(y1.abroadSave), `Abroad. India: ${f(y1.indiaSave)}`) + K('', `Net worth after ${H} years`, cr(nw(last, 'a')), `Abroad. India: ${cr(nw(last, 'i'))}`);
+    const xs = [0].concat(rows.map(r => r.year));
+    Common.lineChart($('chart'), { xs, xfmt: v => v + 'y', xlabel: v => v === 0 ? 'Start' : 'Year ' + v, label: 'Net worth in rupees', area: true,
+      series: [{ name: `Abroad (${c.name.split(' (')[0]})`, color: 'var(--c1)', ys: [0].concat(rows.map(r => nw(r, 'a'))) }, { name: 'India', color: 'var(--c2)', ys: [0].concat(rows.map(r => nw(r, 'i'))) }] });
+    // first-year pay
+    const tx = Tax.salary({ ctc: P.india.ctc, basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, ptState: 'KA', metro: true, rentMonthly: P.india.rent }), tb = tx[tx.best], k = P.abroad.fx;
+    const np = y1.tax, row = (l, a, b, cls = '') => `<tr class="${cls}"><td>${l}</td><td>${f(a)}</td><td>${f(b)}</td></tr>`;
+    $('payTbl').innerHTML = '<tr><th></th><th>India</th><th>Abroad, in ₹</th></tr>' + row('Salary before tax', tx.gross, np.gross * k) + row('Income tax', -tb.tax, -(np.items.filter(i => /income tax|tax$/i.test(i.label) && !/Social|Medicare|CPP|Employment/.test(i.label)).reduce((s, i) => s + i.amt, 0)) * k, 'neg') +
+      row('PF, payroll and social contributions', -(tx.employeePf + tx.pt), -(np.items.filter(i => /Social|Medicare|CPP|Employment/.test(i.label)).reduce((s, i) => s + i.amt, 0)) * k, 'neg') + row('Take-home pay', tb.inHandYear, y1.abroadNet, 'total') +
+      row('Rent and living costs', -costI * 12, -costA * 12, 'neg') + row('Left over before extras', tb.inHandYear - costI * 12, y1.abroadNet - costA * 12, 'total');
+    // tips
+    const be = Abroad.breakEvenSalary(P), tips = [];
+    if (be === null) tips.push('No salary up to ten times your offer makes moving pay off under these costs. Rent and living costs are the issue.'); else if (be <= 0) tips.push('Moving pays off even with a very low salary, so the offer leaves a wide margin.');
+    else tips.push(`To end level with staying in India, you would need about <b>${c.sym}${Math.round(be).toLocaleString('en-US')}</b> a year (you were offered ${c.sym}${Math.round(P.abroad.gross).toLocaleString('en-US')}), which is ${f(be * k)} at today’s exchange rate.`);
+    const same = Abroad.compare({ ...P, abroad: { ...P.abroad, rent: P.abroad.rent * 0.8 } }).diff - R.diff;
+    tips.push(`Every 20% less you pay for rent abroad adds about <b>${cr(Math.abs(same))}</b> by year ${H}.`);
+    const usNone = key === 'US' && x.state !== 'none' ? Abroad.compare({ ...P, abroad: { ...P.abroad, opt: { state: 'none' }, rent: 1800, other: 1500 } }) : null;
+    if (usNone) tips.push(`A similar job in a state with no income tax and cheaper housing (such as Texas) would end ${cr(usNone.abroadNW - R.abroadNW)} ${usNone.abroadNW >= R.abroadNW ? 'higher' : 'lower'} than ${x.name}.`);
+    $('tips').innerHTML = tips.map(t => `<p style="margin:0 0 8px">${t}</p>`).join('');
+    // sensitivity
+    const deps = [0, 2, 4, 6], rents = [0.8, 1, 1.2];
+    $('grid').innerHTML = '<tr><th>Rupee weakens / rent</th>' + rents.map(m => `<th>${m === 1 ? 'Your rent' : (m > 1 ? '+' : '−') + Math.round(Math.abs(m - 1) * 100) + '%'}</th>`).join('') + '</tr>' + deps.map(d => `<tr><td>${d}% a year</td>` + rents.map(m => { const v = Abroad.compare({ ...P, abroad: { ...P.abroad, dep: d, rent: P.abroad.rent * m } }), dd = v.diff; return `<td class="${dd >= 0 ? 'pos' : 'neg'}">${sgn(dd)}</td>`; }).join('') + '</tr>').join('');
+    $('yrTbl').innerHTML = '<tr><th>Year</th><th>India: saved</th><th>India: net worth</th><th>Abroad: saved</th><th>Abroad: net worth</th><th>Difference</th></tr>' + rows.map(r => { const d = nw(r, 'a') - nw(r, 'i'), dfl = real ? 1 / (Math.pow(1 + P.india.infl / 100, r.year)) : 1;
+      return `<tr><td>${r.year}</td><td>${cr(r.indiaSave * (real ? 1 / Math.pow(1 + P.india.infl / 100, r.year - 1) : 1))}</td><td>${cr(nw(r, 'i'))}</td><td>${cr(r.abroadSave * (real ? 1 / Math.pow(1 + P.india.infl / 100, r.year - 1) : 1))}</td><td>${cr(nw(r, 'a'))}</td><td class="${d >= 0 ? 'pos' : 'neg'}">${sgn(d)}</td></tr>`; }).join('');
+  }
+  document.querySelectorAll('input,select').forEach(i => { if (i.id !== 'country' && i.id !== 'city') i.addEventListener('input', calc); });
+  document.addEventListener('change', e => { if (e.target.closest && e.target.closest('#inputs')) calc(); });
+  Common.restore(); calc();
+</script>
+</body>
+</html>

@@ -37,7 +37,7 @@ if (chromium) {
   });
 
   test('calculator pages render a real result (not the placeholder)', async () => {
-    for (const f of ['index.html', 'salary-calculator.html', 'emi-calculator.html', 'sip-calculator.html', 'fd-calculator.html', 'gratuity-calculator.html', 'hra-calculator.html', 'salary-hike-calculator.html',
+    for (const f of ['index.html', 'salary-calculator.html', 'emi-calculator.html', 'sip-calculator.html', 'fd-calculator.html', 'abroad-calculator.html', 'gratuity-calculator.html', 'hra-calculator.html', 'salary-hike-calculator.html',
       'networth-calculator.html', 'life-simulator.html', 'fire-calculator.html', 'rent-vs-buy-calculator.html', 'offer-comparison.html']) {
       const pg = await open(SITE, f); const t = await pg.$eval('.hero-result .big', e => e.textContent.trim()); assert.ok(t && t !== '—', `${f}: "${t}"`); await pg.close();
     }
@@ -343,6 +343,18 @@ if (chromium) {
     assert.match(await pg.$eval('#pay', e => e.innerText), /Cab \/ transport[\s\S]*Lunch \/ cafeteria/); assert.match(await t('dedTotal'), /Total: ₹5,000 a month/); assert.match(await pg.$eval('#rChips', e => e.textContent), /₹5,000\/mo of other deductions/);
     await pg.click('#drows .orow:nth-child(2) .x'); assert.equal(await t('rMonth'), '₹85,268');
     const lk = await browser.newPage(); await lk.goto(url(SITE, 'salary-calculator.html') + '?dedData=' + encodeURIComponent('Cab~3000~mo')); await lk.waitForTimeout(300); assert.equal(await lk.$eval('#rMonth', e => e.textContent.trim()), '₹85,268'); await lk.close();
+    assert.deepEqual(pg.errs, []); await pg.close();
+  });
+
+  test('Move abroad calculator: country and city presets, tax breakdown, break-even, grid and share link', async () => {
+    const pg = await open(SITE, 'abroad-calculator.html'); const txt = sel => pg.$eval(sel, e => e.innerText), hero = () => txt('#hero');
+    assert.match(await hero(), /After 10 years[\s\S]*behind[\s\S]*staying in India/); assert.equal(await pg.inputValue('#rentA'), '3,800'); assert.match(await txt('#payTbl'), /Income tax[\s\S]*Take-home pay/);
+    assert.match(await txt('#tips'), /\$128,\d\d\d a year/); assert.equal((await pg.$$('#grid tr')).length, 5); assert.equal((await pg.$$('#yrTbl tr')).length, 11);
+    await pg.selectOption('#country', 'AE'); assert.equal(await pg.inputValue('#fx'), '26.1'); assert.equal(await pg.inputValue('#rentA'), '7,000'); assert.match(await hero(), /ahead of staying in India/);
+    await pg.selectOption('#country', 'CA'); assert.deepEqual(await pg.$$eval('#city option', o => o.map(x => x.textContent)), ['Toronto', 'Vancouver', 'Calgary']);
+    await pg.selectOption('#country', 'US'); await pg.selectOption('#city', 'aus'); assert.match(await hero(), /ahead of staying in India/);       // Texas: no state income tax, cheaper rent
+    await pg.selectOption('#years', '5'); assert.match(await hero(), /After 5 years/); await pg.click('#mode [data-v=real]'); assert.match(await hero(), /today’s money/);
+    const lk = await browser.newPage(); await lk.goto(url(SITE, 'abroad-calculator.html') + '?country=CA&city=cal&rentA=2000'); await lk.waitForTimeout(300); assert.equal(await lk.inputValue('#city'), 'cal'); assert.equal(await lk.inputValue('#rentA'), '2,000'); await lk.close();
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
