@@ -135,8 +135,8 @@ if (chromium) {
     assert.deepEqual(pg.errs, []); await pg.close();
     const l = await browser.newPage(); await l.goto(url(SITE, 'salary-calculator.html') + '?basic=500&hra=900'); assert.equal(await l.inputValue('#basic'), '100'); assert.equal(await l.inputValue('#hra'), '100'); await l.close();
     const e = await open(SITE, 'emi-calculator.html');
-    await typeIn(e, '#rate', '80'); assert.equal(await e.inputValue('#rate'), '30'); await typeIn(e, '#amt', '70000000'); assert.equal(await e.inputValue('#amt'), '70000000');
-    await typeIn(e, '#yrs', '-5'); assert.equal(await e.inputValue('#yrs'), '1'); await e.close();
+    await typeIn(e, '#rate', '80'); assert.equal(await e.inputValue('#rate'), '36'); await typeIn(e, '#amt', '70000000'); assert.equal((await e.inputValue('#amt')).replace(/,/g, ''), '70000000');
+    await typeIn(e, '#yrs', '-5'); assert.equal(await e.inputValue('#yrs'), '0'); await e.close();
     const life = await open(SITE, 'life-simulator.html'); await typeIn(life, 'input[data-e=home][data-k=dp]', '500'); assert.equal(await life.inputValue('input[data-e=home][data-k=dp]'), '100'); await life.close();
   });
 
@@ -230,6 +230,20 @@ if (chromium) {
     assert.equal(await pg.$eval('#warns', e => e.textContent), '');                                    // ₹5 L earns at most about ₹47,000 a year: under the ₹50,000 TDS limit
     await pg.fill('#p', '2000000'); assert.match(await pg.$eval('#warns', e => e.textContent), /TDS/);
     assert.match(await pg.$eval('.hero-result', e => e.textContent), /Real return after tax and inflation/);
+    assert.deepEqual(pg.errs, []); await pg.close();
+  });
+
+  test('EMI calculator: tenure in years and months, extra payments, fee, month view and loan eligibility', async () => {
+    const pg = await open(SITE, 'emi-calculator.html'); const hero = () => pg.$eval('.hero-result', e => e.innerText), kp = () => pg.$eval('#kpis', e => e.innerText);
+    assert.match(await hero(), /₹43,391/); assert.match(await kp(), /₹54,13,879/);
+    await pg.fill('#yrs', '1'); await pg.fill('#mon', '6'); assert.match(await pg.$eval('#tenHint', e => e.textContent), /18 months/); assert.match(await hero(), /1 year 6 months/);
+    await pg.click('#typeChips .chip:text("Home")'); assert.equal(await pg.inputValue('#yrs'), '20');
+    await pg.$eval('#sec-pre', e => (e.open = true)); await pg.fill('#extra', '5,000'); assert.match(await kp(), /Interest you save[\s\S]*₹13,89,250/); assert.match(await kp(), /4 years 5 months sooner/);
+    await pg.fill('#extra', '0'); await pg.fill('#lump', '5,00,000'); await pg.fill('#lumpM', '24'); assert.match(await hero(), /prepaid after month 24/);
+    await pg.$eval('#sec-fee', e => (e.open = true)); await pg.fill('#fee', '1'); assert.match(await hero(), /Rate you really pay with the fee: 8\.\d\d%/);
+    await pg.click('#view [data-v=month]'); assert.ok((await pg.$$('#sched tr')).length > 100);
+    await pg.click('#mode [data-v=afford]'); assert.match(await hero(), /borrow up to[\s\S]*₹46,09,234/); assert.equal(await pg.isVisible('#balChart'), false);
+    await pg.fill('#yrs', '0'); await pg.fill('#mon', '0'); assert.match(await pg.$eval('#warns', e => e.textContent), /at least 1 month/);
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
