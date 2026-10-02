@@ -141,7 +141,7 @@
       ['grp', 'Bonus & equity (after tax)'], ['Joining bonus', 'bonusAT', 'max'], ['ESOP / RSU per year', 'esopAT', 'max'],
       ['grp', 'The big picture'], ['Year-1 cash (in-hand + bonus + ESOP)', 'yr1', 'max'], [`${plural(H, 'year')} of cash (before costs)`, 'cash', 'max'], [`${plural(H, 'year')} cash surplus (after costs)`, 'surplus', 'max'],
     ];
-    let html = '<tr><th></th>' + o.map(x => `<th>${x.name.replace(/</g, '&lt;')}</th>`).join('') + '</tr>';
+    let html = '<tr><th></th>' + o.map(x => `<th>${Common.esc(x.name)}</th>`).join('') + '</tr>';
     rows.forEach(([label, key, mode]) => {
       if (label === 'grp') { html += `<tr class="grp"><td colspan="${o.length + 1}">${key}</td></tr>`; return; }
       html += `<tr><td>${label}</td>` + o.map(x => {
@@ -151,7 +151,7 @@
     });
     $('tbl').innerHTML = html;
     const mx = Math.max(1, ...o.map(x => Math.abs(x.left)));
-    $('bars').innerHTML = o.map(x => `<div class="vs-row"><div class="top"><span>${x.name.replace(/</g, '&lt;')}</span><span>${f(x.left)}</span></div><div class="track"><i style="width:${Math.max(0, x.left) / mx * 100}%"></i></div></div>`).join('');
+    $('bars').innerHTML = o.map(x => `<div class="vs-row"><div class="top"><span>${Common.esc(x.name)}</span><span>${f(x.left)}</span></div><div class="track"><i style="width:${Math.max(0, x.left) / mx * 100}%"></i></div></div>`).join('');
   }
   document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc));
   document.addEventListener('change', calc);

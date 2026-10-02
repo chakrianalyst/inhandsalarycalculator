@@ -23,6 +23,7 @@ const GUIDES = [
 ];
 
 const Common = (() => {
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const SITE = window.SITE || {};
   const inr = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
   const fmt = n => { n = Math.round(n || 0); return (n < 0 ? '−' : '') + '₹' + inr.format(Math.abs(n)); };
@@ -395,5 +396,5 @@ const Common = (() => {
     window.addEventListener('load', () => { state.watch(); let used = false; document.addEventListener('input', () => { if (!used) { used = true; track('calculator_used', { tool: activeId }); } }); });
   }
   initTheme();
-  return { fmt, fmtCompact, num, raw, fillCities, attachMoney, setVal, segSet, donut, seg, init, layout, enhanceFields, related, lineChart, restore: state.restore, track, toast };
+  return { esc, fmt, fmtCompact, num, raw, fillCities, attachMoney, setVal, segSet, donut, seg, init, layout, enhanceFields, related, lineChart, restore: state.restore, track, toast };
 })();
