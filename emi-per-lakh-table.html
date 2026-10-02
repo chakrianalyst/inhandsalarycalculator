@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EMI per ₹1 Lakh: Loan EMI Table by Interest Rate and Tenure | {{SITE_NAME}}</title>
+<meta name="description" content="Monthly EMI for every ₹1 lakh borrowed, from 7% to 15% interest and 1 to 20 years, so you can work out any loan quickly.">
+<link rel="canonical" href="https://inhand.example/emi-per-lakh-table.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero"><div class="crumbs"><a href="index.html">Home</a> › Guides</div><h1>EMI per ₹1 lakh <span class="grad-text">table</span></h1></div>
+  <article class="container prose" style="padding-top:10px">
+<p>The quickest way to estimate any loan EMI is to know the EMI for ₹1 lakh. Multiply it by the number of lakhs you want to borrow. This table is worked out with the standard reducing-balance formula used by banks, with monthly instalments.</p>
+{{EMI_TABLE}}
+<h2>How to use it</h2>
+<p>Say you want a ₹40 lakh home loan for 20 years at 9%. Find 9% and 20 years: the EMI per lakh is about ₹900. Multiply by 40 to get roughly ₹36,000 a month. For exact figures, including processing fees and part-payments, use the <a href="emi-calculator.html">EMI calculator</a>.</p>
+<h2>The formula behind it</h2>
+<p>EMI = P × r × (1 + r)<sup>n</sup> ÷ ((1 + r)<sup>n</sup> − 1), where P is the loan, r is the monthly interest rate (yearly rate ÷ 12 ÷ 100) and n is the number of months. In the early years most of each EMI is interest, which is why prepaying early saves the most.</p>
+<h2>Ways to lower what you pay</h2>
+<ul><li><strong>Shorter tenure:</strong> a higher EMI, but far less total interest.</li><li><strong>Part-payments:</strong> even one extra EMI a year can cut years off a long loan.</li><li><strong>A lower rate:</strong> compare offers and ask your bank about a rate reduction when your credit score improves.</li></ul>
+<p>Not sure whether to borrow at all? Compare buying with renting in the <a href="rent-vs-buy-calculator.html">rent vs buy calculator</a>.</p>
+<h2>Frequently asked questions</h2>
+<div class="faq"><details><summary>How do I calculate EMI from this table?</summary><p>Find your interest rate and tenure, take the EMI for ₹1 lakh, and multiply by the number of lakhs you borrow.</p></details><details><summary>Is the EMI the same every month?</summary><p>For a fixed-rate loan, yes. On a floating-rate loan the EMI or the tenure changes when the rate changes.</p></details><details><summary>Does this include processing fees or insurance?</summary><p>No. It shows interest and principal only. Fees and insurance premiums are extra.</p></details></div>
+<p class="note-small">Last updated {{UPDATED}}. This guide gives general information for salaried individuals, not tax advice. Check the latest rules or ask a chartered accountant before you act.</p>
+  </article>
+</main>
+<script src="assets/tax.js"></script>
+<script src="assets/common.js"></script>
+<script>Common.init('emi');</script>
+</body>
+</html>

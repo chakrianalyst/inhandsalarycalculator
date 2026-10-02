@@ -36,6 +36,18 @@ function regimeTable() {
   return `<div class="tbl-wrap"><table class="tbl"><tr><th>Gross salary</th><th>Old regime wins only if deductions exceed</th></tr>${rows}</table></div>`;
 }
 tokens['{{REGIME_TABLE}}'] = regimeTable();
+// ---------- guide tables (computed from the same tested engines the calculators use) ----------
+const Invest = require('../assets/invest.js'), Loan = require('../assets/loan.js'), HRA = require('../assets/hra.js');
+const nf = n => new Intl.NumberFormat('en-IN').format(Math.round(n));
+const table = (head, rows) => `<div class="tbl-wrap"><table class="tbl"><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</table></div>`;
+const lak = n => n >= 1e7 ? (n / 1e7) + ' crore' : (n / 1e5) + ' lakh';
+tokens['{{NEW_SLAB_TABLE}}'] = table(['Taxable income', 'Tax rate'], Tax.NEW_SLABS.map(([lim, r], i, a) => [i === 0 ? 'Up to ₹' + lak(lim) : i === a.length - 1 ? 'Above ₹' + lak(a[i - 1][0]) : '₹' + lak(a[i - 1][0]) + ' to ₹' + lak(lim), r === 0 ? 'Nil' : Math.round(r * 100) + '%']));
+tokens['{{NEW_TAX_EXAMPLES}}'] = table(['Gross salary', 'Taxable after ₹75,000', 'Income tax a year', 'Per month'], [8, 10, 12, 12.75, 15, 20, 25, 30, 50].map(l => { const g = l * 1e5, t = Tax.computeTax(Math.max(0, g - 75000), 'new').total; return ['₹' + l + ' lakh', '₹' + nf(Math.max(0, g - 75000)), t ? '₹' + nf(t) : 'Nil', t ? '₹' + nf(t / 12) : 'Nil']; }));
+tokens['{{SIP_TABLE}}'] = table(['Years', ...[8, 10, 12, 15].map(r => r + '% a year')], [5, 10, 15, 20, 25, 30].map(y => [y, ...[8, 10, 12, 15].map(r => '₹' + nf(Invest.requiredSip({ target: 1e7, ret: r, months: y * 12, step: 0, lump: 0, nominal: true })))]));
+tokens['{{EMI_TABLE}}'] = table(['Interest rate', ...[1, 3, 5, 10, 15, 20].map(y => y + (y === 1 ? ' year' : ' years'))], [7, 8, 9, 10, 11, 12, 14, 15].map(r => [r + '%', ...[1, 3, 5, 10, 15, 20].map(y => '₹' + nf(Loan.emi(1e5, r, y * 12)))]));
+tokens['{{PT_TABLE}}'] = table(['State', 'Salary ₹15,000 / month', '₹25,000 / month', '₹1,00,000 / month'], Tax.PT_STATES.filter(s => s.id !== 'NONE').map(s => [s.name, ...[15000, 25000, 100000].map(m => { const a = s.annual(m); return a ? '₹' + nf(a) + ' a year' : 'Nil'; })]));
+tokens['{{HRA_METROS}}'] = HRA.METROS_2026.join(', ');
+
 
 const sitemap = [];
 for (const [file, raw] of Object.entries(pages)) {

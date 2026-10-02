@@ -527,5 +527,15 @@ if (chromium) {
     }
   });
 
+  test('guide pages show engine-computed figures, link to their calculators, and are listed on the home page', async () => {
+    const read = f => fs.readFileSync(path.join(SITE, f), 'utf8');
+    const must = { 'new-tax-regime-slabs-fy-2026-27.html': ['₹97,500', '₹12.75 lakh', '₹4,75,800'], 'sip-for-1-crore.html': ['₹43,041', '₹1,21,232'], 'emi-per-lakh-table.html': ['₹900', '₹2,076'], 'professional-tax-by-state.html': ['Karnataka', '₹2,500 a year'], 'hra-exemption-rules.html': ['Bengaluru', 'Ahmedabad', '₹15,000'] };
+    for (const [f, bits] of Object.entries(must)) { const h = read(f); assert.ok(!h.includes('{{'), f + ' has an unfilled placeholder'); bits.forEach(b => assert.ok(h.includes(b), f + ' missing ' + b)); }
+    const pg = await open(SITE, 'index.html'); assert.equal(await pg.$eval('#toolCount', e => e.textContent), String(await pg.evaluate(() => TOOLS.length)));
+    for (const f of Object.keys(must)) assert.ok(await pg.$(`#guideGrid a[href="${f}"]`), f + ' not listed on home page');
+    await pg.close();
+    const sal = await open(SITE, 'salary-calculator.html'); assert.ok(await sal.$('.guide-links a[href="professional-tax-by-state.html"]'), 'salary page links to the guides'); await sal.close();
+  });
+
   test('teardown', async () => { await browser.close(); fs.rmSync(LIVE, { recursive: true, force: true }); });
 }

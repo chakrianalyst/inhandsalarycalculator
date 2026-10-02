@@ -24,8 +24,11 @@
         <a class="btn btn-primary" href="salary-calculator.html">Calculate my salary →</a>
         <a class="btn btn-ghost" href="#tools">Browse all tools</a>
       </div>
+      <nav class="quick" aria-label="Popular tools">
+        <a href="salary-calculator.html">💼 Salary</a><a href="life-simulator.html">🧭 Life plan</a><a href="abroad-calculator.html">🌍 Move abroad</a><a href="fire-calculator.html">🔥 FIRE</a><a href="emi-calculator.html">🏦 EMI</a><a href="sip-calculator.html">📈 SIP</a><a href="rent-vs-buy-calculator.html">🏡 Rent vs buy</a>
+      </nav>
       <div class="stats">
-        <div><b>12</b>tools</div>
+        <div><b id="toolCount">14</b>tools</div>
         <div><b>Old &amp; New</b>tax regimes</div>
         <div><b>FY 2026-27</b>latest rules</div>
         <div><b>100% free</b>forever</div>
@@ -55,6 +58,13 @@
     <div class="container">
       <div class="section-head"><h2>Every calculator you need</h2><p>Pick a tool. Get the answer. Get on with your day.</p></div>
       <div class="tool-grid" id="toolGrid"></div>
+    </div>
+  </section>
+
+  <section class="section" id="guides">
+    <div class="container">
+      <div class="section-head"><h2>Guides and quick reference</h2><p>Plain-English explainers with tables you can check against your own numbers.</p></div>
+      <div class="tool-grid" id="guideGrid"></div>
     </div>
   </section>
 
@@ -95,6 +105,8 @@
 <script src="assets/common.js"></script>
 <script>
   Common.init('home');
+  (function(){var c=document.getElementById('toolCount');if(c)c.textContent=TOOLS.length;})();
+  document.getElementById('guideGrid').innerHTML = GUIDES.map(g => `<a class="tool-card" href="${g[0]}"><h3>${g[1]}</h3><span class="go">Read →</span></a>`).join('');
   document.getElementById('toolGrid').innerHTML = TOOLS.map(t =>
     `<a class="tool-card" href="${t.href}"><div class="ico">${t.icon}</div><h3>${t.name}${t.hot ? '<span class="tag">Popular</span>' : ''}${t.isNew ? '<span class="tag">New</span>' : ''}</h3><p>${t.desc}</p><span class="go">Open calculator →</span></a>`).join('');
   function quick() {

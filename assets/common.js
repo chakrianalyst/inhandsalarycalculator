@@ -20,6 +20,11 @@ const GUIDES = [
   ['ctc-vs-in-hand-salary.html', 'CTC vs in-hand salary'],
   ['old-vs-new-tax-regime.html', 'Old vs new tax regime'],
   ['net-worth-by-age.html', 'Net worth by age'],
+  ['new-tax-regime-slabs-fy-2026-27.html', 'New tax regime slabs'],
+  ['hra-exemption-rules.html', 'HRA exemption rules'],
+  ['professional-tax-by-state.html', 'Professional tax by state'],
+  ['sip-for-1-crore.html', 'SIP for ₹1 crore'],
+  ['emi-per-lakh-table.html', 'EMI per ₹1 lakh'],
 ];
 
 const Common = (() => {
@@ -285,8 +290,11 @@ const Common = (() => {
     ov.addEventListener('touchstart', move, { passive: true }); ov.addEventListener('touchmove', move, { passive: true }); ov.addEventListener('touchend', leave);
   }
 
+  const GUIDE_LINKS = { salary: ['new-tax-regime-slabs-fy-2026-27.html', 'professional-tax-by-state.html', 'hra-exemption-rules.html', 'ctc-vs-in-hand-salary.html'], hra: ['hra-exemption-rules.html', 'old-vs-new-tax-regime.html'], hike: ['new-tax-regime-slabs-fy-2026-27.html', 'old-vs-new-tax-regime.html'], sip: ['sip-for-1-crore.html'], fire: ['sip-for-1-crore.html'], emi: ['emi-per-lakh-table.html'], rentbuy: ['emi-per-lakh-table.html'], networth: ['net-worth-by-age.html'] };
   function related(activeId, n = 3) {
     const el = document.getElementById('related'); if (!el) return;
+    const gl = (GUIDE_LINKS[activeId] || []).map(h => GUIDES.find(g => g[0] === h)).filter(Boolean);
+    if (gl.length && !document.querySelector('.guide-links')) el.insertAdjacentHTML('afterend', `<p class="guide-links"><b>Read the guides:</b> ${gl.map(g => `<a href="${g[0]}">${g[1]}</a>`).join(' · ')}</p>`);
     el.innerHTML = TOOLS.filter(t => t.id !== activeId).slice(0, n).map(t =>
       `<a class="tool-card" href="${t.href}"><div class="ico">${t.icon}</div><h3>${t.name}</h3><p>${t.desc}</p><span class="go">Open →</span></a>`).join('');
   }
