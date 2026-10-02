@@ -323,6 +323,18 @@ if (chromium) {
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
+  test('Net worth: Indian grouping on amounts, EMI burden, card dues insight, and saved snapshots with export', async () => {
+    const ctx = await browser.newContext(); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', e => errs.push(e.message));
+    await pg.goto(url(SITE, 'networth-calculator.html')); await pg.waitForTimeout(200);
+    assert.equal(await pg.inputValue('#inc'), '18,00,000'); assert.equal(await pg.$eval('.item input.val', e => e.value), '3,50,000');
+    assert.match(await pg.$eval('#parts', e => e.innerText), /EMI burden/); assert.match(await pg.$eval('#insights', e => e.innerText), /EMIs take 37%/); assert.match(await pg.$eval('#insights', e => e.innerText), /cards and dues/);
+    assert.equal(await pg.isVisible('#btnCsv'), false); await pg.click('#btnSnap'); assert.equal(await pg.isVisible('#btnCsv'), true); assert.equal((await pg.$$('#histTbl tr')).length, 2);
+    await pg.fill('.item input.val', '4,50,000'); assert.match(await pg.$eval('#kA', e => e.textContent), /₹1,01,20,000/);
+    await pg.reload(); await pg.waitForTimeout(200); assert.equal((await pg.$$('#histTbl tr')).length, 2);          // the snapshot survives a reload
+    await pg.click('#histTbl button[data-d]'); assert.equal((await pg.$$('#histTbl tr')).length, 0);
+    assert.deepEqual(errs, []); await ctx.close();
+  });
+
   test('HRA city list: eight metros plus "any other city" drive the 50% / 40% limit on every page that uses it, and survive a share link', async () => {
     const sal = await open(SITE, 'salary-calculator.html'); const opts = await sal.$$eval('#city option', os => os.map(o => o.textContent));
     assert.deepEqual(opts, ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad', 'Any other city']); assert.equal(await sal.inputValue('#city'), 'Bengaluru');
