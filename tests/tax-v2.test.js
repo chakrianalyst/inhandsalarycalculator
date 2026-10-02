@@ -211,3 +211,9 @@ test('pages that quote the default ₹12 L example agree with the engine (Karnat
   const guide = fs.readFileSync(__dirname + '/../ctc-vs-in-hand-salary.html', 'utf8');
   assert.ok(guide.includes(inr(r[r.best].inHandMonth)), 'guide monthly in-hand'); assert.ok(guide.includes(inr(r[r.best].inHandYear)), 'guide yearly in-hand'); assert.ok(guide.includes(inr(r.pt)), 'guide professional tax');
 });
+
+test('other payslip deductions (cab, lunch, ESPP): lower take-home by exactly that amount, change no tax, and apply to both regimes', () => {
+  const a = Tax.structure({ ctc: 2400000, bonusMode: 'pct', bonusVal: 10 }), base = Tax.assess(a, { ptMonthly: 200, rentMonthly: 20000 }), ded = Tax.assess(a, { ptMonthly: 200, rentMonthly: 20000, postTaxYear: 60000 });
+  for (const k of ['new', 'old']) { near(ded[k].inHandYear, base[k].inHandYear - 60000, 0.01); near(ded[k].fixedMonthly, base[k].fixedMonthly - 5000, 0.01); assert.equal(ded[k].tax, base[k].tax); assert.equal(ded[k].otherDed, 60000); }
+  assert.equal(ded.best, base.best); near(ded.saving, base.saving, 0.01); assert.equal(Tax.assess(a, { postTaxYear: -5 }).new.otherDed, 0);
+});

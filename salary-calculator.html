@@ -219,6 +219,9 @@
     mfield('pt', 'Professional tax', '200', 'Charged by your state (capped at ₹2,500 a year). Check your payslip for the exact amount.', '/month') +
     `<div class="field"><label for="city">City you live in (for HRA)</label><select id="city" data-cities data-default="Bengaluru"></select><span class="hint">From FY 2026-27, HRA exemption can be up to 50% of basic in Delhi, Mumbai, Kolkata, Chennai, Bengaluru, Hyderabad, Pune and Ahmedabad, and 40% elsewhere. Old regime only. Please confirm with your employer.</span></div>`;
 
+  const sDed = sec('ded', '🍱', 'Other payslip deductions', 'Cab, lunch, ESOP/ESPP and more: taken from your pay after tax', false); taxSecs.appendChild(sDed);
+  $('b-ded').innerHTML = `<div id="drows" style="display:grid;gap:10px"></div><div class="cap" id="dedTotal"></div><div class="chips" id="dchips"><span class="chips-l">Quick add:</span></div><input type="hidden" id="dedData" value="">` +
+    `<p class="grp-hint">Things your employer takes from your salary after tax, such as a cab or shuttle, cafeteria meals, an ESOP or ESPP purchase plan, or a loan recovery. They lower your in-hand pay but do not change your tax. Money that buys shares or pays off a loan is not lost, it just does not reach your bank account.</p>`;
   const sOld = sec('old', '🧮', 'Old-regime benefits', 'Used only if the old regime comes out better', false); taxSecs.appendChild(sOld);
   $('b-old').innerHTML = `<p class="grp-hint">The new regime ignores these. We use them to check if the old regime would leave you with more.</p>` +
     sub('HRA') + mfield('rent', 'Rent you pay', '', 'Used for the HRA exemption. Needs HRA in your salary.', '/month') + `<div class="cap" id="hraInfo"></div>` +
@@ -253,6 +256,23 @@
   function chipVis() { chipEls.forEach(([n, k, c]) => { c.hidden = k === 'lta' && [...orows.children].some(r => r.dataset.kind === 'lta'); }); }
   chipVis();
 
+  /* ---------- "Other payslip deductions" rows ---------- */
+  const drows = $('drows'), dhidden = $('dedData'), DCHIPS = ['Cab / transport', 'Lunch / cafeteria', 'ESOP / ESPP purchase', 'Loan or advance recovery', 'Insurance top-up', 'Gym / club', 'Miscellaneous'];
+  let dsynced = '';
+  function addDed(name, val, period) {
+    const r = document.createElement('div'); r.className = 'orow';
+    r.innerHTML = `<input class="nm" type="text" maxlength="30" aria-label="Deduction name"><div class="input-wrap"><span class="pre">₹</span><input class="ov" data-money placeholder="0" aria-label="Amount"></div><select class="op" aria-label="Period"><option value="mo">/mo</option><option value="yr">/yr</option></select><button type="button" class="x" aria-label="Remove deduction">×</button>`;
+    r.querySelector('.nm').value = name || ''; r.querySelector('.ov').value = val || ''; r.querySelector('.op').value = period || 'mo';
+    Common.attachMoney(r.querySelector('.ov')); r.querySelector('.x').onclick = () => { r.remove(); dsync(); calc(); };
+    ['input', 'change'].forEach(ev => r.addEventListener(ev, dsync)); drows.appendChild(r); dsync(); return r;
+  }
+  const dedData = () => [...drows.children].map(r => ({ name: r.querySelector('.nm').value.trim() || 'Other deduction', val: parseFloat(raw(r.querySelector('.ov'))) || 0, mode: r.querySelector('.op').value }));
+  const dedYear = () => dedData().reduce((s, x) => s + x.val * (x.mode === 'mo' ? 12 : 1), 0);
+  function dsync() { dsynced = dedData().map(o => [o.name.replace(/[~;]/g, ' '), o.val, o.mode].join('~')).join(';'); dhidden.value = dsynced; $('dedTotal').textContent = dedYear() > 0 ? `Total: ${f(dedYear() / 12)} a month (${f(dedYear())} a year)` : ''; }
+  function drebuild(str) { drows.innerHTML = ''; (str || '').split(';').filter(Boolean).slice(0, 12).forEach(p => { const [n, v, m] = p.split('~'); addDed(n, v, m === 'yr' ? 'yr' : 'mo'); }); dsync(); }
+  dhidden.addEventListener('input', () => { if (dhidden.value !== dsynced) drebuild(dhidden.value); calc(); });
+  DCHIPS.forEach(n => { const c = document.createElement('button'); c.type = 'button'; c.className = 'chip'; c.textContent = '+ ' + n; c.onclick = () => { const r = addDed(n, '', 'mo'); r.querySelector('.ov').focus(); calc(); }; $('dchips').appendChild(c); });
+
   /* ---------- read inputs ---------- */
   const readCtc = () => {
     const pf = pfGet(), cust = DUALS.pfc;
@@ -262,7 +282,7 @@
       npsMode: DUALS.nps.mode(), npsVal: DUALS.nps.val(), insVal: num('ins'), insMode: 'yr' };
   };
   const readPay = () => ({ basicM: num('pBasic'), hraM: num('pHra'), otherM: num('pOther'), bonusYr: num('pBonus'), pfM: num('pPf'), vpfM: num('pVpf'), employerNpsM: num('pNps') });
-  const readDed = () => ({ ptState: $('ptState').value === 'manual' ? '' : $('ptState').value, ptMonthly: num('pt'), metro: $('city').value !== 'other', rentMonthly: num('rent'),
+  const readDed = () => ({ postTaxYear: dedYear(), ptState: $('ptState').value === 'manual' ? '' : $('ptState').value, ptMonthly: num('pt'), metro: $('city').value !== 'other', rentMonthly: num('rent'),
     other80c: num('c80ppf') + num('c80elss') + num('c80lic') + num('c80hl') + num('c80tui') + num('c80oth'), nps1b: num('nps1b'),
     d80Self: num('d80s'), d80Parents: num('d80p'), selfSenior: $('d80ss').checked, parentsSenior: $('d80ps').checked, homeLoanInt: num('hli'),
     eduLoanInt: num('edu'), donations: num('don'), disability: num('dis'), ltaClaim: num('ltac'), otherDed: num('othd') });
@@ -285,7 +305,7 @@
     $('rMonth').textContent = f(b.fixedMonthly);
     $('rYear').textContent = hasBonus ? `Bonus: ${f(r.bonus)} before tax, ${f(b.bonusAfterTax)} after tax · ${f(b.inHandMonth)}/mo on average` : `${f(b.inHandYear)} per year` + (pct !== null ? ` · ${pct}% of CTC` : '');
     $('rPill').textContent = keyName + ' regime' + (reg === 'auto' ? ' (best for you)' + (r.saving >= 1 ? ` · saves you ${f(r.saving)}/yr` : '') : ' selected');
-    $('rChips').innerHTML = hasBonus ? `<span>Fixed pay: ${f(b.fixedMonthly)}/mo</span><span>Bonus after tax: ${f(b.bonusAfterTax)}/yr</span>` : '';
+    $('rChips').innerHTML = (hasBonus ? `<span>Fixed pay: ${f(b.fixedMonthly)}/mo</span><span>Bonus after tax: ${f(b.bonusAfterTax)}/yr</span>` : '') + (b.otherDed > 0 ? `<span>After ${f(b.otherDed / 12)}/mo of other deductions</span>` : '');
     const diff = b.inHandYear - o.inHandYear;
     $('rBanner').className = 'banner' + (Math.abs(diff) < 1 ? ' info' : '');
     $('rBanner').innerHTML = Math.abs(diff) < 1 ? '<span>ℹ️</span><span>Both regimes give the same take-home for your inputs.</span>'
@@ -343,7 +363,9 @@
     h += row(nps > 0 ? 'Gross salary (incl. employer NPS)' : 'Gross salary', r.gross + nps, 'total') + head('Deductions') + row('Employee PF', -a.employeePf, 'neg');
     if (a.vpf > 0) h += row('Voluntary PF (VPF)', -a.vpf, 'neg');
     if (nps > 0) h += row('Employer NPS (goes to your NPS account)', -nps, 'neg');
-    h += row('Professional tax', -r.pt, 'neg') + row('Income tax (TDS) + cess', -b.tax, 'neg') + row('Net in-hand' + (hasBonus ? ' (incl. bonus after tax)' : ''), b.inHandYear, 'total net');
+    h += row('Professional tax', -r.pt, 'neg') + row('Income tax (TDS) + cess', -b.tax, 'neg');
+    dedData().filter(x => x.val > 0).forEach(x => { h += row(x.name, -x.val * (x.mode === 'mo' ? 12 : 1), 'neg'); });
+    h += row('Net in-hand' + (hasBonus ? ' (incl. bonus after tax)' : ''), b.inHandYear, 'total net');
     const emp = [['Employer PF', a.employerPf], ['Gratuity', a.gratuity], ['Insurance & benefits', a.insurance]].filter(x => x[1] > 0);
     if (emp.length && isCtc) h += head('Paid by your employer, not in your hands') + emp.map(x => row(x[0], x[1], 'off')).join('');
     $('pay').innerHTML = h;
@@ -380,6 +402,7 @@
     if (isCtc) {
       const items = [{ label: 'In-hand salary', value: b.inHandYear }, { label: 'Income tax', value: b.tax }, { label: 'Employee PF', value: a.employeePf + a.vpf }, { label: 'Employer PF', value: a.employerPf },
         { label: 'Gratuity, NPS, benefits & PT', value: a.gratuity + a.employerNps + a.insurance + r.pt }];
+      if (b.otherDed > 0) items.push({ label: 'Your other deductions', value: b.otherDed });
       if (r.bonusTarget > r.bonus) items.push({ label: 'Unpaid variable', value: r.bonusTarget - r.bonus });
       Common.donut($('donut'), $('legend'), items, 'CTC', Common.fmtCompact(r.ctc), { pct: true });
     }
