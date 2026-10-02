@@ -294,6 +294,17 @@ if (chromium) {
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
+  test('Offer comparison: horizon, yearly raise, variable payout, city-based professional tax and a tie', async () => {
+    const pg = await open(SITE, 'offer-comparison.html'); const hero = () => pg.$eval('#hero', e => e.innerText);
+    assert.match(await hero(), /Best offer over 4 years/); const four = await hero();
+    await pg.selectOption('#hz', '1'); assert.match(await hero(), /Best offer over 1 year/); assert.notEqual(await hero(), four);
+    await pg.selectOption('#hz', '4'); await pg.fill('#g0', '0'); await pg.fill('#g1', '0'); const flat = await pg.$eval('#tbl', e => e.innerText); assert.match(flat, /Yearly raise\s+0%\s+0%/);
+    await pg.fill('#pay', '50'); assert.notEqual(await pg.$eval('#tbl', e => e.innerText), flat);                  // lower variable payout changes the numbers
+    for (const i of [0, 1]) { await pg.fill('#ctc' + i, '2000000'); await pg.fill('#var' + i, '0'); await pg.fill('#bonus' + i, '0'); await pg.fill('#esop' + i, '0'); await pg.fill('#rent' + i, '0'); await pg.fill('#oth' + i, '0'); await pg.selectOption('#city' + i, 'Bengaluru'); }
+    assert.match(await hero(), /Too close to call/);
+    assert.deepEqual(pg.errs, []); await pg.close();
+  });
+
   test('HRA city list: eight metros plus "any other city" drive the 50% / 40% limit on every page that uses it, and survive a share link', async () => {
     const sal = await open(SITE, 'salary-calculator.html'); const opts = await sal.$$eval('#city option', os => os.map(o => o.textContent));
     assert.deepEqual(opts, ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad', 'Any other city']); assert.equal(await sal.inputValue('#city'), 'Bengaluru');

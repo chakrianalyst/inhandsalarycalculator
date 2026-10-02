@@ -36,6 +36,7 @@
       </div>
       <div class="field"><label for="oth0">Other monthly costs (commute etc.)</label>
         <div class="input-wrap"><span class="pre">₹</span><input type="number" id="oth0" value="3000" min="0" max="100000" step="500"></div></div>
+      <div class="field"><label for="g0">Expected yearly raise there</label><div class="input-wrap"><input type="number" id="g0" value="8" min="0" max="50" step="1"><span class="suf">%</span></div></div>
       <div class="field" style="margin:0"><label for="city0">City</label><select id="city0" data-cities data-default="Bengaluru"></select></div>
     </section>
     <section class="card offer-card" id="card1" aria-label="Offer 2">
@@ -54,6 +55,7 @@
       </div>
       <div class="field"><label for="oth1">Other monthly costs (commute etc.)</label>
         <div class="input-wrap"><span class="pre">₹</span><input type="number" id="oth1" value="6000" min="0" max="100000" step="500"></div></div>
+      <div class="field"><label for="g1">Expected yearly raise there</label><div class="input-wrap"><input type="number" id="g1" value="8" min="0" max="50" step="1"><span class="suf">%</span></div></div>
       <div class="field" style="margin:0"><label for="city1">City</label><select id="city1" data-cities data-default="Mumbai"></select></div>
     </section>
     <section class="card offer-card off" id="card2" aria-label="Offer 3">
@@ -72,6 +74,7 @@
       </div>
       <div class="field"><label for="oth2">Other monthly costs (commute etc.)</label>
         <div class="input-wrap"><span class="pre">₹</span><input type="number" id="oth2" value="2000" min="0" max="100000" step="500"></div></div>
+      <div class="field"><label for="g2">Expected yearly raise there</label><div class="input-wrap"><input type="number" id="g2" value="8" min="0" max="50" step="1"><span class="suf">%</span></div></div>
       <div class="field" style="margin:0"><label for="city2">City</label><select id="city2" data-cities data-default="other"></select></div>
     </section>
   </div>
@@ -79,7 +82,13 @@
     <div class="toolbar" style="justify-content:center;margin:18px 0 0">
       <label class="toggle" style="margin:0;width:auto;gap:18px"><span>Compare a third offer<small>Switch on to include Offer C</small></span><span class="switch"><input type="checkbox" id="third"><i></i></span></label>
     </div>
-    <div class="hero-result full-card" id="hero"><div class="lbl">Best offer over 4 years</div><div class="big" id="wBig">—</div><div class="sub" id="wSub"></div></div>
+    <div class="card full-card" style="margin-top:18px"><h2 class="card-title">⚙️ Assumptions for all offers</h2>
+      <div class="row-2" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+        <div class="field"><label for="hz">Compare over</label><select id="hz"><option value="1">1 year</option><option value="2">2 years</option><option value="3">3 years</option><option value="4" selected>4 years</option><option value="5">5 years</option></select></div>
+        <div class="field"><label for="pay">Variable pay you actually get</label><div class="input-wrap"><input type="number" id="pay" value="100" min="0" max="200" step="5"><span class="suf">%</span></div></div>
+        <div class="field"><label for="cinf">Rent and costs rise by</label><div class="input-wrap"><input type="number" id="cinf" value="6" min="0" max="15" step="0.5"><span class="suf">% a year</span></div></div></div>
+      <p class="hint" style="margin:0">Each offer’s pay rises by its own yearly raise, and your rent and other costs rise with inflation. Set the raise to 0 to compare today’s pay only.</p></div>
+    <div class="hero-result full-card" id="hero"><div class="lbl" id="wLbl">Best offer over 4 years</div><div class="big" id="wBig">—</div><div class="sub" id="wSub"></div></div>
     <div class="card full-card"><h2 class="card-title">📋 Side-by-side</h2><div class="tbl-wrap"><table class="tbl cmp-table" id="tbl"></table></div></div>
     <div class="card full-card"><h2 class="card-title">💸 Money left each month after rent &amp; costs</h2><div class="bars" id="bars"></div></div>
       <div class="offer"><div><b>Negotiating an offer?</b><small>See what the extra rupees do for you — try the hike calculator.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="career">Compare offers</a></div>
@@ -93,7 +102,7 @@
     <h2>How joining bonus and ESOPs are treated</h2>
     <p>The joining bonus and annual ESOP value are taxed at your marginal slab rate and shown after tax. ESOPs are paper value until you can sell, so treat them with healthy scepticism, especially at startups.</p>
     <h2>Frequently asked questions</h2>
-    <div class="faq"><details><summary>Is the variable pay guaranteed?</summary><p>No. This tool assumes you earn 100% of the variable pay. Try setting it lower to see a conservative case.</p></details><details><summary>Does the 4-year surplus include salary hikes?</summary><p>No. It assumes today's pay for four years, which keeps the comparison fair between offers.</p></details><details><summary>Which tax regime is used?</summary><p>For each offer the regime with the higher take-home is applied automatically.</p></details></div>
+    <div class="faq"><details><summary>Is the variable pay guaranteed?</summary><p>No. By default this tool assumes you earn 100% of the variable pay. Lower “Variable pay you actually get” under Assumptions to see a conservative case.</p></details><details><summary>Does the surplus include yearly raises?</summary><p>Yes. Each offer’s pay rises by the yearly raise you enter, and your rent and other costs rise with inflation. Tax is recalculated every year, so a bigger raise can move you into a higher slab.</p></details><details><summary>Which tax regime is used?</summary><p>For each offer the regime with the higher take-home is applied automatically.</p></details></div>
   </article>
   <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
 </main>
@@ -101,32 +110,36 @@
 <script src="assets/common.js"></script>
 <script>
   Common.init('offers');
-  const $ = id => document.getElementById(id), f = Common.fmt;
-  const base = { basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200 };
-  const N = 3, active = () => [0, 1, 2].filter(i => i < 2 || $('third').checked);
-  function compute(i) {
-    const ctc = Common.num('ctc' + i), bonus = Common.num('bonus' + i), esop = Common.num('esop' + i), rent = Common.num('rent' + i), oth = Common.num('oth' + i);
-    const r = Tax.salary({ ...base, ctc, variablePct: Common.num('var' + i), metro: $('city' + i).value !== 'other', rentMonthly: rent });
-    const b = r[r.best], extraTax = x => Tax.computeTax(b.taxable + x, r.best).total - b.tax;
-    const bonusAT = bonus - extraTax(bonus), esopAT = esop - extraTax(esop);
-    const left = b.inHandMonth - rent - oth;
-    return { name: $('n' + i).value || 'Offer ' + (i + 1), ctc, regime: r.best, inHand: b.inHandMonth, inHandYear: b.inHandYear, tax: b.tax, bonusAT, esopAT, rent, oth, left,
-             yr1: b.inHandYear + bonusAT + esopAT, four: 4 * (b.inHandYear + esopAT) + bonusAT, surplus4: 48 * left + 4 * esopAT + bonusAT };
+  const $ = id => document.getElementById(id), f = Common.fmt, num = Common.num;
+  const base = { basicPct: 40, hraPct: 50, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200 };
+  const active = () => [0, 1, 2].filter(i => i < 2 || $('third').checked);
+  const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+  function compute(i, H, payPct, cinf) {
+    const ctc0 = num('ctc' + i), bonus = num('bonus' + i), esop = num('esop' + i), rent0 = num('rent' + i), oth0 = num('oth' + i), g = num('g' + i) / 100, city = $('city' + i).value;
+    let cash = 0, surplus = 0, first = null, esopAT0 = 0, bonusAT = 0;
+    for (let y = 0; y < H; y++) {
+      const ctc = ctc0 * Math.pow(1 + g, y), k = Math.pow(1 + cinf, y), rent = rent0 * k, oth = oth0 * k;
+      const r = Tax.salary({ ...base, ctc, variablePct: num('var' + i), payoutPct: payPct, metro: city !== 'other', rentMonthly: rent, ptState: Tax.CITY_PT[city] || '' }), b = r[r.best];
+      const extraTax = x => Tax.computeTax(b.taxable + x, r.best).total - b.tax, e = esop - extraTax(esop), jb = y === 0 ? bonus - extraTax(bonus) : 0;
+      if (y === 0) { esopAT0 = e; bonusAT = jb; first = { regime: r.best, inHand: b.inHandMonth, inHandYear: b.inHandYear, tax: b.tax, rent, oth, left: b.inHandMonth - rent - oth }; }
+      cash += b.inHandYear + e + jb; surplus += b.inHandYear - 12 * (rent + oth) + e + jb;
+    }
+    return { name: $('n' + i).value || 'Offer ' + (i + 1), ctc: ctc0, g: g * 100, ...first, bonusAT, esopAT: esopAT0, yr1: first.inHandYear + esopAT0 + bonusAT, cash, surplus };
   }
   function calc() {
-    const ids = active(), o = ids.map(compute);
+    const H = +$('hz').value, payPct = num('pay'), cinf = num('cinf') / 100, ids = active(), o = ids.map(i => compute(i, H, payPct, cinf));
     [0, 1, 2].forEach(i => $('card' + i).classList.toggle('off', !ids.includes(i)));
     const best = k => Math.max(...o.map(x => x[k]));
-    const win = o.findIndex(x => x.surplus4 === best('surplus4'));
-    ids.forEach((id, j) => $('card' + id).classList.toggle('win', j === win && o.length > 1));
-    $('wBig').textContent = o[win].name;
-    const second = o.filter((_, j) => j !== win).sort((a, b) => b.surplus4 - a.surplus4)[0];
-    $('wSub').textContent = second ? `Keeps ${f(o[win].surplus4 - second.surplus4)} more than ${second.name} over 4 years, after rent and living costs.` : '';
+    const win = o.findIndex(x => x.surplus === best('surplus')), sorted = o.map((x, j) => ({ x, j })).sort((a, b) => b.x.surplus - a.x.surplus), gap = sorted[1] ? sorted[0].x.surplus - sorted[1].x.surplus : Infinity;
+    ids.forEach((id, j) => $('card' + id).classList.toggle('win', j === win && o.length > 1 && gap >= 1000));
+    $('wLbl').textContent = `Best offer over ${plural(H, 'year')}`;
+    $('wBig').textContent = gap < 1000 ? 'Too close to call' : o[win].name;
+    $('wSub').textContent = gap < 1000 ? `The top offers are within ${f(Math.max(0, gap))} of each other over ${plural(H, 'year')}. Decide on growth, work and risk instead.` : sorted[1] ? `Leaves you ${f(gap)} better off than ${sorted[1].x.name} over ${plural(H, 'year')}, after rent and living costs.` : '';
     const rows = [
-      ['grp', 'Pay'], ['CTC', 'ctc', 'max'], ['Tax regime used', x => x.regime === 'new' ? 'New' : 'Old'], ['Monthly in-hand', 'inHand', 'max'], ['Yearly in-hand', 'inHandYear', 'max'],
-      ['grp', 'Cost of living'], ['Rent / month', x => f(x.rent)], ['Other costs / month', x => f(x.oth)], ['Left after costs / month', 'left', 'max'],
+      ['grp', 'Pay'], ['CTC', 'ctc', 'max'], ['Yearly raise', x => x.g.toFixed(0) + '%'], ['Tax regime used', x => x.regime === 'new' ? 'New' : 'Old'], ['Monthly in-hand (year 1)', 'inHand', 'max'], ['Yearly in-hand (year 1)', 'inHandYear', 'max'],
+      ['grp', 'Cost of living'], ['Rent / month', x => f(x.rent)], ['Other costs / month', x => f(x.oth)], ['Left after costs / month (year 1)', 'left', 'max'],
       ['grp', 'Bonus & equity (after tax)'], ['Joining bonus', 'bonusAT', 'max'], ['ESOP / RSU per year', 'esopAT', 'max'],
-      ['grp', 'The big picture'], ['Year-1 cash (in-hand + bonus + ESOP)', 'yr1', 'max'], ['4-year cash surplus', 'surplus4', 'max'],
+      ['grp', 'The big picture'], ['Year-1 cash (in-hand + bonus + ESOP)', 'yr1', 'max'], [`${plural(H, 'year')} of cash (before costs)`, 'cash', 'max'], [`${plural(H, 'year')} cash surplus (after costs)`, 'surplus', 'max'],
     ];
     let html = '<tr><th></th>' + o.map(x => `<th>${x.name.replace(/</g, '&lt;')}</th>`).join('') + '</tr>';
     rows.forEach(([label, key, mode]) => {
@@ -140,7 +153,9 @@
     const mx = Math.max(1, ...o.map(x => Math.abs(x.left)));
     $('bars').innerHTML = o.map(x => `<div class="vs-row"><div class="top"><span>${x.name.replace(/</g, '&lt;')}</span><span>${f(x.left)}</span></div><div class="track"><i style="width:${Math.max(0, x.left) / mx * 100}%"></i></div></div>`).join('');
   }
-  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc)); calc();
+  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc));
+  document.addEventListener('change', calc);
+  Common.fillCities(); Common.restore(); calc();
 </script>
 </body>
 </html>
