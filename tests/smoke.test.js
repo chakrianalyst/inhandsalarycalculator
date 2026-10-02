@@ -275,6 +275,16 @@ if (chromium) {
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
+  test('HRA calculator: three-way test, financial-year metro list, months, rent needed, tax saved', async () => {
+    const pg = await open(SITE, 'hra-calculator.html'); const hero = () => pg.$eval('.hero-result', e => e.innerText);
+    assert.match(await hero(), /₹2,76,000/); assert.match(await hero(), /Metro: 50% of basic/); assert.match(await pg.$eval('#tips', e => e.textContent), /limited by rent/);
+    await pg.click('#fy [data-v="2025"]'); assert.match(await hero(), /Non-metro: 40% of basic/);                      // Bengaluru was not a metro for FY 2025-26
+    await pg.click('#fy [data-v="2026"]'); await pg.fill('#months', '6'); assert.match(await hero(), /₹1,38,000/); assert.match(await hero(), /6 months/); await pg.fill('#months', '12');
+    await pg.fill('#rent', '4,000'); assert.match(await pg.$eval('#warns', e => e.textContent), /not more than 10%/);
+    await pg.fill('#rent', '30,000'); assert.match(await pg.$eval('#warns', e => e.textContent), /landlord’s PAN/); assert.match(await pg.$eval('#kpis', e => e.innerText), /Tax you save/);
+    assert.deepEqual(pg.errs, []); await pg.close();
+  });
+
   test('HRA city list: eight metros plus "any other city" drive the 50% / 40% limit on every page that uses it, and survive a share link', async () => {
     const sal = await open(SITE, 'salary-calculator.html'); const opts = await sal.$$eval('#city option', os => os.map(o => o.textContent));
     assert.deepEqual(opts, ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad', 'Any other city']); assert.equal(await sal.inputValue('#city'), 'Bengaluru');
