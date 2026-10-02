@@ -515,5 +515,17 @@ if (chromium) {
     }
   });
 
+  test('extreme inputs never show NaN or Infinity on any calculator', async () => {
+    for (const f of pagesOf(SITE).filter(x => /calculator|simulator|offer-comparison/.test(x) && !/^\d/.test(x))) for (const mode of ['zero', 'blank', 'huge', 'neg']) {
+      const pg = await open(SITE, f); await pg.waitForTimeout(150);
+      await pg.evaluate(m => { document.querySelectorAll('details').forEach(d => d.open = true);
+        document.querySelectorAll('input[id]:not([type=range]):not([type=checkbox]):not([type=hidden])').forEach(el => { if (el.type === 'text' && !el.dataset.money && !/^[0-9.,]*$/.test(el.value)) return;
+          el.value = m === 'zero' ? '0' : m === 'blank' ? '' : m === 'huge' ? '99999999999999' : '-500'; el.dispatchEvent(new Event('input', { bubbles: true })); }); }, mode);
+      await pg.waitForTimeout(250);
+      const bad = await pg.evaluate(() => (document.body.innerText.match(/.{0,25}(NaN|Infinity|undefined|\[object).{0,15}/g) || []).slice(0, 3));
+      assert.deepEqual(bad, [], f + ' (' + mode + ') shows ' + bad.join(' | ')); assert.deepEqual(pg.errs, [], f + ' (' + mode + ') threw'); await pg.close();
+    }
+  });
+
   test('teardown', async () => { await browser.close(); fs.rmSync(LIVE, { recursive: true, force: true }); });
 }
