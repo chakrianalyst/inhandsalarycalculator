@@ -55,20 +55,21 @@
 
       const owned = on('home') && (ev.home.past || a >= ev.home.age);
       let living = living0 * idx * (on('wed') && a >= ev.wed.age ? 1 + ev.wed.uplift / 100 : 1) + creepExtra, rent = owned ? 0 : rent0 * idx;
-      let extra = 0, one = 0, emiPaid = 0, maint = 0, relief = 0;
+      let extra = 0, one = 0, emiPaid = 0, maint = 0, relief = 0; const list = [];
+      const addOne = (id, amt, today) => { one += amt; list.push({ id, amt, today }); };      // today = what the same thing costs in today's rupees
       const kid = id => {
         if (!on(id)) return; const c = ev[id], past = id === 'kid' && c.past, born = past ? a0 - c.childAge : c.age;
-        if (!past) { if (a >= born && a < born + 22) extra += c.monthly * 12 * idx; if (a === born) { one += c.cost * idx; bump(id, c.cost * idx); } }
+        if (!past) { if (a >= born && a < born + 22) extra += c.monthly * 12 * idx; if (a === born) { addOne(id, c.cost * idx, c.cost); bump(id, c.cost * idx); } }
         else if (c.share > 0 && a >= born + 22) relief += c.share * 12 * idx;                           // their costs are inside today's living costs; they stop at 22
-        if (c.wedCost > 0 && a === born + c.wedAge && a >= a0) { const w = c.wedCost * idx; one += w; bump(id, w); }          // your child's wedding
-        if (a >= born + 18 && a < born + 22) { const e = c.edu / 4 * Math.pow(1 + eduInfl, a - a0); one += e; bump(id, e); }      // higher education, only years still to come
+        if (c.wedCost > 0 && a === born + c.wedAge && a >= a0) { const w = c.wedCost * idx; addOne(id + 'Wed', w, c.wedCost); bump(id, w); }          // your child's wedding
+        if (a >= born + 18 && a < born + 22) { const e = c.edu / 4 * Math.pow(1 + eduInfl, a - a0); addOne(id + 'Edu', e, c.edu / 4); bump(id, e); }      // higher education, only years still to come
       };
       kid('kid'); kid('kid2'); living = Math.max(0, living - relief);
       if (on('parents') && a >= ev.parents.age && a < ev.parents.age + ev.parents.yrs) extra += ev.parents.monthly * 12 * idx;
-      if (on('wed') && a === ev.wed.age) { one += ev.wed.cost * idx; bump('wed', ev.wed.cost * idx); }
-      if (on('car') && a >= ev.car.age && (ev.car.every > 0 ? (a - ev.car.age) % ev.car.every === 0 : a === ev.car.age)) { one += ev.car.cost * idx; bump('car', ev.car.cost * idx); }
+      if (on('wed') && a === ev.wed.age) { addOne('wed', ev.wed.cost * idx, ev.wed.cost); bump('wed', ev.wed.cost * idx); }
+      if (on('car') && a >= ev.car.age && (ev.car.every > 0 ? (a - ev.car.age) % ev.car.every === 0 : a === ev.car.age)) { addOne('car', ev.car.cost * idx, ev.car.cost); bump('car', ev.car.cost * idx); }
       if (on('home') && !ev.home.past && a === ev.home.age) {
-        const price = ev.home.price * Math.pow(1 + homeG, a - a0), down = price * ev.home.dp / 100; one += down; bump('home', down); loan = price - down; homeVal = price; hadHome = true;
+        const price = ev.home.price * Math.pow(1 + homeG, a - a0), down = price * ev.home.dp / 100; addOne('home', down, ev.home.price * ev.home.dp / 100); bump('home', down); loan = price - down; homeVal = price; hadHome = true;
         rm = ev.home.rate / 1200; const n = ev.home.tenure * 12; emi = rm ? loan * rm * Math.pow(1 + rm, n) / (Math.pow(1 + rm, n) - 1) : loan / n; emiEnd = a + ev.home.tenure; emiMonthly = emi;
       }
       if (owned && hadHome) {
@@ -82,7 +83,7 @@
       if (free === null && corp > 0 && corp * FREEDOM_RATE >= running) free = a + 1;
       if (crunch === null && corp < 0) { crunch = a + 1; crunchInfo = { age: a + 1, flow, takeHome, running, one, retired: a >= ret }; }
       rows.push({ a: a + 1, nw: corp + homeVal - loan, corp, idx: idx * (1 + infl), home: homeVal - loan, run: running });
-      years.push({ a, crashLoss, pension: pens, idx, endIdx: idx * (1 + infl), pay: takeHome, living, rent, extra, emi: emiPaid, maint, one, running, flow, invested, corp, home: homeVal - loan, nw: corp + homeVal - loan });
+      years.push({ a, list, crashLoss, pension: pens, idx, endIdx: idx * (1 + infl), pay: takeHome, living, rent, extra, emi: emiPaid, maint, one, running, flow, invested, corp, home: homeVal - loan, nw: corp + homeVal - loan });
     }
     return { rows, years, a0, ret, end, free, crunch, crunchInfo, eventCost, firstYear, emiMonthly, infl };
   }

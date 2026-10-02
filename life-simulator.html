@@ -114,7 +114,8 @@
         <div class="tbl-wrap" style="margin-top:12px"><table class="tbl cmp-table" id="planTbl" hidden></table></div></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">📍 Key moments</h2><div class="timeline" id="timeline"></div></div>
       <details class="card howcalc" id="yearly" open><summary>📊 Year by year</summary><div class="how">
-        <div class="yr-tools"><p class="grp-hint" style="margin:0">Each row is one year of your life, starting at the age shown. Pay, costs and events are for that year. Savings and net worth are at the end of it. Amounts follow the Today’s money / Future rupees choice above. Scroll sideways to see every column.</p><button class="btn btn-ghost btn-sm" id="btnCsv" type="button">⬇ Download CSV</button></div>
+        <div class="seg" id="yrMode" style="margin-bottom:10px"><button type="button" data-v="nom" class="on">That year’s rupees</button><button type="button" data-v="real">Today’s money</button></div>
+        <div class="yr-tools"><p class="grp-hint" style="margin:0" id="yrHint"></p><button class="btn btn-ghost btn-sm" id="btnCsv" type="button">⬇ Download CSV</button></div>
         <div class="yr-wrap"><table class="tbl yr" id="yrTable"></table></div></div></details>
       <details class="card howcalc" id="howCalc"><summary>ℹ️ How this is calculated</summary><div class="how" id="how"></div></details>
       <div class="banner info"><span>ℹ️</span><span>A simplified model, best used to compare choices rather than predict your future. See “How this is calculated” above for exactly what it assumes and leaves out.</span></div>
@@ -153,7 +154,7 @@
 <script>
   Common.init('lifesim');
   const $ = id => document.getElementById(id), f = Common.fmt, num = Common.num, cr = v => Number.isFinite(v) ? Common.fmtCompact(v) : '—';
-  const incGet = Common.seg($('incM'), () => calc()), modeGet = Common.seg($('mode'), () => calc());
+  const incGet = Common.seg($('incM'), () => calc()), modeGet = Common.seg($('mode'), () => calc()), yrGet = Common.seg($('yrMode'), () => calc());
   const ev = JSON.parse(JSON.stringify(LifeSim.DEFAULT_EVENTS));
 
   /* ---------- life-event cards ---------- */
@@ -353,15 +354,20 @@
       if (ev.car.on && a >= ev.car.age && (ev.car.every > 0 ? (a - ev.car.age) % ev.car.every === 0 : a === ev.car.age)) out.push('🚗');
       if (ev.jump.on && a === ev.jump.age) out.push('🚀'); if (ev.parents.on && a === ev.parents.age) out.push('👪');
       if (ev.break.on && a >= ev.break.age && a < ev.break.age + ev.break.yrs) out.push('🌴'); if (a === S.ret) out.push('🏖️'); return out.join(' '); };
-    const yrs = S.years.filter(y => !failed || y.a < S.crunch), fl = y => real ? 1 / y.idx : 1, bal = y => real ? 1 / y.endIdx : 1, hasHome = S.years.some(y => Math.abs(y.home) > 1);
+    const yrs = S.years.filter(y => !failed || y.a < S.crunch), yreal = yrGet() === 'real', fl = y => yreal ? 1 / y.idx : 1, bal = y => yreal ? 1 / y.endIdx : 1, hasHome = S.years.some(y => Math.abs(y.home) > 1);
+    $('yrHint').textContent = yreal ? 'Everything is divided by the price rise so far, so ₹1 L means what ₹1 L buys today. A car that costs ₹10 L today still shows ₹10 L here, because the price rise is removed. Switch to “That year’s rupees” to see what you actually pay.'
+      : 'Each row is one year of your life, starting at the age shown. Amounts are what you actually pay or earn in that year, after price rises (see the Prices column: ×1.34 means prices are 34% higher than today). Savings and net worth are at the end of the year. Scroll sideways to see every column.';
+    const LBL = { kidEdu: ['🎓', 'Child’s education'], kid2Edu: ['🎓', 'Second child’s education'], kidWed: ['💍', 'Child’s wedding'], kid2Wed: ['💍', 'Second child’s wedding'] };
+    const oneOff = (l, y) => { const [ic, nm] = LBL[l.id] || [(EVENTS.find(e => e.id === l.id) || {}).icon || '•', (names[l.id] || l.id).replace(/^./, c => c.toUpperCase())];
+      return yreal ? `${ic} ${nm} ${cr(l.amt / y.idx)} <small>(${cr(l.amt)} at that year’s prices)</small>` : `${ic} ${nm} <b>${cr(l.amt)}</b> <small>(${cr(l.today)} today)</small>`; };
     const sg = v => `<span class="${v < -0.5 ? 'neg-t' : ''}">${cr(v)}</span>`;
-    $('yrTable').innerHTML = `<tr><th>Age</th><th>Pay after tax</th><th>Costs</th><th>One-off events</th><th>Spare money</th><th>Added to savings</th><th>Savings (end)</th>${hasHome ? '<th>Home equity (end)</th>' : ''}<th>Net worth (end)</th></tr>` +
-      yrs.map(y => `<tr class="${y.a === S.ret ? 'ret' : ''}${failed && y.a === S.crunch - 1 ? ' bad' : ''}"><td>${y.a} ${tag(y.a)}</td><td>${cr(y.pay * fl(y))}</td><td>${cr(y.running * fl(y))}</td><td>${y.one > 0.5 ? cr(y.one * fl(y)) : '–'}</td><td>${sg(y.flow * fl(y))}</td><td>${sg(y.invested * fl(y))}</td><td>${sg(y.corp * bal(y))}</td>${hasHome ? `<td>${cr(y.home * bal(y))}</td>` : ''}<td>${sg(y.nw * bal(y))}</td></tr>`).join('') +
-      (failed ? `<tr class="bad"><td colspan="${hasHome ? 9 : 8}" style="text-align:left">⚠️ Savings run out at age ${S.crunch}. Later years are not shown.</td></tr>` : '');
+    $('yrTable').innerHTML = `<tr><th>Age</th><th>Prices</th><th>Pay after tax</th><th>Costs</th><th>One-off events</th><th>Spare money</th><th>Added to savings</th><th>Savings (end)</th>${hasHome ? '<th>Home equity (end)</th>' : ''}<th>Net worth (end)</th></tr>` +
+      yrs.map(y => `<tr class="${y.a === S.ret ? 'ret' : ''}${failed && y.a === S.crunch - 1 ? ' bad' : ''}"><td>${y.a} ${tag(y.a)}</td><td>×${y.idx.toFixed(2)}</td><td>${cr(y.pay * fl(y))}</td><td>${cr(y.running * fl(y))}</td><td class="ev-cell">${y.list.length ? y.list.map(l => oneOff(l, y)).join('<br>') : '–'}</td><td>${sg(y.flow * fl(y))}</td><td>${sg(y.invested * fl(y))}</td><td>${sg(y.corp * bal(y))}</td>${hasHome ? `<td>${cr(y.home * bal(y))}</td>` : ''}<td>${sg(y.nw * bal(y))}</td></tr>`).join('') +
+      (failed ? `<tr class="bad"><td colspan="${hasHome ? 10 : 9}" style="text-align:left">⚠️ Savings run out at age ${S.crunch}. Later years are not shown.</td></tr>` : '');
     $('btnCsv').onclick = () => {
-      const q = v => Math.round(v), head = ['Age', 'Pay after tax', 'Costs', 'One-off events', 'Spare money', 'Added to savings', 'Savings (end)', 'Home equity (end)', 'Net worth (end)'];
-      const csv = [head.join(',')].concat(yrs.map(y => [y.a, q(y.pay * fl(y)), q(y.running * fl(y)), q(y.one * fl(y)), q(y.flow * fl(y)), q(y.invested * fl(y)), q(y.corp * bal(y)), q(y.home * bal(y)), q(y.nw * bal(y))].join(','))).join('\n');
-      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = `life-money-plan-${real ? 'todays-money' : 'future-rupees'}.csv`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      const q = v => Math.round(v), head = ['Age', 'Prices (x today)', 'Pay after tax', 'Costs', 'One-off events', 'Spare money', 'Added to savings', 'Savings (end)', 'Home equity (end)', 'Net worth (end)'];
+      const csv = [head.join(',')].concat(yrs.map(y => [y.a, y.idx.toFixed(3), q(y.pay * fl(y)), q(y.running * fl(y)), q(y.one * fl(y)), q(y.flow * fl(y)), q(y.invested * fl(y)), q(y.corp * bal(y)), q(y.home * bal(y)), q(y.nw * bal(y))].join(','))).join('\n');
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = `life-money-plan-${yreal ? 'todays-money' : 'future-rupees'}.csv`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     };
 
     // how this is calculated, with this person's own year-1 numbers
