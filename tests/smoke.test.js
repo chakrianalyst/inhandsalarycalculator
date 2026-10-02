@@ -502,5 +502,18 @@ if (chromium) {
     await ctx.close();
   });
 
+  test('crafted share links cannot run script (names and every field are escaped)', async () => {
+    const P = '<img src=x onerror="window.__x=1">';
+    const cases = [['salary-calculator.html', { othersData: P + '~5000~mo~other', dedData: P + '~5000~mo', ctc: '1500000' }], ['offer-comparison.html', { n0: P, n1: P, n2: P }]];
+    for (const f of pagesOf(SITE).filter(x => !/^\d|ctc-by/.test(x))) if (!cases.some(c => c[0] === f)) cases.push([f, null]);
+    for (const [f, q] of cases) {
+      const pg = await browser.newPage(); await pg.addInitScript(() => { window.__x = 0; });
+      let query = q; if (!query) { await pg.goto(url(SITE, f)); query = Object.fromEntries(await pg.$$eval('input[id]', els => els.filter(e => e.type === 'text' || e.type === 'search' || !e.type).map(e => e.id))
+        .then(ids => ids.map(i => [i, P]))); }
+      await pg.goto(url(SITE, f) + '?' + new URLSearchParams(query).toString()); await pg.waitForTimeout(500);
+      assert.equal(await pg.evaluate(() => window.__x), 0, f + ' ran injected script'); await pg.close();
+    }
+  });
+
   test('teardown', async () => { await browser.close(); fs.rmSync(LIVE, { recursive: true, force: true }); });
 }

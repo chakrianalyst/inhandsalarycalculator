@@ -356,7 +356,7 @@
     const dv = viewGet() === 'mo' ? 12 : 1, per = viewGet() === 'mo' ? '/mo' : '/yr', row = (l, v, c = '') => `<tr class="${c}"><td>${l}</td><td>${f(v / dv)}</td></tr>`, head = t => `<tr class="grp"><td colspan="2">${t}</td></tr>`;
     const nps = a.employerNps;
     let h = `<tr><th>${keyName} regime</th><th>${per === '/mo' ? 'Per month' : 'Per year'}</th></tr>` + head('Earnings') + row('Basic', a.basic) + row('HRA', a.hra);
-    a.others.forEach(x => { if (x.amt > 0) h += row(x.name, x.amt); });
+    a.others.forEach(x => { if (x.amt > 0) h += row(Common.esc(x.name), x.amt); });
     if (isCtc) h += row('Special allowance', a.special); else if (a.otherSum > 0 && !a.others.length) h += row('Special & other allowances', a.otherSum);
     if (hasBonus) h += row(`Bonus / variable${dv === 12 ? ' (averaged over 12 months)' : ''}`, r.bonus);
     if (nps > 0) h += row('Employer NPS contribution', nps);
@@ -364,7 +364,7 @@
     if (a.vpf > 0) h += row('Voluntary PF (VPF)', -a.vpf, 'neg');
     if (nps > 0) h += row('Employer NPS (goes to your NPS account)', -nps, 'neg');
     h += row('Professional tax', -r.pt, 'neg') + row('Income tax (TDS) + cess', -b.tax, 'neg');
-    dedData().filter(x => x.val > 0).forEach(x => { h += row(x.name, -x.val * (x.mode === 'mo' ? 12 : 1), 'neg'); });
+    dedData().filter(x => x.val > 0).forEach(x => { h += row(Common.esc(x.name), -x.val * (x.mode === 'mo' ? 12 : 1), 'neg'); });
     h += row('Net in-hand' + (hasBonus ? ' (incl. bonus after tax)' : ''), b.inHandYear, 'total net');
     const emp = [['Employer PF', a.employerPf], ['Gratuity', a.gratuity], ['Insurance & benefits', a.insurance]].filter(x => x[1] > 0);
     if (emp.length && isCtc) h += head('Paid by your employer, not in your hands') + emp.map(x => row(x[0], x[1], 'off')).join('');
