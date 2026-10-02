@@ -13,7 +13,7 @@ Do them in order; each one is independent, so you can stop at any point and the 
    (Private repo? GitHub Pages needs a paid plan for private repos — use Netlify or Cloudflare Pages instead: "Import from GitHub", build command `node scripts/build.js`, publish directory `_site`.)
 
 ## 2. Get a real domain (recommended — needed for AdSense)
-1. Buy a domain (about ₹700–1,000/year) from any registrar (GoDaddy, Namecheap, Cloudflare, etc.). A short, memorable name like `inhandcalc.in` works.
+1. Buy a domain (about ₹700–1,000/year) from any registrar (GoDaddy, Namecheap, Cloudflare, etc.). A short, memorable name like `rupeecheck.in` works.
 2. Repo → **Settings → Pages → Custom domain** → enter it → follow the DNS instructions GitHub shows → tick **Enforce HTTPS**.
 3. In `site.config.json` set `"siteUrl": "https://yourdomain.in"` and `"contactEmail": "you@yourdomain.in"`.
    This updates every canonical link, the sitemap, share images and the Contact page automatically.

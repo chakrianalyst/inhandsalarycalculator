@@ -1,7 +1,7 @@
 {
-  "name": "inhand",
+  "name": "rupeecheck",
   "private": true,
-  "description": "InHand — free money calculators for India (static site, no runtime dependencies)",
+  "description": "RupeeCheck — free money calculators for India (static site, no runtime dependencies)",
   "scripts": {
     "build": "node scripts/build.js",
     "check": "node scripts/check.js",
