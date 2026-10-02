@@ -10,7 +10,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - name: Tax engine tests
-        run: node --test tests/tax.test.js tests/tax-v2.test.js tests/lifesim.test.js tests/deposit.test.js tests/loan.test.js tests/invest.test.js tests/gratuity.test.js tests/hra.test.js tests/fire.test.js
+        run: node --test tests/tax.test.js tests/tax-v2.test.js tests/lifesim.test.js tests/deposit.test.js tests/loan.test.js tests/invest.test.js tests/gratuity.test.js tests/hra.test.js tests/fire.test.js tests/rentbuy.test.js
       - name: Build site
         run: node scripts/build.js
       - name: Check SEO tags, links and structured data

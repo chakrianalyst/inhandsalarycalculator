@@ -314,6 +314,15 @@ if (chromium) {
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
+  test('Rent vs buy: tax options, rent yield, break-even appreciation and sensitivity grid', async () => {
+    const pg = await open(SITE, 'rent-vs-buy-calculator.html'); const txt = sel => pg.$eval(sel, e => e.innerText);
+    assert.match(await txt('#hero'), /renting & investing wins by/); assert.match(await txt('.kpis'), /Rent yield[\s\S]*3\.36%/); assert.match(await txt('.kpis'), /prices rise faster than[\s\S]*9\.\d%/);
+    assert.equal((await pg.$$('#grid tr')).length, 5); assert.match(await txt('#note'), /Capital-gains tax is included/);
+    const before = await txt('#hero'); await pg.$eval('details.adv', e => (e.open = true)); await pg.$eval('#lben', e => e.click()); assert.notEqual(await txt('#hero'), before); assert.equal(await pg.isVisible('#fSlab'), true); assert.match(await txt('#tbl'), /Home-loan tax benefit received/);
+    await pg.fill('#rent', '100,000'); assert.match(await pg.$eval('#yieldHint', e => e.textContent), /high for India/);
+    assert.deepEqual(pg.errs, []); await pg.close();
+  });
+
   test('HRA city list: eight metros plus "any other city" drive the 50% / 40% limit on every page that uses it, and survive a share link', async () => {
     const sal = await open(SITE, 'salary-calculator.html'); const opts = await sal.$$eval('#city option', os => os.map(o => o.textContent));
     assert.deepEqual(opts, ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad', 'Any other city']); assert.equal(await sal.inputValue('#city'), 'Bengaluru');
