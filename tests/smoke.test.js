@@ -211,6 +211,28 @@ if (chromium) {
     assert.deepEqual(life.errs, []); await life.close();
   });
 
+  test('salary: allowance chips stay readable (dark text on a light chip, not hero-chip styling)', async () => {
+    const pg = await open(SITE, 'salary-calculator.html'); await pg.$eval('#sec-other', e => (e.open = true));
+    const [c, bg] = await pg.$eval('#ochips .chip', e => [getComputedStyle(e).color, getComputedStyle(e).backgroundColor]);
+    assert.notEqual(c, 'rgb(255, 255, 255)'); assert.notEqual(bg, 'rgba(255, 255, 255, 0.18)'); await pg.close();
+  });
+
+  test('FD calculator: tenure in years/months/days, interest payout, RD, tax and real return', async () => {
+    const pg = await open(SITE, 'fd-calculator.html'); const hero = () => pg.$eval('.hero-result', e => e.innerText);
+    assert.match(await hero(), /₹7,07,389/);                                                       // ₹5 L, 7%, quarterly, 5 years
+    await pg.fill('#yrs', '0'); await pg.fill('#mon', '6'); await pg.fill('#day', '0'); assert.match(await hero(), /₹5,17,653/);      // exactly two quarters
+    await pg.fill('#day', '10'); const withDays = await hero(); assert.doesNotMatch(withDays, /₹5,17,653/); assert.match(await pg.$eval('#tenHint', e => e.textContent), /6 months 10 days/);
+    await pg.click('#tenChips [data-t="1,0,0"]'); assert.equal(await pg.inputValue('#yrs'), '1'); assert.equal(await pg.inputValue('#mon'), '0');
+    await pg.click('#mode [data-v=payout]'); assert.match(await hero(), /every month[\s\S]*₹2,917/);
+    await pg.click('#mode [data-v=rd]'); assert.equal(await pg.isVisible('#fDays'), false); assert.equal(await pg.isVisible('#d'), true);
+    await pg.click('#mode [data-v=fd]'); await pg.fill('#yrs', '5'); await pg.fill('#mon', '0'); await pg.fill('#day', '0');
+    await pg.$eval('#sec-tax', e => (e.open = true)); await pg.selectOption('#slab', '30'); assert.match(await pg.$eval('#kpis', e => e.innerText), /Tax on interest \(30%\)/);
+    assert.equal(await pg.$eval('#warns', e => e.textContent), '');                                    // ₹5 L earns at most about ₹47,000 a year: under the ₹50,000 TDS limit
+    await pg.fill('#p', '2000000'); assert.match(await pg.$eval('#warns', e => e.textContent), /TDS/);
+    assert.match(await pg.$eval('.hero-result', e => e.textContent), /Real return after tax and inflation/);
+    assert.deepEqual(pg.errs, []); await pg.close();
+  });
+
   test('HRA city list: eight metros plus "any other city" drive the 50% / 40% limit on every page that uses it, and survive a share link', async () => {
     const sal = await open(SITE, 'salary-calculator.html'); const opts = await sal.$$eval('#city option', os => os.map(o => o.textContent));
     assert.deepEqual(opts, ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad', 'Any other city']); assert.equal(await sal.inputValue('#city'), 'Bengaluru');
