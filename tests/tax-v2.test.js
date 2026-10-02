@@ -204,3 +204,10 @@ test('Tax.salary forwards payout % and state PT; city → state mapping', () => 
   const a = Tax.salary({ ctc: 2000000, basicPct: 40, hraPct: 50, variablePct: 20, gratuity: true, ptMonthly: 200, metro: true, rentMonthly: 0 }), b = Tax.salary({ ctc: 2000000, basicPct: 40, hraPct: 50, variablePct: 20, gratuity: true, ptMonthly: 200, metro: true, rentMonthly: 0, payoutPct: 50 });
   assert.ok(b.new.inHandYear < a.new.inHandYear); assert.equal(Tax.salary({ ctc: 1200000, basicPct: 40, hraPct: 50, ptMonthly: 200, ptState: 'NONE', metro: true }).pt, 0); assert.equal(Tax.CITY_PT.Bengaluru, 'KA');
 });
+
+test('pages that quote the default ₹12 L example agree with the engine (Karnataka professional tax)', () => {
+  const fs = require('fs'), r = Tax.salary({ ctc: 1200000, basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, ptState: 'KA', metro: true, rentMonthly: 0 });
+  const inr = n => '₹' + new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(Math.round(n));
+  const guide = fs.readFileSync(__dirname + '/../ctc-vs-in-hand-salary.html', 'utf8');
+  assert.ok(guide.includes(inr(r[r.best].inHandMonth)), 'guide monthly in-hand'); assert.ok(guide.includes(inr(r[r.best].inHandYear)), 'guide yearly in-hand'); assert.ok(guide.includes(inr(r.pt)), 'guide professional tax');
+});
