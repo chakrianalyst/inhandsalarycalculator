@@ -261,6 +261,20 @@ if (chromium) {
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
+  test('Gratuity calculator: years and months, part-year rule, eligibility, 50% rule, government, projection', async () => {
+    const pg = await open(SITE, 'gratuity-calculator.html'); const hero = () => pg.$eval('.hero-result', e => e.innerText);
+    assert.match(await hero(), /₹2,88,462/);
+    await pg.fill('#mon', '7'); assert.match(await hero(), /₹3,17,308/); assert.match(await pg.$eval('#svcHint', e => e.textContent), /counts as 11 years/);
+    await pg.fill('#mon', '6'); assert.match(await hero(), /₹2,88,462/);                              // exactly 6 months does not round up
+    await pg.fill('#yrs', '3'); assert.match(await hero(), /not payable yet/); assert.match(await pg.$eval('#gNote', e => e.textContent), /away/);
+    await pg.$eval('#ftRow input', e => e.click()); assert.match(await hero(), /Estimated gratuity/);                               // fixed-term: eligible after 1 year
+    await pg.$eval('#ftRow input', e => e.click()); await pg.fill('#yrs', '10'); await pg.fill('#mon', '0');
+    await pg.$eval('#sec-50', e => (e.open = true)); await pg.fill('#total', '1,50,000'); assert.match(await hero(), /₹4,32,692/); assert.match(await pg.$eval('#gNote', e => e.textContent), /half of your total pay/);
+    assert.ok((await pg.$$('#projTbl tr')).length > 2);
+    await pg.click('#kind [data-v=govt]'); assert.equal(await pg.isVisible('#ftRow'), false); assert.match(await pg.$eval('#gNote', e => e.textContent), /fully tax-free/);
+    assert.deepEqual(pg.errs, []); await pg.close();
+  });
+
   test('HRA city list: eight metros plus "any other city" drive the 50% / 40% limit on every page that uses it, and survive a share link', async () => {
     const sal = await open(SITE, 'salary-calculator.html'); const opts = await sal.$$eval('#city option', os => os.map(o => o.textContent));
     assert.deepEqual(opts, ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad', 'Any other city']); assert.equal(await sal.inputValue('#city'), 'Bengaluru');

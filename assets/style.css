@@ -573,3 +573,5 @@ table.yr tr.bad td, table.yr tr.bad td:first-child { background: color-mix(in sr
 .row-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .row-3 .input-wrap { min-width: 0; } .sub-l { display: block; font-size: .76rem; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
 .row-3 [hidden] { display: none; }
+
+[hidden] { display: none !important; }
