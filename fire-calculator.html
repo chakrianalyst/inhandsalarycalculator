@@ -131,7 +131,7 @@
     $('coast').innerHTML = `<p style="margin:0 0 8px">To retire at ${ra} with no more investing, you would need about <b>${f(co)}</b> invested today. You have <b>${f(Q.corp0)}</b> (${Math.min(999, Math.round(Q.corp0 / (co || 1) * 100))}%).</p><p style="margin:0">${have ? 'You have reached your Coast number. Your investments can grow on their own to your target, so you only need to cover living costs until then.' : `You are ${f(co - Q.corp0)} away. Keep investing, and once you pass it you could ease off.`}</p>`;
     // stress test
     const ages = [ra - 5, ra, ra + 5].filter(a => a > age), rets = [Q.pre - 2, Q.pre, Q.pre + 2].filter(r => r > 0);
-    $('grid').innerHTML = '<tr><th>Retire at / return</th>' + rets.map(r => `<th>${r}%</th>`).join('') + '</tr>' + ages.map(a => `<tr><td>${a}</td>` + rets.map(r => { const pct = Fire.accumulate(Q.sav, a - age, Q.corp0, Q.step, r) / Fire.target(P, a) * 100; return `<td class="${pct >= 100 ? 'pos' : 'neg'}">${Math.round(pct)}%</td>`; }).join('') + '</tr>').join('');
+    $('grid').innerHTML = '<tr><th>Retire at / return</th>' + rets.map(r => `<th>${r}%</th>`).join('') + '</tr>' + ages.map(a => `<tr><td>${a}</td>` + rets.map(r => { const tg = Fire.target(P, a), pct = Fire.accumulate(Q.sav, a - age, Q.corp0, Q.step, r) / tg * 100; return Number.isFinite(pct) && tg > 0 ? `<td class="${pct >= 100 ? 'pos' : 'neg'}">${Math.round(pct)}%</td>` : '<td>—</td>'; }).join('') + '</tr>').join('');
   }
   document.querySelectorAll('input').forEach(i => i.addEventListener('input', calc)); calc();
   Common.restore(); calc();
