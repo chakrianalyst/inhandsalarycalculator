@@ -203,6 +203,14 @@ if (chromium) {
     assert.deepEqual(life.errs, []); await life.close();
   });
 
+  test('life sim year table: events show the inflated price in that year (and today’s price beside it); Today’s money view divides it back', async () => {
+    const life = await open(SITE, 'life-simulator.html');
+    const txt = await life.$$eval('#yrTable tr', rs => (rs.find(r => /🚗/.test(r.textContent)) || { innerText: '' }).innerText); assert.match(txt, /×1\.\d\d/); assert.match(txt, /Car[^\n]*₹[\d.]+ ?(L|Cr)[^\n]*today/); 
+    const m = txt.match(/×(\d\.\d+)/); assert.ok(+m[1] > 1.2, 'price level should be well above 1 for a car bought years from now');
+    await life.click('#yrMode button[data-v=real]'); assert.match(await life.$$eval('#yrTable tr', rs => (rs.find(r => /🚗/.test(r.textContent)) || { innerText: '' }).innerText), /Car[^\n]*at that year/);
+    assert.deepEqual(life.errs, []); await life.close();
+  });
+
   test('HRA city list: eight metros plus "any other city" drive the 50% / 40% limit on every page that uses it, and survive a share link', async () => {
     const sal = await open(SITE, 'salary-calculator.html'); const opts = await sal.$$eval('#city option', os => os.map(o => o.textContent));
     assert.deepEqual(opts, ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad', 'Any other city']); assert.equal(await sal.inputValue('#city'), 'Bengaluru');
@@ -279,9 +287,9 @@ if (chromium) {
     assert.equal(await rows(), 85 - 28); assert.match(await pg.$eval('#yrTable th:last-child', e => e.textContent), /Net worth/);
     assert.match(await cell(1, 1), /^28/); assert.match(await pg.$eval('#yrTable', e => e.innerText), /🏖️/); assert.equal(await pg.$$eval('#yrTable tr.ret', e => e.length), 1);
     assert.match(await pg.$eval('#yrTable', e => e.innerText), /🏠/);                                      // the home purchase year is flagged
-    const real = await cell(30, 9); await pg.click('#mode [data-v=nom]'); assert.notEqual(await cell(30, 9), real, 'future rupees differ from today\'s money');
+    const nom = await cell(30, 10); await pg.click('#yrMode [data-v=real]'); assert.notEqual(await cell(30, 10), nom, 'future rupees differ from today\'s money'); await pg.click('#yrMode [data-v=nom]');
     const [dl] = await Promise.all([pg.waitForEvent('download'), pg.click('#btnCsv')]); assert.match(dl.suggestedFilename(), /life-money-plan-future-rupees\.csv/);
-    const csv = require('fs').readFileSync(await dl.path(), 'utf8').split('\n'); assert.match(csv[0], /^Age,Pay after tax/); assert.equal(csv.length, 1 + 85 - 28);
+    const csv = require('fs').readFileSync(await dl.path(), 'utf8').split('\n'); assert.match(csv[0], /^Age,Prices \(x today\),Pay after tax/); assert.equal(csv.length, 1 + 85 - 28);
     await pg.fill('#inc', '30,000'); await pg.fill('#expenses', '60,000');                                // a failing plan: the table stops at the failure year
     assert.ok((await rows()) < 20); assert.equal(await pg.$$eval('#yrTable tr.bad', e => e.length), 2); assert.match(await pg.$eval('#yrTable', e => e.innerText), /Later years are not shown/);
     assert.deepEqual(errs, []); await pg.close();
