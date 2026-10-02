@@ -1,4 +1,4 @@
-/* Indian income-tax engine — salaried individuals, FY 2026-27 (AY 2027-28). Slabs, standard deduction, rebate and surcharge are unchanged from FY 2025-26.
+/* Indian income-tax engine — salaried individuals, Tax Year 2026-27 (FY 2026-27). Slabs, standard deduction, rebate and surcharge are unchanged from FY 2025-26.
    Pure functions, no DOM. Used by the salary and hike calculators. */
 const Tax = (() => {
   const NEW_SLABS = [[400000, 0], [800000, 0.05], [1200000, 0.10], [1600000, 0.15], [2000000, 0.20], [2400000, 0.25], [Infinity, 0.30]];
@@ -138,22 +138,22 @@ const Tax = (() => {
   }
 
   /* ---------- Professional tax (state-wise) ----------
-     Annual PT from monthly gross pay. Slabs as published for FY 2026-27 by TaxGuru / HR-compliance guides; states change them, so the UI tells users to check their payslip.
+     Annual PT from monthly gross pay. Slabs as published for 2026-27 in summaries by compliance firms (not copied from the state notifications themselves); states change them, so the UI tells users to check their payslip.
      Each state: list of [monthly salary at or above, PT per month]; extra = bonus charged in February (Karnataka, Maharashtra). Kerala charges by half-year pay. */
   const slab = (list, v) => list.reduce((t, [from, amt]) => (v >= from ? amt : t), 0);
   const PT_STATES = [
     { id: 'KA', name: 'Karnataka', annual: m => (m >= 25000 ? 200 * 11 + 300 : 0) },
-    { id: 'MH', name: 'Maharashtra', annual: m => { const t = slab([[7500.01, 175]], m); return m > 10000 ? 200 * 11 + 300 : t * 12; }, note: 'Women earning up to ₹25,000 a month pay nothing.' },
+    { id: 'MH', name: 'Maharashtra', annual: (m, woman) => { if (woman && m <= 25000) return 0; const t = slab([[7500.01, 175]], m); return m > 10000 ? 200 * 11 + 300 : t * 12; }, note: 'Women earning up to ₹25,000 a month pay nothing: tick the box below.' },
     { id: 'TG', name: 'Telangana', annual: m => slab([[15000.01, 150], [20000.01, 200]], m) * 12 },
     { id: 'AP', name: 'Andhra Pradesh', annual: m => slab([[15000.01, 150], [20000.01, 200]], m) * 12 },
     { id: 'GJ', name: 'Gujarat', annual: m => slab([[6000, 80], [9000, 150], [12000, 200]], m) * 12 },
-    { id: 'WB', name: 'West Bengal', annual: m => slab([[10000.01, 110], [15000.01, 130], [25000.01, 150], [40000.01, 200]], m) * 12 },
+    { id: 'WB', name: 'West Bengal', annual: m => slab([[20000.01, 100], [30000.01, 140], [50000.01, 170], [100000.01, 208]], m) * 12, note: 'New schedule from 1 October 2026 (Finance Department notification 1407-F.T., 18 August 2026). Earlier months of the year used the old schedule.' },
     { id: 'MP', name: 'Madhya Pradesh', annual: m => (m > 33333 ? 2500 : slab([[18750.01, 125], [25000.01, 167]], m) * 12) },
-    { id: 'KL', name: 'Kerala', annual: m => slab([[12000, 120], [18000, 180], [30000, 360], [45000, 600], [60000, 900], [75000, 1200]], m * 6) * 2 },
+    { id: 'KL', name: 'Kerala', annual: m => slab([[12000, 120], [18000, 180], [30000, 300], [45000, 450], [60000, 600], [75000, 750], [100000, 1000], [125000, 1250]], m * 6) * 2 },
     { id: 'NONE', name: 'Delhi, Haryana, Uttar Pradesh or Rajasthan (no professional tax)', annual: () => 0 },
   ];
   /** Annual professional tax for a state id at a monthly gross pay; null if the state is not in the table (enter it yourself). */
-  function professionalTax(id, monthlyGross) { const s = PT_STATES.find(x => x.id === id); return s ? Math.round(s.annual(Math.max(0, Number(monthlyGross) || 0))) : null; }
+  function professionalTax(id, monthlyGross, woman) { const s = PT_STATES.find(x => x.id === id); return s ? Math.round(s.annual(Math.max(0, Number(monthlyGross) || 0), !!woman)) : null; }
 
   /**
    * d: { postTaxYear (₹ a year of other payslip deductions, taken after tax), ptState (id from PT_STATES; overrides ptMonthly), ptMonthly, metro, rentMonthly,
@@ -162,7 +162,7 @@ const Tax = (() => {
    */
   function assess(a, d) {
     d = d || {};
-    const fixedMonthly = (a.basic + a.hra + a.otherSum + a.special) / 12, stPt = d.ptState ? professionalTax(d.ptState, fixedMonthly) : null;
+    const fixedMonthly = (a.basic + a.hra + a.otherSum + a.special) / 12, stPt = d.ptState ? professionalTax(d.ptState, fixedMonthly, d.ptWoman) : null;
     const pt = stPt !== null ? stPt : (Number(d.ptMonthly) || 0) * 12;
     const ltaAmt = a.others.filter(o => o.kind === 'lta').reduce((s, o) => s + o.amt, 0);
     const gross = a.basic + a.hra + a.bonus + a.otherSum + a.special;                      // cash salary actually paid
@@ -208,7 +208,7 @@ const Tax = (() => {
     const ctc = Math.max(0, inp.ctc);
     const a = structure({ ctc, basicMode: 'pct', basicVal: inp.basicPct, hraMode: 'pct', hraVal: inp.hraPct, bonusMode: 'pct', bonusVal: inp.variablePct,
       pfMode: inp.pfCap ? 'cap' : 'full', gratuityOn: !!inp.gratuity, npsMode: 'yr', npsVal: inp.employerNps || 0, payoutPct: inp.payoutPct });
-    return assess(a, { ptMonthly: inp.ptMonthly, ptState: inp.ptState, metro: inp.metro, rentMonthly: inp.rentMonthly, other80c: inp.other80c, nps1b: inp.nps1b, d80: inp.d80 || 0,
+    return assess(a, { ptMonthly: inp.ptMonthly, ptState: inp.ptState, ptWoman: inp.ptWoman, metro: inp.metro, rentMonthly: inp.rentMonthly, other80c: inp.other80c, nps1b: inp.nps1b, d80: inp.d80 || 0,
       homeLoanInt: inp.homeLoanInt, otherDed: inp.otherDed });
   }
 

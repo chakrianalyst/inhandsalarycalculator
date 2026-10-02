@@ -21,6 +21,7 @@ for (const f of files) {
   if (!/assets\/site\.js/.test(h)) err(f, 'site.js (public config) not injected');
   for (const m of h.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) { try { JSON.parse(m[1]); } catch (e) { err(f, 'invalid JSON-LD: ' + e.message); } }
   if (/\{\{[A-Z_]+\}\}/.test(h)) err(f, 'unreplaced {{TOKEN}}');
+  if (!/inhand\.example/.test(siteUrl) && /inhand\.example/.test(h)) err(f, 'placeholder domain inhand.example left in the page');
   for (const m of h.matchAll(/<a\b[^>]*\bhref="#"[^>]*>/g)) if (!/data-affiliate/.test(m[0])) err(f, 'dead link href="#"');
   for (const m of h.matchAll(/(?:href|src)="([^"]+)"/g)) {
     const u = m[1]; if (/^(https?:|mailto:|tel:|data:|#|\/\/)/.test(u) || u.includes('${')) continue;   // external / in-page / JS template

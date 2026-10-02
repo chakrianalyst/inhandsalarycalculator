@@ -22,8 +22,6 @@ function head({ file, title, desc, h1, crumb }) {
 <title>${title} | RupeeCheck</title>
 <meta name="description" content="${desc}">
 <link rel="canonical" href="https://inhand.example/${file}">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 <script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
@@ -97,8 +95,6 @@ function hubPage(Tax) {
 <title>${title} | RupeeCheck</title>
 <meta name="description" content="${desc}">
 <link rel="canonical" href="https://inhand.example/${file}">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 <script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
@@ -109,7 +105,7 @@ function hubPage(Tax) {
     <p>Find your monthly take-home for any CTC. Click a row for the full breakdown, or use the <a href="salary-calculator.html">custom calculator</a>.</p></div>
   <div class="container" style="max-width:880px"><div class="card"><div class="tbl-wrap"><table class="tbl">
     <tr><th>CTC</th><th>Monthly in-hand (new)</th><th>Monthly in-hand (old)</th><th>Yearly tax</th><th>Better</th></tr>${rows}</table></div>
-    <p style="margin-top:14px;font-size:.85rem;color:var(--muted)">Assumes 40% basic, PF on full basic, gratuity inside CTC, Karnataka professional tax, metro city, and no deductions claimed under the old regime. FY 2026-27 (AY 2027-28).</p></div></div>
+    <p style="margin-top:14px;font-size:.85rem;color:var(--muted)">Assumes 40% basic, PF on full basic, gratuity inside CTC, Karnataka professional tax, metro city, and no deductions claimed under the old regime. Tax Year 2026-27 (FY 2026-27).</p></div></div>
 </main>
 <script src="assets/tax.js"></script>
 <script src="assets/common.js"></script>

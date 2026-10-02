@@ -529,7 +529,7 @@ if (chromium) {
 
   test('guide pages show engine-computed figures, link to their calculators, and are listed on the home page', async () => {
     const read = f => fs.readFileSync(path.join(SITE, f), 'utf8');
-    const must = { 'new-tax-regime-slabs-fy-2026-27.html': ['₹97,500', '₹12.75 lakh', '₹4,75,800'], 'sip-for-1-crore.html': ['₹43,041', '₹1,21,232'], 'emi-per-lakh-table.html': ['₹900', '₹2,076'], 'professional-tax-by-state.html': ['Karnataka', '₹2,500 a year'], 'hra-exemption-rules.html': ['Bengaluru', 'Ahmedabad', '₹15,000'] };
+    const must = { 'new-tax-regime-slabs-fy-2026-27.html': ['₹97,500', '₹12.75 lakh', '₹4,75,800'], 'sip-for-1-crore.html': ['₹44,636', '₹1,23,299'], 'emi-per-lakh-table.html': ['₹900', '₹2,076'], 'professional-tax-by-state.html': ['Karnataka', '₹2,500 a year'], 'hra-exemption-rules.html': ['Bengaluru', 'Ahmedabad', '₹15,000'] };
     for (const [f, bits] of Object.entries(must)) { const h = read(f); assert.ok(!h.includes('{{'), f + ' has an unfilled placeholder'); bits.forEach(b => assert.ok(h.includes(b), f + ' missing ' + b)); }
     const pg = await open(SITE, 'index.html'); assert.equal(await pg.$eval('#toolCount', e => e.textContent), String(await pg.evaluate(() => TOOLS.length)));
     for (const f of Object.keys(must)) assert.ok(await pg.$(`#guideGrid a[href="${f}"]`), f + ' not listed on home page');
@@ -568,6 +568,21 @@ if (chromium) {
     await pg.click('#goalIn button[data-v=future]'); await pg.waitForTimeout(200); const future = await sip();
     assert.ok(Math.abs(today / future - Math.pow(1.06, 12)) < 0.01, 'today-price goal needs about 1.06^12 times the SIP'); assert.match(await pg.textContent('#goalNote'), /worth about ₹49\.7/);
     assert.deepEqual(pg.errs, []); await pg.close();
+  });
+
+  test('review fixes: Maharashtra women option, slider values for screen readers, no Google Fonts, accurate privacy wording', async () => {
+    const pg = await open(SITE, 'salary-calculator.html'); await pg.waitForTimeout(200);
+    await pg.evaluate(() => document.querySelectorAll('details').forEach(d => { d.open = true; }));
+    assert.equal(await pg.$eval('#fWoman', e => e.hidden), true, 'only shown for Maharashtra');
+    await pg.fill('#ctc', '3,00,000'); await pg.selectOption('#ptState', 'MH'); await pg.waitForTimeout(250); assert.equal(await pg.$eval('#fWoman', e => e.hidden), false);
+    const before = await pg.textContent('#ptInfo'); await pg.check('#ptWoman', { force: true }).catch(async () => { await pg.click('label.toggle:has(#ptWoman)'); }); await pg.waitForTimeout(250);
+    assert.match(before, /₹2,500/); assert.match(await pg.textContent('#ptInfo'), /₹0 a year/, 'a woman on this pay pays no Maharashtra professional tax');
+    assert.match(await pg.$eval('.field[data-slider] input[type=range]', e => e.getAttribute('aria-valuetext')), /^₹[\d,]+$/);
+    assert.deepEqual(pg.errs, []); await pg.close();
+    for (const f of pagesOf(SITE)) { const h = fs.readFileSync(path.join(SITE, f), 'utf8'); assert.ok(!/fonts\.(googleapis|gstatic)\.com/.test(h), f + ' still loads Google Fonts'); }
+    const home = fs.readFileSync(path.join(SITE, 'index.html'), 'utf8'); assert.ok(!/never leaves your browser/i.test(home) && /not sent to our servers/.test(home));
+    const methodology = fs.readFileSync(path.join(SITE, 'methodology.html'), 'utf8'); assert.match(methodology, /Rule 279/); assert.match(methodology, /Not yet reviewed by a chartered accountant/);
+    assert.ok(!/AY 2027-28/.test(fs.readdirSync(SITE).filter(x => x.endsWith('.html')).map(x => fs.readFileSync(path.join(SITE, x), 'utf8')).join('')), 'old assessment-year wording is gone');
   });
 
   test('teardown', async () => { await browser.close(); fs.rmSync(LIVE, { recursive: true, force: true }); });

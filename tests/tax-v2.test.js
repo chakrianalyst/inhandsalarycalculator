@@ -193,8 +193,10 @@ test('state professional tax: slabs from the published tables', () => {
   assert.equal(P('MH', 8000), 2100); assert.equal(P('MH', 50000), 2500);
   assert.equal(P('TG', 18000), 1800); assert.equal(P('TG', 90000), 2400);
   assert.equal(P('GJ', 5000), 0); assert.equal(P('GJ', 100000), 2400);
-  assert.equal(P('WB', 50000), 2400); assert.equal(P('MP', 40000), 2500);
-  assert.equal(P('KL', 50000), 2400); assert.equal(P('NONE', 90000), 0); assert.equal(P('TN', 90000), null);
+  assert.equal(P('MP', 40000), 2500);
+  assert.equal(Tax.professionalTax('MH', 20000, true), 0, 'women up to ₹25,000 in Maharashtra pay nothing'); assert.equal(Tax.professionalTax('MH', 25000, true), 0); assert.equal(Tax.professionalTax('MH', 25001, true), 2500); assert.equal(Tax.professionalTax('MH', 20000, false), 2500);
+  assert.equal(P('WB', 20000), 0); assert.equal(P('WB', 20001), 1200); assert.equal(P('WB', 50000), 1680); assert.equal(P('WB', 100000), 2040); assert.equal(P('WB', 100001), 2496, 'West Bengal schedule from 1 Oct 2026');
+  assert.equal(P('KL', 10000), 1200); assert.equal(P('KL', 15000), 1500); assert.equal(P('KL', 20000), 2000); assert.equal(P('KL', 25000), 2500); assert.equal(P('KL', 50000), 2500, 'Kerala charges by half-year pay, up to ₹1,250 per half-year'); assert.equal(P('NONE', 90000), 0); assert.equal(P('TN', 90000), null);
   const a = Tax.structure({ ctc: 1200000 });
   assert.equal(Tax.assess(a, { ptState: 'KA' }).pt, 2500); assert.equal(Tax.assess(a, { ptState: '', ptMonthly: 100 }).pt, 1200);
   assert.equal(Tax.assess(a, { ptState: 'NONE', ptMonthly: 200 }).pt, 0);
