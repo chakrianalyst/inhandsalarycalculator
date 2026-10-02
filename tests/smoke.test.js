@@ -37,7 +37,7 @@ if (chromium) {
   });
 
   test('calculator pages render a real result (not the placeholder)', async () => {
-    for (const f of ['index.html', 'salary-calculator.html', 'emi-calculator.html', 'sip-calculator.html', 'fd-calculator.html', 'abroad-calculator.html', 'gratuity-calculator.html', 'hra-calculator.html', 'salary-hike-calculator.html',
+    for (const f of ['index.html', 'salary-calculator.html', 'emi-calculator.html', 'sip-calculator.html', 'fd-calculator.html', 'abroad-calculator.html', 'return-calculator.html', 'gratuity-calculator.html', 'hra-calculator.html', 'salary-hike-calculator.html',
       'networth-calculator.html', 'life-simulator.html', 'fire-calculator.html', 'rent-vs-buy-calculator.html', 'offer-comparison.html']) {
       const pg = await open(SITE, f); const t = await pg.$eval('.hero-result .big', e => e.textContent.trim()); assert.ok(t && t !== '—', `${f}: "${t}"`); await pg.close();
     }
@@ -367,6 +367,18 @@ if (chromium) {
     await pg.$eval('#partner', e => e.click()); assert.equal(await pg.isVisible('#pCtc'), true); assert.notEqual(await pg.inputValue('#rentA'), rent); assert.notEqual(await hero(), solo);
     await pg.$eval('#partner', e => e.click()); assert.equal(await pg.inputValue('#rentA'), rent); assert.equal(await hero(), solo);                           // switching off restores the single-person costs
     await pg.$eval('#sec-ret', e => (e.open = true)); await pg.$eval('#epf', e => e.click()); assert.notEqual(await hero(), solo); assert.match(await txt('#kpis'), /Of which in pensions/);
+    assert.deepEqual(pg.errs, []); await pg.close();
+  });
+
+  test('Return to India calculator: best year, runway, bringing money home, retirement choice, sensitivity and share link', async () => {
+    const pg = await open(SITE, 'return-calculator.html'); const txt = sel => pg.$eval(sel, e => e.innerText), hero = () => txt('#hero');
+    assert.match(await hero(), /In 2 years/); assert.equal((await pg.$$('#yrTbl tr')).length, 12); assert.match(await txt('#yrTbl'), /Not yet[\s\S]*Not yet[\s\S]*✓ Ready/);
+    assert.match(await txt('#kpis'), /Without a job, money lasts[\s\S]*17 years/); assert.match(await txt('#homeTbl'), /Tax on your profits[\s\S]*Money you start life in India with/); assert.match(await txt('#homeTbl'), /left abroad/);
+    await pg.selectOption('#when', '3'); assert.match(await txt('#hero'), /Returning in 3 years: covered/);
+    await pg.$eval('#sec-tax', e => (e.open = true)); assert.equal(await pg.isVisible('#penalty'), false); await pg.selectOption('#retMode', 'withdraw'); assert.equal(await pg.isVisible('#penalty'), true); assert.match(await txt('#homeTbl'), /cashed out/);
+    await pg.fill('#jobCtc', '30,00,000'); assert.match(await hero(), /Now/); await pg.fill('#jobCtc', '0'); await pg.selectOption('#retMode', 'leave');
+    await pg.selectOption('#country', 'AE'); assert.equal(await pg.inputValue('#fx'), '26.1'); assert.match(await txt('#cashL'), /AED/); assert.equal((await pg.$$('#grid tr')).length, 5);
+    const lk = await browser.newPage(); await lk.goto(url(SITE, 'return-calculator.html') + '?spend=60000'); await lk.waitForTimeout(300); assert.equal(await lk.inputValue('#spend'), '60,000'); assert.match(await lk.$eval('#hero', e => e.innerText), /Now/); await lk.close();
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 

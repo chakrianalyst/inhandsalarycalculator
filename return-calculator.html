@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Return to India Calculator — When Can You Afford to Move Back? | InHand</title>
+<meta name="description" content="Plan your move back to India. See what you would bring home after tax and costs, whether it covers the life you want, and the best year to return.">
+<link rel="canonical" href="https://inhand.example/return-calculator.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Return to India Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero">
+    <div class="crumbs"><a href="index.html">Home</a> › Return to India calculator</div>
+    <h1>Return to India Calculator <span class="grad-text">when can you move back?</span></h1>
+    <p>Living abroad and thinking of coming home? We work out what you would bring back after tax and costs, whether it covers the life you want in India, and which year is the best time to return.</p>
+  </div>
+  <div class="container tool-layout">
+    <section class="card" id="inputs" aria-label="Inputs">
+      <h2 class="card-title">🧳 Your life abroad</h2>
+      <div class="row-2">
+        <div class="field"><label for="age">Your age</label><div class="input-wrap"><input type="number" id="age" value="36" min="22" max="65" step="1"><span class="suf">yrs</span></div></div>
+        <div class="field"><label for="country">Where do you live?</label><select id="country"></select></div>
+      </div>
+      <div class="field"><label for="cash" id="cashL">Savings and investments abroad</label><div class="input-wrap"><input id="cash" data-money value="250000" placeholder="0"></div><span class="hint">Bank, brokerage, mutual funds and similar. Not your retirement account or your home.</span></div>
+      <div class="field"><label for="saveYear" id="saveL">What you save each year</label><div class="input-wrap"><input id="saveYear" data-money value="60000" placeholder="0"></div><span class="hint">After tax and living costs, not counting your retirement contributions.</span></div>
+      <div class="row-2">
+        <div class="field"><label for="retire" id="retireL">Retirement accounts abroad</label><div class="input-wrap"><input id="retire" data-money value="150000" placeholder="0"></div></div>
+        <div class="field"><label for="retireYear" id="retireYL">Added each year</label><div class="input-wrap"><input id="retireYear" data-money value="20000" placeholder="0"></div></div>
+      </div>
+      <span class="grp-hint" style="display:block;margin-top:-6px;margin-bottom:12px">401(k), RRSP, UK pension, superannuation and similar, your share plus your employer’s.</span>
+      <div class="field"><label for="indiaAssets">What you already hold in India</label><div class="input-wrap"><span class="pre">₹</span><input id="indiaAssets" data-money data-words="iaWords" value="3000000" placeholder="0" aria-describedby="iaWords"></div><div class="words" id="iaWords"></div><span class="hint">Bank accounts, mutual funds, PF, FDs, property you could sell. It keeps growing while you are away.</span></div>
+
+      <h2 class="card-title" style="margin-top:8px">🇮🇳 Life in India</h2>
+      <div class="field"><label for="spend">Monthly spending you want</label><div class="input-wrap"><span class="pre">₹</span><input id="spend" data-money data-words="spWords" value="150000" aria-describedby="spWords"></div><div class="words" id="spWords"></div><span class="hint">In today’s rupees. Include rent or EMI, school fees, help at home, travel and healthcare. It rises with inflation.</span></div>
+      <div class="field"><label for="jobCtc">Your yearly CTC if you work in India</label><div class="input-wrap"><span class="pre">₹</span><input id="jobCtc" data-money value="0" placeholder="0"></div><span class="hint">Leave 0 if you would not work, or want to see the case without a job. We take it through Indian tax.</span></div>
+      <div class="row-2">
+        <div class="field"><label for="workUntil">Work until age</label><div class="input-wrap"><input type="number" id="workUntil" value="60" min="40" max="75" step="1"><span class="suf">yrs</span></div></div>
+        <div class="field"><label for="planEnd">Plan until age</label><div class="input-wrap"><input type="number" id="planEnd" value="85" min="65" max="100" step="1"><span class="suf">yrs</span></div></div>
+      </div>
+      <div class="field"><label for="lump">One-time cost of settling back</label><div class="input-wrap"><span class="pre">₹</span><input id="lump" data-money value="2500000" placeholder="0"></div><span class="hint">Shipping, deposits, furniture, a car, a home down payment, and a few months without income.</span></div>
+      <div class="field"><label for="when">If you return in</label><select id="when"></select></div>
+
+      <details class="grp" id="sec-fx"><summary><div class="gi">💱</div><div class="gt">Exchange rate and returns<small>Rupee movement and growth</small></div><span class="chev">›</span></summary><div class="grp-body">
+        <div class="field"><label for="fx" id="fxL">Exchange rate (₹ per US$)</label><div class="input-wrap"><span class="pre">₹</span><input type="number" id="fx" value="96" min="1" max="500" step="0.1"></div><span class="hint">Approximate rate on 2 October 2026. Update it to today’s rate.</span></div>
+        <div class="field"><label for="dep">The rupee weakens against it by</label><div class="input-wrap"><input type="number" id="dep" value="3" min="-5" max="10" step="0.5"><span class="suf">% a year</span></div><span class="hint">A weaker rupee makes your savings abroad worth more in rupees. 0% is the cautious choice.</span></div>
+        <div class="row-2"><div class="field"><label for="retA">Return abroad</label><div class="input-wrap"><input type="number" id="retA" value="7" min="0" max="20" step="0.5"><span class="suf">%</span></div></div>
+          <div class="field"><label for="retI">Return in India</label><div class="input-wrap"><input type="number" id="retI" value="9" min="0" max="20" step="0.5"><span class="suf">%</span></div></div></div>
+        <div class="row-2"><div class="field"><label for="infl">India inflation</label><div class="input-wrap"><input type="number" id="infl" value="6" min="0" max="15" step="0.5"><span class="suf">%</span></div></div>
+          <div class="field"><label for="jobGrowth">Yearly raise in India</label><div class="input-wrap"><input type="number" id="jobGrowth" value="7" min="0" max="25" step="0.5"><span class="suf">%</span></div></div></div>
+        <div class="field"><label for="saveGrowth">Your yearly savings abroad rise by</label><div class="input-wrap"><input type="number" id="saveGrowth" value="3" min="0" max="20" step="0.5"><span class="suf">% a year</span></div></div>
+      </div></details>
+      <details class="grp" id="sec-tax"><summary><div class="gi">🧾</div><div class="gt">Tax and costs of bringing money home<small>What you lose on the way</small></div><span class="chev">›</span></summary><div class="grp-body">
+        <div class="row-2"><div class="field"><label for="convCost">Transfer and conversion cost</label><div class="input-wrap"><input type="number" id="convCost" value="1" min="0" max="10" step="0.25"><span class="suf">%</span></div></div>
+          <div class="field"><label for="gainShare">Share of your investments that is profit</label><div class="input-wrap"><input type="number" id="gainShare" value="40" min="0" max="100" step="5"><span class="suf">%</span></div></div></div>
+        <div class="field"><label for="gainTax">Tax on that profit when you sell</label><div class="input-wrap"><input type="number" id="gainTax" value="15" min="0" max="45" step="0.5"><span class="suf">%</span></div><span class="hint">US long-term gains are usually 15% (20% at high incomes). Check your country and whether you will also owe tax in India.</span></div>
+        <div class="field"><label for="retMode">Your retirement accounts</label><select id="retMode"><option value="leave" selected>Leave them abroad until I am older</option><option value="withdraw">Cash them out when I return</option></select><span class="hint">Leaving them avoids penalties and keeps tax-free growth. They then count only from the age you choose below.</span></div>
+        <div class="row-2"><div class="field"><label for="retireAge">Start using them at age</label><div class="input-wrap"><input type="number" id="retireAge" value="60" min="55" max="75" step="1"><span class="suf">yrs</span></div></div>
+          <div class="field"><label for="retireTax">Tax when you take the money out</label><div class="input-wrap"><input type="number" id="retireTax" value="25" min="0" max="50" step="1"><span class="suf">%</span></div></div></div>
+        <div class="field" id="fPen"><label for="penalty">Penalty for cashing out early</label><div class="input-wrap"><input type="number" id="penalty" value="10" min="0" max="50" step="1"><span class="suf">%</span></div><span class="hint">The US charges 10% before age 59½. Check the rule for your country.</span></div>
+      </div></details>
+    </section>
+
+    <section class="results" aria-live="polite">
+      <div class="hero-result" id="hero"><div class="lbl" id="hLbl">Your best year to return</div><div class="big" id="hBig">—</div><div class="sub" id="hSub"></div><span class="pill" id="hPill"></span></div>
+      <div class="warns" id="warns"></div>
+      <div class="kpis" id="kpis"></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">📈 What you have vs what you need</h2><p class="grp-hint" style="margin-top:0">For each year you could return, the money you would bring home (after tax and costs) against the money you need to live the life you want until the end of your plan.</p><div id="chart"></div></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🗓️ Year by year</h2><div class="tbl-wrap"><table class="tbl" id="yrTbl"></table></div></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🧮 What you bring home</h2><div class="tbl-wrap"><table class="tbl" id="homeTbl"></table></div></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🎯 What would change it</h2><div id="tips"></div></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🎚️ What if the rupee and spending move?</h2><p class="grp-hint" style="margin-top:0">Surplus or gap in the year you picked, for a different rupee weakness (rows) and different monthly spending (columns). Green: your money covers it.</p><div class="tbl-wrap"><table class="tbl" id="grid"></table></div></div>
+      <div class="banner info"><span>ℹ️</span><span>This is a planning tool, not tax advice. Your tax status in India changes when you return, and rules on foreign assets, bank accounts and disclosure apply. Confirm the details with a tax professional before you move.</span></div>
+    </section>
+  </div>
+  <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
+  <article class="container prose">
+    <h2>How this works</h2>
+    <p>For every year you might return, from now to ten years away, we grow your savings abroad, convert them to rupees at the exchange rate you set, and take off conversion costs and tax on your profits. We add what you hold in India and subtract the cost of settling back. Then we live your life in India year by year: spending rises with inflation, any job income comes in after Indian tax, and your money earns the return you set. We find the smallest amount that lasts to the end of your plan. If you would bring home more than that, you are ready.</p>
+    <h2>The best year to return</h2>
+    <p>Each extra year abroad adds savings and lets your money grow, but it also adds a year of life in another country and shortens your time in India. The table shows the first year your money covers the life you want, and how much more each later year adds. If you could return now, it also shows how much monthly spending your money could support.</p>
+    <h2>Retirement accounts</h2>
+    <p>Taking money out of a retirement account before the allowed age usually means tax and a penalty. In the US, early withdrawals before age 59½ carry a 10% penalty on top of tax. Many returnees leave the account abroad and use it later, so that is the default here. Choose “cash them out” to see what you would lose.</p>
+    <h2>What changes when you come back to India</h2>
+    <ul><li>Your <strong>residential status</strong> for Indian tax changes, and for a few years you may be treated as a resident but not ordinarily resident, which can limit tax on income earned abroad. The rules are detailed, so check yours.</li><li>Once you are a resident, <strong>income and gains from foreign assets</strong> are generally taxable in India and must be reported, including accounts and investments abroad.</li><li>Your <strong>NRE and FCNR accounts</strong> and other NRI products need to be converted or closed according to the rules.</li><li>Costs such as <strong>schools, healthcare and housing</strong> are often the biggest jumps, so put them into your monthly spending.</li></ul>
+    <h2>Frequently asked questions</h2>
+    <div class="faq">
+      <details><summary>Why leave money abroad instead of bringing it home?</summary><p>For retirement accounts, leaving the money avoids early-withdrawal penalties. For normal savings, a higher return in India (and a weaker rupee over time) can favour bringing it home, but selling investments can trigger tax abroad, and a currency move can help or hurt. The tax and costs section shows what you lose by moving money.</p></details>
+      <details><summary>What if I plan to work in India?</summary><p>Enter your expected yearly CTC. Your take-home pay after Indian tax then pays for part of your spending, so you need a much smaller starting amount. The calculator keeps counting the job until the age you choose.</p></details>
+      <details><summary>Does the result include my home abroad?</summary><p>No. If you plan to sell a home, add the money you expect to receive to your savings, after costs and tax.</p></details>
+      <details><summary>What about children, education and healthcare?</summary><p>Add them to your monthly spending in India. School fees and health insurance are the costs that surprise most families.</p></details>
+    </div>
+  </article>
+  <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
+</main>
+<script src="assets/tax.js"></script>
+<script src="assets/words.js"></script>
+<script src="assets/abroad.js"></script>
+<script src="assets/returning.js"></script>
+<script src="assets/common.js"></script>
+<script>
+  Common.init('return');
+  const $ = id => document.getElementById(id), f = Common.fmt, num = Common.num, cr = Common.fmtCompact, C = Abroad.COUNTRIES;
+  const IN = new Intl.NumberFormat('en-IN');
+  const DEF = { US: [250000, 60000, 150000, 20000, 25, 10], CA: [300000, 70000, 120000, 15000, 25, 0], UK: [150000, 40000, 100000, 12000, 25, 25], AU: [300000, 60000, 200000, 0, 15, 0], SG: [300000, 70000, 0, 0, 0, 0], AE: [800000, 250000, 0, 0, 0, 0], DE: [200000, 40000, 0, 0, 0, 0] };
+  $('country').innerHTML = Object.entries(C).map(([k, c]) => `<option value="${k}">${c.name}</option>`).join('');
+  $('when').innerHTML = Array.from({ length: 11 }, (_, i) => `<option value="${i}">${i === 0 ? 'Now' : i + (i === 1 ? ' year' : ' years')}</option>`).join('');
+  function applyCountry() {
+    const k = $('country').value, c = C[k], d = DEF[k]; $('fx').value = c.fx; [['cash', d[0]], ['saveYear', d[1]], ['retire', d[2]], ['retireYear', d[3]]].forEach(([id, v]) => { $(id).value = IN.format(v); });
+    $('retireTax').value = d[4]; $('penalty').value = d[5];
+  }
+  $('country').addEventListener('input', () => { applyCountry(); calc(); });
+
+  const params = () => ({ age: num('age'), fx: num('fx'), dep: num('dep'), retAbroad: num('retA'), retIndia: num('retI'), infl: num('infl'), cash: num('cash'), saveYear: num('saveYear'), saveGrowth: num('saveGrowth'),
+    retire: num('retire'), retireYear: num('retireYear'), indiaAssets: num('indiaAssets'), spend: num('spend'), planEnd: Math.max(num('age') + 1, num('planEnd')), jobCtc: num('jobCtc'), jobGrowth: num('jobGrowth'), workUntil: num('workUntil'), lump: num('lump'),
+    convCost: num('convCost'), gainShare: num('gainShare'), gainTax: num('gainTax'), retireMode: $('retMode').value, retireTax: num('retireTax'), penalty: num('penalty'), retireAge: num('retireAge') });
+  const sgn = v => (v >= 0 ? '+' : '−') + cr(Math.abs(v));
+
+  function calc() {
+    const k = $('country').value, c = C[k], P = params(), W = [];
+    ['cashL', 'saveL', 'retireL', 'retireYL'].forEach((id, i) => { $(id).textContent = [`Savings and investments abroad (${c.cur})`, `What you save each year (${c.cur})`, `Retirement accounts abroad (${c.cur})`, `Added each year (${c.cur})`][i]; });
+    $('fxL').textContent = `Exchange rate (₹ per ${c.cur})`; $('fPen').hidden = $('retMode').value !== 'withdraw';
+    if (!(P.spend > 0)) { $('hBig').textContent = '—'; $('hSub').textContent = ''; $('hPill').textContent = ''; $('kpis').innerHTML = ''; $('warns').innerHTML = '<div class="warn"><span>⚠️</span><span>Enter the monthly spending you want in India.</span></div>'; return; }
+    const A = Returning.analyse(P, 10), sel = +$('when').value, S = A.rows[sel], income = A.income, rows = A.rows;
+    const first = A.firstReady;
+    if (first === 0) { $('hLbl').textContent = 'You could return'; $('hBig').textContent = 'Now'; $('hSub').textContent = `You would bring home about ${cr(rows[0].corpus)} and need about ${cr(rows[0].need)} for the life you want.`; }
+    else if (first !== null) { $('hLbl').textContent = 'Your best year to return'; $('hBig').textContent = `In ${first} ${first === 1 ? 'year' : 'years'}`; $('hSub').textContent = `At age ${rows[first].age}, you would bring home about ${cr(rows[first].corpus)} and need about ${cr(rows[first].need)}. Returning now falls ${cr(-rows[0].gap)} short.`; }
+    else { $('hLbl').textContent = 'Returning within 10 years'; $('hBig').textContent = 'Not yet'; $('hSub').textContent = `Even after 10 more years abroad you would be ${cr(-rows[10].gap)} short of the life you described. Try lower spending, a job in India, or a longer stay.`; }
+    $('hPill').textContent = `${sel === 0 ? 'Returning now' : 'Returning in ' + sel + (sel === 1 ? ' year' : ' years')}: ${S.ready ? 'covered, ' + cr(S.gap) + ' to spare' : 'short by ' + cr(-S.gap)}`;
+    if (P.retireMode === 'leave' && P.retire > 0 && P.retireAge >= P.planEnd) W.push('Your retirement accounts are not used before the end of your plan, so they do not help.');
+    if (P.retAbroad > P.retIndia + 3) W.push('You expect a much higher return abroad than in India. Check this, as it favours staying abroad.');
+    if (P.jobCtc > 0 && P.workUntil <= P.age) W.push('Work-until age is before your return, so no job income is counted.');
+    $('warns').innerHTML = W.map(w => `<div class="warn"><span>⚠️</span><span>${w}</span></div>`).join('');
+    const mx = Returning.maxSpend(P, sel, income), K = (cls, kk, v, s) => `<div class="kpi ${cls}"><div class="k">${kk}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
+    $('kpis').innerHTML = K('', 'You bring home', cr(S.corpus), 'After tax, costs and the move') + K('', 'You need', cr(S.need), `For ${f(P.spend)} a month to age ${P.planEnd}`) + K(S.ready ? 'good' : 'bad', S.ready ? 'To spare' : 'Short by', cr(Math.abs(S.gap)), S.ready ? 'Your money covers it' : 'Your money does not cover it') +
+      K('', 'Without a job, money lasts', S.runwayEnd === null ? 'To the end' : S.runwayYears + (S.runwayYears === 1 ? ' year' : ' years'), S.runwayEnd === null ? `Beyond age ${P.planEnd}` : `Until age ${S.runwayEnd}`) + K('', 'Spending that works', f(mx) + '/mo', 'In today’s money, for this year') + K('', 'Your age then', S.age, sel === 0 ? 'If you return now' : `After ${sel} more ${sel === 1 ? 'year' : 'years'} abroad`);
+    Common.lineChart($('chart'), { xs: rows.map(r => r.r), xfmt: v => v === 0 ? 'Now' : v + 'y', xlabel: v => v === 0 ? 'Return now' : 'Return in ' + v + (v === 1 ? ' year' : ' years'), label: 'Money you bring home vs money you need', area: true,
+      series: [{ name: 'You bring home', color: 'var(--c1)', ys: rows.map(r => r.corpus) }, { name: 'You need', color: 'var(--c4)', dash: true, ys: rows.map(r => r.need) }], markers: first !== null ? [{ x: first, label: '🛬' }] : [] });
+    $('yrTbl').innerHTML = '<tr><th>Return</th><th>Your age</th><th>You bring home</th><th>You need</th><th>Surplus or gap</th><th></th></tr>' + rows.map(r => `<tr class="${r.r === sel ? 'pos' : ''}"><td>${r.r === 0 ? 'Now' : 'In ' + r.r + (r.r === 1 ? ' year' : ' years')}</td><td>${r.age}</td><td>${cr(r.corpus)}</td><td>${cr(r.need)}</td><td class="${r.gap >= 0 ? 'pos' : 'neg'}">${sgn(r.gap)}</td><td>${r.ready ? '✓ Ready' : 'Not yet'}</td></tr>`).join('');
+    const row = (l, v, cls = '') => `<tr class="${cls}"><td>${l}</td><td>${v}</td></tr>`;
+    $('homeTbl').innerHTML = '<tr><th>' + (sel === 0 ? 'Returning now' : 'Returning in ' + sel + ' years') + '</th><th>Amount</th></tr>' + row(`Savings and investments abroad (${c.cur} ${IN.format(Math.round(S.cashLocal))}) in rupees`, f(S.brought + S.gainTax + S.conv)) + row('Tax on your profits', '− ' + f(S.gainTax), 'neg') + row('Transfer and conversion cost', '− ' + f(S.conv), 'neg') +
+      row('What you hold in India', '+ ' + f(S.india), 'pos') + (P.retireMode === 'withdraw' ? row('Retirement accounts cashed out, after tax' + (S.age < 59.5 && P.penalty ? ' and penalty' : ''), '+ ' + f(S.withdrawn), 'pos') : '') + row('One-time cost of settling back', '− ' + f(P.lump), 'neg') + row('Money you start life in India with', f(S.corpus), 'total') +
+      (S.kept > 0 ? row(`Retirement accounts left abroad (${c.cur} ${IN.format(Math.round(S.retLocal))} now). Worth this in future rupees at age ${S.keptAt}, after tax`, f(S.kept)) : '');
+    const tips = [], next = rows[Math.min(10, sel + 1)];
+    if (first === 0) tips.push(`You could return now. Each extra year abroad adds about ${cr(rows[1].corpus - rows[0].corpus)} to what you bring home.`);
+    else if (first !== null) tips.push(`Staying until year ${first} turns a ${cr(-rows[0].gap)} shortfall into a surplus. The biggest help comes from savings and from your money compounding.`);
+    if (sel < 10) tips.push(`One more year abroad adds about <b>${cr(next.corpus - S.corpus)}</b> to what you bring home and changes the need by ${sgn(S.need - next.need)}.`);
+    tips.push(`If you returned ${sel === 0 ? 'now' : 'in ' + sel + (sel === 1 ? ' year' : ' years')}, your money could support about <b>${f(mx)}</b> a month in today’s money, against the ${f(P.spend)} you asked for.`);
+    if (P.jobCtc === 0) { const withJob = Returning.evaluate({ ...P, jobCtc: 2500000 }, sel); tips.push(`Working in India at a ₹25 lakh CTC would change the amount you need from ${cr(S.need)} to ${cr(withJob.need)}. Enter your own CTC to see your case.`); }
+    $('tips').innerHTML = tips.map(t => `<p style="margin:0 0 8px">${t}</p>`).join('');
+    const deps = [0, 2, 4, 6], sp = [0.8, 1, 1.2];
+    $('grid').innerHTML = '<tr><th>Rupee weakens / spending</th>' + sp.map(m => `<th>${m === 1 ? 'Your spending' : (m > 1 ? '+' : '−') + Math.round(Math.abs(m - 1) * 100) + '%'}</th>`).join('') + '</tr>' + deps.map(d => `<tr><td>${d}% a year</td>` + sp.map(m => { const v = Returning.evaluate({ ...P, dep: d, spend: P.spend * m }, sel, income); return `<td class="${v.gap >= 0 ? 'pos' : 'neg'}">${sgn(v.gap)}</td>`; }).join('') + '</tr>').join('');
+  }
+  document.querySelectorAll('input,select').forEach(i => { if (i.id !== 'country') i.addEventListener('input', calc); });
+  document.addEventListener('change', e => { if (e.target.closest && e.target.closest('#inputs')) calc(); });
+  Common.restore(); calc();
+</script>
+</body>
+</html>
