@@ -6,8 +6,6 @@
 <title>RupeeCheck — Free Salary, Net Worth, FIRE & Rent vs Buy Calculators India</title>
 <meta name="description" content="Free, fast money calculators for India: in-hand salary (CTC to take-home), old vs new tax regime, HRA, EMI, SIP, FD and gratuity. No signup, 100% private.">
 <link rel="canonical" href="https://inhand.example/">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"RupeeCheck","description":"Free money calculators for India"}</script>
 <script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -17,8 +15,8 @@
 <main>
   <section class="hero">
     <div class="container fade-in">
-      <span class="eyebrow">✨ Free · No signup · Your data never leaves your browser</span>
-      <h1>Know exactly what lands in your <span class="grad-text">bank account</span></h1>
+      <span class="eyebrow">✨ Free · No signup · Calculations run in your browser, not on our servers</span>
+      <h1>Know what really lands in your <span class="grad-text">bank account</span></h1>
       <p class="lead">Quick, beautiful tools for everyday money questions — from CTC to in-hand salary, to net worth, FIRE and life-planning simulators. Answers in seconds.</p>
       <div class="hero-cta">
         <a class="btn btn-primary" href="salary-calculator.html">Calculate my salary →</a>
@@ -49,7 +47,7 @@
             <div class="sub" id="qSub" style="position:relative;z-index:1"></div>
           </div>
         </div>
-        <p style="margin-top:14px;font-size:.88rem;color:var(--muted)">Assumes 40% basic, 12% PF, Karnataka professional tax, a metro city and the better of old/new regime. <a href="salary-calculator.html">Customise everything →</a></p>
+        <p style="margin-top:14px;font-size:.88rem;color:var(--muted)">Assumes 40% basic, 12% PF, ₹200 a month professional tax, a metro city and the better of old/new regime. <a href="salary-calculator.html">Customise everything →</a></p>
       </div>
     </div>
   </section>
@@ -93,9 +91,9 @@
   <section class="section" style="padding-top:0">
     <div class="container prose faq">
       <h2>Frequently asked questions</h2>
-      <details><summary>What is in-hand salary?</summary><p>In-hand (take-home) salary is what you actually receive in your bank account each month after employee PF, professional tax and income tax (TDS) are deducted from your gross pay. It is usually 70–85% of monthly CTC.</p></details>
-      <details><summary>Is my data stored anywhere?</summary><p>No. Every calculation runs locally in your browser. Nothing you type is uploaded or saved on a server.</p></details>
-      <details><summary>Which tax year do the calculators use?</summary><p>FY 2026-27 (AY 2027-28) slabs, including the ₹75,000 standard deduction and the ₹12 lakh rebate limit under the new regime.</p></details>
+      <details><summary>What is in-hand salary?</summary><p>In-hand (take-home) salary is what you actually receive in your bank account each month after employee PF, professional tax and income tax (TDS) are deducted from your gross pay. It is often well below CTC ÷ 12, because CTC includes items such as employer PF and gratuity that are not paid out monthly.</p></details>
+      <details><summary>Is my data stored anywhere?</summary><p>Every calculation runs in your browser, and what you type is not sent to our servers. Some tools keep your entries in your own browser’s storage so the page remembers them, and you can clear that any time. If you use the Share button, the link contains your inputs in its address, so share it only with people you trust.</p></details>
+      <details><summary>Which tax year do the calculators use?</summary><p>Tax Year 2026-27 (FY 2026-27) slabs, including the ₹75,000 standard deduction and the ₹12 lakh rebate limit under the new regime.</p></details>
       <details><summary>Will the result match my payslip exactly?</summary><p>It will be very close, but employers structure pay differently (DA, reimbursements, insurance, etc.), so use it as a reliable estimate and confirm with your HR or payroll team.</p></details>
     </div>
   </section>
@@ -111,7 +109,7 @@
     `<a class="tool-card" href="${t.href}"><div class="ico">${t.icon}</div><h3>${t.name}${t.hot ? '<span class="tag">Popular</span>' : ''}${t.isNew ? '<span class="tag">New</span>' : ''}</h3><p>${t.desc}</p><span class="go">Open calculator →</span></a>`).join('');
   function quick() {
     const ctc = Common.num('q');
-    const r = Tax.salary({ ctc, basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, ptState: 'KA', metro: true, rentMonthly: 0 });
+    const r = Tax.salary({ ctc, basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, metro: true, rentMonthly: 0 });
     const best = r[r.best];
     document.getElementById('qOut').textContent = Common.fmt(best.inHandMonth);
     document.getElementById('qSub').textContent = `${Common.fmtCompact(best.inHandYear)} per year · ${r.best === 'new' ? 'New' : 'Old'} regime`;

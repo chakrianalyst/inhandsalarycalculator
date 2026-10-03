@@ -6,8 +6,6 @@
 <title>In-Hand Salary Calculator India: CTC to Take-Home FY 2026-27 | RupeeCheck</title>
 <meta name="description" content="Free in-hand salary calculator for India. Enter your CTC or payslip with basic, HRA, bonus, PF, NPS and deductions. Compare old vs new tax regime for FY 2026-27.">
 <link rel="canonical" href="https://inhand.example/salary-calculator.html">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"In-Hand Salary Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
 <script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -119,7 +117,7 @@
     </table></div>
     <p>A rebate under section 87A makes income up to <strong>₹12 lakh</strong> tax-free (₹12.75 lakh of salary after the ₹75,000 standard deduction). Plus 4% health &amp; education cess, and surcharge on very high incomes.</p>
     <h2>Which regime is better?</h2>
-    <p>The new regime wins for most people. The old regime can win if you claim large HRA, 80C, 80D and home-loan interest deductions. The meter above shows exactly how much deduction you would need. Read the <a href="old-vs-new-tax-regime.html">old vs new regime guide</a> and see <a href="in-hand-salary-by-ctc.html">in-hand salary at every CTC</a>.</p>
+    <p>Which regime gives lower tax depends on your income and on how much you can claim in deductions. The old regime can win if you claim large HRA, 80C, 80D and home-loan interest deductions. The meter above shows exactly how much deduction you would need. Read the <a href="old-vs-new-tax-regime.html">old vs new regime guide</a> and see <a href="in-hand-salary-by-ctc.html">in-hand salary at every CTC</a>.</p>
     <h2>Frequently asked questions</h2>
     <div class="faq">
       <details><summary>Why is my in-hand salary much lower than CTC/12?</summary><p>Because CTC includes employer PF and gratuity, and your own PF, professional tax and income tax are deducted before payout.</p></details>
@@ -215,8 +213,7 @@
   /* ---------- Tax & deductions (shared by both modes) ---------- */
   const taxSecs = $('taxSecs');
   const sTax = sec('tax', '🏛️', 'Location & professional tax', 'Affects HRA and take-home', false); taxSecs.appendChild(sTax);
-  $('b-tax').innerHTML = `<div class="field"><label for="ptState">State (for professional tax)</label><select id="ptState">${Tax.PT_STATES.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}<option value="manual">Another state (I will enter it)</option></select><span class="hint" id="ptInfo"></span></div>` +
-    mfield('pt', 'Professional tax', '200', 'Charged by your state (capped at ₹2,500 a year). Check your payslip for the exact amount.', '/month') +
+  $('b-tax').innerHTML = mfield('pt', 'Professional tax', '200', 'A small state tax, often ₹200 a month and never more than ₹2,500 a year. Enter the amount on your payslip, or 0 if your state does not charge it (for example Delhi, Haryana, Uttar Pradesh, Rajasthan).', '/month') +
     `<div class="field"><label for="city">City you live in (for HRA)</label><select id="city" data-cities data-default="Bengaluru"></select><span class="hint">From FY 2026-27, HRA exemption can be up to 50% of basic in Delhi, Mumbai, Kolkata, Chennai, Bengaluru, Hyderabad, Pune and Ahmedabad, and 40% elsewhere. Old regime only. Please confirm with your employer.</span></div>`;
 
   const sDed = sec('ded', '🍱', 'Other payslip deductions', 'Cab, lunch, ESOP/ESPP and more: taken from your pay after tax', false); taxSecs.appendChild(sDed);
@@ -231,7 +228,7 @@
     `<div class="meter" id="m80"><i id="m80b" style="width:0"></i></div><div class="meter-t" id="m80t"></div>` +
     sub('Health insurance (80D)') + mfield('d80s', 'Premium for self, spouse & children', '', 'Limit ₹25,000 (₹50,000 if 60+).', '/year') + toggle('d80ss', 'Self / spouse is 60 or older', 'Raises the limit to ₹50,000', false) +
     mfield('d80p', 'Premium for parents', '', 'Limit ₹25,000 (₹50,000 if 60+).', '/year') + toggle('d80ps', 'Parents are 60 or older', 'Raises the limit to ₹50,000', false) +
-    sub('NPS and home loan') + mfield('nps1b', 'Your own NPS contribution — 80CCD(1B)', '', 'Extra deduction up to ₹50,000.', '/year') + mfield('hli', 'Home-loan interest (self-occupied) — 24(b)', '', 'Up to ₹2,00,000.', '/year') +
+    sub('NPS and home loan') + mfield('nps1b', 'Your own NPS contribution — 80CCD(1B)', '', 'Extra deduction up to ₹50,000 (old regime). It lowers your tax, but the contribution itself is not taken out of the in-hand figure. If your employer deducts it from your pay, add it under “Other payslip deductions”.', '/year') + mfield('hli', 'Home-loan interest (self-occupied) — 24(b)', '', 'Up to ₹2,00,000.', '/year') +
     `<details class="adv"><summary>More deductions</summary>` + mfield('ltac', 'LTA you claim as exempt', '', 'Limited to the LTA in your salary; allowed for travel on two journeys in a four-year block.', '/year') +
     mfield('edu', 'Education-loan interest — 80E', '', 'No upper limit; for up to 8 years.', '/year') + mfield('don', 'Donations — 80G (eligible amount)', '', '', '/year') +
     mfield('dis', 'Disability — 80DD / 80U', '', 'Up to ₹1,25,000.', '/year') + mfield('othd', 'Any other old-regime deduction', '', '', '/year') + `</details>`;
@@ -282,7 +279,7 @@
       npsMode: DUALS.nps.mode(), npsVal: DUALS.nps.val(), insVal: num('ins'), insMode: 'yr' };
   };
   const readPay = () => ({ basicM: num('pBasic'), hraM: num('pHra'), otherM: num('pOther'), bonusYr: num('pBonus'), pfM: num('pPf'), vpfM: num('pVpf'), employerNpsM: num('pNps') });
-  const readDed = () => ({ postTaxYear: dedYear(), ptState: $('ptState').value === 'manual' ? '' : $('ptState').value, ptMonthly: num('pt'), metro: $('city').value !== 'other', rentMonthly: num('rent'),
+  const readDed = () => ({ postTaxYear: dedYear(), ptMonthly: num('pt'), metro: $('city').value !== 'other', rentMonthly: num('rent'),
     other80c: num('c80ppf') + num('c80elss') + num('c80lic') + num('c80hl') + num('c80tui') + num('c80oth'), nps1b: num('nps1b'),
     d80Self: num('d80s'), d80Parents: num('d80p'), selfSenior: $('d80ss').checked, parentsSenior: $('d80ps').checked, homeLoanInt: num('hli'),
     eduLoanInt: num('edu'), donations: num('don'), disability: num('dis'), ltaClaim: num('ltac'), otherDed: num('othd') });
@@ -295,8 +292,6 @@
     Object.values(DUALS).forEach(d => d.refresh());
     $('pfCustom').hidden = pfGet() !== 'custom'; $('gratCustom').hidden = gratGet() !== 'custom';
     const a = isCtc ? Tax.structure(readCtc()) : Tax.fromPayslip(readPay()), d = readDed(), r = Tax.assess(a, d);
-    $('pt').closest('.field').hidden = !!d.ptState; const ps = Tax.PT_STATES.find(x => x.id === d.ptState);
-    $('ptInfo').textContent = ps ? `${ps.name}: about ${f(r.pt)} a year at your pay.${ps.note ? ' ' + ps.note : ''} Rules change, so check your payslip.` : 'Enter the amount your payslip shows per month.';
     const reg = regimeGet(), key = reg === 'auto' ? r.best : reg, b = r[key], o = r[key === 'new' ? 'old' : 'new'], keyName = key === 'new' ? 'New' : 'Old';
     const hasBonus = r.bonus > 0, pct = r.ctc ? Math.round(b.inHandYear / r.ctc * 100) : null;
 

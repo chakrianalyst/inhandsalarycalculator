@@ -6,8 +6,6 @@
 <title>Salary Hike Calculator — Real In-Hand Raise | RupeeCheck</title>
 <meta name="description" content="Free salary hike calculator for India. Enter a hike % or your new CTC and see the real in-hand raise after tax and PF, what is left after inflation, and a 5-year projection.">
 <link rel="canonical" href="https://inhand.example/salary-hike-calculator.html">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Salary Hike Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
 <script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -38,7 +36,6 @@
         <div class="field"><label for="regime">Tax regime</label><select id="regime"><option value="best" selected>Whichever leaves me more</option><option value="new">New regime</option><option value="old">Old regime</option></select></div>
         <div class="field"><label for="city">City you live in (for HRA)</label><select id="city" data-cities data-default="Bengaluru"></select></div>
         <div class="field"><label for="rent">Monthly rent you pay</label><div class="input-wrap"><span class="pre">₹</span><input id="rent" data-money value="0" placeholder="0"></div><span class="hint">Only matters in the old regime. Leave 0 if you do not claim HRA.</span></div>
-        <div class="field"><label for="ptState">State (for professional tax)</label><select id="ptState"></select></div>
       </div></details>
       <p class="hint" style="margin-top:12px">Everything else follows the <a href="salary-calculator.html">salary calculator</a> defaults, including gratuity inside CTC and no investments or other deductions. <a href="salary-calculator.html">Customise there →</a></p>
     </section>
@@ -79,10 +76,9 @@
   Common.init('hike');
   const $ = id => document.getElementById(id), f = Common.fmt, num = Common.num, pct1 = v => (Number.isFinite(v) ? v.toFixed(1) : '0.0') + '%';
   const modeGet = Common.seg($('hmode'), () => calc());
-  $('ptState').innerHTML = Tax.PT_STATES.map(s => `<option value="${s.id}">${s.name}</option>`).join('') + '<option value="">Another state (₹200 a month)</option>';
   function sal(ctc) {
     return Tax.salary({ ctc, basicPct: num('basicPct'), hraPct: 50, variablePct: num('varPct'), pfCap: $('pfcap').checked, gratuity: true, employerNps: 0,
-      ptMonthly: 200, ptState: $('ptState').value, metro: $('city').value !== 'other', rentMonthly: num('rent') });
+      ptMonthly: 200, metro: $('city').value !== 'other', rentMonthly: num('rent') });
   }
   const usedKey = r => $('regime').value === 'best' ? r.best : $('regime').value, pick = r => r[usedKey(r)];
   function calc() {

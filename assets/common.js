@@ -68,12 +68,12 @@ const Common = (() => {
     <footer class="site-footer"><div class="container">
       <div class="foot-grid">
         <div><a href="index.html" class="logo"><div class="logo-mark">₹</div><span>Rupee<b>Check</b></span></a>
-          <p>Fast, free, private money calculators for India. Everything runs in your browser — your numbers never leave your device.</p></div>
+          <p>Fast, free, private money calculators for India. Everything runs in your browser. What you type is not sent to our servers.</p></div>
         <div><h4>Calculators</h4><ul>${TOOLS.slice(0, 6).map(t => `<li><a href="${t.href}">${t.name}</a></li>`).join('')}</ul></div>
         <div><h4>More</h4><ul>${TOOLS.slice(6).map(t => `<li><a href="${t.href}">${t.name}</a></li>`).join('')}<li><a href="in-hand-salary-by-ctc.html">Salary by CTC chart</a></li></ul></div>
         <div><h4>Learn &amp; about</h4><ul>${GUIDES.map(g => `<li><a href="${g[0]}">${g[1]}</a></li>`).join('')}<li><a href="methodology.html">How we calculate</a></li><li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li><li><a href="privacy.html">Privacy &amp; Disclaimer</a></li></ul></div>
       </div>
-      <p class="legal">© ${new Date().getFullYear()} RupeeCheck. Calculators give estimates for educational purposes based on FY 2026-27 (AY 2027-28) rules and common salary structures; they are not tax, legal or investment advice. Your employer's actual payslip may differ.</p>
+      <p class="legal">© ${new Date().getFullYear()} RupeeCheck. Calculators give estimates for educational purposes based on Tax Year 2026-27 (FY 2026-27) rules and common salary structures; they are not tax, legal or investment advice. Your employer's actual payslip may differ.</p>
     </div></footer>`;
     document.body.insertAdjacentHTML('afterbegin', header);
     document.body.insertAdjacentHTML('beforeend', foot);
@@ -91,7 +91,8 @@ const Common = (() => {
       r.type = 'range';
       ['min', 'max', 'step'].forEach(a => { if (n.hasAttribute(a)) r.setAttribute(a, n.getAttribute(a)); });
       r.value = raw(n); r.setAttribute('aria-label', (f.querySelector('label') || {}).textContent || 'slider');
-      const paint = () => { const p = ((r.value - r.min) / (r.max - r.min)) * 100; r.style.setProperty('--p', Math.max(0, Math.min(100, p)) + '%'); };
+      const suf = ((f.querySelector('.suf') || {}).textContent || '').trim();
+      const paint = () => { const p = ((r.value - r.min) / (r.max - r.min)) * 100; r.style.setProperty('--p', Math.max(0, Math.min(100, p)) + '%'); r.setAttribute('aria-valuetext', money ? '₹' + IN.format(+r.value) : r.value + (suf ? ' ' + suf : '')); };
       r.addEventListener('input', () => { n.value = money ? IN.format(+r.value) : r.value; paint(); n.dispatchEvent(new Event('input', { bubbles: true })); });
       n.addEventListener('input', () => { r.value = raw(n); paint(); });
       f.appendChild(r); paint();
@@ -329,7 +330,7 @@ const Common = (() => {
     const gl = (GUIDE_LINKS[activeId] || []).map(h => GUIDES.find(g => g[0] === h)).filter(Boolean);
     if (gl.length && !document.querySelector('.guide-links')) el.insertAdjacentHTML('afterend', `<p class="guide-links"><b>Read the guides:</b> ${gl.map(g => `<a href="${g[0]}">${g[1]}</a>`).join(' · ')}</p>`);
     el.innerHTML = TOOLS.filter(t => t.id !== activeId).slice(0, n).map(t =>
-      `<a class="tool-card" href="${t.href}"><div class="ico">${t.icon}</div><h3>${t.name}</h3><p>${t.desc}</p><span class="go">Open →</span></a>`).join('');
+      `<a class="tool-card" href="${t.href}"><div class="ico" aria-hidden="true">${t.icon}</div><h3>${t.name}</h3><p>${t.desc}</p><span class="go">Open →</span></a>`).join('');
   }
 
 
@@ -343,14 +344,14 @@ const Common = (() => {
     if (SITE.gaId) {
       loadScript('https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(SITE.gaId));
       window.dataLayer = window.dataLayer || []; window.gtag = function () { window.dataLayer.push(arguments); };
-      window.gtag('js', new Date()); window.gtag('config', SITE.gaId, { anonymize_ip: true });
+      window.gtag('js', new Date()); window.gtag('config', SITE.gaId, { anonymize_ip: true, page_location: location.origin + location.pathname });   // never send the address with its query string: shared links carry the user's inputs
     }
     if (SITE.adsenseClient) loadScript('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + encodeURIComponent(SITE.adsenseClient), { crossorigin: 'anonymous' });
   }
   function consentBanner() {
     if (!(SITE.gaId || SITE.adsenseClient) || consent()) return;
     const b = document.createElement('div'); b.className = 'consent'; b.setAttribute('role', 'dialog'); b.setAttribute('aria-label', 'Cookie notice');
-    b.innerHTML = `<p>We use cookies for anonymous analytics and to show ads that keep these tools free. Your calculator inputs never leave your device. <a href="privacy.html">Learn more</a></p><div><button class="btn btn-ghost btn-sm" data-c="no">Decline</button><button class="btn btn-primary btn-sm" data-c="yes">Accept</button></div>`;
+    b.innerHTML = `<p>We use cookies for anonymous analytics and to show ads that keep these tools free. What you type into the calculators is not sent to us. <a href="privacy.html">Learn more</a></p><div><button class="btn btn-ghost btn-sm" data-c="no">Decline</button><button class="btn btn-primary btn-sm" data-c="yes">Accept</button></div>`;
     b.addEventListener('click', e => { const c = e.target.dataset && e.target.dataset.c; if (!c) return; try { localStorage.setItem('inhand-consent', c); } catch (x) {} b.remove(); document.documentElement.style.removeProperty('--consent-lift'); if (c === 'yes') startThirdParties(); });
     document.body.appendChild(b);
     const size = () => { if (b.isConnected) document.documentElement.style.setProperty('--consent-lift', (b.offsetHeight + 12) + 'px'); };      // lets the mobile result bar sit above the banner
@@ -413,7 +414,7 @@ const Common = (() => {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'share-btn'; b.innerHTML = '🔗 Share'; b.setAttribute('aria-label', 'Share these results');
     b.onclick = async () => { state.write(); const url = location.href;
       try { if (navigator.share) { await navigator.share({ title: document.title, url }); track('share', { method: 'native' }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
-      try { await navigator.clipboard.writeText(url); toast('Link copied — it restores your exact numbers'); track('share', { method: 'copy' }); } catch (e) { toast('Copy the address bar link to share'); } };
+      try { await navigator.clipboard.writeText(url); toast('Link copied. It contains the numbers you entered, so share it only with people you trust.'); track('share', { method: 'copy' }); } catch (e) { toast('Copy the address bar link to share'); } };
     hero.appendChild(b);
   }
   function a11y() {

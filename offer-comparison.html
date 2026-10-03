@@ -6,8 +6,6 @@
 <title>Job Offer Comparison Calculator — In-Hand Salary Side by Side | RupeeCheck</title>
 <meta name="description" content="Compare 2–3 job offers in India on real in-hand salary, joining bonus, ESOPs, rent and 4-year value. Free tool.">
 <link rel="canonical" href="https://inhand.example/offer-comparison.html">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Job Offer Comparison","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
 <script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -119,7 +117,7 @@
     let cash = 0, surplus = 0, first = null, esopAT0 = 0, bonusAT = 0;
     for (let y = 0; y < H; y++) {
       const ctc = ctc0 * Math.pow(1 + g, y), k = Math.pow(1 + cinf, y), rent = rent0 * k, oth = oth0 * k;
-      const r = Tax.salary({ ...base, ctc, variablePct: num('var' + i), payoutPct: payPct, metro: city !== 'other', rentMonthly: rent, ptState: Tax.CITY_PT[city] || '' }), b = r[r.best];
+      const r = Tax.salary({ ...base, ctc, variablePct: num('var' + i), payoutPct: payPct, metro: city !== 'other', rentMonthly: rent }), b = r[r.best];
       const extraTax = x => Tax.computeTax(b.taxable + x, r.best).total - b.tax, e = esop - extraTax(esop), jb = y === 0 ? bonus - extraTax(bonus) : 0;
       if (y === 0) { esopAT0 = e; bonusAT = jb; first = { regime: r.best, inHand: b.inHandMonth, inHandYear: b.inHandYear, tax: b.tax, rent, oth, left: b.inHandMonth - rent - oth }; }
       cash += b.inHandYear + e + jb; surplus += b.inHandYear - 12 * (rent + oth) + e + jb;
