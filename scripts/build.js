@@ -58,7 +58,9 @@ for (const [file, raw] of Object.entries(pages)) {
   const url = `${siteUrl}/${file === 'index.html' ? '' : file}`;
   const faqs = [...html.matchAll(/<details><summary>([\s\S]*?)<\/summary><p>([\s\S]*?)<\/p><\/details>/g)].map(m => ({ '@type': 'Question', name: strip(m[1]), acceptedAnswer: { '@type': 'Answer', text: strip(m[2]) } }));
   const extra = [
+    `<link rel="icon" href="favicon.ico" sizes="48x48">`,
     `<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">`,
+    `<link rel="icon" href="assets/icon-192.png" sizes="192x192" type="image/png">`,
     `<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">`,
     `<link rel="manifest" href="manifest.webmanifest">`,
     `<meta name="theme-color" content="#5b4bff">`,
@@ -80,6 +82,7 @@ for (const [file, raw] of Object.entries(pages)) {
 // ---------- assets + static files ----------
 (function copy(src, dst) { for (const e of fs.readdirSync(src, { withFileTypes: true })) { const s = path.join(src, e.name), d = path.join(dst, e.name);
   e.isDirectory() ? (fs.mkdirSync(d, { recursive: true }), copy(s, d)) : fs.copyFileSync(s, d); } })(path.join(ROOT, 'assets'), path.join(OUT, 'assets'));
+if (fs.existsSync(path.join(ROOT, 'favicon.ico'))) fs.copyFileSync(path.join(ROOT, 'favicon.ico'), path.join(OUT, 'favicon.ico'));          // browsers and Google also look for this path
 if (fs.existsSync(path.join(ROOT, 'manifest.webmanifest'))) fs.copyFileSync(path.join(ROOT, 'manifest.webmanifest'), path.join(OUT, 'manifest.webmanifest'));
 
 const pub = { siteName: cfg.siteName, siteUrl, gaId: (cfg.analytics || {}).gaId || '', adsenseClient: (cfg.adsense || {}).client || '', adsenseSlot: (cfg.adsense || {}).slot || '',
