@@ -581,5 +581,12 @@ if (chromium) {
     assert.ok(!/AY 2027-28/.test(fs.readdirSync(SITE).filter(x => x.endsWith('.html')).map(x => fs.readFileSync(path.join(SITE, x), 'utf8')).join('')), 'old assessment-year wording is gone');
   });
 
+  test('search appearance: home title fits in a result, and favicons are available in the formats Google reads', async () => {
+    const h = fs.readFileSync(path.join(SITE, 'index.html'), 'utf8'), title = (h.match(/<title>([^<]*)<\/title>/) || [])[1].replace(/&amp;/g, '&');
+    assert.ok(title.length <= 60, 'home title is ' + title.length + ' characters: ' + title);
+    assert.match(h, /rel="icon" href="favicon\.ico"/); assert.match(h, /rel="icon" href="assets\/icon-192\.png"/); assert.match(h, /rel="icon" href="assets\/favicon\.svg"/);
+    const ico = fs.readFileSync(path.join(SITE, 'favicon.ico')); assert.equal(ico.readUInt16LE(2), 1, 'valid ICO header'); assert.equal(ico[6], 48);
+  });
+
   test('teardown', async () => { await browser.close(); fs.rmSync(LIVE, { recursive: true, force: true }); });
 }
