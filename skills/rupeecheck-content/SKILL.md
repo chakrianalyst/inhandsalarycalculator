@@ -37,7 +37,7 @@ This recomputes the key figures with plain formulas that share no code with the 
 python3 scripts/render_card.py spec.json out.png        # one image
 python3 scripts/render_card.py spec.json out_folder/    # a carousel: PNG per slide plus a PDF
 ```
-Copy the figures into the spec from `run.js` output through `fmt.js`; never retype them. Then **look at every image you made** and fix clipping, awkward wrapping and spacing before delivering. Sizes and when to use which template are in `references/image-guide.md`. Write a one-sentence alt text for each image.
+Copy the figures into the spec from `run.js` output through `fmt.js`; never retype them. Then **look at every image you made** and fix clipping, awkward wrapping and spacing before delivering; on a myth slide the title and the myth box must not echo each other, and table headings must be plain words (see the image guide). Sizes and when to use which template are in `references/image-guide.md`. Write a one-sentence alt text for each image.
 
 **7. Review before you hand over.** Check: every number traced to a run and a check; **each headline and label says exactly what its numbers show** (a title about "starting later" over a table of "10 vs 20 years" is a mismatch readers notice); assumptions stated; no advice or guarantees; the platform's rules respected (no link where it hurts reach or breaks the community's rules); the tone fits the platform; the claims about RupeeCheck are true (`references/site-facts.md`).
 
