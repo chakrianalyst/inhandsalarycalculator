@@ -86,6 +86,8 @@ Contents: [Instagram](#instagram) · [Facebook](#facebook) · [X](#x-twitter) ·
 
 **Length:** aim for about 250 words and never much more than 300 (a table does not count against you, but keep it small). Long replies get skimmed or ignored; keep the answer, the table, the assumptions and one or two caveats, and cut the rest. State a firm verdict only as firmly as the assumptions allow ("by a fair margin on these assumptions", not "it isn't close").
 
+**Do not call anything "the one thing" or "the only thing".** If a lever flips the result, say it is "the main one" and name the others you know of (for example, home-loan interest first, then parents' health insurance and education-loan interest). The runner you left out is the one a commenter will raise, and an absolute word makes the whole answer look careless. Say it as the maths shows it: "the old regime needs about ₹1.36 L more in deductions to catch up; home-loan interest is the usual way to get there".
+
 **Tone check:** if a sentence could appear in an advertisement, rewrite it.
 
 **Example (someone asks "new or old regime at ₹15 L?"):**
