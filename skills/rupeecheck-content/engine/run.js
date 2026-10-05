@@ -135,11 +135,11 @@ function abroad(o) {
 /* ---------- return to India: mirrors return-calculator.html ---------- */
 function returning(o) {
   const d = merge('return-calculator', o), P = { age: n(d.age), fx: n(d.fx), dep: n(d.dep), retAbroad: n(d.retA), retIndia: n(d.retI), infl: n(d.infl), cash: n(d.cash), saveYear: n(d.saveYear), saveGrowth: n(d.saveGrowth),
-    retire: n(d.retire), retireYear: n(d.retireYear), indiaAssets: n(d.indiaAssets), spend: n(d.spend), planEnd: Math.max(n(d.age) + 1, n(d.planEnd)), jobCtc: n(d.jobCtc), jobGrowth: n(d.jobGrowth), workUntil: n(d.workUntil), lump: n(d.lump),
+    retire: n(d.retire), retireYear: n(d.retireYear), retireGrowth: n(d.retireGrowth), indiaAssets: n(d.indiaAssets), spend: n(d.spend), planEnd: Math.max(n(d.age) + 1, n(d.planEnd)), jobCtc: n(d.jobCtc), jobGrowth: n(d.jobGrowth), workUntil: n(d.workUntil), lump: n(d.lump),
     convCost: n(d.convCost), gainShare: n(d.gainShare), gainTax: n(d.gainTax), retireMode: d.retMode, retireTax: n(d.retireTax), penalty: n(d.penalty), retireAge: n(d.retireAge) };
   const A = Returning.analyse(P, 10);
   return { inputs: d, results: { firstReadyInYears: A.firstReady, table: A.rows.map(r => ({ returnInYears: r.r, age: r.age, youBringHome: r.corpus, youNeed: r.need, gap: r.gap, ready: r.ready })) },
-    assumptions: ['Spending ₹' + P.spend + ' a month in today\'s money in India', 'Rupee weakens ' + P.dep + '% a year', 'Returns ' + P.retAbroad + '% abroad, ' + P.retIndia + '% in India, inflation ' + P.infl + '%', 'Plan runs to age ' + P.planEnd] };
+    assumptions: ['Spending ₹' + P.spend + ' a month in today\'s money in India', 'Rupee weakens ' + P.dep + '% a year', 'Returns ' + P.retAbroad + '% abroad, ' + P.retIndia + '% in India, inflation ' + P.infl + '%', 'Plan runs to age ' + P.planEnd, 'Savings abroad rise ' + P.saveGrowth + '% a year, retirement contributions ' + (P.retireGrowth || 0) + '% a year, India salary raise ' + P.jobGrowth + '% a year (the package is in today\'s money and grows from today)'] };
 }
 
 const TOOLS = { salary, regime, sip, emi, fd, gratuity, hra, fire, rentbuy, abroad, return: returning };
@@ -147,7 +147,7 @@ const DEFAULT_PAGE = { sip: 'sip-calculator', emi: 'emi-calculator', fd: 'fd-cal
 const HELP = { salary: 'ctc, basicPct, hraPct, variablePct, pfCap, gratuity, employerNps, ptMonthly, metro, rentMonthly; old-regime deductions: other80c, nps1b, d80, homeLoanInt, eduLoanInt, donations, disability', regime: 'gross (yearly gross salary), deductions (optional, beyond the standard deduction)', sip: 'mode (sip|lump|goal), sip, lump, ret, yrs, mon, step, infl, taxk (none|equity|slab), slab, conv (eff|nom), goal, goalIn (today|future)',
   emi: 'mode (emi|afford), amt, rate, yrs, mon, extra (prepay a month), lump, lumpM; afford: inc, foir, old', fd: 'mode (fd|rd), p, d (RD monthly), rate, yrs, mon, day, cmp, slab, senior', gratuity: 'wage, yrs, mon, kind (covered|notcovered|govt), fixed, total', hra: 'basic, hra, rent (monthly), months, metro, slab',
   fire: 'age, retAge, exp (monthly), corp, sav (monthly), step, ret, infl, postRet, swr, life, pension, ratio', rentbuy: 'price, dp, rate, tenure, rent, app, inv, rentInc, horizon, bcost, scost, maint, infl, gtax, lben, slab',
-  abroad: 'country (US|CA|AU|SG|AE|UK|DE), city, gross (local currency), ctc, years, rentA, otherA, rentI, otherI, fx, dep, gA, gI, rA, rI, iA, iI, oneTime, trips, parents, partner, retPct, matchPct, epf', return: 'age, cash, saveYear, retire, retireYear, indiaAssets, spend, jobCtc, workUntil, planEnd, lump, fx, dep, retA, retI, infl, retMode' };
+  abroad: 'country (US|CA|AU|SG|AE|UK|DE), city, gross (local currency), ctc, years, rentA, otherA, rentI, otherI, fx, dep, gA, gI, rA, rI, iA, iI, oneTime, trips, parents, partner, retPct, matchPct, epf', return: 'age, cash, saveYear, saveGrowth, retire, retireYear, retireGrowth, indiaAssets, spend, jobCtc, workUntil, planEnd, lump, fx, dep, retA, retI, infl, retMode' };
 
 function main(argv) {
   const [tool, ...rest] = argv;

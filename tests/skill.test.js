@@ -61,3 +61,11 @@ test('image maker renders every template when Pillow is available', { skip: spaw
   const sp = path.join(tmp, 'car.json'); fs.writeFileSync(sp, JSON.stringify({ name: 'c', size: 'portrait', slides: [specs.myth, specs.stat] })); execFileSync('python3', [S, sp, path.join(tmp, 'car')]); assert.ok(fs.existsSync(path.join(tmp, 'car', 'c-02.png')) && fs.existsSync(path.join(tmp, 'car', 'c.pdf')));
   fs.rmSync(tmp, { recursive: true, force: true });
 });
+
+test('return-to-India: the independent re-computation agrees with the site across profiles, and flags a wrong figure', () => {
+  const profiles = [{}, { age: 31, cash: 5000, saveYear: 7800, retire: 1, retireYear: 1, indiaAssets: 100000, jobCtc: 2500000, lump: 1000000, fx: 108.7, retireTax: 0, penalty: 0 },
+    { jobCtc: 1800000, retMode: 'withdraw', retireGrowth: 5, saveGrowth: 6, dep: 1, infl: 7, retA: 5, retI: 8 }, { age: 50, planEnd: 70, workUntil: 58, jobCtc: 2000000, retireAge: 55, retireGrowth: 3 }, { jobCtc: 0, spend: 200000, cash: 1000000, saveYear: 0, retire: 0, retireYear: 0 }];
+  for (const p of profiles) { V.lines.length = 0; const r = run.TOOLS.return(p); V.V.return({ inputs: r.inputs, results: r.results }); assert.ok(!V.lines.some(l => l.status === 'MISMATCH'), JSON.stringify(p) + ' ' + JSON.stringify(V.lines.filter(l => l.status === 'MISMATCH'))); assert.ok(V.lines.filter(l => l.status === 'AGREE').length >= 4); }
+  V.lines.length = 0; const g = run.TOOLS.return({}); g.results.table[3].youNeed += 5000; V.V.return({ inputs: g.inputs, results: g.results }); assert.ok(V.lines.some(l => l.status === 'MISMATCH'), 'a wrong "you need" figure must be flagged');
+  V.lines.length = 0; const h = run.TOOLS.return({}); h.results.table[0].youBringHome -= 1000; V.V.return({ inputs: h.inputs, results: h.results }); assert.ok(V.lines.some(l => l.status === 'MISMATCH'), 'a wrong "bring home" figure must be flagged');
+});

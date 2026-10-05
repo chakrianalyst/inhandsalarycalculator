@@ -29,7 +29,7 @@
     const ra = p.retAbroad / 100, fxR = p.fx * Math.pow(1 + p.dep / 100, r); let cash = p.cash, ret = p.retire;
     for (let t = 0; t < r; t++) {
       cash = cash * (1 + ra) + p.saveYear * Math.pow(1 + (p.saveGrowth || 0) / 100, t) * (1 + ra / 2);
-      ret = ret * (1 + ra) + (p.retireYear || 0) * (1 + ra / 2);
+      ret = ret * (1 + ra) + (p.retireYear || 0) * Math.pow(1 + (p.retireGrowth || 0) / 100, t) * (1 + ra / 2);
     }
     const gross = cash * fxR, gainTax = cash * (p.gainShare / 100) * (p.gainTax / 100) * fxR, conv = gross * (p.convCost / 100);
     const india = p.indiaAssets * Math.pow(1 + p.retIndia / 100, r), age = p.age + r;
@@ -86,6 +86,23 @@
     return { ...h, need, gap: h.corpus - need, ready: h.corpus >= need - 1e-6, extra };
   }
 
-  const api = { incomeByYear, atReturn, live, needed, evaluate, analyse, maxSpend };
+  /** Today's money to the money of the year you return: what a salary or monthly spending quoted today becomes after r years of raises or inflation. */
+  function todayToReturn(p, r) { return { ctc: p.jobCtc * Math.pow(1 + (p.jobGrowth || 0) / 100, r), spend: p.spend * Math.pow(1 + (p.infl || 0) / 100, r) }; }
+
+  /** A rough guide to how fast the rupee might weaken: the gap between India's inflation and the other country's (purchasing-power idea). Not a forecast; rounded to 0.5, never below 0. */
+  function rupeeDriftFromInflation(indiaInfl, abroadInfl) { return Math.max(0, Math.round(((indiaInfl || 0) - (abroadInfl || 0)) * 2) / 2); }
+
+  /** Cautious and optimistic versions of the same inputs: each growth setting moves together by a few points (illustrative spreads, not forecasts). */
+  const SCENARIOS = {
+    cautious:   { label: 'Cautious',   retAbroad: -2, retIndia: -2, dep: -2, infl: +1, jobGrowth: -2, saveGrowth: -1 },
+    optimistic: { label: 'Optimistic', retAbroad: +2, retIndia: +2, dep: +1, infl: -1, jobGrowth: +2, saveGrowth: +1 },
+  };
+  function scenario(p, key) {
+    const d = SCENARIOS[key]; if (!d) return { ...p };
+    const q = { ...p }; for (const k of Object.keys(d)) if (k !== 'label') q[k] = Math.max(0, (Number(p[k]) || 0) + d[k]);
+    return q;
+  }
+
+  const api = { incomeByYear, atReturn, live, needed, evaluate, analyse, maxSpend, todayToReturn, rupeeDriftFromInflation, scenario, SCENARIOS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Returning = api;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -26,7 +26,7 @@ Base address https://rupeecheck.in/ followed by the file name.
 | FIRE | `fire-calculator.html` | |
 | Rent vs buy | `rent-vs-buy-calculator.html` | |
 | Move abroad | `abroad-calculator.html` | |
-| Return to India | `return-calculator.html` | |
+| Return to India | `return-calculator.html` | Money fields are in **today's** rupees and grow to the return year: spending by India inflation, a job package by the yearly raise (so ₹25 LPA today is about ₹49 LPA after 10 years at 7%). Savings abroad rise by their own yearly percentage. The tool's maths is checked independently (`verify.js return`); the growth, inflation and exchange-rate settings are assumptions, so call results estimates. |
 | Job offers | `offer-comparison.html` | |
 | Salary hike | `salary-hike-calculator.html` | |
 | Net worth | `networth-calculator.html` | `net-worth-by-age.html` |

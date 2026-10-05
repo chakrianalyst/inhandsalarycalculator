@@ -51,3 +51,26 @@ test('inflation raises spending every year; income uses the salary engine', () =
 });
 
 test('evaluate matches analyse for the same year', () => { const p = P({ cash: 5000000, saveYear: 1500000, planEnd: 70 }), a = R.analyse(p, 5).rows[3], e = R.evaluate(p, 3); near(e.corpus, a.corpus, 0.01); near(e.need, a.need, 0.01); assert.equal(e.ready, a.ready); });
+
+test('retirement contributions can rise each year; at 0% they are flat (the old behaviour)', () => {
+  const flat = R.atReturn(P({ retire: 0, retireYear: 100, fx: 1 }), 3).retLocal, up = R.atReturn(P({ retire: 0, retireYear: 100, retireGrowth: 10, fx: 1 }), 3).retLocal;
+  near(flat, 300, 0.001); near(up, 100 + 110 + 121, 0.001); assert.equal(R.atReturn(P({ retire: 5, retireYear: 100 }), 2).retLocal, R.atReturn(P({ retire: 5, retireYear: 100, retireGrowth: 0 }), 2).retLocal);
+});
+
+test('today to return: a package and spending quoted today grow by the raise and by inflation', () => {
+  const t = R.todayToReturn(P({ jobCtc: 2500000, jobGrowth: 7, spend: 100000, infl: 6 }), 10); near(t.ctc, 2500000 * Math.pow(1.07, 10), 0.01); near(t.spend, 100000 * Math.pow(1.06, 10), 0.01);
+  const now = R.todayToReturn(P({ jobCtc: 2500000, spend: 100000 }), 0); assert.equal(now.ctc, 2500000); assert.equal(now.spend, 100000);
+});
+
+test('rupee drift guide: India inflation minus the other country, rounded to 0.5, never below 0', () => {
+  assert.equal(R.rupeeDriftFromInflation(6, 2.5), 3.5); assert.equal(R.rupeeDriftFromInflation(6, 3), 3); assert.equal(R.rupeeDriftFromInflation(3, 6), 0); assert.equal(R.rupeeDriftFromInflation(6, 2.7), 3.5);
+});
+
+test('scenarios: cautious moves every growth setting down (or inflation up), optimistic the other way, and the order of results follows', () => {
+  const p = P({ retAbroad: 7, retIndia: 9, dep: 3, infl: 6, jobGrowth: 7, saveGrowth: 3, cash: 5000000, saveYear: 500000, jobCtc: 2000000, spend: 80000, planEnd: 80, fx: 90 });
+  const c = R.scenario(p, 'cautious'), o = R.scenario(p, 'optimistic');
+  assert.deepEqual([c.retAbroad, c.retIndia, c.dep, c.infl, c.jobGrowth, c.saveGrowth], [5, 7, 1, 7, 5, 2]); assert.deepEqual([o.retAbroad, o.retIndia, o.dep, o.infl, o.jobGrowth, o.saveGrowth], [9, 11, 4, 5, 9, 4]);
+  assert.equal(c.cash, p.cash); assert.equal(R.scenario(p, 'nothing').dep, 3);
+  const g = x => R.evaluate(x, 5).gap; assert.ok(g(c) < g(p) && g(p) < g(o));
+  assert.equal(R.scenario(P({ dep: 1, infl: 0, jobGrowth: 1, saveGrowth: 0 }), 'cautious').dep, 0);          // never below zero
+});
