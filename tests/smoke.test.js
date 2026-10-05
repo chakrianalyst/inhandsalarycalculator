@@ -418,6 +418,21 @@ if (chromium) {
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
+  test('Return to India calculator: tax on India returns, partner pay, market fall card, and the share link', async () => {
+    const pg = await open(SITE, 'return-calculator.html'); const txt = sel => pg.$eval(sel, e => e.innerText), table = async () => (await txt('#yrTbl')).replace(/\s+/g, ' ');
+    await pg.$eval('#sec-job', e => (e.open = true)); await pg.$eval('#sec-tax', e => (e.open = true)); await pg.fill('#spend', '2,00,000'); await pg.fill('#planEnd', '80'); await pg.selectOption('#when', '4');
+    const base = await table(); assert.equal(await pg.isVisible('#partnerYears'), false); assert.equal(await pg.inputValue('#indiaTax'), '0');
+    await pg.fill('#indiaTax', '25'); assert.notEqual(await table(), base); await pg.fill('#indiaTax', '0'); assert.equal(await table(), base);
+    await pg.fill('#partnerCtc', '18,00,000'); assert.equal(await pg.isVisible('#partnerYears'), true); assert.match(await txt('#ptAt'), /when you return in 4 years/); assert.notEqual(await table(), base);
+    await pg.fill('#partnerYears', '0'); assert.match(await txt('#warns'), /partner works for 0 years/); assert.equal(await table(), base); await pg.fill('#partnerCtc', '0'); assert.equal(await table(), base);
+    const rows = await pg.$$eval('#shock tr', t => t.map(r => r.innerText.replace(/\s+/g, ' ').trim())); assert.equal(rows.length, 4); assert.match(rows[1], /^As you entered/); assert.match(rows[2], /^−20%/); assert.match(rows[3], /^−35%/);
+    const gap = r => { const m = r.match(/([+−])₹([\d.,]+) ?(L|Cr)\s*$/); const v = parseFloat(m[2].replace(/,/g, '')) * (m[3] === 'Cr' ? 100 : 1); return m[1] === '−' ? -v : v; };
+    assert.ok(gap(rows[1]) > gap(rows[2]) && gap(rows[2]) > gap(rows[3]), rows.join(' | '));
+    const lk = await browser.newPage(); await lk.goto(url(SITE, 'return-calculator.html') + '?indiaTax=18&partnerCtc=1500000&partnerYears=9'); await lk.waitForTimeout(300);
+    assert.equal(await lk.inputValue('#indiaTax'), '18'); assert.equal(await lk.inputValue('#partnerCtc'), '15,00,000'); assert.equal(await lk.inputValue('#partnerYears'), '9'); await lk.close();
+    assert.deepEqual(pg.errs, []); await pg.close();
+  });
+
   test('readable colours: green, red and brand text meet 4.5:1 on their surfaces in light and dark; index quick check agrees with the salary page', async () => {
     for (const theme of ['light', 'dark']) {
       const pg = await browser.newPage({ colorScheme: theme }); await pg.goto(url(SITE, 'sip-calculator.html')); await pg.evaluate(t => { document.documentElement.dataset.theme = t; }, theme);
