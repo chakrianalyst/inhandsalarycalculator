@@ -30,7 +30,7 @@ node engine/verify.js salary '{"ctc":1500000}'     # same inputs as run.js
 ```
 This recomputes the key figures with plain formulas that share no code with the site. Read `references/number-protocol.md` and follow it. In short: **AGREE** numbers go out as they are; **APPROXIMATE** numbers are rounded and called "about"; **UNVERIFIED** numbers (long projections, state taxes) need an official source or an honest "illustration" label; a **MISMATCH** means stop, find the cause, and tell the user. Statutory rules you quote (a rebate limit, a metro-city list, a cap) must come from `references/site-facts.md` or an official source you looked up now. If you cannot confirm a rule, leave it out.
 
-**5. Write the content** for each platform, using that platform's voice, length and link rules. Show the working: readers trust a number they can follow. Name the assumptions in one short line. Add the disclaimers the topic needs (`references/compliance.md`).
+**5. Write the content** for each platform, using that platform's voice, length and link rules. Show the working: readers trust a number they can follow. **When the text leans on a legal rule that people may not know or may dispute** (a city counted as a metro, a new limit, a changed slab), cite it in the text itself, in a few words ("Pune is one of the 8 metros under Rule 279 of the Income-tax Rules 2026"), not only in your claims table; the first commenter will challenge it, and a cited rule ends the argument. Name the assumptions in one short line. Add the disclaimers the topic needs (`references/compliance.md`).
 
 **6. Design the images.** Choose the template that fits the idea (compare, stat, myth vs math, bars, or a carousel), write a spec, and render it:
 ```
