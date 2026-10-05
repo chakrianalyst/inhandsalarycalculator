@@ -56,6 +56,7 @@ for (const [file, raw] of Object.entries(pages)) {
   const title = strip((html.match(/<title>([\s\S]*?)<\/title>/) || [, file])[1]);
   const desc = strip((html.match(/<meta name="description" content="([^"]*)"/) || [, ''])[1]);
   const url = `${siteUrl}/${file === 'index.html' ? '' : file}`;
+  const ogImage = `${siteUrl}/assets/${fs.existsSync(path.join(ROOT, 'assets', 'og', file.replace(/\.html$/, '.png'))) ? 'og/' + file.replace(/\.html$/, '.png') : 'og.png'}`;   // a page-specific share image if one exists (scripts/make-og.py), else the default
   const faqs = [...html.matchAll(/<details><summary>([\s\S]*?)<\/summary><p>([\s\S]*?)<\/p><\/details>/g)].map(m => ({ '@type': 'Question', name: strip(m[1]), acceptedAnswer: { '@type': 'Answer', text: strip(m[2]) } }));
   const extra = [
     `<link rel="icon" href="favicon.ico" sizes="48x48">`,
@@ -67,8 +68,8 @@ for (const [file, raw] of Object.entries(pages)) {
     cfg.googleSiteVerification ? `<meta name="google-site-verification" content="${esc(cfg.googleSiteVerification)}">` : '',
     `<meta property="og:type" content="website"><meta property="og:site_name" content="${esc(cfg.siteName)}">`,
     `<meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}">`,
-    `<meta property="og:url" content="${url}"><meta property="og:image" content="${siteUrl}/assets/og.png">`,
-    `<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(desc)}"><meta name="twitter:image" content="${siteUrl}/assets/og.png">`,
+    `<meta property="og:url" content="${url}"><meta property="og:image" content="${ogImage}">`,
+    `<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(desc)}"><meta name="twitter:image" content="${ogImage}">`,
     `<meta name="robots" content="${file === '404.html' ? 'noindex' : 'index,follow,max-image-preview:large'}">`,
     faqs.length ? `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs })}</script>` : '',
   ].filter(Boolean).join('\n');

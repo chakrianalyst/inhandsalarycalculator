@@ -18,6 +18,8 @@ for (const f of files) {
   if (!canon) err(f, 'missing canonical'); else if (!canon.startsWith(siteUrl)) err(f, `canonical ${canon} does not start with ${siteUrl}`);
   if ((h.match(/<h1[ >]/g) || []).length !== 1 && f !== 'index.html') err(f, `expected exactly one <h1>, found ${(h.match(/<h1[ >]/g) || []).length}`);
   if (f !== '404.html' && !/property="og:image"/.test(h)) err(f, 'missing og:image');
+  const og = (h.match(/property="og:image" content="([^"]*)"/) || [])[1];                      // the share image must exist in the built site, or links shared from this page show nothing
+  if (og && og.startsWith(siteUrl + '/') && !fs.existsSync(path.join(DIR, og.slice(siteUrl.length + 1)))) err(f, `og:image file not found: ${og}`);
   if (!/assets\/site\.js/.test(h)) err(f, 'site.js (public config) not injected');
   for (const m of h.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) { try { JSON.parse(m[1]); } catch (e) { err(f, 'invalid JSON-LD: ' + e.message); } }
   if (/\{\{[A-Z_]+\}\}/.test(h)) err(f, 'unreplaced {{TOKEN}}');
