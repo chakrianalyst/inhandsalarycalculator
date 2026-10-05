@@ -111,3 +111,23 @@ test('realism settings move the answer the right way: a gap and a return-year pa
   assert.ok(need({ ...p, jobGap: 9 }) > need(p)); assert.ok(need({ ...p, ctcBasis: 'return' }) > need(p)); assert.ok(need({ ...p, countPf: 'yes' }) < need(p));
   assert.equal(need({ ...p, jobGap: 0, ctcBasis: 'today', countPf: 'no', events: [] }), need(p));                                   // all the new settings off = the old behaviour
 });
+
+test('tax on returns in India: the return you keep is the return less your blended tax rate, for the money you hold now and the money that has to last', () => {
+  near(R.atReturn(P({ indiaAssets: 1000000, retIndia: 10, indiaTax: 20 }), 3).india, 1000000 * Math.pow(1.08, 3), 0.01); near(R.atReturn(P({ indiaAssets: 1000000, retIndia: 10 }), 3).india, 1000000 * Math.pow(1.1, 3), 0.01);
+  const p = P({ cash: 0, spend: 50000, planEnd: 60, retIndia: 9 }); assert.ok(R.analyse({ ...p, indiaTax: 25 }, 0).rows[0].need > R.analyse(p, 0).rows[0].need);   // lower real growth means you need more to start with
+  near(R.live(P({ retIndia: 10, indiaTax: 50, planEnd: 41, spend: 50000 }), 40, 1000000, [], null, 1).end, 1000000 * 1.05 - 600000 * 1.025, 0.01);   // one year: 5% on ₹10 lakh, less ₹6 lakh of spending that earns half a year's growth
+});
+
+test('partner: their pay starts the year you return, runs for the years you set, is taxed on their own, and lowers what you need', () => {
+  const C = 1800000, flat = ctc => R.incomeByYear(P({ jobCtc: ctc, jobGrowth: 0, planEnd: 70, workUntil: 70 }))[0], p = P({ partnerCtc: C, partnerYears: 5, planEnd: 70, jobGrowth: 0 }), inc = R.incomeByYear(p, 2);
+  assert.equal(inc[1], 0); near(inc[2], flat(C), 1); near(inc[6], flat(C), 1); assert.equal(inc[7], 0);
+  const both = R.incomeByYear({ ...p, jobCtc: C, workUntil: 70 }, 0); near(both[0], 2 * flat(C), 1);                                                    // you and a partner each pay your own tax
+  const need = x => R.analyse(x, 0).rows[0].need, base = P({ cash: 0, spend: 90000, planEnd: 70, jobGrowth: 0 }); assert.ok(need({ ...base, partnerCtc: C, partnerYears: 10 }) < need(base));
+  assert.equal(need({ ...base, partnerCtc: 0, partnerYears: 10 }), need(base));
+});
+
+test('markets fall just before you return: investments abroad and retirement accounts fall by that share, nothing else does', () => {
+  const p = P({ cash: 1000000, retire: 500000, saveYear: 100000, fx: 2, indiaAssets: 300000, lump: 50000 }), a = R.atReturn(p, 2), b = R.atReturn({ ...p, marketHit: 20 }, 2);
+  near(b.cashLocal, a.cashLocal * 0.8, 0.01); near(b.retLocal, a.retLocal * 0.8, 0.01); near(b.india, a.india, 1e-9); near(b.corpus, a.corpus - a.cashLocal * 0.2 * 2, 0.01);
+  assert.equal(R.atReturn({ ...p, marketHit: 0 }, 2).corpus, a.corpus); assert.ok(R.evaluate({ ...p, marketHit: 35, spend: 20000 }, 2).gap < R.evaluate({ ...p, spend: 20000 }, 2).gap);
+});

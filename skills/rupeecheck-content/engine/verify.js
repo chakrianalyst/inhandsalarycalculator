@@ -98,16 +98,18 @@ const V = {
   return(r) {
     const d = r.inputs, P = { age: n(d.age), fx: n(d.fx), dep: n(d.dep), retAbroad: n(d.retA), retIndia: n(d.retI), infl: n(d.infl), cash: n(d.cash), saveYear: n(d.saveYear), saveGrowth: n(d.saveGrowth), retire: n(d.retire), retireYear: n(d.retireYear), retireGrowth: n(d.retireGrowth),
       indiaAssets: n(d.indiaAssets), spend: n(d.spend), planEnd: Math.max(n(d.age) + 1, n(d.planEnd)), jobCtc: n(d.jobCtc), jobGrowth: n(d.jobGrowth), workUntil: n(d.workUntil), lump: n(d.lump), convCost: n(d.convCost), gainShare: n(d.gainShare), gainTax: n(d.gainTax),
-      mode: d.retMode, retireTax: n(d.retireTax), penalty: n(d.penalty), retireAge: n(d.retireAge), basis: d.ctcBasis, gap: Math.max(0, n(d.jobGap)), countPf: d.countPf === 'yes', pfRate: n(d.pfRate) / 100,
+      mode: d.retMode, retireTax: n(d.retireTax), penalty: n(d.penalty), retireAge: n(d.retireAge), basis: d.ctcBasis, indiaTax: n(d.indiaTax) / 100, partnerCtc: n(d.partnerCtc), partnerYears: n(d.partnerYears), hit: n(d.marketHit) / 100, gap: Math.max(0, n(d.jobGap)), countPf: d.countPf === 'yes', pfRate: n(d.pfRate) / 100,
       events: [1, 2, 3].map(i => ({ kind: d['ev' + i + 'Kind'], amount: n(d['ev' + i + 'Amt']), from: n(d['ev' + i + 'From']), to: n(d['ev' + i + 'To']) })).filter(e => e.kind && e.amount > 0) };
-    const ra = P.retAbroad / 100, ri = P.retIndia / 100, N = P.planEnd - P.age;
+    const ra = P.retAbroad / 100, ri = P.retIndia / 100 * (1 - P.indiaTax), N = P.planEnd - P.age;
     let usedSite = false;                                                       // set when a salary above ₹50 lakh forces us to take that year's tax from the site (surcharge is not rebuilt here)
     const inHand = ctc => { const basic = ctc * 0.4, erPf = basic * 0.12, gross = ctc - erPf - basic * 0.0481, pt = 2400;       // 40% basic, PF on full basic, gratuity inside CTC, ₹200 a month professional tax, no rent
       const tNew = taxNew(Math.max(0, gross - 75000)), tOld = taxOld(Math.max(0, gross - 50000 - pt - Math.min(150000, erPf))); return gross - erPf - pt - Math.min(tNew, tOld); };   // the cheaper regime, as the site does
     const siteInHand = ctc => { const q = require('./tax.js').salary({ ctc, basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, metro: true, rentMonthly: 0 }); return q[q.best].inHandYear; };
     const share = (t, k) => { const j = t - k; if (!(P.gap > 0) || j < 0) return 1; return (12 - Math.min(12, Math.max(0, P.gap - 12 * j))) / 12; };       // the part of the year you are earning, when the first months after returning have no income
     const ctcOf = (t, k) => P.jobCtc * Math.pow(1 + P.jobGrowth / 100, P.basis === 'return' ? Math.max(0, t - k) : t);
-    const income = (t, k) => { if (!(P.jobCtc > 0 && P.age + t < P.workUntil)) return 0; const ctc = ctcOf(t, k); return (ctc > 5000000 ? (usedSite = true, siteInHand(ctc)) : inHand(ctc)) * share(t, k); };
+    const pay = ctc => ctc > 5000000 ? (usedSite = true, siteInHand(ctc)) : inHand(ctc);
+    const income = (t, k) => { let v = 0; if (P.jobCtc > 0 && P.age + t < P.workUntil) v += pay(ctcOf(t, k)) * share(t, k);
+      if (P.partnerCtc > 0 && t >= k && t < k + P.partnerYears && P.age + t < P.planEnd) v += pay(P.partnerCtc * Math.pow(1 + P.jobGrowth / 100, P.basis === 'return' ? t - k : t)); return v; };       // a partner is taxed on their own and starts the year you return
     const events = (a, t) => P.events.reduce((m, e) => m + (e.kind === 'monthly' && a >= e.from && a < e.to ? e.amount * 12 * Math.pow(1 + P.infl / 100, t) : 0) + (e.kind === 'once' && a === e.from ? e.amount * Math.pow(1 + P.infl / 100, t) : 0), 0);
     const pfAt = k => { if (!P.countPf || !(P.jobCtc > 0)) return null; const end = Math.min(P.workUntil, P.planEnd); let pf = 0, gr = 0, yrs = 0;       // PF (both shares, 24% of basic) grows to the day the job ends; gratuity counts after five working years
       for (let t = k; P.age + t < end; t++) { const basic = 0.4 * ctcOf(t, k) * share(t, k); pf += 0.24 * basic * Math.pow(1 + P.pfRate, end - P.age - t - 1); gr += 0.0481 * basic; if (share(t, k) > 0) yrs++; }
@@ -116,6 +118,7 @@ const V = {
     for (let k = 0; k <= 10; k++) {
       let cash = P.cash, ret = P.retire; const fxK = P.fx * Math.pow(1 + P.dep / 100, k), age = P.age + k;
       for (let t = 0; t < k; t++) { cash = cash * (1 + ra) + P.saveYear * Math.pow(1 + P.saveGrowth / 100, t) * (1 + ra / 2); ret = ret * (1 + ra) + P.retireYear * Math.pow(1 + P.retireGrowth / 100, t) * (1 + ra / 2); }
+      cash *= 1 - P.hit; ret *= 1 - P.hit;                                      // markets fall just before you convert
       const gross = cash * fxK, brought = gross - cash * P.gainShare / 100 * P.gainTax / 100 * fxK - gross * P.convCost / 100, india = P.indiaAssets * Math.pow(1 + ri, k);
       let withdrawn = 0, kept = 0, keptAt = null;
       if (P.mode === 'withdraw') withdrawn = ret * fxK * (1 - (P.retireTax + (age < 59.5 ? P.penalty : 0)) / 100) * (1 - P.convCost / 100);
