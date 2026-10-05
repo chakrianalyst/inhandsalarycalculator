@@ -389,7 +389,8 @@ if (chromium) {
     assert.equal(await pg.inputValue('#retireGrowth'), '0');
     await pg.selectOption('#when', '10'); await pg.fill('#jobCtc', '25,00,000');
     assert.match(await txt('#ctcAt'), /49[\d.]* ?L[\s\S]*when you return in 10 years/); assert.match(await txt('#spAt'), /2,68,627[\s\S]*when you return in 10 years/);
-    await pg.selectOption('#when', '0'); assert.equal(await txt('#spAt'), ''); assert.equal(await txt('#ctcAt'), '');
+    await pg.selectOption('#when', '0'); assert.equal(await txt('#spAt'), ''); assert.match(await txt('#ctcAt'), /today’s pay, used as it is because you return now/);
+    assert.equal(await pg.$eval('#ctcBasis', (a, b) => !!(a.compareDocumentPosition(document.getElementById(b)) & Node.DOCUMENT_POSITION_FOLLOWING), 'jobCtc'), true);          // the choice of how to read the amount comes before the amount
     await pg.$eval('#sec-fx', e => (e.open = true)); await pg.selectOption('#country', 'DE'); assert.match(await txt('#depSug'), /India 6% minus Germany 2\.5%[\s\S]*3\.5%/); await pg.click('#useDrift'); assert.equal(await pg.inputValue('#dep'), '3.5'); assert.equal(await pg.isVisible('#useDrift'), false);
     await pg.fill('#dep', '1'); assert.equal(await pg.isVisible('#useDrift'), true); await pg.fill('#jobCtc', '26,00,000'); await pg.click('#useDrift'); assert.equal(await pg.inputValue('#dep'), '3.5');   // a tap right after editing another field still works
     const rows = await pg.$$eval('#range tr', t => t.map(r => r.innerText.replace(/\s+/g, ' ').trim())); assert.equal(rows.length, 4); assert.match(rows[1], /^Cautious/); assert.match(rows[2], /^Your settings/); assert.match(rows[3], /^Optimistic/);
@@ -406,7 +407,7 @@ if (chromium) {
     assert.equal(await pg.isVisible('#pfRate'), false); assert.equal(await pg.isVisible('#ev1Amt'), false);
     const base = await need();
     await pg.fill('#jobGap', '9'); assert.notEqual(await need(), base); await pg.fill('#jobGap', '0'); assert.equal(await need(), base);                       // the gap changes the answer and clearing it restores the old one
-    await pg.selectOption('#ctcBasis', 'return'); assert.match(await txt('#ctcL'), /as of the year you return/); assert.equal(await txt('#ctcAt'), ''); assert.notEqual(await need(), base); await pg.selectOption('#ctcBasis', 'today'); assert.equal(await need(), base);
+    await pg.selectOption('#ctcBasis', 'return'); assert.match(await txt('#ctcL'), /as of the year you return/); assert.match(await txt('#ctcAt'), /what you would be paid when you return in 5 years\. That is about [\s\S]*today’s money/); assert.match(await txt('#ptL'), /as of the year you return/); assert.notEqual(await need(), base); await pg.selectOption('#ctcBasis', 'today'); assert.equal(await need(), base);
     await pg.selectOption('#countPf', 'yes'); assert.equal(await pg.isVisible('#pfRate'), true); assert.notEqual(await need(), base); assert.match(await txt('#homeTbl'), /PF and gratuity from your job in India, received at age 60/);
     await pg.selectOption('#countPf', 'no'); assert.equal(await need(), base);
     await pg.selectOption('#ev1Kind', 'monthly'); assert.equal(await pg.isVisible('#ev1To'), true); assert.match(await txt('#ev1FromL'), /From age/); await pg.fill('#ev1Amt', '30,000'); await pg.fill('#ev1From', '45'); await pg.fill('#ev1To', '50'); assert.notEqual(await need(), base);
