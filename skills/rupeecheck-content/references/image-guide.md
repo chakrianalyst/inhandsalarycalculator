@@ -42,6 +42,9 @@ Wrap words in `**double asterisks**` in `title` and `callouts` to colour them. T
 
 ## Design rules
 - **One hero number.** The number that carries the idea is the biggest thing on the image.
+- **One idea per headline, no echo.** On a `myth` slide the title says what the slide is about, the myth box quotes the false belief in the reader's own voice (“I'll save ₹50 lakh and it will be worth ₹50 lakh.”), and the math box gives the correction. Never let the title and the myth box say nearly the same thing in opposite directions; readers stop to work out which is wrong.
+- **Plain column headings.** Write headings a stranger understands in one read ("Goal as a plain number", "Goal in today's prices", not "Plain ₹50 L"). Long headings wrap onto two lines automatically, so clarity beats brevity.
+- **Spacing is automatic.** The renderer centres the body in the free space under the title, so a slide with one big number does not leave its lower half empty. If a slide still looks sparse, add a second callout or the supporting `rows`, not more text.
 - **Short labels.** If a label does not fit on one line at a readable size, shorten the words, not the font.
 - **Show assumptions in `note`** in one or two lines. It reads as honest, and it protects the user.
 - **The address in `footer`** is the exact page the post is about.

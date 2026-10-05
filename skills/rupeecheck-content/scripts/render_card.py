@@ -224,14 +224,27 @@ def table(cv, spec, W, pad, y, bottom):
     cols = spec.get('columns', []); rows = spec.get('rows', []); nvals = max([len(r['values']) for r in rows] + [len(cols), 1])
     x0, x1 = pad, W - pad; inner = 34
     label_w = (x1 - x0 - 2 * inner) * (0.40 if nvals >= 2 else 0.55); val_w = (x1 - x0 - 2 * inner - label_w) / nvals
-    head_h = 62 if cols else 12
+    def head_lines(c):                                                      # a long column heading wraps onto two lines instead of running into its neighbour
+        c = c.upper(); f = font(22, True)
+        if cv.width(c, f) <= val_w - 14 or ' ' not in c:
+            return [c]
+        words = c.split(); best = None
+        for i in range(1, len(words)):
+            a, b = ' '.join(words[:i]), ' '.join(words[i:])
+            m = max(cv.width(a, f), cv.width(b, f))
+            if best is None or m < best[0]:
+                best = (m, [a, b])
+        return best[1]
+    heads = [head_lines(c) for c in cols]
+    head_h = (92 if any(len(h) > 1 for h in heads) else 62) if cols else 12
     avail = bottom - y - 10 - head_h - 24
     rh = max(70, min(118, avail / max(1, len(rows))))
     total_h = head_h + rh * len(rows) + 12
     cv.rrect((x0, y, x1, y + total_h), 30, fill=th['panel'])
     if cols:
-        for i, c in enumerate(cols):
-            cv.text((x0 + inner + label_w + val_w * (i + 1), y + head_h / 2 + 6), c.upper(), font(22, True), th['muted'], 'rm')
+        for i, hl in enumerate(heads):
+            for j, ln in enumerate(hl):
+                cv.text((x0 + inner + label_w + val_w * (i + 1), y + head_h / 2 + 6 + (j - (len(hl) - 1) / 2) * 28), ln, font(22, True), th['muted'], 'rm')
     cy = y + head_h
     for r in rows:
         hi = r.get('highlight')
@@ -253,41 +266,37 @@ def table(cv, spec, W, pad, y, bottom):
     return y + total_h + 26
 
 
-def tpl_compare(cv, spec, W, H, pad):
+def tpl_compare(cv, spec, W, H, pad, dy=0):
     y = header(cv, spec, W, pad) + 44
-    y = title_block(cv, spec, W, pad, y)
+    y = title_block(cv, spec, W, pad, y) + dy
     bottom = footer(cv, spec, W, H, pad)
     y = table(cv, spec, W, pad, y + 6, bottom - 120 if spec.get('callouts') else bottom)
-    callouts(cv, spec, W, pad, y, bottom)
+    return bottom, callouts(cv, spec, W, pad, y, bottom)
 
 
-def tpl_stat(cv, spec, W, H, pad):
+def tpl_stat(cv, spec, W, H, pad, dy=0):
     th = cv.th
     y = header(cv, spec, W, pad) + 44
-    y = title_block(cv, spec, W, pad, y)
+    y = title_block(cv, spec, W, pad, y) + dy
     bottom = footer(cv, spec, W, H, pad)
     num = spec.get('number', '')
-    sz = 190
+    sz = 190 if spec.get('rows') else 240                                 # a lone number can be much bigger
     while cv.width(num, font(sz, True)) > W - 2 * pad and sz > 60:
         sz -= 4
     rows = spec.get('rows', [])
-    used = sz * 1.0 + (70 if spec.get('number_label') else 0) + (len(rows) * 86 + 60 if rows else 0) + (60 * len(spec.get('callouts', [])) + 20 if spec.get('callouts') else 0)
-    free = (bottom - y) - used
-    if free > 200 and not rows:                                            # a lone number: centre it in the space and let it breathe
-        y += free * 0.32
     cv.text((pad, y + sz * 0.88), num, font(sz, True), th['text'], 'ls')
     y += sz * 1.0
     if spec.get('number_label'):
         y = draw_rich(cv, pad, y + 6, spec['number_label'], 34, False, th['muted'], th['pop'], W - 2 * pad, 1.25, 2, 20) + 10
     if rows:
         y = table(cv, {'rows': rows}, W, pad, y + 14, bottom - (120 if spec.get('callouts') else 0))
-    callouts(cv, spec, W, pad, y + (14 if not rows else 0), bottom)
+    return bottom, callouts(cv, spec, W, pad, y + (14 if not rows else 0), bottom)
 
 
-def tpl_myth(cv, spec, W, H, pad):
+def tpl_myth(cv, spec, W, H, pad, dy=0):
     th = cv.th
     y = header(cv, spec, W, pad) + 44
-    y = title_block(cv, spec, W, pad, y)
+    y = title_block(cv, spec, W, pad, y) + dy
     bottom = footer(cv, spec, W, H, pad)
     inner = W - 2 * pad - 68
     m = spec.get('math', ''); big = H > 1250
@@ -297,8 +306,6 @@ def tpl_myth(cv, spec, W, H, pad):
     myth_lines = wrap(cv, spec.get('myth', ''), font(mfs, True), inner)
     p1 = 70 + len(myth_lines) * (mfs * 1.17) + 36
     p2 = 70 + msz * 1.0 + (70 if spec.get('math_label') else 20) + 28
-    extra = max(0, (bottom - y) - (p1 + p2 + 24) - (130 if spec.get('callouts') else 40))
-    y += extra * 0.4
     cv.rrect((pad, y, W - pad, y + p1), 30, fill=th['panel'])
     cv.text((pad + 34, y + 38), 'THE MYTH', font(24, True), th['muted'], 'lm')
     draw_rich(cv, pad + 34, y + 72, spec.get('myth', ''), mfs, True, th['muted'], th['pop'], inner, 1.17, 3, 24)
@@ -308,13 +315,13 @@ def tpl_myth(cv, spec, W, H, pad):
     cv.text((pad + 34, y2 + 70 + msz * 0.85), m, font(msz, True), (255, 255, 255), 'ls')
     if spec.get('math_label'):
         draw_rich(cv, pad + 34, y2 + 78 + msz, spec['math_label'], 28, False, (255, 255, 255), (255, 255, 255), inner, 1.25, 2, 18)
-    callouts(cv, spec, W, pad, y2 + p2 + 28, bottom)
+    return bottom, callouts(cv, spec, W, pad, y2 + p2 + 28, bottom)
 
 
-def tpl_bars(cv, spec, W, H, pad):
+def tpl_bars(cv, spec, W, H, pad, dy=0):
     th = cv.th
     y = header(cv, spec, W, pad) + 44
-    y = title_block(cv, spec, W, pad, y)
+    y = title_block(cv, spec, W, pad, y) + dy
     bottom = footer(cv, spec, W, H, pad)
     items = spec.get('items', []); mx = max([i['value'] for i in items] + [1])
     avail = bottom - y - (110 if spec.get('callouts') else 20)
@@ -329,7 +336,7 @@ def tpl_bars(cv, spec, W, H, pad):
         cv.rrect((bx0, y + rh * 0.12, bx0 + bw, y + rh * 0.56), 14, gradient=(th['hi1'], th['hi2']) if hi else ((th['accent'], th['accent']) if th['text'][0] < 100 else (th['hi1'], th['hi1'])))
         cv.text((bx0 + 8, y + rh * 0.84), it.get('display', ''), font(26, hi), th['pop'] if hi else th['muted'], 'lm')
         y += rh
-    callouts(cv, spec, W, pad, y + 26, bottom)
+    return bottom, callouts(cv, spec, W, pad, y + 26, bottom)
 
 
 TEMPLATES = {'compare': tpl_compare, 'table': tpl_compare, 'stat': tpl_stat, 'myth': tpl_myth, 'bars': tpl_bars}
@@ -338,9 +345,13 @@ TEMPLATES = {'compare': tpl_compare, 'table': tpl_compare, 'stat': tpl_stat, 'my
 def render(spec, path):
     W, H = SIZES[spec.get('size', 'portrait')]
     th = THEMES[spec.get('theme', 'dark')]
-    cv = Canvas(W, H, th)
     pad = 72 if W <= 1100 else 80
-    TEMPLATES[spec.get('template', 'compare')](cv, spec, W, H, pad)
+    tpl = TEMPLATES[spec.get('template', 'compare')]
+    bottom, end = tpl(Canvas(W, H, th), spec, W, H, pad)                   # first pass on a scratch canvas: how much room is left over?
+    free = bottom - end
+    dy = min(free * 0.45, 320) if free > 120 else 0                        # sit the body in the middle of the free space, not at the top
+    cv = Canvas(W, H, th)
+    tpl(cv, spec, W, H, pad, dy)
     return cv.save(path)
 
 
