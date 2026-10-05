@@ -41,7 +41,7 @@ Built in and tested. Quote them as written; confirm anything beyond them from an
 - **Surcharge:** 10% above ₹50 L, 15% above ₹1 crore, 25% above ₹2 crore; the new regime stays capped at 25%, the old regime goes to 37% above ₹5 crore.
 - **HRA (old regime only):** exempt amount = least of HRA received, rent − 10% of basic, and 50% (metro) or 40% of basic. Eight metros: Delhi, Mumbai, Kolkata, Chennai, Bengaluru, Hyderabad, Pune, Ahmedabad (Income-tax Rules, 2026, Rule 279, notified 20 March 2026, in force 1 April 2026).
 - **Employer NPS:** up to 14% of basic (new regime) or 10% (old regime). Own NPS extra deduction up to ₹50,000 (old regime).
-- **PF:** 12% of basic from employee and employer. In the salary tool PF defaults to the full basic.
+- **PF:** 12% of basic from employee and employer. In the salary tool PF defaults to the full basic. **In the old regime the salary tool automatically counts your own PF under Section 80C** (cap ₹1.5 L) and deducts professional tax, so its "old regime, no deductions" figure is not the standard deduction alone (₹12 LPA: ₹78,284 a month, not about ₹76,800). Describe it as "old regime with only your PF under 80C", never as "no deductions".
 - **Professional tax:** at most ₹2,500 a year by law. The site asks the user for the monthly amount on their payslip (default ₹200).
 - **Gratuity:** wage × 15 ÷ 26 × completed years (rounded up at 6 months). Eligible after 5 years of continuous service for covered employees; the labour-code changes for fixed-term employees are built in but still need professional confirmation. Tax-free limit ₹20 lakh.
 - **Equity gains:** 12.5% above ₹1.25 lakh a year after one year; 20% on short-term gains.

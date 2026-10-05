@@ -14,6 +14,9 @@ A finance brand lives on trust. These rules keep the user safe from legal troubl
 - Gratuity and labour law: "Based on the labour-code rules as understood at the time; confirm with your employer or a labour-law professional."
 - Salary: "Your payslip is the final word."
 
+## "It's still your money"
+Do not say the money held back from CTC is simply "still yours". Your own and your employer's PF are yours but locked until withdrawal rules allow (retirement, or job loss for a while). Gratuity is paid only after 5 years of continuous service (with the exceptions in `site-facts.md`), so say "gratuity, if you stay 5 years" wherever you count it as yours. Words like "later" and "locked in" are accurate; "all yours" is not.
+
 ## Disclosure
 - Reddit and Quora: say you built the site ("I'm the maker"). It is the rule on most communities and it builds trust.
 - If affiliate links are ever added, mark them (the site already labels them "Sponsored").
