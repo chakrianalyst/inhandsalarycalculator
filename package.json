@@ -5,7 +5,7 @@
   "scripts": {
     "build": "node scripts/build.js",
     "check": "node scripts/check.js",
-    "test": "node --test tests/tax.test.js tests/tax-v2.test.js tests/lifesim.test.js tests/deposit.test.js tests/loan.test.js tests/invest.test.js tests/gratuity.test.js tests/hra.test.js tests/fire.test.js tests/rentbuy.test.js tests/abroad.test.js tests/returning.test.js",
+    "test": "node --test tests/tax.test.js tests/tax-v2.test.js tests/lifesim.test.js tests/deposit.test.js tests/loan.test.js tests/invest.test.js tests/gratuity.test.js tests/hra.test.js tests/fire.test.js tests/rentbuy.test.js tests/abroad.test.js tests/returning.test.js tests/skill.test.js",
     "test:browser": "node --test tests/smoke.test.js",
     "verify": "npm run test && npm run build && npm run check && npm run test:browser"
   }

@@ -588,5 +588,20 @@ if (chromium) {
     const ico = fs.readFileSync(path.join(SITE, 'favicon.ico')); assert.equal(ico.readUInt16LE(2), 1, 'valid ICO header'); assert.equal(ico[6], 48);
   });
 
+  test('content-skill runner shows the same numbers as the live pages (so posts match what readers see)', async () => {
+    const run = require(path.join(ROOT, 'skills', 'rupeecheck-content', 'engine', 'run.js')), digits = s => parseInt(String(s).replace(/[^0-9]/g, ''), 10);
+    const sal = await open(SITE, 'salary-calculator.html'); await sal.waitForTimeout(200);
+    assert.equal(digits(await sal.textContent('#rMonth')), Math.round(run.TOOLS.salary({}).results.inHandMonth), 'salary page default vs runner'); await sal.close();
+    const sip = await open(SITE, 'sip-calculator.html'); await sip.waitForTimeout(200);
+    assert.equal(digits(await sip.textContent('#fv')), Math.round(run.TOOLS.sip({}).results.futureValue), 'SIP default'); await sip.close();
+    const emi = await open(SITE, 'emi-calculator.html'); await emi.waitForTimeout(200);
+    assert.equal(digits(await emi.textContent('#emi')), Math.round(run.TOOLS.emi({}).results.emi), 'EMI default'); await emi.close();
+    const ab = await open(SITE, 'abroad-calculator.html'); await ab.waitForTimeout(200); await ab.evaluate(() => document.querySelectorAll('details').forEach(d => { d.open = true; }));
+    await ab.selectOption('#city', 'sf'); await ab.fill('#gross', '150000'); await ab.waitForTimeout(450);
+    const k = await ab.$$eval('#kpis .kpi .v', e => e.map(x => x.textContent)), R = run.TOOLS.abroad({ city: 'sf', gross: 150000 }).results;
+    assert.equal(digits(k[0]), Math.round(R.takeHomeMonthAbroadInRupees), 'abroad take-home'); assert.equal(digits(k[1]), Math.round(R.livingCostMonthAbroadInRupees), 'abroad living costs'); assert.equal(digits(k[2]), Math.round(R.savedYear1Abroad), 'abroad year-1 savings');
+    assert.equal(k[3].replace(/[^0-9.]/g, ''), (R.netWorthEndAbroad / 1e7).toFixed(2), 'abroad net worth in crore'); await ab.close();
+  });
+
   test('teardown', async () => { await browser.close(); fs.rmSync(LIVE, { recursive: true, force: true }); });
 }
