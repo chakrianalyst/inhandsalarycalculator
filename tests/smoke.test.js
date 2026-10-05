@@ -400,6 +400,24 @@ if (chromium) {
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
+  test('Return to India calculator: package basis, job gap, PF, life events and their warnings, kept in the share link', async () => {
+    const pg = await open(SITE, 'return-calculator.html'); const txt = sel => pg.$eval(sel, e => e.innerText), need = async () => (await txt('#yrTbl')).replace(/\s+/g, ' ');
+    await pg.$eval('#sec-job', e => (e.open = true)); await pg.selectOption('#when', '5'); await pg.fill('#spend', '2,50,000'); await pg.fill('#jobCtc', '24,00,000'); await pg.fill('#planEnd', '80');
+    assert.equal(await pg.isVisible('#pfRate'), false); assert.equal(await pg.isVisible('#ev1Amt'), false);
+    const base = await need();
+    await pg.fill('#jobGap', '9'); assert.notEqual(await need(), base); await pg.fill('#jobGap', '0'); assert.equal(await need(), base);                       // the gap changes the answer and clearing it restores the old one
+    await pg.selectOption('#ctcBasis', 'return'); assert.match(await txt('#ctcL'), /as of the year you return/); assert.equal(await txt('#ctcAt'), ''); assert.notEqual(await need(), base); await pg.selectOption('#ctcBasis', 'today'); assert.equal(await need(), base);
+    await pg.selectOption('#countPf', 'yes'); assert.equal(await pg.isVisible('#pfRate'), true); assert.notEqual(await need(), base); assert.match(await txt('#homeTbl'), /PF and gratuity from your job in India, received at age 60/);
+    await pg.selectOption('#countPf', 'no'); assert.equal(await need(), base);
+    await pg.selectOption('#ev1Kind', 'monthly'); assert.equal(await pg.isVisible('#ev1To'), true); assert.match(await txt('#ev1FromL'), /From age/); await pg.fill('#ev1Amt', '30,000'); await pg.fill('#ev1From', '45'); await pg.fill('#ev1To', '50'); assert.notEqual(await need(), base);
+    await pg.fill('#ev1To', '44'); assert.match(await txt('#warns'), /Life event 1 ends before it starts/);
+    await pg.selectOption('#ev1Kind', 'once'); assert.equal(await pg.isVisible('#ev1To'), false); assert.match(await txt('#ev1FromL'), /At age/); await pg.selectOption('#ev1Kind', '');
+    await pg.fill('#jobCtc', '0'); await pg.selectOption('#countPf', 'yes'); assert.match(await txt('#warns'), /PF and gratuity count only when you enter a package/);
+    const lk = await browser.newPage(); await lk.goto(url(SITE, 'return-calculator.html') + '?jobGap=8&ctcBasis=return&countPf=yes&pfRate=7&ev2Kind=once&ev2Amt=500000&ev2From=47'); await lk.waitForTimeout(300);
+    assert.equal(await lk.inputValue('#jobGap'), '8'); assert.equal(await lk.inputValue('#ctcBasis'), 'return'); assert.equal(await lk.inputValue('#countPf'), 'yes'); assert.equal(await lk.inputValue('#pfRate'), '7'); assert.equal(await lk.inputValue('#ev2Kind'), 'once'); assert.equal(await lk.inputValue('#ev2Amt'), '5,00,000'); await lk.close();
+    assert.deepEqual(pg.errs, []); await pg.close();
+  });
+
   test('readable colours: green, red and brand text meet 4.5:1 on their surfaces in light and dark; index quick check agrees with the salary page', async () => {
     for (const theme of ['light', 'dark']) {
       const pg = await browser.newPage({ colorScheme: theme }); await pg.goto(url(SITE, 'sip-calculator.html')); await pg.evaluate(t => { document.documentElement.dataset.theme = t; }, theme);

@@ -98,13 +98,20 @@ const V = {
   return(r) {
     const d = r.inputs, P = { age: n(d.age), fx: n(d.fx), dep: n(d.dep), retAbroad: n(d.retA), retIndia: n(d.retI), infl: n(d.infl), cash: n(d.cash), saveYear: n(d.saveYear), saveGrowth: n(d.saveGrowth), retire: n(d.retire), retireYear: n(d.retireYear), retireGrowth: n(d.retireGrowth),
       indiaAssets: n(d.indiaAssets), spend: n(d.spend), planEnd: Math.max(n(d.age) + 1, n(d.planEnd)), jobCtc: n(d.jobCtc), jobGrowth: n(d.jobGrowth), workUntil: n(d.workUntil), lump: n(d.lump), convCost: n(d.convCost), gainShare: n(d.gainShare), gainTax: n(d.gainTax),
-      mode: d.retMode, retireTax: n(d.retireTax), penalty: n(d.penalty), retireAge: n(d.retireAge) };
+      mode: d.retMode, retireTax: n(d.retireTax), penalty: n(d.penalty), retireAge: n(d.retireAge), basis: d.ctcBasis, gap: Math.max(0, n(d.jobGap)), countPf: d.countPf === 'yes', pfRate: n(d.pfRate) / 100,
+      events: [1, 2, 3].map(i => ({ kind: d['ev' + i + 'Kind'], amount: n(d['ev' + i + 'Amt']), from: n(d['ev' + i + 'From']), to: n(d['ev' + i + 'To']) })).filter(e => e.kind && e.amount > 0) };
     const ra = P.retAbroad / 100, ri = P.retIndia / 100, N = P.planEnd - P.age;
     let usedSite = false;                                                       // set when a salary above ₹50 lakh forces us to take that year's tax from the site (surcharge is not rebuilt here)
     const inHand = ctc => { const basic = ctc * 0.4, erPf = basic * 0.12, gross = ctc - erPf - basic * 0.0481, pt = 2400;       // 40% basic, PF on full basic, gratuity inside CTC, ₹200 a month professional tax, no rent
       const tNew = taxNew(Math.max(0, gross - 75000)), tOld = taxOld(Math.max(0, gross - 50000 - pt - Math.min(150000, erPf))); return gross - erPf - pt - Math.min(tNew, tOld); };   // the cheaper regime, as the site does
     const siteInHand = ctc => { const q = require('./tax.js').salary({ ctc, basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, metro: true, rentMonthly: 0 }); return q[q.best].inHandYear; };
-    const income = t => { if (!(P.jobCtc > 0 && P.age + t < P.workUntil)) return 0; const ctc = P.jobCtc * Math.pow(1 + P.jobGrowth / 100, t); if (ctc > 5000000) { usedSite = true; return siteInHand(ctc); } return inHand(ctc); };
+    const share = (t, k) => { const j = t - k; if (!(P.gap > 0) || j < 0) return 1; return (12 - Math.min(12, Math.max(0, P.gap - 12 * j))) / 12; };       // the part of the year you are earning, when the first months after returning have no income
+    const ctcOf = (t, k) => P.jobCtc * Math.pow(1 + P.jobGrowth / 100, P.basis === 'return' ? Math.max(0, t - k) : t);
+    const income = (t, k) => { if (!(P.jobCtc > 0 && P.age + t < P.workUntil)) return 0; const ctc = ctcOf(t, k); return (ctc > 5000000 ? (usedSite = true, siteInHand(ctc)) : inHand(ctc)) * share(t, k); };
+    const events = (a, t) => P.events.reduce((m, e) => m + (e.kind === 'monthly' && a >= e.from && a < e.to ? e.amount * 12 * Math.pow(1 + P.infl / 100, t) : 0) + (e.kind === 'once' && a === e.from ? e.amount * Math.pow(1 + P.infl / 100, t) : 0), 0);
+    const pfAt = k => { if (!P.countPf || !(P.jobCtc > 0)) return null; const end = Math.min(P.workUntil, P.planEnd); let pf = 0, gr = 0, yrs = 0;       // PF (both shares, 24% of basic) grows to the day the job ends; gratuity counts after five working years
+      for (let t = k; P.age + t < end; t++) { const basic = 0.4 * ctcOf(t, k) * share(t, k); pf += 0.24 * basic * Math.pow(1 + P.pfRate, end - P.age - t - 1); gr += 0.0481 * basic; if (share(t, k) > 0) yrs++; }
+      const value = pf + (yrs >= 5 ? gr : 0); return value > 0 && end < P.planEnd && end > P.age + k ? { age: end, value } : null; };
     const rows = [];
     for (let k = 0; k <= 10; k++) {
       let cash = P.cash, ret = P.retire; const fxK = P.fx * Math.pow(1 + P.dep / 100, k), age = P.age + k;
@@ -113,10 +120,10 @@ const V = {
       let withdrawn = 0, kept = 0, keptAt = null;
       if (P.mode === 'withdraw') withdrawn = ret * fxK * (1 - (P.retireTax + (age < 59.5 ? P.penalty : 0)) / 100) * (1 - P.convCost / 100);
       else { const yrs = Math.max(0, P.retireAge - age); kept = ret * Math.pow(1 + ra, yrs) * P.fx * Math.pow(1 + P.dep / 100, k + yrs) * (1 - P.retireTax / 100) * (1 - P.convCost / 100); keptAt = age + yrs; }
-      const corpus = brought + india + withdrawn - P.lump, inflowAge = kept > 0 ? Math.ceil(keptAt) : null;
+      const corpus = brought + india + withdrawn - P.lump, inflowAge = kept > 0 ? Math.ceil(keptAt) : null, pfIn = pfAt(k);
       /* the smallest starting money that never runs out: the balance after year j is c0*(1+ri)^j + S_j, so c0 must be at least -S_j/(1+ri)^j for every j (no searching needed) */
       let S = 0, need = 0;
-      for (let a = age, j = 1; a < P.planEnd; a++, j++) { const t = a - P.age, net = income(t) + (a === inflowAge ? kept : 0) - P.spend * 12 * Math.pow(1 + P.infl / 100, t); S = S * (1 + ri) + net * (1 + ri / 2); need = Math.max(need, -S / Math.pow(1 + ri, j)); }
+      for (let a = age, j = 1; a < P.planEnd; a++, j++) { const t = a - P.age, net = income(t, k) + (a === inflowAge ? kept : 0) + (pfIn && pfIn.age === a ? pfIn.value : 0) - P.spend * 12 * Math.pow(1 + P.infl / 100, t) - events(a, t); S = S * (1 + ri) + net * (1 + ri / 2); need = Math.max(need, -S / Math.pow(1 + ri, j)); }
       rows.push({ k, corpus, need });
     }
     const tol = x => Math.max(1, Math.abs(x) * 1e-7), site = r.results.table;

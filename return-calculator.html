@@ -37,8 +37,9 @@
 
       <h2 class="card-title" style="margin-top:8px">🇮🇳 Life in India</h2>
       <div class="field"><label for="spend">Monthly spending you want</label><div class="input-wrap"><span class="pre">₹</span><input id="spend" data-money data-words="spWords" value="150000" aria-describedby="spWords"></div><div class="words" id="spWords"></div><span class="hint">In today’s rupees. Include rent or EMI, school fees, help at home, travel and healthcare. We raise it every year by India’s inflation.</span><span class="hint at-return" id="spAt"></span></div>
-      <div class="field"><label for="jobCtc">Your yearly CTC if you work in India (today’s rupees)</label><div class="input-wrap"><span class="pre">₹</span><input id="jobCtc" data-money value="0" placeholder="0"></div><span class="hint">The package you could get if you took the job today. We raise it each year by the yearly raise below until you return, then take it through Indian tax. Leave 0 for no job.</span><span class="hint at-return" id="ctcAt"></span></div>
-      <div class="field"><label for="jobGrowth">Yearly raise in India</label><div class="input-wrap"><input type="number" id="jobGrowth" value="7" min="0" max="25" step="0.5"><span class="suf">% a year</span></div><span class="hint">Applies to your CTC from today, including the years before you return.</span></div>
+      <div class="field"><label for="jobCtc" id="ctcL">Your yearly CTC if you work in India (today’s rupees)</label><div class="input-wrap"><span class="pre">₹</span><input id="jobCtc" data-money value="0" placeholder="0"></div><span class="hint" id="ctcHint">The package you could get if you took the job today. We raise it each year by the yearly raise below until you return, then take it through Indian tax. Leave 0 for no job.</span><span class="hint at-return" id="ctcAt"></span></div>
+      <div class="field"><label for="jobGrowth">Yearly raise in India</label><div class="input-wrap"><input type="number" id="jobGrowth" value="7" min="0" max="25" step="0.5"><span class="suf">% a year</span></div><span class="hint" id="raiseHint">Applies to your CTC from today, including the years before you return.</span></div>
+      <div class="field"><label for="ctcBasis">This package is</label><select id="ctcBasis"><option value="today" selected>Today’s money: raise it until I return</option><option value="return">What I would be paid in the year I return</option></select></div>
       <div class="row-2">
         <div class="field"><label for="workUntil">Work until age</label><div class="input-wrap"><input type="number" id="workUntil" value="60" min="40" max="75" step="1"><span class="suf">yrs</span></div></div>
         <div class="field"><label for="planEnd">Plan until age</label><div class="input-wrap"><input type="number" id="planEnd" value="85" min="65" max="100" step="1"><span class="suf">yrs</span></div></div>
@@ -46,6 +47,24 @@
       <div class="field"><label for="lump">One-time cost of settling back</label><div class="input-wrap"><span class="pre">₹</span><input id="lump" data-money value="2500000" placeholder="0"></div><span class="hint">Shipping, deposits, furniture, a car, a home down payment, and a few months without income.</span></div>
       <div class="field"><label for="when">If you return in</label><select id="when"></select></div>
 
+      <details class="grp" id="sec-job"><summary><div class="gi">🧑‍💼</div><div class="gt">Job and life events<small>Job search, PF, school fees, a house</small></div><span class="chev">›</span></summary><div class="grp-body">
+        <div class="field"><label for="jobGap">Months without income after you return</label><div class="input-wrap"><input type="number" id="jobGap" value="0" min="0" max="36" step="1"><span class="suf">months</span></div><span class="hint">Time to find a job. It only matters if you entered a package above.</span></div>
+        <div class="field"><label for="countPf">Count my PF and gratuity as savings</label><select id="countPf"><option value="no" selected>No (cautious)</option><option value="yes">Yes, count them</option></select><span class="hint">Your PF and your employer’s (inside your CTC) and gratuity after five years, received when the job ends. They are real savings the take-home figure leaves out.</span></div>
+        <div class="field" id="fPf" hidden><label for="pfRate">PF interest rate</label><div class="input-wrap"><input type="number" id="pfRate" value="8" min="0" max="15" step="0.25"><span class="suf">% a year</span></div><span class="hint">The provident fund has paid around 8% in recent years. Check the current rate.</span></div>
+        <p class="grp-hint" style="margin:6px 0 10px">Costs that change your spending later, such as school fees or a house down payment. Amounts are in today’s rupees and grow with inflation. A cost before the age you return is ignored.</p>
+        <div class="field"><label for="ev1Kind">Life event 1</label><select id="ev1Kind"><option value="" selected>None</option><option value="once">One-time cost</option><option value="monthly">Monthly cost for some years</option></select></div>
+        <div id="evF1" hidden><div class="field"><label for="ev1Amt" id="ev1AmtL">Amount (today’s rupees)</label><div class="input-wrap"><span class="pre">₹</span><input id="ev1Amt" data-money value="0" placeholder="0"></div></div>
+          <div class="row-2"><div class="field"><label for="ev1From" id="ev1FromL">At age</label><div class="input-wrap"><input type="number" id="ev1From" value="45" min="20" max="100" step="1"><span class="suf">yrs</span></div></div>
+            <div class="field" id="evT1"><label for="ev1To">Until age</label><div class="input-wrap"><input type="number" id="ev1To" value="55" min="20" max="100" step="1"><span class="suf">yrs</span></div></div></div></div>
+        <div class="field"><label for="ev2Kind">Life event 2</label><select id="ev2Kind"><option value="" selected>None</option><option value="once">One-time cost</option><option value="monthly">Monthly cost for some years</option></select></div>
+        <div id="evF2" hidden><div class="field"><label for="ev2Amt" id="ev2AmtL">Amount (today’s rupees)</label><div class="input-wrap"><span class="pre">₹</span><input id="ev2Amt" data-money value="0" placeholder="0"></div></div>
+          <div class="row-2"><div class="field"><label for="ev2From" id="ev2FromL">At age</label><div class="input-wrap"><input type="number" id="ev2From" value="45" min="20" max="100" step="1"><span class="suf">yrs</span></div></div>
+            <div class="field" id="evT2"><label for="ev2To">Until age</label><div class="input-wrap"><input type="number" id="ev2To" value="55" min="20" max="100" step="1"><span class="suf">yrs</span></div></div></div></div>
+        <div class="field"><label for="ev3Kind">Life event 3</label><select id="ev3Kind"><option value="" selected>None</option><option value="once">One-time cost</option><option value="monthly">Monthly cost for some years</option></select></div>
+        <div id="evF3" hidden><div class="field"><label for="ev3Amt" id="ev3AmtL">Amount (today’s rupees)</label><div class="input-wrap"><span class="pre">₹</span><input id="ev3Amt" data-money value="0" placeholder="0"></div></div>
+          <div class="row-2"><div class="field"><label for="ev3From" id="ev3FromL">At age</label><div class="input-wrap"><input type="number" id="ev3From" value="45" min="20" max="100" step="1"><span class="suf">yrs</span></div></div>
+            <div class="field" id="evT3"><label for="ev3To">Until age</label><div class="input-wrap"><input type="number" id="ev3To" value="55" min="20" max="100" step="1"><span class="suf">yrs</span></div></div></div></div>
+      </div></details>
       <details class="grp" id="sec-fx"><summary><div class="gi">💱</div><div class="gt">Exchange rate, returns and inflation<small>Rupee movement, growth and prices</small></div><span class="chev">›</span></summary><div class="grp-body">
         <div class="field"><label for="fx" id="fxL">Exchange rate (₹ per US$)</label><div class="input-wrap"><span class="pre">₹</span><input type="number" id="fx" value="96" min="1" max="500" step="0.1"></div><span class="hint">Approximate rate on 2 October 2026. Update it to today’s rate.</span></div>
         <div class="field"><label for="dep">The rupee weakens against it by</label><div class="input-wrap"><input type="number" id="dep" value="3" min="-5" max="10" step="0.5"><span class="suf">% a year</span></div><span class="hint">A weaker rupee makes your savings abroad worth more in rupees. 0% is the cautious choice.</span><span class="hint"><span id="depSug"></span> <button type="button" class="linkbtn" id="useDrift" hidden></button></span></div>
@@ -81,6 +100,8 @@
   <article class="container prose">
     <h2>How this works</h2>
     <p>For every year you might return, from now to ten years away, we grow your savings abroad, convert them to rupees at the exchange rate you set, and take off conversion costs and tax on your profits. We add what you hold in India and subtract the cost of settling back. Then we live your life in India year by year: spending rises with inflation, any job income (your package today, raised each year by the yearly raise you set) comes in after Indian tax, and your money earns the return you set. Your savings abroad rise each year by the percentage you set, so a growing income is not treated as a flat one. We find the smallest amount that lasts to the end of your plan. If you would bring home more than that, you are ready.</p>
+    <h2>Job, PF and life events</h2>
+    <p>If you enter a package, you can say whether it is today’s money (we raise it each year until you return) or what you would be paid in the year you return, and how many months you expect to look for work after coming back. Your take-home pay leaves out the provident fund and gratuity that build up inside your CTC, so you can choose to count them as savings that arrive when the job ends. Life events let you add costs that change your spending later, such as school fees for some years or a house down payment, in today’s rupees; they grow with inflation.</p>
     <h2>The best year to return</h2>
     <p>Each extra year abroad adds savings and lets your money grow, but it also adds a year of life in another country and shortens your time in India. The table shows the first year your money covers the life you want, and how much more each later year adds. If you could return now, it also shows how much monthly spending your money could support.</p>
     <h2>Retirement accounts</h2>
@@ -91,6 +112,7 @@
     <div class="faq">
       <details><summary>Why leave money abroad instead of bringing it home?</summary><p>For retirement accounts, leaving the money avoids early-withdrawal penalties. For normal savings, a higher return in India (and a weaker rupee over time) can favour bringing it home, but selling investments can trigger tax abroad, and a currency move can help or hurt. The tax and costs section shows what you lose by moving money.</p></details>
       <details><summary>What if I plan to work in India?</summary><p>Enter your expected yearly CTC. Your take-home pay after Indian tax then pays for part of your spending, so you need a much smaller starting amount. The calculator keeps counting the job until the age you choose.</p></details>
+      <details><summary>Should I count my PF and gratuity?</summary><p>They are real savings, but you cannot spend them freely while you work. Counting them assumes you receive them when the job ends, with the PF growing at the rate you set and gratuity counted only after five years of work. The cautious choice is to leave them out.</p></details>
       <details><summary>Does the result include my home abroad?</summary><p>No. If you plan to sell a home, add the money you expect to receive to your savings, after costs and tax.</p></details>
       <details><summary>What about children, education and healthcare?</summary><p>Add them to your monthly spending in India. School fees and health insurance are the costs that surprise most families.</p></details>
     </div>
@@ -116,7 +138,8 @@
   $('country').addEventListener('input', () => { applyCountry(); calc(); });
 
   const params = () => ({ age: num('age'), fx: num('fx'), dep: num('dep'), retAbroad: num('retA'), retIndia: num('retI'), infl: num('infl'), cash: num('cash'), saveYear: num('saveYear'), saveGrowth: num('saveGrowth'),
-    retire: num('retire'), retireYear: num('retireYear'), retireGrowth: num('retireGrowth'), indiaAssets: num('indiaAssets'), spend: num('spend'), planEnd: Math.max(num('age') + 1, num('planEnd')), jobCtc: num('jobCtc'), jobGrowth: num('jobGrowth'), workUntil: num('workUntil'), lump: num('lump'),
+    retire: num('retire'), retireYear: num('retireYear'), retireGrowth: num('retireGrowth'), ctcBasis: $('ctcBasis').value, jobGap: num('jobGap'), countPf: $('countPf').value, pfRate: num('pfRate'),
+    events: [1, 2, 3].map(i => ({ kind: $('ev' + i + 'Kind').value, amount: num('ev' + i + 'Amt'), from: num('ev' + i + 'From'), to: num('ev' + i + 'To') })), indiaAssets: num('indiaAssets'), spend: num('spend'), planEnd: Math.max(num('age') + 1, num('planEnd')), jobCtc: num('jobCtc'), jobGrowth: num('jobGrowth'), workUntil: num('workUntil'), lump: num('lump'),
     convCost: num('convCost'), gainShare: num('gainShare'), gainTax: num('gainTax'), retireMode: $('retMode').value, retireTax: num('retireTax'), penalty: num('penalty'), retireAge: num('retireAge') });
   const sgn = v => (v >= 0 ? '+' : '−') + cr(Math.abs(v));
 
@@ -125,14 +148,19 @@
     ['cashL', 'saveL', 'retireL', 'retireYL'].forEach((id, i) => { $(id).textContent = [`Savings and investments abroad (${c.cur})`, `What you save each year (${c.cur})`, `Retirement accounts abroad (${c.cur})`, `Added each year (${c.cur})`][i]; });
     $('fxL').textContent = `Exchange rate (₹ per ${c.cur})`; $('fPen').hidden = $('retMode').value !== 'withdraw';
     if (!(P.spend > 0)) { $('hBig').textContent = '—'; $('hSub').textContent = ''; $('hPill').textContent = ''; $('kpis').innerHTML = ''; $('warns').innerHTML = '<div class="warn"><span>⚠️</span><span>Enter the monthly spending you want in India.</span></div>'; return; }
-    const A = Returning.analyse(P, 10), sel = +$('when').value, S = A.rows[sel], income = A.income, rows = A.rows;
+    const A = Returning.analyse(P, 10), sel = +$('when').value, S = A.rows[sel], income = S.income, rows = A.rows;
     const first = A.firstReady;
     if (first === 0) { $('hLbl').textContent = 'You could return'; $('hBig').textContent = 'Now'; $('hSub').textContent = `You would bring home about ${cr(rows[0].corpus)} and need about ${cr(rows[0].need)} for the life you want.`; }
     else if (first !== null) { $('hLbl').textContent = 'Your best year to return'; $('hBig').textContent = `In ${first} ${first === 1 ? 'year' : 'years'}`; $('hSub').textContent = `At age ${rows[first].age}, you would bring home about ${cr(rows[first].corpus)} and need about ${cr(rows[first].need)}. Returning now falls ${cr(-rows[0].gap)} short.`; }
     else { $('hLbl').textContent = 'Returning within 10 years'; $('hBig').textContent = 'Not yet'; $('hSub').textContent = `Even after 10 more years abroad you would be ${cr(-rows[10].gap)} short of the life you described. Try lower spending, a job in India, or a longer stay.`; }
-    const T = Returning.todayToReturn(P, sel);
+    const T = Returning.todayToReturn(P, sel), fromReturn = P.ctcBasis === 'return';
+    $('ctcL').textContent = fromReturn ? 'Your yearly CTC if you work in India (as of the year you return)' : 'Your yearly CTC if you work in India (today’s rupees)';
+    $('ctcHint').textContent = fromReturn ? 'What you would be paid in the year you return. We raise it each year after that by the yearly raise below, then take it through Indian tax. Leave 0 for no job.' : 'The package you could get if you took the job today. We raise it each year by the yearly raise below until you return, then take it through Indian tax. Leave 0 for no job.';
+    $('raiseHint').textContent = fromReturn ? 'Applies to your CTC from the year you return.' : 'Applies to your CTC from today, including the years before you return.';
+    $('fPf').hidden = P.countPf !== 'yes';
+    [1, 2, 3].forEach(i => { const k = $('ev' + i + 'Kind').value; $('evF' + i).hidden = !k; $('evT' + i).hidden = k !== 'monthly'; $('ev' + i + 'FromL').textContent = k === 'monthly' ? 'From age' : 'At age'; $('ev' + i + 'AmtL').textContent = k === 'monthly' ? 'Amount a month (today’s rupees)' : 'Amount (today’s rupees)'; });
     $('spAt').textContent = sel === 0 ? '' : `= about ${f(Math.round(T.spend))} a month when you return in ${sel} ${sel === 1 ? 'year' : 'years'}`;
-    $('ctcAt').textContent = P.jobCtc > 0 && sel > 0 ? `= about ${cr(T.ctc)} a year when you return in ${sel} ${sel === 1 ? 'year' : 'years'}` : '';
+    $('ctcAt').textContent = P.jobCtc > 0 && sel > 0 && !fromReturn ? `= about ${cr(T.ctc)} a year when you return in ${sel} ${sel === 1 ? 'year' : 'years'}` : '';
     const drift = Returning.rupeeDriftFromInflation(P.infl, c.infl);
     $('depSug').textContent = `Inflation gap guide: India ${P.infl}% minus ${c.name} ${c.infl}% suggests about ${drift}% a year. A rough guide only: exchange rates do not always follow inflation.`;
     const ub = $('useDrift'); ub.dataset.v = drift; ub.textContent = `Use ${drift}%`; ub.hidden = P.dep === drift;          // one button that stays in place, so a tap is never lost when the page recalculates as a field loses focus
@@ -140,6 +168,8 @@
     if (P.retireMode === 'leave' && P.retire > 0 && P.retireAge >= P.planEnd) W.push('Your retirement accounts are not used before the end of your plan, so they do not help.');
     if (P.retAbroad > P.retIndia + 3) W.push('You expect a much higher return abroad than in India. Check this, as it favours staying abroad.');
     if (P.jobCtc > 0 && P.workUntil <= P.age) W.push('Work-until age is before your return, so no job income is counted.');
+    if (P.countPf === 'yes' && !(P.jobCtc > 0)) W.push('PF and gratuity count only when you enter a package for a job in India.');
+    P.events.forEach((e, i) => { if (e.kind === 'monthly' && e.to <= e.from) W.push(`Life event ${i + 1} ends before it starts, so it is not counted.`); });
     $('warns').innerHTML = W.map(w => `<div class="warn"><span>⚠️</span><span>${w}</span></div>`).join('');
     const mx = Returning.maxSpend(P, sel, income), K = (cls, kk, v, s) => `<div class="kpi ${cls}"><div class="k">${kk}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
     $('kpis').innerHTML = K('', 'You bring home', cr(S.corpus), 'After tax, costs and the move') + K('', 'You need', cr(S.need), `For ${f(P.spend)} a month to age ${P.planEnd}`) + K(S.ready ? 'good' : 'bad', S.ready ? 'To spare' : 'Short by', cr(Math.abs(S.gap)), S.ready ? 'Your money covers it' : 'Your money does not cover it') +
@@ -150,7 +180,7 @@
     const row = (l, v, cls = '') => `<tr class="${cls}"><td>${l}</td><td>${v}</td></tr>`;
     $('homeTbl').innerHTML = '<tr><th>' + (sel === 0 ? 'Returning now' : 'Returning in ' + sel + ' years') + '</th><th>Amount</th></tr>' + row(`Savings and investments abroad (${c.cur} ${IN.format(Math.round(S.cashLocal))}) in rupees`, f(S.brought + S.gainTax + S.conv)) + row('Tax on your profits', '− ' + f(S.gainTax), 'neg') + row('Transfer and conversion cost', '− ' + f(S.conv), 'neg') +
       row('What you hold in India', '+ ' + f(S.india), 'pos') + (P.retireMode === 'withdraw' ? row('Retirement accounts cashed out, after tax' + (S.age < 59.5 && P.penalty ? ' and penalty' : ''), '+ ' + f(S.withdrawn), 'pos') : '') + row('One-time cost of settling back', '− ' + f(P.lump), 'neg') + row('Money you start life in India with', f(S.corpus), 'total') +
-      (S.kept > 0 ? row(`Retirement accounts left abroad (${c.cur} ${IN.format(Math.round(S.retLocal))} now). Worth this in future rupees at age ${S.keptAt}, after tax`, f(S.kept)) : '');
+      S.inflows.filter(x => x.pf !== undefined).map(x => row(`PF and gratuity from your job in India, received at age ${x.age}`, f(x.value))).join('') + (S.kept > 0 ? row(`Retirement accounts left abroad (${c.cur} ${IN.format(Math.round(S.retLocal))} now). Worth this in future rupees at age ${S.keptAt}, after tax`, f(S.kept)) : '');
     const tips = [], next = rows[Math.min(10, sel + 1)];
     if (first === 0) tips.push(`You could return now. Each extra year abroad adds about ${cr(rows[1].corpus - rows[0].corpus)} to what you bring home.`);
     else if (first !== null) tips.push(`Staying until year ${first} turns a ${cr(-rows[0].gap)} shortfall into a surplus. The biggest help comes from savings and from your money compounding.`);
