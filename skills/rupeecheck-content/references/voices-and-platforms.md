@@ -84,6 +84,8 @@ Contents: [Instagram](#instagram) · [Facebook](#facebook) · [X](#x-twitter) ·
 - Participate more than you promote: for every post that mentions the site, the user should have helped in many threads without mentioning it.
 - Never ask for upvotes, never reply to your own thread from another account, never delete and repost a removed post.
 
+**Length:** aim for about 250 words and never much more than 300 (a table does not count against you, but keep it small). Long replies get skimmed or ignored; keep the answer, the table, the assumptions and one or two caveats, and cut the rest. State a firm verdict only as firmly as the assumptions allow ("by a fair margin on these assumptions", not "it isn't close").
+
 **Tone check:** if a sentence could appear in an advertisement, rewrite it.
 
 **Example (someone asks "new or old regime at ₹15 L?"):**
@@ -99,7 +101,7 @@ Contents: [Instagram](#instagram) · [Facebook](#facebook) · [X](#x-twitter) ·
 ## Quora
 **Voice: an authoritative but friendly explainer, someone who has done the maths.** Quora answers are long-lived and get found through search, so they should be complete and well structured.
 
-**Pattern:** 150 to 350 words.
+**Pattern:** 150 to 350 words. Name any surprising or recent legal rule in the text (section or rule number, year), as on Reddit.
 1. **First sentence = the direct answer** ("At ₹12 LPA you take home about ₹88,276 a month in the new regime.").
 2. The working: a short list or table of the numbers and where they go.
 3. The assumptions in one line, and the caveat that rules and payslips vary.
