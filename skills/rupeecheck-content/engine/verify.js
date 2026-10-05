@@ -95,7 +95,36 @@ const V = {
     } else unverified('take-home pay abroad', 'Only the US federal and payroll tax is rebuilt here. Check ' + x.country + ' take-home against the tax authority\'s own figures before quoting it.');
     unverified('net worth after ' + H + ' years', 'A long-run projection. State the assumptions and call it an estimate.');
   },
-  return() { unverified('return-to-India readiness', 'A long-run projection with many assumptions. State them and call it an estimate.'); },
+  return(r) {
+    const d = r.inputs, P = { age: n(d.age), fx: n(d.fx), dep: n(d.dep), retAbroad: n(d.retA), retIndia: n(d.retI), infl: n(d.infl), cash: n(d.cash), saveYear: n(d.saveYear), saveGrowth: n(d.saveGrowth), retire: n(d.retire), retireYear: n(d.retireYear), retireGrowth: n(d.retireGrowth),
+      indiaAssets: n(d.indiaAssets), spend: n(d.spend), planEnd: Math.max(n(d.age) + 1, n(d.planEnd)), jobCtc: n(d.jobCtc), jobGrowth: n(d.jobGrowth), workUntil: n(d.workUntil), lump: n(d.lump), convCost: n(d.convCost), gainShare: n(d.gainShare), gainTax: n(d.gainTax),
+      mode: d.retMode, retireTax: n(d.retireTax), penalty: n(d.penalty), retireAge: n(d.retireAge) };
+    const ra = P.retAbroad / 100, ri = P.retIndia / 100, N = P.planEnd - P.age;
+    let usedSite = false;                                                       // set when a salary above ₹50 lakh forces us to take that year's tax from the site (surcharge is not rebuilt here)
+    const inHand = ctc => { const basic = ctc * 0.4, erPf = basic * 0.12, gross = ctc - erPf - basic * 0.0481, pt = 2400;       // 40% basic, PF on full basic, gratuity inside CTC, ₹200 a month professional tax, no rent
+      const tNew = taxNew(Math.max(0, gross - 75000)), tOld = taxOld(Math.max(0, gross - 50000 - pt - Math.min(150000, erPf))); return gross - erPf - pt - Math.min(tNew, tOld); };   // the cheaper regime, as the site does
+    const siteInHand = ctc => { const q = require('./tax.js').salary({ ctc, basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, metro: true, rentMonthly: 0 }); return q[q.best].inHandYear; };
+    const income = t => { if (!(P.jobCtc > 0 && P.age + t < P.workUntil)) return 0; const ctc = P.jobCtc * Math.pow(1 + P.jobGrowth / 100, t); if (ctc > 5000000) { usedSite = true; return siteInHand(ctc); } return inHand(ctc); };
+    const rows = [];
+    for (let k = 0; k <= 10; k++) {
+      let cash = P.cash, ret = P.retire; const fxK = P.fx * Math.pow(1 + P.dep / 100, k), age = P.age + k;
+      for (let t = 0; t < k; t++) { cash = cash * (1 + ra) + P.saveYear * Math.pow(1 + P.saveGrowth / 100, t) * (1 + ra / 2); ret = ret * (1 + ra) + P.retireYear * Math.pow(1 + P.retireGrowth / 100, t) * (1 + ra / 2); }
+      const gross = cash * fxK, brought = gross - cash * P.gainShare / 100 * P.gainTax / 100 * fxK - gross * P.convCost / 100, india = P.indiaAssets * Math.pow(1 + ri, k);
+      let withdrawn = 0, kept = 0, keptAt = null;
+      if (P.mode === 'withdraw') withdrawn = ret * fxK * (1 - (P.retireTax + (age < 59.5 ? P.penalty : 0)) / 100) * (1 - P.convCost / 100);
+      else { const yrs = Math.max(0, P.retireAge - age); kept = ret * Math.pow(1 + ra, yrs) * P.fx * Math.pow(1 + P.dep / 100, k + yrs) * (1 - P.retireTax / 100) * (1 - P.convCost / 100); keptAt = age + yrs; }
+      const corpus = brought + india + withdrawn - P.lump, inflowAge = kept > 0 ? Math.ceil(keptAt) : null;
+      /* the smallest starting money that never runs out: the balance after year j is c0*(1+ri)^j + S_j, so c0 must be at least -S_j/(1+ri)^j for every j (no searching needed) */
+      let S = 0, need = 0;
+      for (let a = age, j = 1; a < P.planEnd; a++, j++) { const t = a - P.age, net = income(t) + (a === inflowAge ? kept : 0) - P.spend * 12 * Math.pow(1 + P.infl / 100, t); S = S * (1 + ri) + net * (1 + ri / 2); need = Math.max(need, -S / Math.pow(1 + ri, j)); }
+      rows.push({ k, corpus, need });
+    }
+    const tol = x => Math.max(1, Math.abs(x) * 1e-7), site = r.results.table;
+    const compare = (label, a, b) => { if (!usedSite) return check(label, a, b, tol(b)); lines.push({ label, engine: a, independent: b, status: Math.abs(a - b) <= tol(b) ? 'APPROXIMATE' : 'MISMATCH', note: 'Checked independently except the tax on a salary above ₹50 lakh (surcharge), taken from the site.' }); };
+    for (const k of [0, 3, 5, 10]) { check(`money brought home, return in ${k} years`, site[k].youBringHome, rows[k].corpus, tol(rows[k].corpus)); compare(`money needed, return in ${k} years`, site[k].youNeed, rows[k].need); }
+    const first = rows.find(x => x.corpus >= x.need - 1e-6); compare('first year you are ready (-1 = none in 10 years)', r.results.firstReadyInYears === null ? -1 : r.results.firstReadyInYears, first ? first.k : -1);
+    lines.push({ label: 'the assumptions behind it', status: 'APPROXIMATE', engine: null, independent: null, note: 'The maths is checked; the growth, inflation and exchange-rate settings are assumptions. Call the result an estimate and state them.' });
+  },
 };
 
 function main(argv) {

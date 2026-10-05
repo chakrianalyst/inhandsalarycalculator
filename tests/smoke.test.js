@@ -383,6 +383,23 @@ if (chromium) {
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
+  test('Return to India calculator: growth settings are up front, today-to-return lines, rupee drift guide, scenario range, share link keeps them', async () => {
+    const pg = await open(SITE, 'return-calculator.html'); const txt = sel => pg.$eval(sel, e => e.innerText);
+    for (const id of ['jobGrowth', 'saveGrowth', 'retireGrowth']) assert.equal(await pg.isVisible('#' + id), true, id + ' should be visible without opening the advanced box');
+    assert.equal(await pg.inputValue('#retireGrowth'), '0');
+    await pg.selectOption('#when', '10'); await pg.fill('#jobCtc', '25,00,000');
+    assert.match(await txt('#ctcAt'), /49[\d.]* ?L[\s\S]*when you return in 10 years/); assert.match(await txt('#spAt'), /2,68,627[\s\S]*when you return in 10 years/);
+    await pg.selectOption('#when', '0'); assert.equal(await txt('#spAt'), ''); assert.equal(await txt('#ctcAt'), '');
+    await pg.$eval('#sec-fx', e => (e.open = true)); await pg.selectOption('#country', 'DE'); assert.match(await txt('#depSug'), /India 6% minus Germany 2\.5%[\s\S]*3\.5%/); await pg.click('#useDrift'); assert.equal(await pg.inputValue('#dep'), '3.5'); assert.equal(await pg.isVisible('#useDrift'), false);
+    await pg.fill('#dep', '1'); assert.equal(await pg.isVisible('#useDrift'), true); await pg.fill('#jobCtc', '26,00,000'); await pg.click('#useDrift'); assert.equal(await pg.inputValue('#dep'), '3.5');   // a tap right after editing another field still works
+    const rows = await pg.$$eval('#range tr', t => t.map(r => r.innerText.replace(/\s+/g, ' ').trim())); assert.equal(rows.length, 4); assert.match(rows[1], /^Cautious/); assert.match(rows[2], /^Your settings/); assert.match(rows[3], /^Optimistic/);
+    const gap = r => { const m = r.match(/([+−])₹([\d.,]+) ?(L|Cr)\s*$/); const v = parseFloat(m[2].replace(/,/g, '')) * (m[3] === 'Cr' ? 100 : 1); return m[1] === '−' ? -v : v; };
+    assert.ok(gap(rows[1]) < gap(rows[2]) && gap(rows[2]) < gap(rows[3]), rows.join(' | '));
+    const lk = await browser.newPage(); await lk.goto(url(SITE, 'return-calculator.html') + '?retireGrowth=5&jobGrowth=9&saveGrowth=6'); await lk.waitForTimeout(300);
+    assert.equal(await lk.inputValue('#retireGrowth'), '5'); assert.equal(await lk.inputValue('#jobGrowth'), '9'); assert.equal(await lk.inputValue('#saveGrowth'), '6'); await lk.close();
+    assert.deepEqual(pg.errs, []); await pg.close();
+  });
+
   test('readable colours: green, red and brand text meet 4.5:1 on their surfaces in light and dark; index quick check agrees with the salary page', async () => {
     for (const theme of ['light', 'dark']) {
       const pg = await browser.newPage({ colorScheme: theme }); await pg.goto(url(SITE, 'sip-calculator.html')); await pg.evaluate(t => { document.documentElement.dataset.theme = t; }, theme);
