@@ -74,3 +74,40 @@ test('scenarios: cautious moves every growth setting down (or inflation up), opt
   const g = x => R.evaluate(x, 5).gap; assert.ok(g(c) < g(p) && g(p) < g(o));
   assert.equal(R.scenario(P({ dep: 1, infl: 0, jobGrowth: 1, saveGrowth: 0 }), 'cautious').dep, 0);          // never below zero
 });
+
+test('package basis: "today" grows from today, "return" grows only from the year you return', () => {
+  const C = 2000000, flat = ctc => R.incomeByYear(P({ jobCtc: ctc, jobGrowth: 0, planEnd: 60, workUntil: 60 }))[0];
+  const today = R.incomeByYear(P({ jobCtc: C, jobGrowth: 10, planEnd: 60 }), 3), back = R.incomeByYear(P({ jobCtc: C, jobGrowth: 10, planEnd: 60, ctcBasis: 'return' }), 3);
+  near(today[3], flat(C * 1.331), 1); near(back[3], flat(C), 1); near(back[5], flat(C * 1.21), 1);
+  assert.equal(R.todayToReturn(P({ jobCtc: C, jobGrowth: 10, ctcBasis: 'return' }), 3).ctc, C); near(R.todayToReturn(P({ jobCtc: C, jobGrowth: 10 }), 3).ctc, C * 1.331, 0.01);
+});
+
+test('job-search gap: the first months after returning have no income, spread over years if longer than 12 months', () => {
+  const C = 2000000, full = R.incomeByYear(P({ jobCtc: C, planEnd: 60 }))[0];
+  const g6 = R.incomeByYear(P({ jobCtc: C, planEnd: 60, jobGap: 6 }), 0); near(g6[0], full / 2, 1); near(g6[1], full, 1);
+  const g18 = R.incomeByYear(P({ jobCtc: C, planEnd: 60, jobGap: 18 }), 0); assert.equal(g18[0], 0); near(g18[1], full / 2, 1); near(g18[2], full, 1);
+  const g6r = R.incomeByYear(P({ jobCtc: C, planEnd: 60, jobGap: 6 }), 2); near(g6r[2], full / 2, 1); near(g6r[3], full, 1); near(g6r[1], full, 1);
+});
+
+test('PF and gratuity: your PF plus the employer’s at the PF rate, gratuity only after five years, received when the job ends', () => {
+  const C = 2000000, basic = 0.4 * C, p = P({ jobCtc: C, jobGrowth: 0, workUntil: 50, planEnd: 70, countPf: 'yes', pfRate: 8 }), v = R.pfInflow(p, 0);
+  near(v.pf, 0.24 * basic * (Math.pow(1.08, 10) - 1) / 0.08, 1); near(v.grat, 0.0481 * basic * 10, 1); assert.equal(v.age, 50); near(v.value, v.pf + v.grat, 0.01);
+  assert.equal(R.pfInflow({ ...p, countPf: 'no' }, 0), null); assert.equal(R.pfInflow({ ...p, jobCtc: 0 }, 0), null);
+  const short = R.pfInflow({ ...p, workUntil: 44 }, 0); assert.equal(short.grat, 0); near(short.value, short.pf, 0.01);          // only 4 years of work: no gratuity
+  assert.equal(R.pfInflow({ ...p, workUntil: 70 }, 0), null);                                                                       // the job runs to the end of the plan: nothing arrives inside it
+  const lessNeed = R.analyse({ ...p, spend: 100000 }, 0).rows[0].need, none = R.analyse({ ...p, countPf: 'no', spend: 100000 }, 0).rows[0].need; assert.ok(none > 0 && lessNeed < none);
+});
+
+test('life events: a monthly cost from one age up to another, a one-time cost at one age, both in the money of that year; before you return is ignored', () => {
+  const p = P({ infl: 6, events: [{ kind: 'monthly', amount: 10000, from: 45, to: 48 }, { kind: 'once', amount: 500000, from: 50 }, { kind: '', amount: 99999, from: 40, to: 60 }] });
+  near(R.eventSpend(p, 44, 4), 0, 1e-9); near(R.eventSpend(p, 45, 5), 120000 * Math.pow(1.06, 5), 0.01); near(R.eventSpend(p, 47, 7), 120000 * Math.pow(1.06, 7), 0.01); near(R.eventSpend(p, 48, 8), 0, 1e-9); near(R.eventSpend(p, 50, 10), 500000 * Math.pow(1.06, 10), 0.01);
+  const base = R.analyse(P({ cash: 0, spend: 20000, planEnd: 55 }), 0).rows[0].need, withEv = R.analyse({ ...P({ cash: 0, spend: 20000, planEnd: 55 }), events: [{ kind: 'once', amount: 500000, from: 50 }] }, 0).rows[0].need;
+  near(withEv - base, 500000, 5);                                                                                                  // no growth and no inflation: a ₹5 lakh cost needs ₹5 lakh more
+  const early = R.analyse({ ...P({ cash: 0, spend: 20000, planEnd: 55 }), events: [{ kind: 'once', amount: 500000, from: 40 }] }, 3).rows[3].need, plain = R.analyse(P({ cash: 0, spend: 20000, planEnd: 55 }), 3).rows[3].need; near(early, plain, 0.01);   // an event before you return (age 43) is ignored
+});
+
+test('realism settings move the answer the right way: a gap and a return-year package raise what you need, PF and gratuity lower it', () => {
+  const p = P({ cash: 0, spend: 100000, planEnd: 80, jobCtc: 2400000, jobGrowth: 8, workUntil: 60, infl: 6 }), need = x => R.analyse(x, 5).rows[5].need;
+  assert.ok(need({ ...p, jobGap: 9 }) > need(p)); assert.ok(need({ ...p, ctcBasis: 'return' }) > need(p)); assert.ok(need({ ...p, countPf: 'yes' }) < need(p));
+  assert.equal(need({ ...p, jobGap: 0, ctcBasis: 'today', countPf: 'no', events: [] }), need(p));                                   // all the new settings off = the old behaviour
+});
