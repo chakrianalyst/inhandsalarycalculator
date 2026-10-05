@@ -16,7 +16,7 @@ const merge = (page, over) => { const d = { ...(DEF[page] || {}) }; for (const k
 const round = (x, d = 2) => (typeof x === 'number' && Number.isFinite(x) ? Math.round(x * 10 ** d) / 10 ** d : x);
 
 const DED_KEYS = { other80c: '80C investments', nps1b: 'NPS 80CCD(1B)', d80: '80D health insurance', d80Self: '80D (self)', d80Parents: '80D (parents)', homeLoanInt: 'home-loan interest', eduLoanInt: 'education-loan interest', donations: 'donations', disability: 'disability', ltaClaim: 'LTA', otherDed: 'other deductions' };
-const deductionsText = p => { const used = Object.keys(DED_KEYS).filter(k => n(p[k]) > 0).map(k => DED_KEYS[k] + ' ₹' + n(p[k])); return used.length ? 'Old-regime deductions claimed: ' + used.join(', ') + ' (plus the standard deduction)' : 'No old-regime deductions beyond the standard deduction'; };
+const deductionsText = p => { const used = Object.keys(DED_KEYS).filter(k => n(p[k]) > 0).map(k => DED_KEYS[k] + ' ₹' + n(p[k])); const base = 'The old regime always includes the ₹50,000 standard deduction, professional tax, your own PF counted under 80C (cap ₹1.5 L) and any HRA exemption from the rent given'; return used.length ? base + '; extra deductions claimed: ' + used.join(', ') : base + '; no other deductions'; };
 
 /* ---------- salary: Tax.salary exactly as the "₹X LPA" pages and the in-hand salary page build it ---------- */
 function salary(o) {
