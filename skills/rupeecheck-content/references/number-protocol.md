@@ -12,6 +12,8 @@ The reason this protocol exists: people take finance numbers seriously, and a po
    - **UNVERIFIED**: no independent method (long-run projections such as net worth after 10 years, state and city taxes, partner income). Publish only with an "estimate or illustration" label and the assumptions, or find an official source.
    - **MISMATCH**: stop. Re-check your inputs, then the engine. Tell the user. Do not publish.
 5. **Check statutory rules you quote** (a rebate limit, a cap, a list) against `site-facts.md`. If it is not there, look it up from an official source now (Income Tax Department, EPFO, the relevant tax authority) and record the source. If you cannot confirm it, leave it out. When a rule is surprising or recent, name it (section or rule number, year) in the post text as well as in the claims table.
+
+   **When a rule is "the least of" several limits, say which limit applies.** HRA is the lowest of HRA received, rent minus 10% of basic, and 50% (metro) or 40% of basic. Writing "the cap is 50% of basic" when rent minus 10% of basic is the binding limit makes readers compute the wrong exemption. Name the three limits, then say which one bit and the resulting figure ("₹2.88 L here, set by rent minus 10% of basic"). The same goes for any minimum-of or capped rule (80C, gratuity, NPS limits).
 6. **Check freshness:** the preflight says how old the engine and the exchange-rate defaults are. Say the date of any exchange rate you use.
 7. **Cross-check the site's own pages** when the post links to one: the number in the post should match what a reader sees there with the same inputs. For defaults this is guaranteed; if you changed an input, say so in the post.
 
