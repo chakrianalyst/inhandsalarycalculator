@@ -1,30 +1,30 @@
 /* RupeeCheck — shared layout + helpers */
 const TOOLS = [
-  { id: 'salary', href: 'salary-calculator.html', icon: '💼', name: 'In-Hand Salary Calculator', short: 'Salary', desc: 'CTC to monthly take-home with old vs new tax regime, PF, HRA and more.', hot: true },
-  { id: 'lifesim', href: 'life-simulator.html', icon: '🧭', name: 'Life Money Simulator', short: 'Life Sim', desc: 'Drag life events — home, marriage, kids, career jumps — and watch your net worth unfold.', isNew: true },
-  { id: 'networth', href: 'networth-calculator.html', icon: '🏆', name: 'Net Worth Calculator', short: 'Net Worth', desc: 'Add your assets and liabilities. Get net worth, a health score and a trend over time.', isNew: true },
-  { id: 'fire', href: 'fire-calculator.html', icon: '🔥', name: 'FIRE / Retirement Planner', short: 'FIRE', desc: 'How much you need to retire early and when, with lean and fat FIRE, coast FIRE and a stress test.', isNew: true },
-  { id: 'rentbuy', href: 'rent-vs-buy-calculator.html', icon: '🏡', name: 'Rent vs Buy Calculator', short: 'Rent vs Buy', desc: 'Buy a home or rent and invest the difference? Break-even year, tax and a what-if grid.', isNew: true },
-  { id: 'abroad', href: 'abroad-calculator.html', icon: '🌍', name: 'Move Abroad Calculator', short: 'Abroad', desc: 'Compare staying in India with a job in the US, Canada, UK, Germany, Australia, Singapore or the UAE, in rupees.', isNew: true },
-  { id: 'return', href: 'return-calculator.html', icon: '🛬', name: 'Return to India Calculator', short: 'Return', desc: 'Planning to move back? See what you would bring home and the earliest year you can afford to return.', isNew: true },
-  { id: 'offers', href: 'offer-comparison.html', icon: '🤝', name: 'Job Offer Comparison', short: 'Offers', desc: 'Compare 2–3 job offers on in-hand pay, bonus, ESOPs, raises and rising costs over 1 to 5 years.', isNew: true },
-  { id: 'hike', href: 'salary-hike-calculator.html', icon: '📈', name: 'Salary Hike Calculator', short: 'Hike', desc: 'See how much of your raise reaches your bank account, and what is left after inflation.' },
-  { id: 'hra', href: 'hra-calculator.html', icon: '🏠', name: 'HRA Exemption Calculator', short: 'HRA', desc: 'Exempt and taxable HRA, with the metro list by financial year and the tax you save.' },
-  { id: 'emi', href: 'emi-calculator.html', icon: '🏦', name: 'EMI Calculator', short: 'EMI', desc: 'Loan EMI with prepayment, fees, loan eligibility and a full repayment schedule.' },
-  { id: 'sip', href: 'sip-calculator.html', icon: '🌱', name: 'SIP Calculator', short: 'SIP', desc: 'SIP, lump sum or goal planner with step-up, tax, inflation and the cost of waiting.' },
-  { id: 'fd', href: 'fd-calculator.html', icon: '🔒', name: 'FD Calculator', short: 'FD', desc: 'FD and RD for any tenure in years, months and days, with payout, tax and real return.' },
-  { id: 'gratuity', href: 'gratuity-calculator.html', icon: '🎁', name: 'Gratuity Calculator', short: 'Gratuity', desc: 'Gratuity from years and months of service, with the new labour-code rules and tax-free part.' },
+  { id: 'salary', group: 'pay', href: 'salary-calculator.html', icon: '💼', name: 'In-Hand Salary Calculator', short: 'Salary', desc: 'CTC to monthly take-home with old vs new tax regime, PF, HRA and more.', hot: true },
+  { id: 'lifesim', group: 'plan', href: 'life-simulator.html', icon: '🧭', name: 'Life Money Simulator', short: 'Life Sim', desc: 'Drag life events — home, marriage, kids, career jumps — and watch your net worth unfold.' },
+  { id: 'networth', group: 'plan', href: 'networth-calculator.html', icon: '🏆', name: 'Net Worth Calculator', short: 'Net Worth', desc: 'Add your assets and liabilities. Get net worth, a health score and a trend over time.' },
+  { id: 'fire', group: 'plan', href: 'fire-calculator.html', icon: '🔥', name: 'FIRE / Retirement Planner', short: 'FIRE', desc: 'How much you need to retire early and when, with lean and fat FIRE, coast FIRE and a stress test.' },
+  { id: 'rentbuy', group: 'plan', href: 'rent-vs-buy-calculator.html', icon: '🏡', name: 'Rent vs Buy Calculator', short: 'Rent vs Buy', desc: 'Buy a home or rent and invest the difference? Break-even year, tax and a what-if grid.' },
+  { id: 'abroad', group: 'plan', href: 'abroad-calculator.html', icon: '🌍', name: 'Move Abroad Calculator', short: 'Abroad', desc: 'Compare staying in India with a job in the US, Canada, UK, Germany, Australia, Singapore or the UAE, in rupees.' },
+  { id: 'return', group: 'plan', href: 'return-calculator.html', icon: '🛬', name: 'Return to India Calculator', short: 'Return', desc: 'Planning to move back? See what you would bring home and the earliest year you can afford to return.', isNew: true },
+  { id: 'offers', group: 'pay', href: 'offer-comparison.html', icon: '🤝', name: 'Job Offer Comparison', short: 'Offers', desc: 'Compare 2–3 job offers on in-hand pay, bonus, ESOPs, raises and rising costs over 1 to 5 years.' },
+  { id: 'hike', group: 'pay', href: 'salary-hike-calculator.html', icon: '📈', name: 'Salary Hike Calculator', short: 'Hike', desc: 'See how much of your raise reaches your bank account, and what is left after inflation.' },
+  { id: 'hra', group: 'pay', href: 'hra-calculator.html', icon: '🏠', name: 'HRA Exemption Calculator', short: 'HRA', desc: 'Exempt and taxable HRA, with the metro list by financial year and the tax you save.' },
+  { id: 'emi', group: 'save', href: 'emi-calculator.html', icon: '🏦', name: 'EMI Calculator', short: 'EMI', desc: 'Loan EMI with prepayment, fees, loan eligibility and a full repayment schedule.' },
+  { id: 'sip', group: 'save', href: 'sip-calculator.html', icon: '🌱', name: 'SIP Calculator', short: 'SIP', desc: 'SIP, lump sum or goal planner with step-up, tax, inflation and the cost of waiting.' },
+  { id: 'fd', group: 'save', href: 'fd-calculator.html', icon: '🔒', name: 'FD Calculator', short: 'FD', desc: 'FD and RD for any tenure in years, months and days, with payout, tax and real return.' },
+  { id: 'gratuity', group: 'pay', href: 'gratuity-calculator.html', icon: '🎁', name: 'Gratuity Calculator', short: 'Gratuity', desc: 'Gratuity from years and months of service, with the new labour-code rules and tax-free part.' },
 ];
 
 const GUIDES = [
-  ['ctc-vs-in-hand-salary.html', 'CTC vs in-hand salary'],
-  ['old-vs-new-tax-regime.html', 'Old vs new tax regime'],
-  ['net-worth-by-age.html', 'Net worth by age'],
-  ['new-tax-regime-slabs-fy-2026-27.html', 'New tax regime slabs'],
-  ['hra-exemption-rules.html', 'HRA exemption rules'],
-  ['professional-tax-by-state.html', 'Professional tax by state'],
-  ['sip-for-1-crore.html', 'SIP for ₹1 crore'],
-  ['emi-per-lakh-table.html', 'EMI per ₹1 lakh'],
+  ['ctc-vs-in-hand-salary.html', 'CTC vs in-hand salary', 'Where the gap between your CTC and your bank credit goes.'],
+  ['old-vs-new-tax-regime.html', 'Old vs new tax regime', 'How much in deductions the old regime needs to win.'],
+  ['net-worth-by-age.html', 'Net worth by age', 'A simple benchmark, and what it leaves out.'],
+  ['new-tax-regime-slabs-fy-2026-27.html', 'New tax regime slabs', 'FY 2026-27 rates and the ₹12 lakh rebate.'],
+  ['hra-exemption-rules.html', 'HRA exemption rules', 'The three-way test and the metro city list.'],
+  ['professional-tax-by-state.html', 'Professional tax by state', 'What it is and how much salaried people pay.'],
+  ['sip-for-1-crore.html', 'SIP for ₹1 crore', 'Monthly SIP needed for 5 to 30 years.'],
+  ['emi-per-lakh-table.html', 'EMI per ₹1 lakh', 'Quick EMI table by interest rate and tenure.'],
 ];
 
 const Common = (() => {
@@ -167,6 +167,7 @@ const Common = (() => {
 
   /** Plain-English "?" help next to jargon labels. A real button (keyboard + touch), toggles a note linked with aria-describedby; Esc or a tap elsewhere closes it. */
   const HELP = [
+    [/^Variable/i, 'Variable pay is the part of your CTC paid only if targets are met, usually once a year. Many people receive less than 100% of it.'],
     [/\bCTC\b/, 'CTC = Cost to Company: everything your employer spends on you in a year, including their PF, gratuity and insurance. It is bigger than what reaches your bank account.'],
     [/^(Employer NPS|Own NPS|Your own NPS)|\bNPS\b/, 'NPS is the National Pension System, a retirement account. Employer contributions are tax-free up to 14% of basic (new regime) or 10% (old regime). Your own extra ₹50,000 is old-regime only.'],
     [/\bgratuity\b/i, 'Gratuity is a lump sum your employer pays after 5+ years of service. It is part of CTC but is not paid monthly, so it never shows in your in-hand pay.'],

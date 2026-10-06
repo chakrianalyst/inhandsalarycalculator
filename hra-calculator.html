@@ -92,7 +92,11 @@
     $('tbl').innerHTML = row('Actual HRA received', r.a) + row('Rent paid − 10% of basic', r.c) + row(`${metro ? 50 : 40}% of basic`, r.d);
     const tips = [];
     if (r.exempt >= Math.min(r.a, r.d) - 0.5 && r.taxable > 0.5) tips.push(r.which === 'hra' ? '' : `The ${metro ? 50 : 40}% of basic limit is the one holding you back, so paying more rent will not help.`);
-    if (r.which === 'rent' && r.rentForFull > num('rent') + 0.5) tips.push(`You are limited by rent. If you paid <b>${f(r.rentForFull)}</b> a month (${f(r.rentForFull - num('rent'))} more), the exemption would rise to <b>${f(Math.min(r.a, r.d))}</b>.`);
+    if (r.which === 'rent' && r.rentForFull > num('rent') + 0.5) {
+      const moreRent = (r.rentForFull - num('rent')) * months, moreTax = (Math.min(r.a, r.d) - r.exempt) * (+$('slab').value / 100) * 1.04;
+      tips.push(`You are limited by rent. Paying <b>${f(r.rentForFull - num('rent'))}</b> more a month (${f(moreRent)} over ${months === 12 ? 'the year' : months + ' months'}) would raise the exemption to ${f(Math.min(r.a, r.d))}` +
+        (moreTax > 0 ? `, but save only about <b>${f(moreTax)}</b> in tax. The extra rent costs more than the tax it saves, so this is worth it only if you want the bigger home anyway.` : '.'));
+    }
     if (r.which === 'hra' && r.exempt > 0) tips.push('All of your HRA is exempt. Nothing more can be saved on HRA.');
     if (r.which === 'basic') tips.push(`The ${metro ? 50 : 40}% of basic limit is the lowest. A higher basic, or a city with a higher limit, would raise it.`);
     if (!metro && fy === '2026') tips.push('Living in one of the eight metros would raise the limit from 40% to 50% of basic.');

@@ -212,16 +212,17 @@
 
   /* ---------- Tax & deductions (shared by both modes) ---------- */
   const taxSecs = $('taxSecs');
-  const sTax = sec('tax', '🏛️', 'Location & professional tax', 'Affects HRA and take-home', false); taxSecs.appendChild(sTax);
-  $('b-tax').innerHTML = mfield('pt', 'Professional tax', '200', 'A small state tax, often ₹200 a month and never more than ₹2,500 a year. Enter the amount on your payslip, or 0 if your state does not charge it (for example Delhi, Haryana, Uttar Pradesh, Rajasthan).', '/month') +
-    `<div class="field"><label for="city">City you live in (for HRA)</label><select id="city" data-cities data-default="Bengaluru"></select><span class="hint">From FY 2026-27, HRA exemption can be up to 50% of basic in Delhi, Mumbai, Kolkata, Chennai, Bengaluru, Hyderabad, Pune and Ahmedabad, and 40% elsewhere. Old regime only. Please confirm with your employer.</span></div>`;
+  const sTax = sec('tax', '🏛️', 'Professional tax', 'A small state tax taken from your pay', false); taxSecs.appendChild(sTax);
+  $('b-tax').innerHTML = mfield('pt', 'Professional tax', '200', 'A small state tax, often ₹200 a month and never more than ₹2,500 a year. Enter the amount on your payslip, or 0 if your state does not charge it (for example Delhi, Haryana, Uttar Pradesh, Rajasthan).', '/month');
 
   const sDed = sec('ded', '🍱', 'Other payslip deductions', 'Cab, lunch, ESOP/ESPP and more: taken from your pay after tax', false); taxSecs.appendChild(sDed);
   $('b-ded').innerHTML = `<div id="drows" style="display:grid;gap:10px"></div><div class="cap" id="dedTotal"></div><div class="chips" id="dchips"><span class="chips-l">Quick add:</span></div><input type="hidden" id="dedData" value="">` +
     `<p class="grp-hint">Things your employer takes from your salary after tax, such as a cab or shuttle, cafeteria meals, an ESOP or ESPP purchase plan, or a loan recovery. They lower your in-hand pay but do not change your tax. Money that buys shares or pays off a loan is not lost, it just does not reach your bank account.</p>`;
   const sOld = sec('old', '🧮', 'Old-regime benefits', 'Used only if the old regime comes out better', false); taxSecs.appendChild(sOld);
   $('b-old').innerHTML = `<p class="grp-hint">The new regime ignores these. We use them to check if the old regime would leave you with more.</p>` +
-    sub('HRA') + mfield('rent', 'Rent you pay', '', 'Used for the HRA exemption. Needs HRA in your salary.', '/month') + `<div class="cap" id="hraInfo"></div>` +
+    `<div class="cap" id="oldAuto"></div>` +
+    sub('HRA') + `<div class="field"><label for="city">City you live in</label><select id="city" data-cities data-default="Bengaluru"></select><span class="hint">From FY 2026-27, HRA exemption can be up to 50% of basic in Delhi, Mumbai, Kolkata, Chennai, Bengaluru, Hyderabad, Pune and Ahmedabad, and 40% elsewhere. Please confirm with your employer.</span></div>` +
+    mfield('rent', 'Rent you pay', '', 'Used for the HRA exemption. Needs HRA in your salary.', '/month') + `<div class="cap" id="hraInfo"></div>` +
     sub('Section 80C (limit ₹1.5 lakh, your PF counts first)') +
     mfield('c80ppf', 'PPF', '', '', '/year') + mfield('c80elss', 'ELSS / tax-saving mutual funds', '', '', '/year') + mfield('c80lic', 'Life insurance premium', '', '', '/year') +
     mfield('c80hl', 'Home-loan principal repaid', '', '', '/year') + mfield('c80tui', 'Children’s tuition fees', '', '', '/year') + mfield('c80oth', 'Other (NSC, 5-yr FD, SSY…)', '', '', '/year') +
@@ -337,7 +338,9 @@
     const setV = (id, t) => { const e = $('v-' + id); if (e) e.textContent = t; };
     setV('basic', f(a.basic) + '/yr'); setV('hra', f(a.hra) + '/yr'); setV('bonus', hasBonus ? f(r.bonus) + '/yr' : 'None'); setV('other', f(a.otherSum + a.special) + '/yr');
     setV('ret', f(a.employerPf + a.gratuity + a.employerNps + a.insurance) + '/yr'); setV('pearn', f((a.basic + a.hra + a.otherSum) / 12) + '/mo'); setV('pded', f(a.employeePf / 12) + '/mo PF');
-    setV('tax', f(r.pt) + '/yr PT'); setV('old', f(r.old.deductions) + ' total');
+    setV('tax', f(r.pt) + '/yr PT'); const autoOld = 50000 + r.pt + Math.min(150000, a.employeePf + a.vpf), added = Math.max(0, r.old.deductions - autoOld);      // the standard deduction, PT and your own PF are counted for everyone
+    setV('old', added >= 1 ? f(added) + ' added' : 'None added yet');
+    $('oldAuto').textContent = `Already counted for you: the ₹50,000 standard deduction` + (a.employeePf + a.vpf > 0 ? `, your PF of ${f(Math.min(150000, a.employeePf + a.vpf))} under 80C` : '') + (r.pt > 0 ? ` and professional tax of ${f(r.pt)}` : '') + '.';
     const pfAmt = a.employerPf; $('pfInfo').textContent = isCtc ? `Employer PF ${f(pfAmt)}/yr (${f(pfAmt / 12)}/mo). Your own PF deduction is the same.` + (pfGet() === 'full' && a.basic / 12 > 15000 ? ' Some employers cap PF at ₹1,800/month; choose “Minimum” if yours does.' : '') : '';
     const gm = gratGet(), gv = a.gratuity; $('gratInfo').textContent = !isCtc ? '' : gm === 'off' ? 'No gratuity is counted inside your CTC.' : gm === 'wages' ? `Gratuity ${f(gv)}/yr = 4.81% of wages (${f(gv / 0.0481)}).` : gm === 'basic' ? `Gratuity ${f(gv)}/yr = 4.81% of basic.` : `Gratuity ${f(gv)}/yr (${f(gv / 12)}/mo).`;
     const retB = a.employerPf + a.gratuity + a.employerNps + a.insurance;

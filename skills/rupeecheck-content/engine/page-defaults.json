@@ -42,6 +42,7 @@
   "cmp": "4",
   "pf": "12",
   "slab": "20",
+  "slabHelp": "",
   "mode": "fd"
  },
  "gratuity-calculator": {
