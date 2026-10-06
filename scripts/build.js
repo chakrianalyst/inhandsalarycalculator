@@ -76,6 +76,7 @@ for (const [file, raw] of Object.entries(pages)) {
   html = html.replace('</head>', extra + '\n</head>');
   html = html.replace('<script src="assets/common.js"></script>', '<script src="assets/site.js"></script>\n<script src="assets/common.js"></script>');
   if (!html.includes('assets/site.js')) html = html.replace('</body>', '<script src="assets/site.js"></script>\n</body>');
+  html = html.replace(/href="index\.html"/g, 'href="/"');                       // links to the home page go to rupeecheck.in/, not /index.html
   fs.writeFileSync(path.join(OUT, file), html);
   if (file !== '404.html') sitemap.push({ url, file });
 }

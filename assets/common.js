@@ -53,13 +53,15 @@ const Common = (() => {
   }
 
   function layout(activeId) {
+    const HOME = location.protocol === 'file:' ? 'index.html' : '/';                    // the published site links home to rupeecheck.in/ itself
+    if (location.protocol !== 'file:' && /\/index\.html$/.test(location.pathname) && history.replaceState) history.replaceState(null, '', location.pathname.replace(/index\.html$/, '') + location.search + location.hash);
     const POPULAR = ['salary', 'sip', 'emi', 'fd', 'hra', 'return'];                        // shown in the bar on wide screens; everything is under "All tools"
     const links = TOOLS.map(t => `<a href="${t.href}" class="${t.id === activeId ? 'active' : ''}">${t.name}</a>`).join('');
     const quick = POPULAR.map(id => TOOLS.find(t => t.id === id)).filter(Boolean).map(t => `<a href="${t.href}" class="${t.id === activeId ? 'active' : ''}">${t.short}</a>`).join('');
     const header = `
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header"><div class="container nav">
-      <a href="index.html" class="logo" aria-label="RupeeCheck home"><div class="logo-mark">₹</div><span>Rupee<b>Check</b></span></a>
+      <a href="${HOME}" class="logo" aria-label="RupeeCheck home"><div class="logo-mark">₹</div><span>Rupee<b>Check</b></span></a>
       <nav class="nav-quick" aria-label="Popular calculators">${quick}</nav>
       <nav class="nav-links" id="navLinks" aria-label="All calculators">${links}</nav>
       <div class="nav-actions">
@@ -70,7 +72,7 @@ const Common = (() => {
     const foot = `
     <footer class="site-footer"><div class="container">
       <div class="foot-grid">
-        <div><a href="index.html" class="logo"><div class="logo-mark">₹</div><span>Rupee<b>Check</b></span></a>
+        <div><a href="${HOME}" class="logo"><div class="logo-mark">₹</div><span>Rupee<b>Check</b></span></a>
           <p>Fast, free, private money calculators for India. Everything runs in your browser. What you type is not sent to our servers.</p></div>
         <div><h4>Calculators</h4><ul>${TOOLS.slice(0, 6).map(t => `<li><a href="${t.href}">${t.name}</a></li>`).join('')}</ul></div>
         <div><h4>More</h4><ul>${TOOLS.slice(6).map(t => `<li><a href="${t.href}">${t.name}</a></li>`).join('')}<li><a href="in-hand-salary-by-ctc.html">Salary by CTC chart</a></li></ul></div>
