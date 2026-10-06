@@ -65,26 +65,31 @@ img, svg { max-width: 100%; }
   display: grid; place-items: center; color: #fff; font-size: 1.1rem; box-shadow: 0 6px 16px -4px rgba(91,75,255,.6);
 }
 .logo span b { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.nav-links { display: flex; align-items: center; gap: 4px; }
-.nav-links a {
+.nav-quick { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+.nav-quick a, .nav-links a {
   white-space: nowrap; color: var(--muted); font-weight: 500; font-size: .93rem; padding: 8px 12px; border-radius: 10px; transition: .15s;
 }
-.nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--bg-2); text-decoration: none; }
+.nav-quick a:hover, .nav-quick a.active, .nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--bg-2); text-decoration: none; }
 .nav-actions { display: flex; align-items: center; gap: 8px; }
 .icon-btn {
   width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface);
   color: var(--text); cursor: pointer; display: grid; place-items: center; font-size: 1.05rem; transition: .15s;
 }
 .icon-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
-.menu-btn { display: none; }
-@media (max-width: 1360px) {
-  .menu-btn { display: grid; }
-  .nav-links {
-    position: absolute; inset: 68px 0 auto 0; flex-direction: column; align-items: stretch;
-    background: var(--surface); border-bottom: 1px solid var(--line); padding: 12px 16px 18px;
-    display: none; box-shadow: var(--shadow); max-height: calc(100vh - 68px); overflow-y: auto;
-  }
-  .nav-links.open { display: flex; }
+/* The full list of calculators opens from "All tools" at every width: a grid on wide screens, a list on phones. */
+.menu-btn { width: auto; display: flex; gap: 8px; padding: 0 14px; font: inherit; font-weight: 600; font-size: .9rem; }
+.nav-links {
+  position: absolute; inset: 68px 0 auto 0; display: none; background: var(--surface); border-bottom: 1px solid var(--line);
+  box-shadow: var(--shadow); max-height: calc(100vh - 68px); overflow-y: auto;
+  padding: 14px max(16px, (100% - 1180px) / 2) 18px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 4px;
+}
+.nav-links.open { display: grid; }
+body.menu-open .m-bar { display: none; }                                  /* the floating result bar would cover the open menu */
+@media (max-width: 900px) {
+  .nav-quick { display: none; }
+  .menu-btn { width: 40px; padding: 0; justify-content: center; }
+  .menu-btn .mb-txt { display: none; }
+  .nav-links { grid-template-columns: minmax(0, 1fr); }
   .nav-links a { padding: 12px; }
 }
 

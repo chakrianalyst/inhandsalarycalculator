@@ -53,15 +53,18 @@ const Common = (() => {
   }
 
   function layout(activeId) {
-    const links = TOOLS.map(t => `<a href="${t.href}" class="${t.id === activeId ? 'active' : ''}">${t.short}</a>`).join('');
+    const POPULAR = ['salary', 'sip', 'emi', 'fd', 'hra', 'return'];                        // shown in the bar on wide screens; everything is under "All tools"
+    const links = TOOLS.map(t => `<a href="${t.href}" class="${t.id === activeId ? 'active' : ''}">${t.name}</a>`).join('');
+    const quick = POPULAR.map(id => TOOLS.find(t => t.id === id)).filter(Boolean).map(t => `<a href="${t.href}" class="${t.id === activeId ? 'active' : ''}">${t.short}</a>`).join('');
     const header = `
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header"><div class="container nav">
       <a href="index.html" class="logo" aria-label="RupeeCheck home"><div class="logo-mark">₹</div><span>Rupee<b>Check</b></span></a>
-      <nav class="nav-links" id="navLinks" aria-label="Main">${links}</nav>
+      <nav class="nav-quick" aria-label="Popular calculators">${quick}</nav>
+      <nav class="nav-links" id="navLinks" aria-label="All calculators">${links}</nav>
       <div class="nav-actions">
         <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode" title="Toggle theme">🌓</button>
-        <button class="icon-btn menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+        <button class="icon-btn menu-btn" id="menuBtn" aria-label="All calculators" aria-expanded="false" aria-controls="navLinks"><span aria-hidden="true">☰</span><span class="mb-txt">All tools</span></button>
       </div>
     </div></header>`;
     const foot = `
@@ -78,7 +81,11 @@ const Common = (() => {
     document.body.insertAdjacentHTML('afterbegin', header);
     document.body.insertAdjacentHTML('beforeend', foot);
     document.getElementById('themeBtn').onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
-    document.getElementById('menuBtn').onclick = () => document.getElementById('navLinks').classList.toggle('open');
+    const menuBtn = document.getElementById('menuBtn'), menu = document.getElementById('navLinks');
+    const setMenu = open => { menu.classList.toggle('open', open); menuBtn.setAttribute('aria-expanded', String(open)); document.body.classList.toggle('menu-open', open); };
+    menuBtn.onclick = e => { e.stopPropagation(); setMenu(!menu.classList.contains('open')); };
+    document.addEventListener('click', e => { if (menu.classList.contains('open') && !menu.contains(e.target)) setMenu(false); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && menu.classList.contains('open')) { setMenu(false); menuBtn.focus(); } });
   }
 
   const IN = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
@@ -267,7 +274,10 @@ const Common = (() => {
   /** Interactive multi-series line chart.
    *  o = { xs:[num], series:[{name,color,ys,dash?}], xfmt, yfmt, markers:[{x,label}], area?:bool, height? } */
   function lineChart(host, o) {
-    const W = 640, H = o.height || 300, m = { l: 62, r: 14, t: 18, b: 30 };
+    // Drawn at the chart's real width, so labels stay a readable 12 px on a phone instead of shrinking with the picture
+    const W = Math.round(Math.max(300, Math.min(900, host.clientWidth || 640))), narrow = W < 500, H = o.height || (narrow ? 240 : 300), m = { l: narrow ? 56 : 62, r: 14, t: 18, b: 30 }, FS = 12;
+    host._lc = o; host._lcW = W;
+    if (!host._lcRO && 'ResizeObserver' in window) { host._lcRO = new ResizeObserver(() => { const w = host.clientWidth; if (w > 0 && Math.abs(Math.max(300, Math.min(900, w)) - host._lcW) > 24) lineChart(host, host._lc); }); host._lcRO.observe(host); }
     const xs = o.xs, all = o.series.flatMap(s => s.ys).filter(Number.isFinite);
     let lo = Math.min(0, ...all), hi = Math.max(...all); if (hi <= lo) hi = lo + 1;
     const span = hi - lo, st0 = span / 5, mag = Math.pow(10, Math.floor(Math.log10(st0))), nm = st0 / mag;
@@ -281,9 +291,9 @@ const Common = (() => {
     const yf = o.yfmt || fmtCompact, yt = o.yfmt || axis, xf = o.xfmt || (v => v);
     let g = '';
     for (let v = lo; v <= hi + step / 2; v += step)
-      g += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" ${Math.abs(v) < step / 1000 ? 'stroke-width="1.6"' : 'stroke-dasharray="3 4"'}/><text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="10" fill="var(--muted)">${yt(v)}</text>`;
-    const xstep = [1, 2, 5, 10, 20, 25, 50].find(n => (x1 - x0) / n <= 7) || 50;
-    xs.filter(x => Math.abs(x - x0) % xstep === 0).forEach(x => g += `<text x="${X(x)}" y="${H - 9}" text-anchor="middle" font-size="10" fill="var(--muted)">${xf(x)}</text>`);
+      g += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" ${Math.abs(v) < step / 1000 ? 'stroke-width="1.6"' : 'stroke-dasharray="3 4"'}/><text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="${FS}" fill="var(--muted)">${yt(v)}</text>`;
+    const xstep = [1, 2, 5, 10, 20, 25, 50].find(n => (x1 - x0) / n <= (narrow ? 5 : 7)) || 50;
+    xs.filter(x => Math.abs(x - x0) % xstep === 0).forEach(x => g += `<text x="${X(x)}" y="${H - 9}" text-anchor="middle" font-size="${FS}" fill="var(--muted)">${xf(x)}</text>`);
     let lines = '';
     o.series.forEach((s, si) => {
       const segs = []; let cur = [];
