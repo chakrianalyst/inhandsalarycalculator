@@ -533,9 +533,12 @@ const Common = (() => {
       img.src = canvas.toDataURL('image/png');
       canvas.toBlob(blob => { if (!blob) return; objUrl = URL.createObjectURL(blob);
         try { file = new File([blob], name, { type: 'image/png' }); if (navigator.canShare && navigator.canShare({ files: [file] })) imgBtn.textContent = '📤 Share picture'; else file = null; } catch (e) { file = null; } }, 'image/png');
-      imgBtn.onclick = async () => {
-        if (file) { try { await navigator.share({ files: [file], text: 'Work out yours, free: ' + L.url }); track('share', { method: 'image_share' }); } catch (e) { if (!e || e.name !== 'AbortError') toast('Could not open sharing. Try Save instead.'); } return; }
-        const a = document.createElement('a'); a.href = objUrl || img.src; a.download = name; document.body.appendChild(a); a.click(); a.remove(); track('share', { method: 'image_download' }); toast('Picture saved. Post it with the link to the calculator.');
+      imgBtn.onclick = async () => {                                                  // a picture cannot hold a clickable link, so the calculator's address (without anyone's numbers) is copied as well
+        let copied = false; const copy = (async () => { try { await navigator.clipboard.writeText(L.url); copied = true; } catch (e) {} })();   // not awaited first: phones only open sharing straight after the tap
+        const settled = () => Promise.race([copy, new Promise(r => setTimeout(r, 600))]);
+        if (file) { try { await navigator.share({ files: [file], text: 'Work out yours, free: ' + L.url }); track('share', { method: 'image_share' }); await settled(); if (copied) toast('Link copied too. If the app drops it, paste it with your picture.'); } catch (e) { if (!e || e.name !== 'AbortError') toast('Could not open sharing. Try Save instead.'); } return; }
+        const a = document.createElement('a'); a.href = objUrl || img.src; a.download = name; document.body.appendChild(a); a.click(); a.remove(); track('share', { method: 'image_download' }); await settled();
+        toast(copied ? 'Picture saved and link copied. Paste the link with your picture so people can click it.' : 'Picture saved. Add the link ' + L.url.replace(/^https?:\/\//, '') + ' when you post it.');
       };
       sheet.querySelector('[data-a=link]').onclick = async () => { state.write(); const url = location.href;
         try { if (navigator.share) { await navigator.share({ title: document.title, url }); track('share', { method: 'native' }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
