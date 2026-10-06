@@ -107,7 +107,7 @@
         <div id="chart"></div>
       </div>
       <div class="card" style="margin-bottom:18px" id="planCard"><h2 class="card-title">⚖️ Compare two plans</h2>
-        <p class="grp-hint" id="planHint">Save this plan as <b>Plan A</b>, then change anything on the left, such as buying a home later or retiring earlier. We show both plans side by side, and Plan A as a dashed line on the chart.</p>
+        <p class="grp-hint" id="planHint">Save this plan as <b>Plan A</b>, then change anything in your inputs, such as buying a home later or retiring earlier. We show both plans side by side, and Plan A as a dashed line on the chart.</p>
         <div class="pay-tools"><button class="btn btn-primary btn-sm" id="planSave" type="button">📌 Save this as Plan A</button><button class="btn btn-ghost btn-sm" id="planClear" type="button" hidden>Clear Plan A</button></div>
         <div class="tbl-wrap" style="margin-top:12px"><table class="tbl cmp-table" id="planTbl" hidden></table></div></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">📍 Key moments</h2><div class="timeline" id="timeline"></div></div>
@@ -326,7 +326,7 @@
     if (S.free) items.push({ a: S.free, icon: '🎯', t: 'Financial freedom (savings could pay your way)' });
     if (failed) items.push({ a: S.crunch, icon: '⚠️', t: 'Savings run out' });
     items.sort((x, y) => x.a - y.a);
-    $('timeline').innerHTML = items.map(i => `<div class="tl"><span class="age">${i.a}</span><span>${i.icon} ${i.t}</span><span class="nwv">${i.icon === '⚠️' ? '' : cr(sc(atAge(i.a)))}</span></div>`).join('');
+    $('timeline').innerHTML = `<div class="tl tl-head"><span>Age</span><span>What happens</span><span>Your net worth then${real ? ' (today’s money)' : ''}</span></div>` + items.map(i => `<div class="tl"><span class="age">${i.a}</span><span>${i.icon} ${i.t}</span><span class="nwv">${i.icon === '⚠️' ? '' : cr(sc(atAge(i.a)))}</span></div>`).join('');
 
     // what each event will really cost
     const info = (id, t) => { const el = $('info-' + id); if (el) el.textContent = ev[id].on ? t : ''; };

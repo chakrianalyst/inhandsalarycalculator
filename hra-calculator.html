@@ -34,6 +34,7 @@
 
     <section class="results" aria-live="polite">
       <div class="hero-result"><div class="lbl" id="hLbl">Tax-exempt HRA (for the year)</div><div class="big" id="ex">—</div><div class="sub" id="exSub"></div><span class="pill" id="hPill"></span></div>
+      <div class="banner info" id="regimeNote"><span>ℹ️</span><span>This saving counts only if you choose the <b>old tax regime</b>. The new regime gives no HRA exemption, and for many people it still leaves more in hand. <a href="salary-calculator.html">Check which regime is better for you →</a></span></div>
       <div class="warns" id="warns"></div>
       <div class="kpis" id="kpis"></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">📐 The three-way test</h2><div class="tbl-wrap"><table class="tbl" id="tbl"></table></div>
@@ -79,14 +80,14 @@
     const W = [], warn = (cls, t) => W.push(`<div class="warn ${cls}"><span>${cls === 'bad' ? '⛔' : '⚠️'}</span><span>${t}</span></div>`);
     $('hLbl').textContent = months < 12 ? `Tax-exempt HRA (for ${months} months)` : 'Tax-exempt HRA (for the year)';
     $('ex').textContent = f(r.exempt); $('exSub').textContent = f(r.exempt / months) + ' per month';
-    $('hPill').textContent = (metro ? 'Metro: ' : 'Non-metro: ') + (metro ? '50' : '40') + '% of basic' + (+$('slab').value > 0 ? ` · you save about ${f(r.tax)} in tax` : '');
+    $('hPill').textContent = (metro ? 'Metro: ' : 'Non-metro: ') + (metro ? '50' : '40') + '% of basic' + (+$('slab').value > 0 ? ` · old regime: you save about ${f(r.tax)} in tax` : '');
     if (num('rent') <= 0) warn('', 'Enter the rent you pay. Without rent there is no HRA exemption.');
     else if (r.c === 0) warn('', 'Your rent is not more than 10% of your basic salary, so no HRA is exempt.');
     if (r.needsPan) warn('', `Your rent is ${f(r.rentAnnual)} for the year, above ₹1 lakh. You must give your landlord’s PAN to your employer.`);
     if (num('hra') <= 0) warn('', 'You receive no HRA. If you pay rent, you may claim a deduction under section 80GG instead (old regime).');
     $('warns').innerHTML = W.join('');
     const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
-    $('kpis').innerHTML = K('good', 'Exempt HRA', f(r.exempt)) + K('bad', 'Taxable HRA', f(r.taxable), 'Added to your income') + (+$('slab').value > 0 ? K('good', 'Tax you save', f(r.tax), `At ${$('slab').value}% plus cess`) : '') + K('', 'HRA received', f(r.a), `${months} months`);
+    $('kpis').innerHTML = K('good', 'Exempt HRA', f(r.exempt)) + K('bad', 'Taxable HRA', f(r.taxable), 'Added to your income') + (+$('slab').value > 0 ? K('good', 'Tax you save (old regime)', f(r.tax), `At ${$('slab').value}% plus cess`) : '') + K('', 'HRA received', f(r.a), `${months} months`);
     const min = Math.min(r.a, r.c, r.d), row = (l, v) => `<tr class="${v === min ? 'pos' : ''}"><td>${l}</td><td>${f(v)}${v === min ? ' ✓' : ''}</td></tr>`;
     $('tbl').innerHTML = row('Actual HRA received', r.a) + row('Rent paid − 10% of basic', r.c) + row(`${metro ? 50 : 40}% of basic`, r.d);
     const tips = [];

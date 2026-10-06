@@ -6,7 +6,7 @@ const TOOLS = [
   { id: 'fire', href: 'fire-calculator.html', icon: '🔥', name: 'FIRE / Retirement Planner', short: 'FIRE', desc: 'How much you need to retire early and when, with lean and fat FIRE, coast FIRE and a stress test.', isNew: true },
   { id: 'rentbuy', href: 'rent-vs-buy-calculator.html', icon: '🏡', name: 'Rent vs Buy Calculator', short: 'Rent vs Buy', desc: 'Buy a home or rent and invest the difference? Break-even year, tax and a what-if grid.', isNew: true },
   { id: 'abroad', href: 'abroad-calculator.html', icon: '🌍', name: 'Move Abroad Calculator', short: 'Abroad', desc: 'Compare staying in India with a job in the US, Canada, UK, Germany, Australia, Singapore or the UAE, in rupees.', isNew: true },
-  { id: 'return', href: 'return-calculator.html', icon: '🛬', name: 'Return to India Calculator', short: 'Return', desc: 'Planning to move back? See what you would bring home and the best year to return.', isNew: true },
+  { id: 'return', href: 'return-calculator.html', icon: '🛬', name: 'Return to India Calculator', short: 'Return', desc: 'Planning to move back? See what you would bring home and the earliest year you can afford to return.', isNew: true },
   { id: 'offers', href: 'offer-comparison.html', icon: '🤝', name: 'Job Offer Comparison', short: 'Offers', desc: 'Compare 2–3 job offers on in-hand pay, bonus, ESOPs, raises and rising costs over 1 to 5 years.', isNew: true },
   { id: 'hike', href: 'salary-hike-calculator.html', icon: '📈', name: 'Salary Hike Calculator', short: 'Hike', desc: 'See how much of your raise reaches your bank account, and what is left after inflation.' },
   { id: 'hra', href: 'hra-calculator.html', icon: '🏠', name: 'HRA Exemption Calculator', short: 'HRA', desc: 'Exempt and taxable HRA, with the metro list by financial year and the tax you save.' },
@@ -415,7 +415,19 @@ const Common = (() => {
     b.onclick = async () => { state.write(); const url = location.href;
       try { if (navigator.share) { await navigator.share({ title: document.title, url }); track('share', { method: 'native' }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
       try { await navigator.clipboard.writeText(url); toast('Link copied. It contains the numbers you entered, so share it only with people you trust.'); track('share', { method: 'copy' }); } catch (e) { toast('Copy the address bar link to share'); } };
-    hero.appendChild(b);
+    hero.appendChild(b); hero.classList.add('has-share');
+  }
+  /** On a phone the result often sits below a long form. This bar keeps the headline answer in view while you type, and hides once the result itself is on screen or above you. Pages with their own bar (#mBar) keep it. */
+  function addResultBar(activeId) {
+    const hero = document.querySelector('.results .hero-result, main .hero-result'); if (!hero || document.getElementById('mBar') || !activeId || activeId === 'home' || !('IntersectionObserver' in window)) return;
+    const bar = document.createElement('div'); bar.className = 'm-bar'; bar.id = 'mBarAuto'; bar.setAttribute('aria-hidden', 'true');
+    bar.innerHTML = '<div class="m-txt"><small></small><b></b></div><a href="#" tabindex="-1">See result ▸</a>';
+    const lbl = bar.querySelector('small'), val = bar.querySelector('b');
+    const sync = () => { const l = hero.querySelector('.lbl'), v = hero.querySelector('.big'); lbl.textContent = l ? l.textContent.trim() : 'Result'; val.textContent = v ? v.textContent.trim() : ''; };
+    bar.querySelector('a').onclick = e => { e.preventDefault(); hero.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    document.body.appendChild(bar); sync(); new MutationObserver(sync).observe(hero, { childList: true, subtree: true, characterData: true });
+    const watchEl = hero.closest('.results') || hero;
+    new IntersectionObserver(es => { const e = es[0]; bar.classList.toggle('show', !e.isIntersecting && e.boundingClientRect.top > 0); }, { threshold: 0 }).observe(watchEl);
   }
   function a11y() {
     const m = document.querySelector('main'); if (m && !m.id) m.id = 'main';
@@ -432,9 +444,23 @@ const Common = (() => {
       sel.value = sel.dataset.default || 'other';
     });
   }
+  /** Tables on a phone: keep each amount on one line (so "−₹15.32 L" never splits into three lines), and when a table is wider than the screen, say that it scrolls sideways. Re-runs whenever a calculator redraws its tables. */
+  function tidyTables() {
+    const NUM = /^[−+\-]?\s?(?:[A-Z]{1,3}\s?)?[₹$€£]?\s?[\d.,]+(?:\s?(?:L|Cr|K|%|yrs?|years?|months?|mo|days?))?(?:\s?[✓✔])?$/;
+    const tidy = wrap => {
+      wrap.querySelectorAll('td, th').forEach(c => { const t = c.textContent.replace(/\s+/g, ' ').trim(); c.classList.toggle('nw', t.length > 0 && t.length <= 20 && /\d/.test(t) && NUM.test(t)); });
+      let hint = wrap.nextElementSibling; if (!hint || !hint.classList.contains('tbl-hint')) { hint = document.createElement('p'); hint.className = 'tbl-hint'; hint.textContent = 'Swipe the table sideways to see every column →'; wrap.after(hint); }
+      hint.hidden = !(wrap.scrollWidth > wrap.clientWidth + 4);
+    };
+    document.querySelectorAll('.tbl-wrap').forEach(wrap => {
+      let queued = false; const run = () => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; tidy(wrap); }); };
+      new MutationObserver(run).observe(wrap, { childList: true, subtree: true, characterData: true }); run();
+      if ('ResizeObserver' in window) new ResizeObserver(run).observe(wrap);
+    });
+  }
   function init(activeId) {
     layout(activeId); a11y(); initLimits(); initA11y(); fillCities(); document.querySelectorAll('input[data-money]').forEach(e => attachMoney(e)); state.restore(); enhanceFields(); related(activeId);
-    placeAds(); placeAffiliates(); addShare(); consentBanner(); startThirdParties();
+    placeAds(); placeAffiliates(); addShare(); addResultBar(activeId); tidyTables(); consentBanner(); startThirdParties();
     window.addEventListener('load', () => { state.watch(); let used = false; document.addEventListener('input', () => { if (!used) { used = true; track('calculator_used', { tool: activeId }); } }); });
   }
   initTheme();
