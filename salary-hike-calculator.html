@@ -43,6 +43,7 @@
       <div class="hero-result"><div class="lbl">Your real monthly gain</div><div class="big" id="gain">—</div><div class="sub" id="gainSub"></div><span class="pill" id="hPill"></span></div>
       <div class="warns" id="warns"></div>
       <div class="kpis" id="kpis"></div>
+      <div class="nudge" id="nudge" hidden></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">🔍 Before vs after</h2><div class="tbl-wrap"><table class="tbl" id="tbl"></table></div></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">🗓️ If you got this raise every year</h2><p class="grp-hint" style="margin-top:0">Monthly in-hand pay over the next 5 years, also shown in today’s money so you can see the real gain.</p><div class="tbl-wrap"><table class="tbl" id="proj"></table></div></div>
       <div class="offer"><div><b>Got a raise? Put it to work.</b><small>Start a SIP with your extra take-home.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="mutual-funds">Compare offers</a></div>
@@ -94,6 +95,11 @@
     $('warns').innerHTML = W.join('');
     const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
     $('kpis').innerHTML = K('', 'Headline hike', pct1(h), 'The CTC rise') + K('good', 'Real in-hand hike', pct1(realHike), 'Take-home rise') + K(powerHike >= 0 ? 'good' : 'bad', 'After inflation', pct1(powerHike), 'Buying-power change') + K('', 'You keep per extra ₹100 of CTC', dCtc > 0 ? '₹' + keep.toFixed(0) : '—', 'The rest is tax, plus PF and gratuity you get later');
+    const raise = Math.round(gain / 100) * 100;
+    Common.nudge($('nudge'), raise >= 500 && {
+      from: 'hike', text: `<b>Invest the ${f(raise)} a month raise?</b> You were living without it until now. See what it grows to as a SIP.`,
+      actions: [{ label: `Invest ${f(raise)} a month`, to: 'sip-calculator.html', data: { sip: raise }, note: 'Your monthly raise, as a SIP.' }]
+    });
     const row = (l, x, y, cls = '') => `<tr class="${cls}"><td>${l}</td><td>${f(x)}</td><td>${f(y)}</td></tr>`, eff = (o, c) => c ? (o.tax / c * 100).toFixed(1) + '%' : '—';
     $('tbl').innerHTML = '<tr><th></th><th>Before</th><th>After</th></tr>' + row('Annual CTC', c0, c1) + row('Income tax / yr', -a.tax, -b.tax, 'neg') + `<tr><td>Tax as % of CTC</td><td>${eff(a, c0)}</td><td>${eff(b, c1)}</td></tr>` + row('In-hand / year', a.inHandYear, b.inHandYear) + row('In-hand / month', m0, m1, 'total') + `<tr><td>Regime used</td><td>${usedKey(ra) === 'new' ? 'New' : 'Old'}</td><td>${usedKey(rb) === 'new' ? 'New' : 'Old'}</td></tr>`;
     // 5-year projection

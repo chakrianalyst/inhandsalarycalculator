@@ -92,6 +92,7 @@
       <div class="warns" id="warns"></div>
       <p class="kpi-head" id="kpiHead"></p>
       <div class="kpis" id="kpis"></div>
+      <div class="nudge" id="nudge" hidden></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">📈 What you have vs what you need</h2><p class="grp-hint" style="margin-top:0">For each year you could return, the money you would bring home (after tax and costs) against the money you need to live the life you want until the end of your plan.</p><div id="chart"></div></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">🗓️ Year by year</h2><div class="tbl-wrap"><table class="tbl ret-yr" id="yrTbl"></table></div></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">🧮 What you bring home</h2><div class="tbl-wrap"><table class="tbl" id="homeTbl"></table></div></div>
@@ -186,6 +187,12 @@
     $('warns').innerHTML = W.map(w => `<div class="warn"><span>⚠️</span><span>${w}</span></div>`).join('');
     const mx = Returning.maxSpend(P, sel, income), K = (cls, kk, v, s) => `<div class="kpi ${cls}"><div class="k">${kk}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
     $('kpiHead').textContent = `${sel === 0 ? 'If you return now' : 'If you return in ' + sel + (sel === 1 ? ' year' : ' years')} (age ${S.age}). Pick another year under “If you return in”.`;
+    const wdR = Math.round(T.spend / 100) * 100;
+    Common.nudge($('nudge'), S.corpus > 0 && wdR > 0 && P.planEnd > S.age && {
+      from: 'return plan', text: `<b>See ${cr(S.corpus)} month by month.</b> How long it lasts at ${f(wdR)} a month from age ${S.age}, and the tax on each withdrawal.`,
+      actions: [{ label: 'Check with the SWP calculator', to: 'swp-calculator.html', note: 'No job income, rent or one-off costs are included there.',
+        data: { corpus: Math.round(S.corpus), wd: wdR, step: P.infl, ret: P.retIndia, yrs: Math.round(P.planEnd - S.age) } }]
+    });
     $('kpis').innerHTML = K('', 'You bring home', cr(S.corpus), 'After tax, costs and the move') + K('', 'You need', cr(S.need), `For ${f(P.spend)} a month to age ${P.planEnd}`) + K(S.ready ? 'good' : 'bad', S.ready ? 'To spare' : 'Short by', cr(Math.abs(S.gap)), S.ready ? 'Your money covers it' : 'Your money does not cover it') +
       K('', 'Without a job, money lasts', S.runwayEnd === null ? 'To the end' : S.runwayYears + (S.runwayYears === 1 ? ' year' : ' years'), S.runwayEnd === null ? `Beyond age ${P.planEnd}` : `Until age ${S.runwayEnd}`) + K('', 'Spending that works', f(mx) + '/mo', 'In today’s money, for this year') + K('', 'Your age then', S.age, sel === 0 ? 'If you return now' : `After ${sel} more ${sel === 1 ? 'year' : 'years'} abroad`);
     Common.lineChart($('chart'), { xs: rows.map(r => r.r), xfmt: v => v === 0 ? 'Now' : v + 'y', xlabel: v => v === 0 ? 'Return now' : 'Return in ' + v + (v === 1 ? ' year' : ' years'), label: 'Money you bring home vs money you need', area: true,
