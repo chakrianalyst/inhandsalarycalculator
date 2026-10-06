@@ -310,7 +310,7 @@ if (chromium) {
     const pg = await open(SITE, 'fire-calculator.html'); const txt = sel => pg.$eval(sel, e => e.innerText);
     assert.match(await txt('#hero'), /Age 48/); assert.match(await txt('.kpis'), /₹5\.30 Cr/); assert.match(await txt('#verdict'), /short at 45/);
     assert.match(await txt('#styles'), /Lean[\s\S]*Regular[\s\S]*Fat/); assert.match(await txt('#coast'), /Coast|invested today/); assert.equal((await pg.$$('#grid tr')).length, 4);
-    await pg.$eval('details.adv', e => (e.open = true)); await pg.fill('#pension', '30,000'); assert.match(await txt('.kpis'), /Corpus needed[\s\S]*₹2\./);        // a ₹30,000 pension roughly halves the corpus
+    await pg.$eval('details.adv', e => (e.open = true)); await pg.fill('#pension', '30,000'); assert.match(await txt('.kpis'), /FIRE number: needed at retirement[\s\S]*₹2\./);        // a ₹30,000 pension roughly halves the corpus
     await pg.fill('#pension', '0'); await pg.fill('#sav', '2,00,000'); assert.match(await txt('#verdict'), /on track/);
     assert.deepEqual(pg.errs, []); await pg.close();
   });
@@ -729,7 +729,9 @@ if (chromium) {
 
   test('audit round 3: FIRE caption, FD tax from your income, abroad table adds up, salary old-regime label, HRA tip, home groups, life-sim assumptions', async () => {
     const fire = await open(SITE, 'fire-calculator.html'); await fire.waitForTimeout(250);
-    assert.match(await fire.textContent('#chartCap'), /plan to retire at 45\. Your money would run out at about age 77\. Retiring at 48 instead makes it last to 90/); await fire.close();
+    assert.match(await fire.textContent('#chartCap'), /plan to retire at 45\. Your money would run out at about age 77\. Retiring at 48 instead makes it last to 90/);
+    assert.equal(await fire.textContent('#fPill'), 'Your FIRE number: ' + await fire.textContent('#kNeed') + ' to retire at 45', 'both answers sit in the result box, so the share picture carries them');
+    await fire.click('.share-btn'); await fire.waitForSelector('.share-img[src^="data:"]'); await fire.close();
     const fd = await open(SITE, 'fd-calculator.html'); await fd.$eval('#sec-tax', e => (e.open = true)); const before = await fd.textContent('#kpis');
     await fd.fill('#sal', '0'); await fd.waitForTimeout(200); assert.match(await fd.textContent('#kpis'), /Tax on the interest₹0No tax: your income stays within the ₹12 lakh rebate/); assert.notEqual(await fd.textContent('#kpis'), before);
     await fd.fill('#p', '7,00,00,000'); await fd.waitForTimeout(200);                           // a big deposit with no other income: the interest itself climbs the slabs (and crosses ₹50 L, so surcharge)
