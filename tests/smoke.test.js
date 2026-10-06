@@ -92,7 +92,7 @@ if (chromium) {
 
   test('salary: gratuity base (basic / wages / custom), A + B summary, flexible-benefit chip', async () => {
     const pg = await open(SITE, 'salary-calculator.html'); const t = id => pg.$eval('#' + id, e => e.textContent.trim());
-    await pg.$eval('#sec-ret', e => (e.open = true)); assert.match(await t('ab'), /Total annual salary \(A\).*Retirals \(B\).*CTC/);
+    await pg.$eval('#sec-ret', e => (e.open = true)); assert.match(await t('ab'), /Paid to you as salary.*Employer PF & gratuity.*CTC/);
     assert.match(await t('gratInfo'), /4\.81% of basic/); const onBasic = await t('v-ret');
     await pg.click('#gratMode [data-v=wages]'); assert.match(await t('gratInfo'), /4\.81% of wages/); assert.notEqual(await t('v-ret'), onBasic);
     assert.equal(await pg.$eval('#gratCustom', e => e.hidden), true);
@@ -704,6 +704,27 @@ if (chromium) {
     const of = await open(SITE, 'offer-comparison.html', 390); assert.equal(await of.isVisible('#card2'), false, 'unused Offer C is hidden on a phone');
     await of.click('label:has(#third)'); await of.waitForTimeout(150); assert.equal(await of.isVisible('#card2'), true);
     const xs = await of.$$eval('#hz, #pay, #cinf', e => e.map(x => Math.round(x.closest('.field').getBoundingClientRect().left))); assert.equal(new Set(xs).size, 1, 'settings stack in one column on a phone'); await of.close();
+  });
+
+  test('header fits every screen: popular links plus "All tools", which opens the full list and closes with Escape', async () => {
+    for (const w of [1440, 1366, 1280, 1024, 390]) {
+      const pg = await open(SITE, 'salary-calculator.html', w);
+      const right = await pg.evaluate(() => Math.max(...[...document.querySelectorAll('header *')].filter(e => e.offsetParent).map(e => e.getBoundingClientRect().right)));
+      assert.ok(right <= w, `header fits at ${w}px (rightmost ${right})`);
+      assert.equal(await pg.isVisible('.nav-quick'), w > 900, `popular links at ${w}px`);
+      await pg.click('#menuBtn'); assert.equal(await pg.$$eval('#navLinks a', a => a.filter(x => x.offsetParent).length), 14, `all 14 calculators listed at ${w}px`);
+      assert.equal(await pg.getAttribute('#menuBtn', 'aria-expanded'), 'true');
+      await pg.keyboard.press('Escape'); assert.equal(await pg.isVisible('#navLinks'), false); await pg.close();
+    }
+  });
+
+  test('chart labels stay readable on a phone', async () => {
+    const pg = await open(SITE, 'fire-calculator.html', 390); await pg.waitForTimeout(250);
+    const px = await pg.$$eval('.lc svg text', t => t.filter(x => x.textContent.trim()).map(x => x.getBoundingClientRect().height));
+    assert.ok(px.length > 4 && Math.min(...px) >= 11, 'axis labels at least 11 px tall: ' + px.map(Math.round).join(','));
+    await pg.setViewportSize({ width: 1280, height: 900 }); await pg.waitForTimeout(300);
+    assert.ok(Math.min(...await pg.$$eval('.lc svg text', t => t.filter(x => x.textContent.trim()).map(x => x.getBoundingClientRect().height))) >= 11, 'and after resizing to desktop');
+    await pg.close();
   });
 
   test('teardown', async () => { await browser.close(); fs.rmSync(LIVE, { recursive: true, force: true }); });
