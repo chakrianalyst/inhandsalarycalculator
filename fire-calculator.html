@@ -58,7 +58,7 @@
     <section class="results" aria-live="polite">
       <div class="hero-result" id="hero"><div class="lbl" id="fTitle">Earliest possible retirement</div><div class="big" id="fBig">—</div><div class="sub" id="fSub"></div><span class="pill" id="fPill"></span></div>
       <div class="kpis">
-        <div class="kpi"><div class="k">Corpus needed at retirement</div><div class="v" id="kNeed"></div></div>
+        <div class="kpi"><div class="k">FIRE number: needed at retirement</div><div class="v" id="kNeed"></div></div>
         <div class="kpi"><div class="k">Projected corpus</div><div class="v" id="kProj"></div></div>
         <div class="kpi"><div class="k">Needed, in today's money</div><div class="v" id="kReal"></div></div>
         <div class="kpi"><div class="k">Monthly SIP needed</div><div class="v" id="kSip"></div></div>
@@ -112,7 +112,7 @@
     $('fTitle').textContent = 'Earliest possible retirement';
     if (fireAge !== null) { $('fBig').textContent = 'Age ' + fireAge; $('fSub').textContent = fireAge <= age ? 'You are already financially independent 🎉' : `${fireAge - age} years from now at your current savings pace`; }
     else { $('fBig').textContent = 'After ' + Math.max(80, life - 1); $('fSub').textContent = 'Raise your monthly investing or lower your retirement spending to bring this forward.'; }
-    $('fPill').textContent = `Target: retire at ${ra}`;
+    $('fPill').textContent = `Your FIRE number: ${cr(T)} to retire at ${ra}`;
     $('kNeed').textContent = cr(T); $('kProj').textContent = cr(projRA); $('kReal').textContent = cr(T / Math.pow(1 + infl, n)); $('kSip').textContent = sipNeed > 0 ? f(sipNeed) : 'On track ✓';
     if (num('retAge') <= age) W.push('Your retirement age must be after your current age. We used ' + ra + '.');
     if (P.post >= Q.pre) W.push('You expect a higher return after retiring than before. Most people shift to safer investments, which earn less.');
