@@ -8,7 +8,7 @@
 const path = require('path');
 const load = n => require(path.join(__dirname, n));
 const Tax = load('tax.js'), Invest = load('invest.js'), Loan = load('loan.js'), Deposit = load('deposit.js'), HRA = load('hra.js'), Gratuity = load('gratuity.js'),
-  Fire = load('fire.js'), RentBuy = load('rentbuy.js'), Abroad = load('abroad.js'), Returning = load('returning.js'), DEF = load('page-defaults.json'), META = load('ENGINE.json');
+  Fire = load('fire.js'), RentBuy = load('rentbuy.js'), Abroad = load('abroad.js'), Returning = load('returning.js'), SWP = load('swp.js'), DEF = load('page-defaults.json'), META = load('ENGINE.json');
 
 const n = v => { const x = parseFloat(String(v).replace(/,/g, '')); return Number.isFinite(x) ? x : 0; };
 const bool = v => v === true || v === 'true' || v === 'on' || v === 1 || v === '1';
@@ -46,6 +46,19 @@ function regime(o) {
   const res = { newRegimeTax: newTax, oldRegimeTaxNoDeductions: oldNoDed, oldRegimeBreakEvenDeductions: breakevenDeductions(g), taxFreeUpToGrossSalary: 1275000 };
   if (ded !== null) { res.oldRegimeTaxWithDeductions = Tax.computeTax(Math.max(0, g - 50000 - ded), 'old').total; res.cheaperRegime = res.oldRegimeTaxWithDeductions < newTax ? 'old' : 'new'; }
   return { inputs: { gross: g, deductions: ded }, results: res, assumptions: ['Gross salary for a salaried person, standard deduction ₹75,000 (new) or ₹50,000 (old)', 'Deductions are on top of the standard deduction (HRA exemption, 80C, 80D, NPS, home-loan interest)', 'Tax before 4% cess is included in the totals above', 'Tax Year 2026-27'] };
+}
+
+/* ---------- swp: mirrors swp-calculator.html ---------- */
+function swp(o) {
+  const d = merge('swp-calculator', o), infl = n(d.infl);
+  const p = { corpus: n(d.corpus), withdraw: n(d.wd), step: n(d.step), ret: n(d.ret), years: Math.max(1, Math.round(n(d.yrs)) || 1), gainPct: n(d.gainPct), taxk: d.taxk, slab: n(d.slab), nominal: d.conv === 'nom' };
+  const R = SWP.run(p), y1 = R.years[0] || { withdrawn: 0, gain: 0, tax: 0 };
+  return { inputs: d, results: { lastsAllYears: R.lasts, monthsPaidInFull: R.fullMonths, leftAtEnd: R.end, leftAtEndInTodaysMoney: R.end / Math.pow(1 + infl / 100, p.years),
+      maxMonthlyWithdrawalThatLasts: SWP.maxWithdraw(p), monthlyWithdrawalThatKeepsCorpus: SWP.maxWithdraw(p, p.corpus), totalWithdrawn: R.totalWithdrawn, totalTax: R.totalTax,
+      year1Withdrawn: y1.withdrawn, year1Profit: y1.gain, year1Tax: y1.tax, table: R.years.map(y => ({ year: y.year, monthly: y.monthly, withdrawn: y.withdrawn, tax: y.tax, leftAtEnd: y.balance })) },
+    assumptions: ['Return ' + p.ret + '% a year, applied as ' + (p.nominal ? 'return ÷ 12 each month' : 'an effective yearly rate') + '; each month the money grows, then the withdrawal is paid', 'Withdrawal rises ' + p.step + '% every 12 months',
+      p.taxk === 'equity' ? 'Equity fund: 20% on profit from units held up to a year, 12.5% on long-term profit above ₹1.25 lakh a year, plus 4% cess; only the profit part of each withdrawal is taxed (average cost); each 12 months is one tax year' : p.taxk === 'slab' ? 'Debt fund: profit taxed at ' + p.slab + '% plus 4% cess' : 'Tax not included',
+      p.gainPct > 0 ? p.gainPct + '% of the money is already profit (held over a year)' : 'The money is invested today', 'Returns are not guaranteed; a steady return is assumed'] };
 }
 
 /* ---------- sip: mirrors sip-calculator.html ---------- */
@@ -142,9 +155,10 @@ function returning(o) {
     assumptions: ['Spending ₹' + P.spend + ' a month in today\'s money in India', 'Rupee weakens ' + P.dep + '% a year', 'Returns ' + P.retAbroad + '% abroad, ' + P.retIndia + '% in India, inflation ' + P.infl + '%', 'Plan runs to age ' + P.planEnd, (P.ctcBasis === 'return' ? 'The package is what you would be paid in the year you return. ' : '') + (P.jobGap > 0 ? P.jobGap + ' months without income after returning. ' : '') + (P.indiaTax > 0 ? P.indiaTax + '% tax on the return in India. ' : '') + (P.partnerCtc > 0 ? 'Partner earns ₹' + P.partnerCtc + ' (today\'s money) for ' + P.partnerYears + ' years after you return. ' : '') + (P.marketHit > 0 ? 'Investments abroad fall ' + P.marketHit + '% just before returning. ' : '') + (P.countPf === 'yes' ? 'PF and gratuity counted as savings (PF at ' + P.pfRate + '%). ' : '') + P.events.filter(e => e.kind && e.amount > 0).map(e => (e.kind === 'monthly' ? '₹' + e.amount + ' a month from age ' + e.from + ' to ' + e.to : '₹' + e.amount + ' once at age ' + e.from) + ' (today\'s money). ').join('') + 'Savings abroad rise ' + P.saveGrowth + '% a year, retirement contributions ' + (P.retireGrowth || 0) + '% a year, India salary raise ' + P.jobGrowth + '% a year' + (P.ctcBasis === 'return' ? ' (from the year you return)' : ' (the package is in today\'s money and grows from today)')] };
 }
 
-const TOOLS = { salary, regime, sip, emi, fd, gratuity, hra, fire, rentbuy, abroad, return: returning };
-const DEFAULT_PAGE = { sip: 'sip-calculator', emi: 'emi-calculator', fd: 'fd-calculator', gratuity: 'gratuity-calculator', hra: 'hra-calculator', fire: 'fire-calculator', rentbuy: 'rent-vs-buy-calculator', abroad: 'abroad-calculator', return: 'return-calculator' };
+const TOOLS = { salary, regime, sip, swp, emi, fd, gratuity, hra, fire, rentbuy, abroad, return: returning };
+const DEFAULT_PAGE = { sip: 'sip-calculator', swp: 'swp-calculator', emi: 'emi-calculator', fd: 'fd-calculator', gratuity: 'gratuity-calculator', hra: 'hra-calculator', fire: 'fire-calculator', rentbuy: 'rent-vs-buy-calculator', abroad: 'abroad-calculator', return: 'return-calculator' };
 const HELP = { salary: 'ctc, basicPct, hraPct, variablePct, pfCap, gratuity, employerNps, ptMonthly, metro, rentMonthly; old-regime deductions: other80c, nps1b, d80, homeLoanInt, eduLoanInt, donations, disability', regime: 'gross (yearly gross salary), deductions (optional, beyond the standard deduction)', sip: 'mode (sip|lump|goal), sip, lump, ret, yrs, mon, step, infl, taxk (none|equity|slab), slab, conv (eff|nom), goal, goalIn (today|future)',
+  swp: 'corpus, wd (monthly withdrawal in year 1), step (% rise a year), ret, yrs, gainPct (% of the money already profit), taxk (equity|slab|none), slab, conv (eff|nom), infl',
   emi: 'mode (emi|afford), amt, rate, yrs, mon, extra (prepay a month), lump, lumpM; afford: inc, foir, old', fd: 'mode (fd|rd), p, d (RD monthly), rate, yrs, mon, day, cmp, slab, senior', gratuity: 'wage, yrs, mon, kind (covered|notcovered|govt), fixed, total', hra: 'basic, hra, rent (monthly), months, metro, slab',
   fire: 'age, retAge, exp (monthly), corp, sav (monthly), step, ret, infl, postRet, swr, life, pension, ratio', rentbuy: 'price, dp, rate, tenure, rent, app, inv, rentInc, horizon, bcost, scost, maint, infl, gtax, lben, slab',
   abroad: 'country (US|CA|AU|SG|AE|UK|DE), city, gross (local currency), ctc, years, rentA, otherA, rentI, otherI, fx, dep, gA, gI, rA, rI, iA, iI, oneTime, trips, parents, partner, retPct, matchPct, epf', return: 'age, cash, saveYear, saveGrowth, retire, retireYear, retireGrowth, ctcBasis (today|return), indiaTax (% of the return in India), partnerCtc and partnerYears (a partner package in today money and the years they work after you return), marketHit (a % fall in investments abroad just before you return, a stress test), jobGap (months), countPf (yes|no), pfRate, ev1Kind/ev2Kind/ev3Kind (none, once or monthly; use an empty string for none) with ev1Amt, ev1From, ev1To, indiaAssets, spend, jobCtc, workUntil, planEnd, lump, fx, dep, retA, retI, infl, retMode' };

@@ -20,6 +20,7 @@ Base address https://rupeecheck.in/ followed by the file name.
 | HRA | `hra-calculator.html` | `hra-exemption-rules.html` |
 | Professional tax | field inside the salary calculator | `professional-tax-by-state.html` |
 | SIP and goals | `sip-calculator.html` | `sip-for-1-crore.html` |
+| SWP (monthly withdrawals) | `swp-calculator.html` | Only the profit part of each withdrawal is taxed (average cost). Equity: 20% within a year, then 12.5% above ₹1.25 lakh of long-term profit a year. The withdrawal is in year-1 rupees and rises by the step-up each year. |
 | Home loan EMI | `emi-calculator.html` | `emi-per-lakh-table.html` |
 | FD and RD | `fd-calculator.html` | |
 | Gratuity | `gratuity-calculator.html` | |

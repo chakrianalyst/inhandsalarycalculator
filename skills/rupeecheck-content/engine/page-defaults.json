@@ -168,5 +168,17 @@
   "rA": "7",
   "years": "10",
   "mode": "nom"
+ },
+ "swp-calculator": {
+  "corpus": "10000000",
+  "wd": "50000",
+  "step": "5",
+  "ret": "9",
+  "yrs": "25",
+  "gainPct": "0",
+  "infl": "6",
+  "taxk": "equity",
+  "slab": "30",
+  "conv": "eff"
  }
 }

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SWP Calculator: How Long Will Your Money Last? | RupeeCheck</title>
+<meta name="description" content="Free SWP calculator for India: how long your mutual fund money lasts with rising monthly withdrawals, the most you can safely take, and tax on profit only.">
+<link rel="canonical" href="https://inhand.example/swp-calculator.html">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"SWP Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero">
+    <div class="crumbs"><a href="index.html">Home</a> › SWP calculator</div>
+    <h1>SWP Calculator <span class="grad-text">how long will it last?</span></h1>
+    <p>Take a monthly income from your mutual funds. See how long the money lasts, the most you can safely take each month, and the tax, which falls only on the profit part of each withdrawal.</p>
+  </div>
+  <div class="container tool-layout">
+    <section class="card" id="inputs" aria-label="Inputs">
+      <h2 class="card-title">🏧 Your withdrawal plan</h2>
+      <div class="field" data-slider><label for="corpus">Money you have invested</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="corpus" data-money data-words="corpusWords" value="10000000" min="100000" max="100000000" step="100000" aria-describedby="corpusWords"></div><div class="words" id="corpusWords"></div>
+        <span class="hint">Its value today, in the funds you will withdraw from.</span></div>
+      <div class="field" data-slider><label for="wd">Monthly withdrawal</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="wd" data-money data-words="wdWords" value="50000" min="1000" max="1000000" step="1000" aria-describedby="wdWords"></div><div class="words" id="wdWords"></div>
+        <span class="hint">What you take out in the first year, before tax.</span></div>
+      <div class="field" data-slider><label for="step">Raise the withdrawal every year by</label>
+        <div class="input-wrap"><input type="number" id="step" value="5" min="0" max="15" step="0.5"><span class="suf">%</span></div>
+        <span class="hint">Keep it close to price rises so your monthly income buys the same each year. 0% keeps it flat.</span></div>
+      <div class="field" data-slider><label for="ret">Expected return (per year)</label>
+        <div class="input-wrap"><input type="number" id="ret" value="9" min="0" max="20" step="0.5"><span class="suf">%</span></div>
+        <span class="hint">Debt funds have earned about 6 to 7.5%, balanced or hybrid funds about 8 to 10%, equity more but with large falls. Use a careful figure.</span></div>
+      <div class="field"><label for="yrs">For how many years?</label>
+        <div class="input-wrap"><input type="number" id="yrs" value="25" min="1" max="50" step="1"><span class="suf">yrs</span></div>
+        <div class="chips" id="yrChips"><span class="chips-l">Quick pick</span><button type="button" class="chip" data-t="10">10 years</button><button type="button" class="chip" data-t="15">15 years</button><button type="button" class="chip" data-t="20">20 years</button><button type="button" class="chip" data-t="25">25 years</button><button type="button" class="chip" data-t="30">30 years</button></div></div>
+      <details class="grp" id="sec-tax"><summary><div class="gi">🧾</div><div class="gt">Tax, inflation and settings<small>See what reaches your bank account</small></div><span class="chev">›</span></summary><div class="grp-body">
+        <div class="field"><label for="taxk">Type of fund</label><select id="taxk"><option value="equity" selected>Equity or hybrid fund (65%+ in shares)</option><option value="slab">Debt fund (taxed at your slab rate)</option><option value="none">Do not include tax</option></select>
+          <span class="hint">Equity: profit on units held over a year is taxed at 12.5% above ₹1.25 lakh a year, and at 20% within a year. Debt funds bought after March 2023: profit is added to your income.</span></div>
+        <div class="field" id="fSlab" hidden><label for="slab">Your income-tax rate</label><select id="slab"><option value="0">0%</option><option value="5">5%</option><option value="10">10%</option><option value="15">15%</option><option value="20">20%</option><option value="25">25%</option><option value="30" selected>30%</option></select></div>
+        <div class="field"><label for="gainPct">How much of your money is already profit?</label>
+          <div class="input-wrap"><input type="number" id="gainPct" value="0" min="0" max="95" step="5"><span class="suf">%</span></div>
+          <span class="hint">0 if you are investing this amount now. If your funds are worth ₹1 crore and you put in ₹60 lakh, enter 40. That profit is taxed when you withdraw it.</span></div>
+        <div class="field"><label for="conv">How the yearly return is applied</label><select id="conv"><option value="eff" selected>Yearly return (recommended)</option><option value="nom">Return ÷ 12 each month (like many other sites)</option></select></div>
+        <div class="field"><label for="infl">Price rise each year (inflation)</label><div class="input-wrap"><input type="number" id="infl" value="6" min="0" max="15" step="0.5"><span class="suf">%</span></div><span class="hint">Used to show amounts in today’s money.</span></div>
+      </div></details>
+    </section>
+
+    <section class="results" aria-live="polite">
+      <div class="hero-result" id="hero"><div class="lbl" id="hLbl">Your money lasts</div><div class="big" id="hBig">—</div><div class="sub" id="hSub"></div><span class="pill" id="hPill"></span></div>
+      <div class="warns" id="warns"></div>
+      <div class="kpis" id="kpis"></div>
+      <div class="card"><h2 class="card-title">📉 How your money changes</h2><div id="chart"></div><p class="chart-cap" id="chartCap"></p></div>
+      <div class="card" id="taxCard"><h2 class="card-title">🧾 How the tax works</h2><div id="taxNote"></div></div>
+      <div class="card"><h2 class="card-title">📅 Year by year</h2><div class="tbl-wrap"><table class="tbl" id="yrTbl"></table></div></div>
+      <div class="offer"><div><b>Setting up an SWP?</b><small>Compare direct mutual fund platforms with free SWP.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="mutual-funds">Compare offers</a></div>
+    </section>
+  </div>
+  <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
+  <article class="container prose">
+    <h2>What is an SWP?</h2>
+    <p>A Systematic Withdrawal Plan sells a fixed amount of your mutual fund units every month and pays it to your bank account. What stays invested keeps earning, so a corpus can pay you for far longer than it would sitting in a savings account. Many people use an SWP for income in retirement, after returning to India, or to replace a salary during a break.</p>
+    <h2>How this calculator works</h2>
+    <p>Each month your money grows by the return you enter, turned into a monthly rate, and then that month’s withdrawal is paid out. Every 12 months the withdrawal rises by the percentage you choose. If the money cannot pay a full month, it has run out. The highest safe withdrawal is the largest starting amount that still pays in full for every month of your plan.</p>
+    <h2>Why SWP tax is usually low</h2>
+    <p>Each withdrawal is part your own money and part profit. Only the profit part is taxed. If you invest ₹1 crore today, your first withdrawals are almost all your own money, so there is very little to tax. With equity funds, profit on units held over a year is also tax-free up to ₹1.25 lakh a year, which covers most of a typical SWP. This calculator works out the profit share of every withdrawal and taxes only that.</p>
+    <h2>How much can I safely withdraw?</h2>
+    <p>It depends on how long the money must last and what it earns. A common rule is to start at 4 to 5% of the corpus a year and raise it with prices. Withdrawing more than your money earns makes the balance fall from the first month. The table shows each year so you can see when that starts to bite.</p>
+    <h2>Frequently asked questions</h2>
+    <div class="faq">
+      <details><summary>Is SWP better than an FD for monthly income?</summary><p>An FD’s interest is fully taxed at your slab rate every year. In an SWP only the profit part of each withdrawal is taxed, and equity profits get a ₹1.25 lakh yearly exemption, so more of the money reaches you. But fund values go up and down, while an FD’s value does not.</p></details>
+      <details><summary>What happens if markets fall during my SWP?</summary><p>Your withdrawals continue, so more units are sold at lower prices and the money runs out sooner. Keeping a year or two of withdrawals in a debt fund, and drawing from it when markets are down, reduces this risk. This calculator uses a steady return, so treat the result as a guide, not a promise.</p></details>
+      <details><summary>Is TDS deducted on SWP for residents?</summary><p>No TDS is deducted on capital gains from mutual funds for resident Indians. You pay the tax yourself when you file your return. NRIs have tax deducted by the fund house.</p></details>
+      <details><summary>Should I start the SWP straight after investing?</summary><p>Units sold within a year of buying count as short-term, taxed at 20% for equity funds. Many people keep the first year’s income in a debt fund or bank account and start the equity SWP after twelve months.</p></details>
+      <details><summary>Does this include exit loads and fund charges?</summary><p>No. Enter a return after fund expenses. Most funds charge no exit load after the first year.</p></details>
+    </div>
+  </article>
+  <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
+</main>
+<script src="assets/tax.js"></script>
+<script src="assets/words.js"></script>
+<script src="assets/swp.js"></script>
+<script src="assets/common.js"></script>
+<script>
+  Common.init('swp');
+  const $ = id => document.getElementById(id), f = Common.fmt, num = Common.num, cr = Common.fmtCompact;
+  const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+  const span = n => { const y = Math.floor(n / 12), m = n % 12; return [y && plural(y, 'year'), m && plural(m, 'month')].filter(Boolean).join(' ') || '0 months'; };
+  document.querySelectorAll('#yrChips .chip').forEach(b => b.addEventListener('click', () => { $('yrs').value = b.dataset.t; calc(); }));
+
+  function calc() {
+    const taxk = $('taxk').value; $('fSlab').hidden = taxk !== 'slab';
+    const p = { corpus: num('corpus'), withdraw: num('wd'), step: num('step'), ret: num('ret'), years: Math.max(1, Math.round(num('yrs')) || 1), gainPct: num('gainPct'), taxk, slab: +$('slab').value, nominal: $('conv').value === 'nom' };
+    const infl = num('infl') / 100, W = [], warn = (cls, t) => W.push(`<div class="warn ${cls}"><span>${cls === 'bad' ? '⛔' : '⚠️'}</span><span>${t}</span></div>`);
+    const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
+    if (!(p.corpus > 0) || !(p.withdraw > 0)) { $('hBig').textContent = '—'; $('hSub').textContent = ''; $('hPill').textContent = ''; $('kpis').innerHTML = ''; warn('bad', 'Enter the money you have invested and a monthly withdrawal.'); $('warns').innerHTML = W.join(''); return; }
+    const R = SWP.run(p), maxW = SWP.maxWithdraw(p), keepW = SWP.maxWithdraw(p, p.corpus), rate = p.withdraw * 12 / p.corpus * 100, M = p.years * 12;
+    const today = (v, months) => v / Math.pow(1 + infl, months / 12), rising = p.step > 0 ? `, rising ${p.step}% a year` : '';
+    if (rate > p.ret) warn('', `You take out ${rate.toFixed(1)}% of your money a year but expect it to earn ${p.ret}%, so the balance falls from the start.`);
+    if (p.ret > 12) warn('', `A steady ${p.ret}% a year is more than most funds have delivered over long periods, especially the safer funds people use for withdrawals.`);
+    $('warns').innerHTML = W.join('');
+
+    if (R.lasts) {
+      $('hLbl').textContent = `Your money lasts all ${plural(p.years, 'year')}. Left at the end`;
+      $('hBig').textContent = f(R.end);
+      $('hSub').textContent = `That is ${cr(today(R.end, M))} in today’s money, after paying ${f(p.withdraw)} a month${rising}.`;
+      $('hPill').textContent = `You could take up to ${f(maxW)} a month and still last ${plural(p.years, 'year')}`;
+    } else {
+      $('hLbl').textContent = 'Your money runs out after';
+      $('hBig').textContent = span(R.fullMonths);
+      $('hSub').textContent = `Paying ${f(p.withdraw)} a month${rising}. You planned for ${plural(p.years, 'year')}.`;
+      $('hPill').textContent = `To last ${plural(p.years, 'year')}, start at ${f(maxW)} a month`;
+    }
+    const y1 = R.years[0] || { net: 0, withdrawn: 0, tax: 0 };
+    $('kpis').innerHTML = K(R.lasts ? 'good' : 'bad', `Most you can take for ${plural(p.years, 'year')}`, f(maxW) + '/mo', p.step > 0 ? `Starting amount, rising ${p.step}% a year` : 'The same every month') +
+      K('', `To keep your ${cr(p.corpus)} intact`, f(keepW) + '/mo', `You still have ${cr(p.corpus)} after ${plural(p.years, 'year')}`) +
+      K('', 'Total you withdraw', f(R.totalWithdrawn), `Over ${span(R.paidMonths)}`) +
+      (taxk !== 'none' ? K('', 'Tax on your withdrawals', f(R.totalTax), 'Only the profit part is taxed') : '') +
+      K('', 'In your account, year 1', f(y1.net / Math.max(1, (R.years[0] || { months: 12 }).months)) + '/mo', taxk !== 'none' ? 'After tax' : 'Tax not included') +
+      K('', 'Withdrawal rate', rate.toFixed(1) + '% a year', `Of your ${cr(p.corpus)} in year 1`);
+
+    const xs = [0].concat(R.years.map(y => y.year - 1 + y.months / 12)); let cum = 0; const cums = [0].concat(R.years.map(y => (cum += y.withdrawn)));
+    Common.lineChart($('chart'), { xs, xfmt: v => +v.toFixed(1), xlabel: v => v === 0 ? 'Start' : 'After ' + (+v.toFixed(1)) + ' yr', label: 'Balance and money withdrawn', area: true,
+      series: [{ name: 'Money left', color: 'var(--c1)', ys: [p.corpus].concat(R.years.map(y => y.balance)) }, { name: 'Withdrawn so far', color: 'var(--c2)', dash: true, ys: cums }] });
+    const peak = R.years.reduce((m, y) => (y.balance > m.balance ? y : m), { balance: p.corpus, year: 0 }), rises = peak.year > 0 && peak.year < R.years.length;
+    $('chartCap').textContent = (R.end >= p.corpus && R.lasts ? 'Your balance keeps growing, because the withdrawals stay below what the money earns.'
+      : (rises ? `Your balance grows for the first ${plural(peak.year, 'year')}, to ${cr(peak.balance)}, then falls as the rising withdrawals overtake what it earns. ` : 'Your balance falls from the start, because the withdrawals are more than the money earns. ') +
+        (R.lasts ? `It still has ${cr(R.end)} left at the end.` : `It reaches zero after ${span(R.fullMonths)}.`)) + ' The dashed line adds up everything you have taken out.';
+
+    $('taxCard').hidden = taxk === 'none';
+    if (taxk !== 'none') {
+      const profitShare = y1.withdrawn > 0 ? (R.years[0].gain / y1.withdrawn) * 100 : 0, y2 = R.years[1];
+      $('taxNote').innerHTML = `<p style="margin:0 0 8px">In year 1 you withdraw <b>${f(y1.withdrawn)}</b>, but only <b>${f(R.years[0].gain)}</b> of it (${profitShare.toFixed(1)}%) is profit. The rest is your own money coming back, which is not taxed. Tax in year 1: <b>${f(y1.tax)}</b>.</p>` +
+        (taxk === 'equity' ? `<p style="margin:0">${p.gainPct > 0 ? 'Your units are already over a year old, so profit is long-term' : 'Units sold in the first 12 months are short-term (20%); after that, profit is long-term'}: the first ₹1.25 lakh of long-term profit each year is tax-free, then 12.5%.${y2 ? ` Tax in year 2: <b>${f(y2.tax)}</b>.` : ''}</p>` : `<p style="margin:0">Debt fund profit is added to your income and taxed at ${$('slab').value}% plus cess.</p>`);
+    }
+    $('yrTbl').innerHTML = `<tr><th>Year</th><th>Monthly</th><th>Year total</th>${taxk !== 'none' ? '<th>Tax</th>' : ''}<th>Left</th></tr>` + R.years.map(y => `<tr class="${y.balance === 0 ? 'neg' : ''}"><td>${y.year}${y.months < 12 ? `<small class="ph-sub"> (${y.months} mo)</small>` : ''}</td><td>${f(y.monthly)}</td><td>${cr(y.withdrawn)}</td>${taxk !== 'none' ? `<td>${cr(y.tax)}</td>` : ''}<td>${cr(y.balance)}</td></tr>`).join('');
+  }
+  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc));
+  document.addEventListener('change', e => { if (e.target.closest && e.target.closest('#inputs')) calc(); });
+  Common.restore(); calc();
+</script>
+</body>
+</html>
