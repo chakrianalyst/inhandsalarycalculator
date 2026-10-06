@@ -17,7 +17,7 @@ if (chromium) {
   test('setup', async () => {
     run({});
     const cfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'site.config.json'), 'utf8'));
-    cfg.adsense = { client: 'ca-pub-1234567890', slot: '111' }; cfg.analytics = { gaId: 'G-TEST123' }; cfg.affiliates = { 'home-loan': 'https://partner.example/loan?ref=x' };
+    cfg.adsense = { client: 'ca-pub-1234567890', slot: '111' }; cfg.analytics = { gaId: 'G-TEST123', umamiId: '0b9e6c1e-1111-4a2b-9c3d-123456789abc' }; cfg.affiliates = { 'home-loan': 'https://partner.example/loan?ref=x' };
     const tmp = path.join(ROOT, '_test-config.json'); fs.writeFileSync(tmp, JSON.stringify(cfg));
     run({ SITE_CONFIG: tmp, OUT_DIR: LIVE }); fs.unlinkSync(tmp);
     browser = await chromium.launch(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {});
@@ -778,6 +778,39 @@ if (chromium) {
     assert.deepEqual(await d.evaluate(() => [...document.querySelector('.tool-layout').children].map(k => getComputedStyle(k).position)), ['sticky', 'static']);
     await d.evaluate(() => scrollTo({ top: 2600, behavior: 'instant' })); await d.waitForTimeout(200);
     const r = await d.evaluate(() => innerHeight - document.querySelector('.tool-layout').children[0].getBoundingClientRect().bottom); assert.ok(r >= 0 && r < 40, 'the inputs stay in view beside the results, not a blank strip: ' + r); await d.close();
+  });
+
+  test('share my result: a picture of the result (not the inputs) with the calculator link, in a window that closes with Escape', async () => {
+    for (const [f, w] of [['salary-calculator.html', 390], ['swp-calculator.html', 1280], ['index.html', 390]]) {
+      const pg = await open(SITE, f, w); await pg.click('.share-btn'); await pg.waitForSelector('.share-sheet .share-img[src^="data:image/png"]');
+      const img = await pg.$eval('.share-img', i => new Promise(r => { const x = new Image(); x.onload = () => r([x.naturalWidth, x.naturalHeight]); x.src = i.src; }));
+      assert.deepEqual(img, [1080, 1350], f); assert.equal(await pg.$eval('.share-sheet', e => e.getAttribute('aria-modal')), 'true');
+      assert.equal(await pg.evaluate(() => document.activeElement.dataset.a), 'img', 'focus moves into the window');
+      await pg.keyboard.press('Escape'); assert.equal(await pg.$('.share-sheet'), null); assert.equal(await pg.evaluate(() => document.activeElement.className), 'share-btn', 'focus returns to Share');
+      assert.deepEqual(pg.errs, [], f); await pg.close();
+    }
+    const pg = await open(SITE, 'salary-calculator.html', 390); await pg.click('.share-btn'); await pg.waitForSelector('.share-img[src^="data:"]');
+    const [dl] = await Promise.all([pg.waitForEvent('download'), pg.click('.share-sheet [data-a=img]')]); assert.equal(dl.suggestedFilename(), 'rupeecheck-salary.png'); await pg.close();
+  });
+
+  test('analytics (Umami): sets no cookies and never receives the numbers in the address', async () => {
+    const http = require('http'), srv = http.createServer((q, r) => { const f = path.join(LIVE, decodeURIComponent(q.url.split('?')[0]).replace(/^\/$/, '/index.html'));
+      fs.readFile(f, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': f.endsWith('.js') ? 'text/javascript' : f.endsWith('.css') ? 'text/css' : 'text/html' }); r.end(b); }); });
+    await new Promise(r => srv.listen(0, '127.0.0.1', r)); const base = `http://127.0.0.1:${srv.address().port}/`;
+    const pg = await browser.newPage(); const sent = [];
+    await pg.exposeFunction('__sent', x => sent.push(x));
+    await pg.route('https://cloud.umami.is/script.js', r => r.fulfill({ contentType: 'text/javascript', body: `window.umami = { track(a, b) { const p = { url: location.href, referrer: document.referrer };
+      const out = typeof a === 'function' ? a(p) : { ...p, name: a, data: b };   /* a strict fake: it ignores every privacy setting, so only the site's own code keeps the address clean */ window.__sent(JSON.stringify(out)); } };` }));
+    await pg.route(/googletagmanager|googlesyndication/, r => r.abort());
+    await pg.goto(base + 'salary-calculator.html'); await pg.waitForTimeout(300); await pg.goto(base + 'sip-calculator.html?sip=26500&yrs=20'); await pg.waitForTimeout(400);
+    const tag = await pg.$eval('script[src="https://cloud.umami.is/script.js"]', e => ({ id: e.dataset.websiteId, auto: e.dataset.autoTrack, search: e.dataset.excludeSearch, dnt: e.dataset.doNotTrack, dom: e.dataset.domains }));
+    assert.deepEqual(tag, { id: '0b9e6c1e-1111-4a2b-9c3d-123456789abc', auto: 'false', search: 'true', dnt: 'true', dom: 'rupeecheck.in' });
+    await pg.fill('#sip', '30,000'); await pg.waitForTimeout(500);
+    const all = sent.map(x => JSON.parse(x)), views = all.filter(x => !x.name);
+    assert.ok(views.some(v => v.url === '/sip-calculator.html'), 'a pageview with the bare path: ' + JSON.stringify(all));
+    assert.ok(all.some(x => x.name === 'calculator_used'), 'events are counted');
+    assert.ok(!JSON.stringify(all).includes('26500') && !JSON.stringify(all).includes('?'), 'nothing after "?" ever leaves: ' + JSON.stringify(all));
+    assert.deepEqual(await pg.context().cookies(base), []); await pg.close(); srv.close();
   });
 
   test('teardown', async () => { await browser.close(); fs.rmSync(LIVE, { recursive: true, force: true }); });
