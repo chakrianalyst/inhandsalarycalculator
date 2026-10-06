@@ -241,6 +241,8 @@ table.tbl tr.total td { font-weight: 800; border-top: 2px solid var(--line); }
 table.tbl tr.neg td:not(:first-child) { color: var(--bad-text); }
 table.tbl tr.pos td:not(:first-child) { color: var(--good-text); }
 .tbl-wrap { overflow-x: auto; }
+td.nw, th.nw { white-space: nowrap; }
+.tbl-hint { margin: 6px 0 0; font-size: .75rem; color: var(--muted); text-align: right; }
 .win { color: var(--good-text); font-weight: 700; }
 .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
 .cmp { border: 1.5px solid var(--line); border-radius: var(--radius-sm); padding: 14px; background: var(--surface-2); position: relative; }
@@ -375,6 +377,8 @@ table.tbl tr.pos td:not(:first-child) { color: var(--good-text); }
 .timeline { display: grid; gap: 0; }
 .tl { display: grid; grid-template-columns: 54px 1fr auto; gap: 12px; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
 .tl:last-child { border-bottom: 0; }
+.tl.tl-head { padding: 0 0 8px; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.tl.tl-head span:last-child { text-align: right; }
 .tl .age { font-weight: 800; color: var(--brand-text); }
 .tl .nwv { font-weight: 700; font-variant-numeric: tabular-nums; }
 
@@ -386,6 +390,9 @@ table.tbl tr.pos td:not(:first-child) { color: var(--good-text); }
 .offer-card.win { border-color: var(--accent); box-shadow: 0 10px 30px -12px rgba(16,185,129,.45); }
 .offer-card.win::after { content: "🏆 Best overall"; position: absolute; top: -12px; right: 16px; background: var(--accent); color: #fff; font-size: .72rem; font-weight: 800; padding: 3px 11px; border-radius: 99px; }
 .offer-card.off { opacity: .55; }
+@media (max-width: 920px) { .offer-card.off { display: none; } }          /* one column on a phone: an unused Offer C is hidden, not a long greyed form */
+.row-3s { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 560px) { .row-3s { grid-template-columns: minmax(0, 1fr); gap: 0; } }
 .cmp-table td.best { color: var(--good-text); font-weight: 800; }
 .cmp-table td.best::after { content: " ✓"; }
 .cmp-table tr.grp td { background: var(--bg-2); font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 800; }
@@ -401,6 +408,8 @@ table.tbl tr.pos td:not(:first-child) { color: var(--good-text); }
 .share-btn { position: absolute; top: 14px; right: 14px; z-index: 3; background: rgba(255,255,255,.22); color: #fff; border: 1px solid rgba(255,255,255,.35); backdrop-filter: blur(6px); padding: 7px 13px; border-radius: 99px; font: inherit; font-weight: 700; font-size: .8rem; cursor: pointer; transition: .15s; }
 .share-btn:hover { background: rgba(255,255,255,.34); transform: translateY(-1px); }
 .hero-result { position: relative; }
+.hero-result.has-share .lbl { padding-right: 96px; }                 /* the Share button sits top-right; keep the headline from running under it */
+.hero-result.has-share > div:first-child:not(.lbl) { padding-right: 96px; }
 .consent { position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 90; max-width: 720px; margin-inline: auto; display: flex; gap: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap;
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 16px 18px; font-size: .88rem; color: var(--muted); }
 .consent p { flex: 1; min-width: 220px; }
@@ -483,7 +492,9 @@ table.pay tr.off td { color: var(--muted); font-size: .85rem; }
   .m-bar.show { transform: none; }
   .m-bar small { display: block; opacity: .85; font-size: .72rem; }
   .m-bar b { font-size: 1.2rem; font-variant-numeric: tabular-nums; }
-  .m-bar a { color: #fff; font-weight: 700; font-size: .85rem; text-decoration: underline; }
+  .m-bar a { color: #fff; font-weight: 700; font-size: .85rem; text-decoration: underline; white-space: nowrap; }
+  .m-bar .m-txt { min-width: 0; }
+  .m-bar .m-txt small, .m-bar .m-txt b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
 @media (max-width: 560px) {
   .grp > summary { gap: 10px; padding: 12px 14px; }
@@ -644,3 +655,19 @@ table.tbl td.pos { color: var(--good-text); font-weight: 600; } table.tbl td.neg
 .kpi .k { font-size: .85rem; }
 .kpi .kd { font-size: .82rem; }
 .kpi .kv2 { font-size: .82rem; }
+
+/* A selected row in a results table: highlighted without the good/bad colours, which keep their meaning. */
+table.tbl tr.sel td { background: var(--grad-soft); font-weight: 700; }
+.kpi-head { margin: 4px 0 10px; font-size: .9rem; font-weight: 700; color: var(--text); }
+/* Phones: tighter table cells, so most tables fit without splitting amounts across lines. */
+@media (max-width: 560px) {
+  table.tbl { font-size: .82rem; }
+  table.tbl th, table.tbl td { padding: 9px 5px; }
+  table.tbl th { font-size: .66rem; letter-spacing: .03em; }
+}
+/* Return calculator, year-by-year table on a phone: age moves under the year and the Ready column is dropped (the coloured surplus already says it), so the table fits. */
+.ph-only { display: none; }
+@media (max-width: 560px) {
+  table.ret-yr .ph-only { display: block; color: var(--muted); font-size: .72rem; font-weight: 400; }
+  table.ret-yr th:nth-child(2), table.ret-yr td:nth-child(2), table.ret-yr th:nth-child(6), table.ret-yr td:nth-child(6) { display: none; }
+}

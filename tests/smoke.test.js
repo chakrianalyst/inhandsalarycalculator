@@ -654,5 +654,57 @@ if (chromium) {
     assert.equal(k[3].replace(/[^0-9.]/g, ''), (R.netWorthEndAbroad / 1e7).toFixed(2), 'abroad net worth in crore'); await ab.close();
   });
 
+  test('phone: every calculator keeps its answer in a floating bar while you type, and it follows the result', async () => {
+    for (const f of ['sip-calculator.html', 'emi-calculator.html', 'fd-calculator.html', 'hra-calculator.html', 'gratuity-calculator.html', 'salary-hike-calculator.html', 'offer-comparison.html', 'fire-calculator.html',
+      'rent-vs-buy-calculator.html', 'networth-calculator.html', 'life-simulator.html', 'abroad-calculator.html', 'return-calculator.html']) {
+      const pg = await open(SITE, f, 390); await pg.waitForTimeout(250);
+      assert.equal(await pg.isVisible('#mBarAuto'), true, f + ': bar shows while the result is below');
+      assert.equal(await pg.$eval('#mBarAuto b', e => e.textContent), await pg.$eval('.hero-result .big', e => e.textContent.trim()), f + ': bar shows the same answer');
+      assert.deepEqual(pg.errs, [], f); await pg.close();
+    }
+    const pg = await open(SITE, 'sip-calculator.html', 390); await pg.fill('#sip', '20,000'); await pg.waitForTimeout(200);
+    assert.equal(await pg.$eval('#mBarAuto b', e => e.textContent), await pg.$eval('#fv', e => e.textContent.trim()), 'bar updates as you type');
+    await pg.$eval('.hero-result', e => e.scrollIntoView()); await pg.waitForTimeout(300); assert.equal(await pg.$eval('#mBarAuto', e => e.classList.contains('show')), false, 'hidden once the result is on screen');
+    await pg.close();
+    const d = await open(SITE, 'sip-calculator.html', 1280); assert.equal(await d.isVisible('#mBarAuto'), false, 'no bar on desktop, where the result sits beside the form'); await d.close();
+  });
+
+  test('the Share button never covers the result headline, on phone or desktop', async () => {
+    for (const w of [390, 1280]) for (const f of ['index.html', 'rent-vs-buy-calculator.html', 'abroad-calculator.html', 'hra-calculator.html', 'return-calculator.html', 'life-simulator.html']) {
+      const pg = await open(SITE, f, w); await pg.waitForTimeout(250);
+      const hit = await pg.evaluate(() => { const s = document.querySelector('.share-btn').getBoundingClientRect(); const out = [];
+        document.querySelectorAll('.hero-result .lbl, .hero-result .big').forEach(e => { const r = document.createRange(); r.selectNodeContents(e); for (const b of r.getClientRects()) if (b.right > s.left + 1 && b.left < s.right && b.bottom > s.top + 1 && b.top < s.bottom) { out.push(e.textContent); break; } }); return out; });
+      assert.deepEqual(hit, [], `${f} at ${w}px`); await pg.close();
+    }
+  });
+
+  test('phone tables keep each amount on one line and say when they scroll sideways', async () => {
+    const pg = await open(SITE, 'return-calculator.html', 390); await pg.waitForTimeout(300);
+    const tall = await pg.$$eval('#yrTbl td.nw', tds => tds.filter(td => { const r = document.createRange(); r.selectNodeContents(td); return r.getClientRects().length > 1; }).length);
+    assert.equal(tall, 0, 'no amount wraps'); assert.equal(await pg.$eval('#yrTbl', t => t.parentElement.scrollWidth <= t.parentElement.clientWidth + 4), true, 'the return table fits a phone');
+    assert.match(await pg.$eval('#yrTbl tr:nth-child(2) td', e => e.innerText), /Now\s*Age 36/); await pg.close();
+    const rb = await open(SITE, 'rent-vs-buy-calculator.html', 390); await rb.waitForTimeout(300);
+    assert.equal(await rb.$eval('#grid', t => t.closest('.tbl-wrap').nextElementSibling.hidden), false, 'wide grid shows the swipe hint'); await rb.close();
+    const em = await open(SITE, 'emi-calculator.html', 390); await em.waitForTimeout(300);
+    assert.equal(await em.$eval('#sched', t => t.closest('.tbl-wrap').nextElementSibling.hidden), true, 'a table that fits has no hint'); await em.close();
+  });
+
+  test('results say what they mean: return year, HRA regime, rent vs buy assumption, life-sim amounts, net worth sample, third offer', async () => {
+    const ret = await open(SITE, 'return-calculator.html'); await ret.waitForTimeout(250);
+    assert.equal(await ret.textContent('#hLbl'), 'Earliest year you can afford to return'); assert.match(await ret.textContent('#kpiHead'), /^If you return now \(age 36\)/);
+    await ret.selectOption('#when', '3'); await ret.waitForTimeout(250); assert.match(await ret.textContent('#kpiHead'), /^If you return in 3 years \(age 39\)/); await ret.close();
+    const hra = await open(SITE, 'hra-calculator.html'); assert.equal(await hra.isVisible('#regimeNote'), true); assert.match(await hra.textContent('#hPill'), /old regime: you save/); await hra.close();
+    const rb = await open(SITE, 'rent-vs-buy-calculator.html'); await rb.waitForTimeout(250); assert.equal(await rb.isVisible('#investNote'), true, 'renting wins by default, so the note shows');
+    await rb.fill('#app', '12'); await rb.waitForTimeout(250); assert.match(await rb.textContent('#vTitle'), /buying/i); assert.equal(await rb.isVisible('#investNote'), false, 'no note when buying wins'); await rb.close();
+    const ls = await open(SITE, 'life-simulator.html'); await ls.waitForTimeout(250); assert.match(await ls.textContent('#timeline .tl-head'), /Your net worth then/); await ls.close();
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 900 } }), nw = await ctx.newPage(); await nw.goto(url(SITE, 'networth-calculator.html')); await nw.waitForTimeout(250);
+    assert.equal(await nw.isVisible('#sampleNote'), true, 'first visit: sample numbers are labelled');
+    await nw.click('#startOwn'); await nw.waitForTimeout(150); assert.equal(await nw.isVisible('#sampleNote'), false); assert.equal(await nw.inputValue('#inc'), '');
+    await nw.reload(); await nw.waitForTimeout(200); assert.equal(await nw.isVisible('#sampleNote'), false, 'stays cleared after a reload'); await ctx.close();
+    const of = await open(SITE, 'offer-comparison.html', 390); assert.equal(await of.isVisible('#card2'), false, 'unused Offer C is hidden on a phone');
+    await of.click('label:has(#third)'); await of.waitForTimeout(150); assert.equal(await of.isVisible('#card2'), true);
+    const xs = await of.$$eval('#hz, #pay, #cinf', e => e.map(x => Math.round(x.closest('.field').getBoundingClientRect().left))); assert.equal(new Set(xs).size, 1, 'settings stack in one column on a phone'); await of.close();
+  });
+
   test('teardown', async () => { await browser.close(); fs.rmSync(LIVE, { recursive: true, force: true }); });
 }

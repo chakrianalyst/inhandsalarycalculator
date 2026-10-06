@@ -21,15 +21,16 @@
   <div class="container tool-layout">
     <!-- INPUTS -->
     <section class="card" aria-label="Inputs">
+      <div class="banner info" id="sampleNote" hidden><span>👋</span><span>These are <b>sample numbers</b> to show how the calculator works. <button type="button" class="linkbtn" id="startOwn">Clear them and enter yours</button></span></div>
       <h2 class="card-title">🧾 About you <span style="font-weight:500;color:var(--muted);font-size:.8rem">(for benchmarks)</span></h2>
       <div class="row-2">
         <div class="field"><label for="age">Age</label><div class="input-wrap"><input type="number" id="age" min="18" max="90" step="1"><span class="suf">yrs</span></div></div>
         <div class="field"><label for="inc">Annual income</label><div class="input-wrap"><span class="pre">₹</span><input id="inc" data-money data-words="incWords" min="0" step="10000" aria-describedby="incWords"></div><div class="words" id="incWords"></div></div>
       </div>
-      <div class="field"><label for="exp">Monthly expenses (incl. EMIs)</label><div class="input-wrap"><span class="pre">₹</span><input id="exp" data-money data-words="expWords" min="0" step="1000" aria-describedby="expWords"></div><div class="words" id="expWords"></div>
-        <span class="hint">Used to check your emergency fund. Leave blank to skip.</span></div>
-      <div class="field"><label for="emi">Loan payments (EMIs) each month</label><div class="input-wrap"><span class="pre">₹</span><input id="emi" data-money min="0" step="1000"></div>
-        <span class="hint">All home, car, personal and education loan EMIs together. Used to check your debt burden. Leave blank to skip.</span></div>
+      <div class="field"><label for="exp">Monthly spending, including EMIs</label><div class="input-wrap"><span class="pre">₹</span><input id="exp" data-money data-words="expWords" min="0" step="1000" aria-describedby="expWords"></div><div class="words" id="expWords"></div>
+        <span class="hint">Everything that goes out in a month, loan EMIs included. Used to check your emergency fund. Leave blank to skip.</span></div>
+      <div class="field"><label for="emi">Of which, loan EMIs</label><div class="input-wrap"><span class="pre">₹</span><input id="emi" data-money min="0" step="1000"></div>
+        <span class="hint">The EMI part of the amount above: home, car, personal and education loans together. Used to check your debt burden. Leave blank to skip.</span></div>
 
       <div class="sec-label">Assets — what you own</div>
       <div class="nw-groups" id="assets"></div>
@@ -187,11 +188,12 @@
     if (was) { tipOpen = null; return; }
     tipOpen = b; if (tipData || b.dataset.tip === 'score') { box.innerHTML = TIPS[b.dataset.tip](tipData); } box.hidden = false; b.setAttribute('aria-expanded', 'true');
   }));
-  const sample = () => ({ age: 32, inc: 1800000, exp: 60000, emi: 55000, g: Object.fromEntries(GROUPS.map(g => [g.id, g.items.map(([n, v]) => ({ n, v }))])) });
+  const sample = () => ({ sample: true, age: 32, inc: 1800000, exp: 95000, emi: 55000, g: Object.fromEntries(GROUPS.map(g => [g.id, g.items.map(([n, v]) => ({ n, v }))])) });
   const blank = () => ({ age: '', inc: '', exp: '', emi: '', g: Object.fromEntries(GROUPS.map(g => [g.id, g.items.map(([n]) => ({ n, v: '' }))])) });
   let S;
   try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
   if (!S || !S.g) S = sample();
+  else if (S.sample === undefined && JSON.stringify(S.g) === JSON.stringify(sample().g) && String(S.inc) === '1800000' && String(S.emi) === '55000') S.sample = true;      // saved by an older version without the flag: still the untouched sample
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
   const val = v => { const n = parseFloat(String(v).replace(/,/g, '')); return isNaN(n) || n < 0 ? 0 : n; };
   const isEm = (gid, r) => r.e === undefined ? gid === 'cash' : !!r.e;                  // what counts as emergency money: cash & bank by default; any liquid row can be switched on
@@ -339,7 +341,7 @@
 
     /* insights */
     const out = [], add = (t, icon, msg) => out.push(`<div class="insight ${t}"><span>${icon}</span><span>${msg}</span></div>`);
-    if (assets + liabs === 0) add('', '👋', 'Enter your assets and liabilities on the left — insights will appear here.');
+    if (assets + liabs === 0) add('', '👋', 'Enter what you own and what you owe, and tips will appear here.');
     else {
       if (nw < 0) add('bad', '🚨', `Your liabilities exceed your assets by <b>${f(-nw)}</b>. Focus on paying down the most expensive debt first.`);
       if (ratio > 0.5 && nw >= 0) add('warn', '⚖️', `Debts are <b>${Math.round(ratio * 100)}%</b> of your assets. Bringing this under 30% gives you a much bigger safety cushion.`);
@@ -365,6 +367,11 @@
 
   ['age', 'inc', 'exp', 'emi'].forEach(id => $(id).addEventListener('input', update));
   $('btnSample').onclick = () => { S = sample(); build(); update(); };
+  const showSample = () => { $('sampleNote').hidden = !S.sample; };
+  $('startOwn').onclick = () => { S = blank(); build(); update(); showSample(); $('age').focus(); };
+  $('btnSample').addEventListener('click', showSample); $('btnClear').addEventListener('click', showSample);
+  document.querySelector('.inputs, #inputs, main').addEventListener('input', () => { if (S.sample) { S.sample = false; save(); showSample(); } });
+  showSample();
   $('btnClear').onclick = () => { if (confirm('Clear all your entries?')) { S = blank(); build(); update(); } };
   $('btnPrint').onclick = () => { document.querySelectorAll('.grp').forEach(d => d.open = true); window.print(); };
   /* ---------- snapshots over time ---------- */

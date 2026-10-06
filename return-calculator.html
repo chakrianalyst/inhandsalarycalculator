@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Return to India Calculator — When Can You Afford to Move Back? | RupeeCheck</title>
-<meta name="description" content="Plan your move back to India. See what you would bring home after tax and costs, whether it covers the life you want, and the best year to return.">
+<meta name="description" content="Plan your move back to India. See what you would bring home after tax and costs, whether it covers the life you want, and the earliest year you can afford to return.">
 <link rel="canonical" href="https://inhand.example/return-calculator.html">
 <link rel="stylesheet" href="assets/style.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Return to India Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
@@ -15,7 +15,7 @@
   <div class="container page-hero">
     <div class="crumbs"><a href="index.html">Home</a> › Return to India calculator</div>
     <h1>Return to India Calculator <span class="grad-text">when can you move back?</span></h1>
-    <p>Living abroad and thinking of coming home? We work out what you would bring back after tax and costs, whether it covers the life you want in India, and which year is the best time to return.</p>
+    <p>Living abroad and thinking of coming home? We work out what you would bring back after tax and costs, whether it covers the life you want in India, and the earliest year you could return.</p>
   </div>
   <div class="container tool-layout">
     <section class="card" id="inputs" aria-label="Inputs">
@@ -88,11 +88,12 @@
     </section>
 
     <section class="results" aria-live="polite">
-      <div class="hero-result" id="hero"><div class="lbl" id="hLbl">Your best year to return</div><div class="big" id="hBig">—</div><div class="sub" id="hSub"></div><span class="pill" id="hPill"></span></div>
+      <div class="hero-result" id="hero"><div class="lbl" id="hLbl">Earliest year you can afford to return</div><div class="big" id="hBig">—</div><div class="sub" id="hSub"></div><span class="pill" id="hPill"></span></div>
       <div class="warns" id="warns"></div>
+      <p class="kpi-head" id="kpiHead"></p>
       <div class="kpis" id="kpis"></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">📈 What you have vs what you need</h2><p class="grp-hint" style="margin-top:0">For each year you could return, the money you would bring home (after tax and costs) against the money you need to live the life you want until the end of your plan.</p><div id="chart"></div></div>
-      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🗓️ Year by year</h2><div class="tbl-wrap"><table class="tbl" id="yrTbl"></table></div></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🗓️ Year by year</h2><div class="tbl-wrap"><table class="tbl ret-yr" id="yrTbl"></table></div></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">🧮 What you bring home</h2><div class="tbl-wrap"><table class="tbl" id="homeTbl"></table></div></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">🎯 What would change it</h2><div id="tips"></div></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">📉 What if markets fall just before you return?</h2><p class="grp-hint" style="margin-top:0">The same year if your investments abroad and retirement accounts were worth less on the day you convert them. Your money in India and your spending do not change.</p><div class="tbl-wrap"><table class="tbl" id="shock"></table></div></div>
@@ -107,7 +108,7 @@
     <p>For every year you might return, from now to ten years away, we grow your savings abroad, convert them to rupees at the exchange rate you set, and take off conversion costs and tax on your profits. We add what you hold in India and subtract the cost of settling back. Then we live your life in India year by year: spending rises with inflation, any job income (your package today, raised each year by the yearly raise you set) comes in after Indian tax, and your money earns the return you set. Your savings abroad rise each year by the percentage you set, so a growing income is not treated as a flat one. We find the smallest amount that lasts to the end of your plan. If you would bring home more than that, you are ready.</p>
     <h2>Job, PF and life events</h2>
     <p>If you enter a package, you can say whether it is today’s money (we raise it each year until you return) or what you would be paid in the year you return, and how many months you expect to look for work after coming back. Your take-home pay leaves out the provident fund and gratuity that build up inside your CTC, so you can choose to count them as savings that arrive when the job ends. A partner’s pay in India can be added, taxed on their own. You can also enter a blended tax rate on what your money earns in India. Life events let you add costs that change your spending later, such as school fees for some years or a house down payment, in today’s rupees; they grow with inflation.</p>
-    <h2>The best year to return</h2>
+    <h2>When to return</h2>
     <p>Each extra year abroad adds savings and lets your money grow, but it also adds a year of life in another country and shortens your time in India. The table shows the first year your money covers the life you want, and how much more each later year adds. If you could return now, it also shows how much monthly spending your money could support.</p>
     <h2>Retirement accounts</h2>
     <p>Taking money out of a retirement account before the allowed age usually means tax and a penalty. In the US, early withdrawals before age 59½ carry a 10% penalty on top of tax. Many returnees leave the account abroad and use it later, so that is the default here. Choose “cash them out” to see what you would lose.</p>
@@ -152,11 +153,11 @@
     const k = $('country').value, c = C[k], P = params(), W = [];
     ['cashL', 'saveL', 'retireL', 'retireYL'].forEach((id, i) => { $(id).textContent = [`Savings and investments you have there now (${c.cur})`, `How much you save each year (${c.cur})`, `Retirement savings you already have there (${c.cur})`, `How much you add to them each year (${c.cur})`][i]; });
     $('fxL').textContent = `Exchange rate (₹ per ${c.cur})`; $('fPen').hidden = $('retMode').value !== 'withdraw';
-    if (!(P.spend > 0)) { $('hBig').textContent = '—'; $('hSub').textContent = ''; $('hPill').textContent = ''; $('kpis').innerHTML = ''; $('warns').innerHTML = '<div class="warn"><span>⚠️</span><span>Enter the monthly spending you want in India.</span></div>'; return; }
+    if (!(P.spend > 0)) { $('hBig').textContent = '—'; $('hSub').textContent = ''; $('hPill').textContent = ''; $('kpis').innerHTML = ''; $('kpiHead').textContent = ''; $('warns').innerHTML = '<div class="warn"><span>⚠️</span><span>Enter the monthly spending you want in India.</span></div>'; return; }
     const A = Returning.analyse(P, 10), sel = +$('when').value, S = A.rows[sel], income = S.income, rows = A.rows;
     const first = A.firstReady;
     if (first === 0) { $('hLbl').textContent = 'You could return'; $('hBig').textContent = 'Now'; $('hSub').textContent = `You would bring home about ${cr(rows[0].corpus)} and need about ${cr(rows[0].need)} for the life you want.`; }
-    else if (first !== null) { $('hLbl').textContent = 'Your best year to return'; $('hBig').textContent = `In ${first} ${first === 1 ? 'year' : 'years'}`; $('hSub').textContent = `At age ${rows[first].age}, you would bring home about ${cr(rows[first].corpus)} and need about ${cr(rows[first].need)}. Returning now falls ${cr(-rows[0].gap)} short.`; }
+    else if (first !== null) { $('hLbl').textContent = 'Earliest year you can afford to return'; $('hBig').textContent = `In ${first} ${first === 1 ? 'year' : 'years'}`; $('hSub').textContent = `At age ${rows[first].age}, you would bring home about ${cr(rows[first].corpus)} and need about ${cr(rows[first].need)}. Returning now falls ${cr(-rows[0].gap)} short.`; }
     else { $('hLbl').textContent = 'Returning within 10 years'; $('hBig').textContent = 'Not yet'; $('hSub').textContent = `Even after 10 more years abroad you would be ${cr(-rows[10].gap)} short of the life you described. Try lower spending, a job in India, or a longer stay.`; }
     const T = Returning.todayToReturn(P, sel), fromReturn = P.ctcBasis === 'return';
     $('ctcL').textContent = fromReturn ? 'Your yearly CTC if you work in India (as of the year you return)' : 'Your yearly CTC if you work in India (today’s rupees)';
@@ -182,11 +183,12 @@
     P.events.forEach((e, i) => { if (e.kind === 'monthly' && e.to <= e.from) W.push(`Life event ${i + 1} ends before it starts, so it is not counted.`); });
     $('warns').innerHTML = W.map(w => `<div class="warn"><span>⚠️</span><span>${w}</span></div>`).join('');
     const mx = Returning.maxSpend(P, sel, income), K = (cls, kk, v, s) => `<div class="kpi ${cls}"><div class="k">${kk}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
+    $('kpiHead').textContent = `${sel === 0 ? 'If you return now' : 'If you return in ' + sel + (sel === 1 ? ' year' : ' years')} (age ${S.age}). Pick another year under “If you return in”.`;
     $('kpis').innerHTML = K('', 'You bring home', cr(S.corpus), 'After tax, costs and the move') + K('', 'You need', cr(S.need), `For ${f(P.spend)} a month to age ${P.planEnd}`) + K(S.ready ? 'good' : 'bad', S.ready ? 'To spare' : 'Short by', cr(Math.abs(S.gap)), S.ready ? 'Your money covers it' : 'Your money does not cover it') +
       K('', 'Without a job, money lasts', S.runwayEnd === null ? 'To the end' : S.runwayYears + (S.runwayYears === 1 ? ' year' : ' years'), S.runwayEnd === null ? `Beyond age ${P.planEnd}` : `Until age ${S.runwayEnd}`) + K('', 'Spending that works', f(mx) + '/mo', 'In today’s money, for this year') + K('', 'Your age then', S.age, sel === 0 ? 'If you return now' : `After ${sel} more ${sel === 1 ? 'year' : 'years'} abroad`);
     Common.lineChart($('chart'), { xs: rows.map(r => r.r), xfmt: v => v === 0 ? 'Now' : v + 'y', xlabel: v => v === 0 ? 'Return now' : 'Return in ' + v + (v === 1 ? ' year' : ' years'), label: 'Money you bring home vs money you need', area: true,
       series: [{ name: 'You bring home', color: 'var(--c1)', ys: rows.map(r => r.corpus) }, { name: 'You need', color: 'var(--c4)', dash: true, ys: rows.map(r => r.need) }], markers: first !== null ? [{ x: first, label: '🛬' }] : [] });
-    $('yrTbl').innerHTML = '<tr><th>Return</th><th>Your age</th><th>You bring home</th><th>You need</th><th>Surplus or gap</th><th></th></tr>' + rows.map(r => `<tr class="${r.r === sel ? 'pos' : ''}"><td>${r.r === 0 ? 'Now' : 'In ' + r.r + (r.r === 1 ? ' year' : ' years')}</td><td>${r.age}</td><td>${cr(r.corpus)}</td><td>${cr(r.need)}</td><td class="${r.gap >= 0 ? 'pos' : 'neg'}">${sgn(r.gap)}</td><td>${r.ready ? '✓ Ready' : 'Not yet'}</td></tr>`).join('');
+    $('yrTbl').innerHTML = '<tr><th>Return</th><th>Your age</th><th>You bring home</th><th>You need</th><th>Surplus or gap</th><th></th></tr>' + rows.map(r => `<tr class="${r.r === sel ? 'sel' : ''}"><td>${r.r === 0 ? 'Now' : 'In ' + r.r + (r.r === 1 ? ' year' : ' years')}<small class="ph-only">Age ${r.age}</small></td><td>${r.age}</td><td>${cr(r.corpus)}</td><td>${cr(r.need)}</td><td class="${r.gap >= 0 ? 'pos' : 'neg'}">${sgn(r.gap)}</td><td class="${r.ready ? 'pos' : ''}">${r.ready ? '✓ Ready' : 'Not yet'}</td></tr>`).join('');
     const row = (l, v, cls = '') => `<tr class="${cls}"><td>${l}</td><td>${v}</td></tr>`;
     $('homeTbl').innerHTML = '<tr><th>' + (sel === 0 ? 'Returning now' : 'Returning in ' + sel + ' years') + '</th><th>Amount</th></tr>' + row(`Savings and investments abroad (${c.cur} ${IN.format(Math.round(S.cashLocal))}) in rupees`, f(S.brought + S.gainTax + S.conv)) + row('Tax on your profits', '− ' + f(S.gainTax), 'neg') + row('Transfer and conversion cost', '− ' + f(S.conv), 'neg') +
       row('What you hold in India', '+ ' + f(S.india), 'pos') + (P.retireMode === 'withdraw' ? row('Retirement accounts cashed out, after tax' + (S.age < 59.5 && P.penalty ? ' and penalty' : ''), '+ ' + f(S.withdrawn), 'pos') : '') + row('One-time cost of settling back', '− ' + f(P.lump), 'neg') + row('Money you start life in India with', f(S.corpus), 'total') +

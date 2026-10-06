@@ -61,6 +61,7 @@
     </section>
     <section class="results" aria-live="polite">
       <div class="hero-result" id="hero"><div class="lbl" id="vTitle">Verdict</div><div class="big" id="vBig">—</div><div class="sub" id="vSub"></div><span class="pill" id="vPill"></span></div>
+      <div class="banner info" id="investNote" hidden><span>ℹ️</span><span>Renting comes out ahead here only if you <b>invest the money renting saves you</b>: the down payment and buying costs on day one, and the monthly difference every month after. If you would spend that money instead, buying usually ends up ahead.</span></div>
       <div class="kpis">
         <div class="kpi"><div class="k">Monthly EMI</div><div class="v" id="kEmi"></div></div>
         <div class="kpi"><div class="k">Starting rent</div><div class="v" id="kRent"></div></div>
@@ -104,7 +105,7 @@
     $('fSlab').hidden = !$('lben').checked;
     const p = params(), s = RentBuy.sim(p), last = s.years.length - 1, bN = s.buy[last], rN = s.rentNW[last], diff = bN - rN, be = RentBuy.breakEven(s), buyWins = diff >= 0, infl = num('infl') / 100, k = Math.pow(1 + infl, s.H);
     $('vTitle').textContent = `After ${s.H} years, ${buyWins ? 'buying' : 'renting & investing'} wins by`;
-    $('vBig').textContent = f(Math.abs(diff)); $('vSub').textContent = (buyWins ? 'Your home equity outgrows the investment pot.' : 'Investing the difference beats owning the home.') + ` That is ${f(Math.abs(diff) / k)} in today’s money.`;
+    $('investNote').hidden = buyWins; $('vBig').textContent = f(Math.abs(diff)); $('vSub').textContent = (buyWins ? 'Your home equity outgrows the investment pot.' : 'Investing the difference beats owning the home.') + ` That is ${f(Math.abs(diff) / k)} in today’s money.`;
     $('vPill').textContent = be ? `Break-even: year ${be}` : 'Buying never breaks even in this horizon';
     $('kEmi').textContent = f(s.emi); $('kRent').textContent = f(s.rent0); $('kBuy').textContent = cr(bN); $('kRentNW').textContent = cr(rN);
     $('kYield').textContent = s.rentYield.toFixed(2) + '%'; $('kYield2').textContent = `Price is ${(s.P / Math.max(1, s.rent0 * 12)).toFixed(0)}× a year’s rent`;
