@@ -37,12 +37,11 @@
   "yrs": "5",
   "mon": "0",
   "day": "0",
+  "sal": "1500000",
   "senior": false,
   "infl": "6",
   "cmp": "4",
   "pf": "12",
-  "slab": "20",
-  "slabHelp": "",
   "mode": "fd"
  },
  "gratuity-calculator": {

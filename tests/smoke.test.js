@@ -227,7 +227,7 @@ if (chromium) {
     await pg.click('#mode [data-v=payout]'); assert.match(await hero(), /every month[\s\S]*₹2,917/);
     await pg.click('#mode [data-v=rd]'); assert.equal(await pg.isVisible('#fDays'), false); assert.equal(await pg.isVisible('#d'), true);
     await pg.click('#mode [data-v=fd]'); await pg.fill('#yrs', '5'); await pg.fill('#mon', '0'); await pg.fill('#day', '0');
-    await pg.$eval('#sec-tax', e => (e.open = true)); await pg.selectOption('#slab', '30'); assert.match(await pg.$eval('#kpis', e => e.innerText), /Tax on interest \(30%\)/);
+    await pg.$eval('#sec-tax', e => (e.open = true)); await pg.fill('#sal', '30,00,000'); await pg.waitForTimeout(150); assert.match(await pg.$eval('#kpis', e => e.innerText), /Tax on the interest\s*₹64,705\s*About 31\.2% of it/);
     assert.equal(await pg.$eval('#warns', e => e.textContent), '');                                    // ₹5 L earns at most about ₹47,000 a year: under the ₹50,000 TDS limit
     await pg.fill('#p', '2000000'); assert.match(await pg.$eval('#warns', e => e.textContent), /TDS/);
     assert.match(await pg.$eval('.hero-result', e => e.textContent), /Real return after tax and inflation/);
@@ -727,12 +727,13 @@ if (chromium) {
     await pg.close();
   });
 
-  test('audit round 3: FIRE caption, FD rate helper, abroad table adds up, salary old-regime label, HRA tip, home groups, life-sim assumptions', async () => {
+  test('audit round 3: FIRE caption, FD tax from your income, abroad table adds up, salary old-regime label, HRA tip, home groups, life-sim assumptions', async () => {
     const fire = await open(SITE, 'fire-calculator.html'); await fire.waitForTimeout(250);
     assert.match(await fire.textContent('#chartCap'), /plan to retire at 45\. Your money would run out at about age 77\. Retiring at 48 instead makes it last to 90/); await fire.close();
     const fd = await open(SITE, 'fd-calculator.html'); await fd.$eval('#sec-tax', e => (e.open = true)); const before = await fd.textContent('#kpis');
-    await fd.selectOption('#slabHelp', '30'); await fd.waitForTimeout(200); assert.equal(await fd.inputValue('#slab'), '30'); assert.match(await fd.textContent('#kpis'), /Tax on interest \(30%\)/); assert.notEqual(await fd.textContent('#kpis'), before);
-    await fd.selectOption('#slab', '10'); assert.equal(await fd.inputValue('#slabHelp'), '', 'picking a rate directly clears the salary helper'); await fd.close();
+    await fd.fill('#sal', '0'); await fd.waitForTimeout(200); assert.match(await fd.textContent('#kpis'), /Tax on the interest₹0No tax: your income stays within the ₹12 lakh rebate/); assert.notEqual(await fd.textContent('#kpis'), before);
+    await fd.fill('#p', '7,00,00,000'); await fd.waitForTimeout(200);                           // a big deposit with no other income: the interest itself climbs the slabs (and crosses ₹50 L, so surcharge)
+    assert.match(await fd.textContent('#kpis'), /Tax on the interest₹74,70,907/); assert.match(await fd.textContent('#taxNote'), /year 1 you earn ₹50,30,132 of interest and no other income\. That adds ₹11,54,537 to your tax \(new regime, with cess and surcharge\)/); await fd.close();
     const ab = await open(SITE, 'abroad-calculator.html'); await ab.waitForTimeout(250);
     const last = await ab.$$eval('#payTbl tr:last-child td', t => t.map(x => x.textContent)); const card = await ab.$$eval('#kpis .kpi', k => k[2].innerText);
     assert.equal(last[0], 'Saved in year 1'); assert.ok(card.includes(last[2]) && card.includes(last[1]), 'table ends at the card’s numbers: ' + last.join(' | ') + ' vs ' + card); await ab.close();
