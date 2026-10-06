@@ -87,7 +87,7 @@ for (const [file, raw] of Object.entries(pages)) {
 if (fs.existsSync(path.join(ROOT, 'favicon.ico'))) fs.copyFileSync(path.join(ROOT, 'favicon.ico'), path.join(OUT, 'favicon.ico'));          // browsers and Google also look for this path
 if (fs.existsSync(path.join(ROOT, 'manifest.webmanifest'))) fs.copyFileSync(path.join(ROOT, 'manifest.webmanifest'), path.join(OUT, 'manifest.webmanifest'));
 
-const pub = { siteName: cfg.siteName, siteUrl, gaId: (cfg.analytics || {}).gaId || '', adsenseClient: (cfg.adsense || {}).client || '', adsenseSlot: (cfg.adsense || {}).slot || '',
+const pub = { siteName: cfg.siteName, siteUrl, gaId: (cfg.analytics || {}).gaId || '', umamiId: (cfg.analytics || {}).umamiId || '', adsenseClient: (cfg.adsense || {}).client || '', adsenseSlot: (cfg.adsense || {}).slot || '',
   affiliates: Object.fromEntries(Object.entries(cfg.affiliates || {}).filter(([, v]) => v)) };
 fs.writeFileSync(path.join(OUT, 'assets', 'site.js'), `window.SITE = ${JSON.stringify(pub)};\n`);
 if (siteUrl !== PLACEHOLDER && !/github\.io$/.test(new URL(siteUrl).hostname)) fs.writeFileSync(path.join(OUT, 'CNAME'), new URL(siteUrl).hostname + '\n');      // GitHub Pages custom domain
@@ -101,7 +101,7 @@ const todo = [];
 if (siteUrl === PLACEHOLDER) todo.push('siteUrl is still the placeholder — set your real domain in site.config.json');
 if (/@inhand\.example$/.test(cfg.contactEmail || '')) todo.push('contactEmail is still the placeholder — set a real address (AdSense requires a working contact)');
 if (!pub.adsenseClient) todo.push('AdSense not configured (ads are hidden) — add adsense.client after approval');
-if (!pub.gaId) todo.push('Google Analytics not configured — add analytics.gaId');
+if (!pub.gaId && !pub.umamiId) todo.push('Analytics not configured — add analytics.umamiId (cookie-free, no banner) or analytics.gaId');
 const missing = Object.keys(cfg.affiliates || {}).filter(k => !cfg.affiliates[k]);
 if (missing.length) todo.push(`${missing.length} affiliate link(s) empty — those "offer" boxes stay hidden: ${missing.join(', ')}`);
 console.log(`Built ${Object.keys(pages).length} pages -> _site/  (${siteUrl})`);

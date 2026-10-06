@@ -692,3 +692,15 @@ table.tbl tr.sel td { background: var(--grad-soft); font-weight: 700; }
 .nudge-acts.multi { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 460px; }
 .nudge-acts.multi .btn { flex-direction: column; gap: 0; padding-left: 6px; padding-right: 6px; line-height: 1.25; }
 .nudge-acts .btn small { font-weight: 600; opacity: .8; font-size: .74rem; }
+
+/* Share my result */
+.share-sheet { position: fixed; inset: 0; z-index: 110; background: rgba(10, 12, 30, .55); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.share-box { background: var(--surface); color: var(--text); border-radius: var(--radius); box-shadow: var(--shadow-lg); width: 100%; max-width: 420px; max-height: calc(100dvh - 32px); overflow: auto; padding: 18px; }
+.share-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.share-head h2 { margin: 0; font-size: 1.1rem; }
+.share-x { background: none; border: 0; color: var(--muted); font-size: 1.1rem; width: 40px; height: 40px; border-radius: 99px; cursor: pointer; }
+.share-x:hover { background: var(--surface-2); }
+.share-img { display: block; width: 100%; max-width: 300px; aspect-ratio: 4 / 5; margin: 0 auto; border-radius: 14px; box-shadow: var(--shadow); }
+.share-note { font-size: .84rem; color: var(--muted); margin: 12px 0; }
+.share-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 380px) { .share-acts { grid-template-columns: 1fr; } }

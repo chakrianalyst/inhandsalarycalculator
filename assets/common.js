@@ -351,7 +351,17 @@ const Common = (() => {
   /* ---------- Runtime services: consent, ads, analytics, affiliates, sharing ---------- */
   const consent = () => { try { return localStorage.getItem('inhand-consent'); } catch (e) { return null; } };
   function loadScript(src, attrs) { const el = document.createElement('script'); el.async = true; el.src = src; Object.entries(attrs || {}).forEach(([k, v]) => el.setAttribute(k, v)); document.head.appendChild(el); return el; }
-  function track(name, params) { try { if (window.gtag) window.gtag('event', name, params || {}); } catch (e) {} }
+  function track(name, params) { try { if (window.gtag) window.gtag('event', name, params || {}); if (window.umami) window.umami.track(p => ({ ...p, url: location.pathname, referrer: '', name, data: params || {} })); } catch (e) {} }
+  /** Umami: counts visits and the events above without cookies, so it needs no consent banner. It never receives the part of the address after "?",
+      because shared links carry the numbers people typed: the pageview is sent by hand with the bare path, and every event and referrer is trimmed too. */
+  const pathOnly = u => { try { const x = new URL(u, location.href); return x.host === location.host ? x.pathname : x.origin + x.pathname; } catch (e) { return ''; } };
+  function startAnalytics() {
+    const id = SITE.umamiId; if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || '') || !/^https?:$/.test(location.protocol)) return;
+    window.rcTrim = (type, p) => { if (p) { if (p.url) p.url = pathOnly(p.url); if (p.referrer) p.referrer = pathOnly(p.referrer); } return p; };
+    let host = ''; try { host = new URL(SITE.siteUrl).host; } catch (e) {}
+    const el = loadScript('https://cloud.umami.is/script.js', { 'data-website-id': id, 'data-auto-track': 'false', 'data-exclude-search': 'true', 'data-exclude-hash': 'true', 'data-before-send': 'rcTrim', 'data-do-not-track': 'true', ...(host ? { 'data-domains': host } : {}) });
+    el.onload = () => { try { window.umami.track(p => ({ ...p, url: location.pathname, referrer: document.referrer ? pathOnly(document.referrer) : '' })); } catch (e) {} };
+  }
 
   function startThirdParties() {
     if (consent() === 'no') return;
@@ -462,12 +472,82 @@ const Common = (() => {
     const ro = new ResizeObserver(later); kids.forEach(k => ro.observe(k)); addEventListener('resize', later); fit();
   }
   function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.classList.add('show'), 10); setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2200); }
-  function addShare() {
+  /* ---------- Share my result: a picture of the result that people can post ---------- */
+  /* Drawn on this device from the result card on screen; nothing is uploaded. The picture shows the answer, not what was typed. */
+  const resultCard = (() => {
+    const W = 1080, H = 1350, P = 84;
+    function read(hero) {
+      const q = s => { const e = hero.querySelector(s); if (!e) return ''; const c = e.cloneNode(true); c.querySelectorAll('.per').forEach(p => { p.textContent = ' ' + p.textContent; }); c.querySelectorAll('button').forEach(x => x.remove()); return c.textContent.replace(/\s+/g, ' ').trim(); };
+      return { lbl: q('.lbl'), big: q('.big'), sub: q('.sub'), pill: q('.pill') };
+    }
+    function lines(ctx, text, maxW, max) {
+      const out = []; let cur = '';
+      text.split(' ').forEach(w => { const t = cur ? cur + ' ' + w : w; if (ctx.measureText(t).width <= maxW || !cur) cur = t; else { out.push(cur); cur = w; } });
+      if (cur) out.push(cur);
+      if (out.length > max) { out.length = max; let l = out[max - 1]; while (l && ctx.measureText(l + '…').width > maxW) l = l.slice(0, -1); out[max - 1] = l.replace(/[\s,.·]+$/, '') + '…'; }
+      return out;
+    }
+    function link(activeId) {
+      const t = TOOLS.find(x => x.id === activeId), host = (() => { try { return new URL(SITE.siteUrl).host; } catch (e) { return 'rupeecheck.in'; } })();
+      return { name: t ? t.name : activeId === 'home' ? 'In-hand salary check' : document.title.split('|')[0].trim(), text: host + (t ? '/' + t.href.replace(/\.html$/, '') : ''), url: (SITE.siteUrl || '') + '/' + (t ? t.href : '') };
+    }
+    function draw(hero, activeId) {
+      const d = read(hero), L = link(activeId), cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      const ctx = cv.getContext('2d'), font = getComputedStyle(document.body).fontFamily, F = (w, s) => { ctx.font = `${w} ${s}px ${font}`; };
+      const g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#5b4bff'); g.addColorStop(0.55, '#8b5cf6'); g.addColorStop(1, '#c084fc'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.beginPath(); ctx.arc(W - 40, 30, 320, 0, 7); ctx.fill(); ctx.beginPath(); ctx.arc(-80, H - 120, 260, 0, 7); ctx.fillStyle = 'rgba(255,255,255,.06)'; ctx.fill();
+      const box = (x, y, w, h, r, fill) => { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, r) : ctx.rect(x, y, w, h); ctx.fillStyle = fill; ctx.fill(); };
+      ctx.textBaseline = 'top'; ctx.fillStyle = '#fff';
+      box(P, P, 80, 80, 22, 'rgba(255,255,255,.22)'); F(800, 48); ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.fillText('₹', P + 40, P + 14); ctx.textAlign = 'left';
+      F(800, 46); ctx.fillText(SITE.siteName || 'RupeeCheck', P + 104, P + 16);
+      const MW = W - 2 * P, txt = (t, x, y, on) => { if (on) ctx.fillText(t, x, y); };
+      const body = (y, on) => {                                                         // run once to measure, then again to draw centred between the brand and the link
+        F(700, 30); ctx.fillStyle = 'rgba(255,255,255,.78)'; lines(ctx, L.name.toUpperCase(), MW, 2).forEach(l => { txt(l, P, y, on); y += 40; }); y += 34;
+        ctx.fillStyle = 'rgba(255,255,255,.92)'; F(600, 44); lines(ctx, d.lbl, MW, 3).forEach(l => { txt(l, P, y, on); y += 58; }); y += 14;
+        let s = 150; F(800, s); while (s > 72 && ctx.measureText(d.big).width > MW) { s -= 4; F(800, s); }
+        ctx.fillStyle = '#fff'; lines(ctx, d.big, MW, 2).forEach(l => { txt(l, P, y, on); y += s * 1.12; }); y += 24;
+        if (d.sub) { F(500, 38); ctx.fillStyle = 'rgba(255,255,255,.9)'; lines(ctx, d.sub, MW, 4).forEach(l => { txt(l, P, y, on); y += 52; }); y += 26; }
+        if (d.pill) { F(700, 32); const pl = lines(ctx, d.pill, MW - 56, 2), pw = Math.max(...pl.map(l => ctx.measureText(l).width)) + 56, ph = pl.length * 44 + 30;
+          if (on) { box(P, y, pw, ph, ph > 80 ? 30 : ph / 2, 'rgba(255,255,255,.2)'); ctx.fillStyle = '#fff'; pl.forEach((l, i) => ctx.fillText(l, P + 28, y + 17 + i * 44)); } y += ph; }
+        return y;
+      };
+      const top = 230, bottom = H - 290, used = body(0, false); body(top + Math.max(0, (bottom - top - used) / 2), true);
+      ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.fillRect(P, H - 250, MW, 2);
+      ctx.fillStyle = 'rgba(255,255,255,.85)'; F(500, 34); ctx.fillText('Work out yours, free:', P, H - 214);
+      ctx.fillStyle = '#fff'; F(800, 46); let ls = 46; while (ls > 30 && ctx.measureText(L.text).width > MW) { ls -= 2; F(800, ls); } ctx.fillText(L.text, P, H - 164);
+      ctx.fillStyle = 'rgba(255,255,255,.7)'; F(500, 26); ctx.fillText('Estimates only, not financial advice.', P, H - 92);
+      return { canvas: cv, link: L };
+    }
+    function open(hero, activeId, btn) {
+      const { canvas, link: L } = draw(hero, activeId), name = 'rupeecheck-' + (activeId || 'result') + '.png';
+      const sheet = document.createElement('div'); sheet.className = 'share-sheet'; sheet.setAttribute('role', 'dialog'); sheet.setAttribute('aria-modal', 'true'); sheet.setAttribute('aria-labelledby', 'shareTitle');
+      sheet.innerHTML = `<div class="share-box"><div class="share-head"><h2 id="shareTitle">Share your result</h2><button type="button" class="share-x" aria-label="Close">✕</button></div>
+        <img class="share-img" alt="Picture of your result to share"><p class="share-note">The picture shows your result, not what you typed. The link opens this calculator with your numbers filled in.</p>
+        <div class="share-acts"><button type="button" class="btn btn-primary" data-a="img">⬇️ Save picture</button><button type="button" class="btn btn-ghost" data-a="link">🔗 ${navigator.share ? 'Share link' : 'Copy link'}</button></div></div>`;
+      document.body.appendChild(sheet); document.body.classList.add('menu-open');
+      const img = sheet.querySelector('.share-img'), imgBtn = sheet.querySelector('[data-a=img]'); let file = null, objUrl = '';
+      const close = () => { sheet.remove(); document.body.classList.remove('menu-open'); if (objUrl) URL.revokeObjectURL(objUrl); document.removeEventListener('keydown', key); if (btn) btn.focus(); };
+      const key = e => { if (e.key === 'Escape') close(); else if (e.key === 'Tab') { const f = [...sheet.querySelectorAll('button')], i = f.indexOf(document.activeElement); if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); } } };
+      document.addEventListener('keydown', key);
+      sheet.addEventListener('click', e => { if (e.target === sheet || e.target.closest('.share-x')) close(); });
+      img.src = canvas.toDataURL('image/png');
+      canvas.toBlob(blob => { if (!blob) return; objUrl = URL.createObjectURL(blob);
+        try { file = new File([blob], name, { type: 'image/png' }); if (navigator.canShare && navigator.canShare({ files: [file] })) imgBtn.textContent = '📤 Share picture'; else file = null; } catch (e) { file = null; } }, 'image/png');
+      imgBtn.onclick = async () => {
+        if (file) { try { await navigator.share({ files: [file], text: 'Work out yours, free: ' + L.url }); track('share', { method: 'image_share' }); } catch (e) { if (!e || e.name !== 'AbortError') toast('Could not open sharing. Try Save instead.'); } return; }
+        const a = document.createElement('a'); a.href = objUrl || img.src; a.download = name; document.body.appendChild(a); a.click(); a.remove(); track('share', { method: 'image_download' }); toast('Picture saved. Post it with the link to the calculator.');
+      };
+      sheet.querySelector('[data-a=link]').onclick = async () => { state.write(); const url = location.href;
+        try { if (navigator.share) { await navigator.share({ title: document.title, url }); track('share', { method: 'native' }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+        try { await navigator.clipboard.writeText(url); toast('Link copied. It contains the numbers you entered, so share it only with people you trust.'); track('share', { method: 'copy' }); } catch (e) { toast('Copy the address bar link to share'); } };
+      imgBtn.focus();
+    }
+    return { open, draw };
+  })();
+  function addShare(activeId) {
     const hero = document.querySelector('.results .hero-result, .hero-result'); if (!hero || hero.querySelector('.share-btn') || !document.querySelector('input[id]')) return;
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'share-btn'; b.innerHTML = '🔗 Share'; b.setAttribute('aria-label', 'Share these results');
-    b.onclick = async () => { state.write(); const url = location.href;
-      try { if (navigator.share) { await navigator.share({ title: document.title, url }); track('share', { method: 'native' }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
-      try { await navigator.clipboard.writeText(url); toast('Link copied. It contains the numbers you entered, so share it only with people you trust.'); track('share', { method: 'copy' }); } catch (e) { toast('Copy the address bar link to share'); } };
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'share-btn'; b.innerHTML = '📤 Share'; b.setAttribute('aria-label', 'Share your result as a picture or a link'); b.setAttribute('aria-haspopup', 'dialog');
+    b.onclick = () => { track('share_open', { tool: activeId }); resultCard.open(hero, activeId, b); };
     hero.appendChild(b); hero.classList.add('has-share');
   }
   /** On a phone the result often sits below a long form. This bar keeps the headline answer in view while you type, and hides once the result itself is on screen or above you. Pages with their own bar (#mBar) keep it. */
@@ -513,7 +593,7 @@ const Common = (() => {
   }
   function init(activeId) {
     layout(activeId); a11y(); initLimits(); initA11y(); fillCities(); document.querySelectorAll('input[data-money]').forEach(e => attachMoney(e)); state.restore(); enhanceFields(); related(activeId); stickyCols();
-    placeAds(); placeAffiliates(); addShare(); addResultBar(activeId); tidyTables(); consentBanner(); startThirdParties();
+    placeAds(); placeAffiliates(); addShare(activeId); addResultBar(activeId); tidyTables(); consentBanner(); startThirdParties(); startAnalytics();
     window.addEventListener('load', () => { state.watch(); let used = false; document.addEventListener('input', () => { if (!used) { used = true; track('calculator_used', { tool: activeId }); } }); });
   }
   initTheme();
