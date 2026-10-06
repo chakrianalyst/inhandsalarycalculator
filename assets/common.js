@@ -6,13 +6,14 @@ const TOOLS = [
   { id: 'fire', group: 'plan', href: 'fire-calculator.html', icon: '🔥', name: 'FIRE / Retirement Planner', short: 'FIRE', desc: 'How much you need to retire early and when, with lean and fat FIRE, coast FIRE and a stress test.' },
   { id: 'rentbuy', group: 'plan', href: 'rent-vs-buy-calculator.html', icon: '🏡', name: 'Rent vs Buy Calculator', short: 'Rent vs Buy', desc: 'Buy a home or rent and invest the difference? Break-even year, tax and a what-if grid.' },
   { id: 'abroad', group: 'plan', href: 'abroad-calculator.html', icon: '🌍', name: 'Move Abroad Calculator', short: 'Abroad', desc: 'Compare staying in India with a job in the US, Canada, UK, Germany, Australia, Singapore or the UAE, in rupees.' },
-  { id: 'return', group: 'plan', href: 'return-calculator.html', icon: '🛬', name: 'Return to India Calculator', short: 'Return', desc: 'Planning to move back? See what you would bring home and the earliest year you can afford to return.', isNew: true },
+  { id: 'return', group: 'plan', href: 'return-calculator.html', icon: '🛬', name: 'Return to India Calculator', short: 'Return', desc: 'Planning to move back? See what you would bring home and the earliest year you can afford to return.' },
   { id: 'offers', group: 'pay', href: 'offer-comparison.html', icon: '🤝', name: 'Job Offer Comparison', short: 'Offers', desc: 'Compare 2–3 job offers on in-hand pay, bonus, ESOPs, raises and rising costs over 1 to 5 years.' },
   { id: 'hike', group: 'pay', href: 'salary-hike-calculator.html', icon: '📈', name: 'Salary Hike Calculator', short: 'Hike', desc: 'See how much of your raise reaches your bank account, and what is left after inflation.' },
   { id: 'hra', group: 'pay', href: 'hra-calculator.html', icon: '🏠', name: 'HRA Exemption Calculator', short: 'HRA', desc: 'Exempt and taxable HRA, with the metro list by financial year and the tax you save.' },
   { id: 'emi', group: 'save', href: 'emi-calculator.html', icon: '🏦', name: 'EMI Calculator', short: 'EMI', desc: 'Loan EMI with prepayment, fees, loan eligibility and a full repayment schedule.' },
   { id: 'sip', group: 'save', href: 'sip-calculator.html', icon: '🌱', name: 'SIP Calculator', short: 'SIP', desc: 'SIP, lump sum or goal planner with step-up, tax, inflation and the cost of waiting.' },
   { id: 'fd', group: 'save', href: 'fd-calculator.html', icon: '🔒', name: 'FD Calculator', short: 'FD', desc: 'FD and RD for any tenure in years, months and days, with payout, tax and real return.' },
+  { id: 'swp', group: 'save', href: 'swp-calculator.html', icon: '🏧', name: 'SWP Calculator', short: 'SWP', desc: 'Monthly income from your mutual funds: how long it lasts, the most you can safely take, and the tax on the profit part only.', isNew: true },
   { id: 'gratuity', group: 'pay', href: 'gratuity-calculator.html', icon: '🎁', name: 'Gratuity Calculator', short: 'Gratuity', desc: 'Gratuity from years and months of service, with the new labour-code rules and tax-free part.' },
 ];
 
@@ -337,7 +338,7 @@ const Common = (() => {
     ov.addEventListener('touchstart', move, { passive: true }); ov.addEventListener('touchmove', move, { passive: true }); ov.addEventListener('touchend', leave);
   }
 
-  const GUIDE_LINKS = { salary: ['new-tax-regime-slabs-fy-2026-27.html', 'professional-tax-by-state.html', 'hra-exemption-rules.html', 'ctc-vs-in-hand-salary.html'], hra: ['hra-exemption-rules.html', 'old-vs-new-tax-regime.html'], hike: ['new-tax-regime-slabs-fy-2026-27.html', 'old-vs-new-tax-regime.html'], sip: ['sip-for-1-crore.html'], fire: ['sip-for-1-crore.html'], emi: ['emi-per-lakh-table.html'], rentbuy: ['emi-per-lakh-table.html'], networth: ['net-worth-by-age.html'] };
+  const GUIDE_LINKS = { salary: ['new-tax-regime-slabs-fy-2026-27.html', 'professional-tax-by-state.html', 'hra-exemption-rules.html', 'ctc-vs-in-hand-salary.html'], hra: ['hra-exemption-rules.html', 'old-vs-new-tax-regime.html'], hike: ['new-tax-regime-slabs-fy-2026-27.html', 'old-vs-new-tax-regime.html'], sip: ['sip-for-1-crore.html'], fire: ['sip-for-1-crore.html'], swp: ['sip-for-1-crore.html'], emi: ['emi-per-lakh-table.html'], rentbuy: ['emi-per-lakh-table.html'], networth: ['net-worth-by-age.html'] };
   function related(activeId, n = 3) {
     const el = document.getElementById('related'); if (!el) return;
     const gl = (GUIDE_LINKS[activeId] || []).map(h => GUIDES.find(g => g[0] === h)).filter(Boolean);

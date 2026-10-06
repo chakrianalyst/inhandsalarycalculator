@@ -22,7 +22,7 @@ This skill ships the site's own calculation code, so you can run the real calcul
 node engine/run.js list                       # the tools and their inputs
 node engine/run.js salary '{"ctc":1500000}'   # one scenario, JSON in, JSON out
 ```
-Tools: `salary`, `regime`, `sip`, `emi`, `fd`, `gratuity`, `hra`, `fire`, `rentbuy`, `abroad`, `return`. Defaults are the live pages' own defaults, so leave an input out only if the page default is what you mean. State every input that matters. Use `node engine/fmt.js <number>` to format figures in Indian style (₹7,69,904, ₹7.7 L, ₹10.3 Cr) instead of rounding by hand. For tools the runner does not cover (life simulator, net worth, offer comparison), write qualitatively or ask the user for numbers; for a salary hike, run `salary` at both CTCs.
+Tools: `salary`, `regime`, `sip`, `swp`, `emi`, `fd`, `gratuity`, `hra`, `fire`, `rentbuy`, `abroad`, `return`. Defaults are the live pages' own defaults, so leave an input out only if the page default is what you mean. State every input that matters. Use `node engine/fmt.js <number>` to format figures in Indian style (₹7,69,904, ₹7.7 L, ₹10.3 Cr) instead of rounding by hand. For tools the runner does not cover (life simulator, net worth, offer comparison), write qualitatively or ask the user for numbers; for a salary hike, run `salary` at both CTCs.
 
 **4. Verify every number a second way.**
 ```

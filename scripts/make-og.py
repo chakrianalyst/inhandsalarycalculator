@@ -23,6 +23,7 @@ PAGES = {
     'salary-calculator': ('From CTC to **in-hand salary**', 'Monthly take-home with PF, tax and both regimes, FY 2026-27'),
     'sip-calculator': ('How much **SIP** gets you there?', 'Monthly SIP, lump sum or a goal, with step-up, tax and inflation'),
     'emi-calculator': ('Your loan **EMI**, and how to cut it', 'Home, car and personal loans, with prepayment and a full schedule'),
+    'swp-calculator': ('How long will your **SWP** last?', 'Monthly withdrawals that rise each year, the tax on profit only, and the safe amount'),
     'fd-calculator': ('FD and RD **returns**, after tax', 'Maturity, payout, tax on interest and real return after inflation'),
     'gratuity-calculator': ('Your **gratuity**, worked out', 'The 15/26 formula, eligibility, tax and what you would get if you stay longer'),
     'hra-calculator': ('Your **HRA exemption**', 'The three-way test, the metro list and the rent needed for full exemption'),

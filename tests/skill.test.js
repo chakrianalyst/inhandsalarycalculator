@@ -72,3 +72,11 @@ test('return-to-India: the independent re-computation agrees with the site acros
   V.lines.length = 0; const g = run.TOOLS.return({}); g.results.table[3].youNeed += 5000; V.V.return({ inputs: g.inputs, results: g.results }); assert.ok(V.lines.some(l => l.status === 'MISMATCH'), 'a wrong "you need" figure must be flagged');
   V.lines.length = 0; const h = run.TOOLS.return({}); h.results.table[0].youBringHome -= 1000; V.V.return({ inputs: h.inputs, results: h.results }); assert.ok(V.lines.some(l => l.status === 'MISMATCH'), 'a wrong "bring home" figure must be flagged');
 });
+
+test('SWP: the independent re-computation agrees with the site across profiles, and flags a wrong figure', () => {
+  for (const p of [{}, { wd: 60000 }, { step: 0, wd: 40000 }, { gainPct: 40, wd: 90000 }, { taxk: 'slab', slab: 30, gainPct: 20 }, { conv: 'nom', ret: 10 }, { corpus: 2500000, wd: 30000, yrs: 10, ret: 7 }]) {
+    V.lines.length = 0; const r = run.TOOLS.swp(p); V.V.swp({ inputs: r.inputs, results: r.results });
+    assert.ok(V.lines.length >= 3 && !V.lines.some(l => l.status === 'MISMATCH'), JSON.stringify(p) + ' ' + JSON.stringify(V.lines.filter(l => l.status === 'MISMATCH')));
+  }
+  V.lines.length = 0; const g = run.TOOLS.swp({}); g.results.maxMonthlyWithdrawalThatLasts += 100; V.V.swp({ inputs: g.inputs, results: g.results }); assert.ok(V.lines.some(l => l.status === 'MISMATCH'), 'a wrong safe withdrawal must be flagged');
+});

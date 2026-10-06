@@ -38,7 +38,7 @@ if (chromium) {
 
   test('calculator pages render a real result (not the placeholder)', async () => {
     for (const f of ['index.html', 'salary-calculator.html', 'emi-calculator.html', 'sip-calculator.html', 'fd-calculator.html', 'abroad-calculator.html', 'return-calculator.html', 'gratuity-calculator.html', 'hra-calculator.html', 'salary-hike-calculator.html',
-      'networth-calculator.html', 'life-simulator.html', 'fire-calculator.html', 'rent-vs-buy-calculator.html', 'offer-comparison.html']) {
+      'networth-calculator.html', 'life-simulator.html', 'fire-calculator.html', 'rent-vs-buy-calculator.html', 'offer-comparison.html', 'swp-calculator.html']) {
       const pg = await open(SITE, f); const t = await pg.$eval('.hero-result .big', e => e.textContent.trim()); assert.ok(t && t !== '—', `${f}: "${t}"`); await pg.close();
     }
   });
@@ -656,7 +656,7 @@ if (chromium) {
 
   test('phone: every calculator keeps its answer in a floating bar while you type, and it follows the result', async () => {
     for (const f of ['sip-calculator.html', 'emi-calculator.html', 'fd-calculator.html', 'hra-calculator.html', 'gratuity-calculator.html', 'salary-hike-calculator.html', 'offer-comparison.html', 'fire-calculator.html',
-      'rent-vs-buy-calculator.html', 'networth-calculator.html', 'life-simulator.html', 'abroad-calculator.html', 'return-calculator.html']) {
+      'swp-calculator.html', 'rent-vs-buy-calculator.html', 'networth-calculator.html', 'life-simulator.html', 'abroad-calculator.html', 'return-calculator.html']) {
       const pg = await open(SITE, f, 390); await pg.waitForTimeout(250);
       assert.equal(await pg.isVisible('#mBarAuto'), true, f + ': bar shows while the result is below');
       assert.equal(await pg.$eval('#mBarAuto b', e => e.textContent), await pg.$eval('.hero-result .big', e => e.textContent.trim()), f + ': bar shows the same answer');
@@ -712,7 +712,7 @@ if (chromium) {
       const right = await pg.evaluate(() => Math.max(...[...document.querySelectorAll('header *')].filter(e => e.offsetParent).map(e => e.getBoundingClientRect().right)));
       assert.ok(right <= w, `header fits at ${w}px (rightmost ${right})`);
       assert.equal(await pg.isVisible('.nav-quick'), w > 900, `popular links at ${w}px`);
-      await pg.click('#menuBtn'); assert.equal(await pg.$$eval('#navLinks a', a => a.filter(x => x.offsetParent).length), 14, `all 14 calculators listed at ${w}px`);
+      await pg.click('#menuBtn'); assert.equal(await pg.$$eval('#navLinks a', a => a.filter(x => x.offsetParent).length), 15, `all 15 calculators listed at ${w}px`);
       assert.equal(await pg.getAttribute('#menuBtn', 'aria-expanded'), 'true');
       await pg.keyboard.press('Escape'); assert.equal(await pg.isVisible('#navLinks'), false); await pg.close();
     }
@@ -746,6 +746,19 @@ if (chromium) {
     assert.equal(await ix.$$eval('#guideGrid .tool-card p', p => p.length), await ix.$$eval('#guideGrid .tool-card', c => c.length), 'every guide card has a line'); await ix.close();
     const ls = await open(SITE, 'life-simulator.html', 390); await ls.waitForTimeout(250); assert.equal(await ls.$eval('details.adv', d => d.open), false);
     assert.match(await ls.textContent('#assumSum'), /Pay \+8% a year, prices \+6%, return 10%, you invest 80%/); await ls.close();
+  });
+
+  test('SWP calculator: matches the content-skill runner, taxes only the profit part, says when the money runs out, and restores from a share link', async () => {
+    const run = require(path.join(ROOT, 'skills', 'rupeecheck-content', 'engine', 'run.js')), digits = s => parseInt(String(s).replace(/[^0-9]/g, ''), 10), R = run.TOOLS.swp({}).results;
+    const pg = await open(SITE, 'swp-calculator.html'); await pg.waitForTimeout(250); const t = id => pg.$eval('#' + id, e => e.innerText.replace(/\s+/g, ' ').trim());
+    assert.match(await t('hLbl'), /lasts all 25 years/); assert.equal(digits(await t('hBig')), Math.round(R.leftAtEnd)); assert.match(await t('hPill'), new RegExp('₹' + Math.round(R.maxMonthlyWithdrawalThatLasts).toLocaleString('en-IN')));
+    assert.match(await t('taxNote'), /only ₹27,188 of it \(4\.5%\) is profit[\s\S]*Tax in year 1: ₹5,655/); assert.match(await t('chartCap'), /grows for the first \d+ years/);
+    await pg.fill('#wd', '60,000'); await pg.waitForTimeout(250); assert.equal(await t('hLbl'), 'Your money runs out after'); assert.match(await t('hBig'), /^20 years 4 months$/);
+    assert.match(await t('warns'), /^$|balance falls/); await pg.$eval('#sec-tax', e => (e.open = true)); await pg.selectOption('#taxk', 'none'); await pg.waitForTimeout(150); assert.equal(await pg.isVisible('#taxCard'), false);
+    assert.deepEqual(pg.errs, []); await pg.close();
+    const s2 = await browser.newPage(); await s2.goto(url(SITE, 'swp-calculator.html') + '?corpus=5000000&wd=40000&step=0&ret=8&yrs=20'); await s2.waitForTimeout(250);
+    const i = Math.pow(1.08, 1 / 12) - 1, ann = 5000000 * i / (1 - Math.pow(1 + i, -240)); assert.equal(await s2.inputValue('#wd'), '40,000');
+    assert.match(await s2.$eval('#kpis', e => e.innerText), new RegExp('₹' + Math.floor(ann).toLocaleString('en-IN') + '|₹' + Math.round(ann).toLocaleString('en-IN'))); await s2.close();
   });
 
   test('teardown', async () => { await browser.close(); fs.rmSync(LIVE, { recursive: true, force: true }); });

@@ -53,6 +53,18 @@ const V = {
     const val = fv(i.mode === 'lump' ? 0 : s); check('future value', r.results.futureValue, val, 5);
     let inv = lump; for (let m = 0; m < months; m++) inv += (i.mode === 'lump' ? 0 : s) * Math.pow(1 + step, Math.floor(m / 12)); check('total invested', r.results.totalInvested, inv, 5);
   },
+  swp(r) {
+    const i = r.inputs, P = n(i.corpus), w0 = n(i.wd), g = n(i.step) / 100, N = Math.max(1, Math.round(n(i.yrs)) || 1) * 12, rm = i.conv === 'nom' ? n(i.ret) / 1200 : Math.pow(1 + n(i.ret) / 100, 1 / 12) - 1;
+    const sim = w => { let b = P, full = 0; for (let m = 0; m < N; m++) { const wm = w * Math.pow(1 + g, Math.floor(m / 12)); b = b * (1 + rm); if (b + 1e-9 >= wm) { b -= wm; full++; } else { b = 0; break; } } return { b, full }; };
+    const own = sim(w0); check('months paid in full', r.results.monthsPaidInFull, own.full, 0); check('left at the end', r.results.leftAtEnd, own.b, 5);
+    if (g === 0 && rm > 0) check('most you can take each month (annuity formula)', r.results.maxMonthlyWithdrawalThatLasts, P * rm / (1 - Math.pow(1 + rm, -N)), 1);
+    else { let lo = 0, hi = P; for (let k = 0; k < 80; k++) { const mid = (lo + hi) / 2; sim(mid).full === N ? lo = mid : hi = mid; } check('most you can take each month', r.results.maxMonthlyWithdrawalThatLasts, lo, 1); }
+    if (i.taxk !== 'none') {                                                   // year 1: only the profit part of each withdrawal, by average cost
+      const gp = Math.min(95, Math.max(0, n(i.gainPct))) / 100; let b = P, cost = P * (1 - gp), profit = 0; for (let m = 0; m < Math.min(12, N); m++) { b *= 1 + rm; const pay = Math.min(w0, b); profit += pay * (1 - cost / b); cost -= cost * pay / b; b -= pay; }
+      check('profit in year 1 withdrawals', r.results.year1Profit, profit, 2);
+      const tax1 = i.taxk === 'slab' ? profit * n(i.slab) / 100 * 1.04 : gp > 0 ? Math.max(0, profit - 125000) * 0.125 * 1.04 : profit * 0.2 * 1.04; check('tax in year 1', r.results.year1Tax, tax1, 2);
+    }
+  },
   emi(r) {
     const i = r.inputs; if (i.mode === 'afford') return unverified('affordable loan', 'Check by hand: loan = EMI × (1 − (1 + r)^−n) ÷ r.');
     const P = n(i.amt), rm = n(i.rate) / 1200, nm = Math.floor(n(i.yrs)) * 12 + Math.floor(n(i.mon)), emi = rm === 0 ? P / nm : P * rm * Math.pow(1 + rm, nm) / (Math.pow(1 + rm, nm) - 1);
