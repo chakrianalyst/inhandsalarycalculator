@@ -43,3 +43,12 @@ test('recurring deposit: instalments compound quarterly until maturity', () => {
 });
 
 test('tax on interest: slab rate plus 4% cess', () => { near(D.taxOn(100000, 30), 31200, 0.001); near(D.taxOn(100000, 0), 0, 0); });
+
+test('interest tax: each year added to your other income under the new regime (rebate, slabs, surcharge relief, cess)', () => {
+  const T = require('../assets/tax.js'), ct = x => T.computeTax(x, 'new').total;
+  assert.equal(D.interestTax([500000], 0, ct).total, 0);                                         // under ₹12 lakh: the rebate wipes it out
+  near(D.interestTax([4900000], 0, ct).total, 1092000, 0.5);                                    // ₹49 L alone: ₹10.5 L of slab tax + 4% cess
+  near(D.interestTax([5030132], 0, ct).total, (1080000 + 30132) * 1.04, 0.5);                   // just over ₹50 L: surcharge capped by marginal relief
+  near(D.interestTax([100000], 1500000, ct).total, 100000 * 0.15 * 1.04, 0.5);                  // ₹15 L salary (₹14.25 L after standard deduction): the 15% slab
+  const two = D.interestTax([4900000, 4900000], 0, ct); near(two.total, 2 * 1092000, 1); near(two.rate, 1092000 / 4900000, 1e-9);   // taxed year by year, not as one lump
+});

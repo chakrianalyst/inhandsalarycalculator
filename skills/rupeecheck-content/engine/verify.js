@@ -76,7 +76,11 @@ const V = {
     const i = r.inputs; if (i.mode === 'rd') { const M = Math.floor(n(i.yrs)) * 12 + Math.floor(n(i.mon)); let mat = 0; for (let k = 1; k <= M; k++) mat += n(i.d) * Math.pow(1 + n(i.rate) / 400, 4 * (M - k + 1) / 12); check('RD maturity', r.results.maturity, mat, 1); return; }
     const per = n(i.cmp), t = n(i.yrs) + n(i.mon) / 12 + n(i.day) / 365;
     if (Number.isInteger(t * per)) check('FD maturity', r.results.maturity, n(i.p) * Math.pow(1 + n(i.rate) / 100 / per, t * per), 1); else unverified('FD maturity', 'The tenure does not end on a compounding date, so the bank-style leftover-period rule applies. Check one example by hand.');
-    check('tax on interest at your slab', r.results.taxOnInterestAtSlab, (r.results.interest) * n(i.slab) / 100 * 1.04, 1);
+    const base = Math.max(0, n(i.sal) - 75000), P = n(i.p), rr = n(i.rate) / 100 / per, full = Math.ceil(t - 1e-9), yearly = [];
+    if (!Number.isInteger(t * per) || !Number.isInteger(per)) return unverified('tax on the interest', 'The tenure does not end on a compounding date. Check one year by hand.');
+    for (let k = 1; k <= full; k++) yearly.push(P * Math.pow(1 + rr, per * Math.min(k, t)) - P * Math.pow(1 + rr, per * (k - 1)));
+    if (base + Math.max(...yearly) > 5000000) return unverified('tax on the interest', 'Income above ₹50 lakh in a year brings in surcharge (with marginal relief), which this check does not rebuild. Check that year against the official tax calculator.');
+    check('tax on the interest (each year on top of your income)', r.results.taxOnInterest, yearly.reduce((a, y) => a + taxNew(base + y) - taxNew(base), 0), 1);
   },
   gratuity(r) { const i = r.inputs; if (i.kind !== 'covered' || i.fixed) return unverified('gratuity', 'Only the standard covered-employee formula is rebuilt here.'); const months = Math.floor(n(i.yrs)) * 12 + Math.floor(n(i.mon)), counted = Math.floor(months / 12) + (months % 12 >= 6 ? 1 : 0), eligible = months >= 60;
     if (eligible) check('gratuity amount', r.results.amount, n(i.wage) * 15 / 26 * counted, 1); else lines.push({ label: 'eligibility', engine: r.results.eligible, independent: false, status: r.results.eligible === false ? 'AGREE' : 'MISMATCH' }); },

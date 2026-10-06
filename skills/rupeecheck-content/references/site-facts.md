@@ -22,7 +22,7 @@ Base address https://rupeecheck.in/ followed by the file name.
 | SIP and goals | `sip-calculator.html` | `sip-for-1-crore.html` |
 | SWP (monthly withdrawals) | `swp-calculator.html` | Only the profit part of each withdrawal is taxed (average cost). Equity: 20% within a year, then 12.5% above ₹1.25 lakh of long-term profit a year. The withdrawal is in year-1 rupees and rises by the step-up each year. |
 | Home loan EMI | `emi-calculator.html` | `emi-per-lakh-table.html` |
-| FD and RD | `fd-calculator.html` | |
+| FD and RD | `fd-calculator.html` | Tax on the interest is worked out from the visitor's yearly salary or pension (`sal`, 0 if the interest is their only income): each year's interest is added on top and taxed under the new regime, so the ₹12 lakh rebate, the higher slabs, surcharge and cess all apply. A big deposit with no other income is not tax-free. |
 | Gratuity | `gratuity-calculator.html` | |
 | FIRE | `fire-calculator.html` | |
 | Rent vs buy | `rent-vs-buy-calculator.html` | |

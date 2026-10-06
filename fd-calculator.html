@@ -38,8 +38,7 @@
       <div class="field" id="fPay" hidden><label for="pf">Interest is paid to you</label><select id="pf"><option value="12" selected>Every month</option><option value="4">Every quarter</option><option value="2">Every 6 months</option><option value="1">Once a year</option></select><span class="hint">Paid interest is not compounded. Your deposit comes back in full at the end.</span></div>
       <p class="hint" id="rdNote" hidden>A recurring deposit compounds every quarter, the way most banks do it. Days are ignored; the tenure is rounded to whole months.</p>
       <details class="grp" id="sec-tax"><summary><div class="gi">🧾</div><div class="gt">Tax and inflation<small>See what you keep</small></div><span class="chev">›</span></summary><div class="grp-body">
-        <div class="field"><label for="slab">Your income-tax rate</label><select id="slab"><option value="0">No tax (income below the taxable limit)</option><option value="5">5%</option><option value="10">10%</option><option value="15">15%</option><option value="20" selected>20%</option><option value="25">25%</option><option value="30">30%</option></select><span class="hint">FD interest is added to your income and taxed at your slab rate, plus 4% cess. Pick the top rate your income reaches.</span></div>
-        <div class="field"><label for="slabHelp">Not sure of your rate? Pick your yearly salary</label><select id="slabHelp"><option value="">Choose…</option><option value="0">Up to ₹12.75 lakh</option><option value="15">₹12.75 to 16.75 lakh</option><option value="20">₹16.75 to 20.75 lakh</option><option value="25">₹20.75 to 24.75 lakh</option><option value="30">Above ₹24.75 lakh</option></select><span class="hint">For the new tax regime. Up to ₹12.75 lakh of salary there is no tax, but FD interest that takes your total income above that limit is taxed.</span></div>
+        <div class="field"><label for="sal">Your yearly salary or pension</label><div class="input-wrap"><span class="pre">₹</span><input id="sal" data-money data-words="salWords" value="1500000" placeholder="0" aria-describedby="salWords"></div><div class="words" id="salWords"></div><span class="hint">Before tax. Enter 0 if this interest is your only income. The interest is added to it each year and taxed under the new regime, with the ₹75,000 standard deduction, the ₹12 lakh rebate, surcharge and 4% cess.</span></div>
         <label class="toggle"><span>I am a senior citizen<small>The bank deducts tax only when your interest is above ₹1,00,000 a year, instead of ₹50,000</small></span><span class="switch"><input type="checkbox" id="senior"><i></i></span></label>
         <div class="field"><label for="infl">Price rise each year (inflation)</label><div class="input-wrap"><input type="number" id="infl" value="6" min="0" max="15" step="0.5"><span class="suf">%</span></div><span class="hint">Used to show what your money is worth in today’s rupees.</span></div>
       </div></details>
@@ -49,6 +48,7 @@
       <div class="hero-result"><div class="lbl" id="hLbl">Maturity amount</div><div class="big" id="mv">—</div><div class="sub" id="mvSub"></div><span class="pill" id="hPill"></span></div>
       <div class="warns" id="warns"></div>
       <div class="kpis" id="kpis"></div>
+      <p class="cap" id="taxNote" style="margin:-6px 0 18px"></p>
       <div class="card"><h2 class="card-title" id="ctTitle">🥧 Where the money comes from</h2>
         <div class="chart-row"><svg class="donut" id="donut" viewBox="0 0 170 170"></svg><div class="legend" id="legend"></div></div></div>
       <div class="card" id="growCard"><h2 class="card-title">📈 How it grows</h2><div id="grow"></div></div>
@@ -67,7 +67,7 @@
     <h2>Recurring deposit (RD)</h2>
     <p>An RD works like a small FD every month. Each instalment earns interest from the day it goes in until maturity, compounded every quarter. Early instalments therefore grow the most. Banks usually offer RDs from 6 months to 10 years.</p>
     <h2>What about tax?</h2>
-    <p>FD and RD interest is added to your income and taxed at your slab rate, plus 4% cess. The tax is due every year as the interest builds up, even in a cumulative FD that pays nothing until the end. The calculator shows an estimate using the rate you pick under <em>Tax and inflation</em>. Your real tax depends on your whole income and on whether you use the old or new regime.</p>
+    <p>FD and RD interest is added to your income and taxed at your slab rate, plus 4% cess. The tax is due every year as the interest builds up, even in a cumulative FD that pays nothing until the end. The calculator adds each year’s interest to the salary or pension you enter under <em>Tax and inflation</em> and works out the extra tax under the new regime, so a large deposit is taxed at the higher slabs it reaches, and a small one can stay tax-free under the ₹12 lakh rebate. Your real tax also depends on other income and on whether you use the old regime.</p>
     <h2>Frequently asked questions</h2>
     <div class="faq">
       <details><summary>What is the shortest and longest FD tenure?</summary><p>Most banks accept FDs from 7 days up to 10 years. Interest rates differ by tenure, so a 1-year rate does not apply to a 5-year deposit.</p></details>
@@ -100,10 +100,10 @@
   function calc() {
     const mode = modeGet(), rd = mode === 'rd', pay = mode === 'payout';
     $('fP').hidden = rd; $('fD').hidden = !rd; $('fCmp').hidden = mode !== 'fd'; $('fPay').hidden = !pay; $('fDays').hidden = rd; $('rdNote').hidden = !rd; $('growCard').hidden = pay;
-    const rate = num('rate'), slab = +$('slab').value, infl = num('infl'), y = Math.floor(num('yrs')), mo = Math.floor(num('mon')), dy = rd ? 0 : Math.floor(num('day'));
+    const rate = num('rate'), sal = num('sal'), infl = num('infl'), y = Math.floor(num('yrs')), mo = Math.floor(num('mon')), dy = rd ? 0 : Math.floor(num('day'));
     const months = y * 12 + mo, W = [];
     const warn = (cls, t) => W.push(`<div class="warn ${cls}"><span>${cls === 'bad' ? '⛔' : '⚠️'}</span><span>${t}</span></div>`);
-    let invested, interest, maturityAmt, t, kp = [], rows = '', pill = '', hero, sub, label, chart = null, yearly = 0;
+    let invested, interest, maturityAmt, t, kp = [], rows = '', pill = '', hero, sub, label, chart = null, yearly = 0, perYear = [];
 
     if (rd) {
       t = months / 12; const r = Deposit.rd({ D: num('d'), rate, months });
@@ -111,7 +111,7 @@
       if (months < 6 || months > 120) warn('', 'Most banks offer recurring deposits from 6 months to 10 years.');
       rows = '<tr><th>Year</th><th>Deposited so far</th><th>Interest this year</th><th>Balance</th></tr>' + r.schedule.map(s => `<tr><td>${s.year}${s.to < s.year ? ' (' + plural(Math.round(s.to * 12) - 12 * (s.year - 1), 'month') + ')' : ''}</td><td>${f(s.deposited)}</td><td>${f(s.interest)}</td><td>${f(s.close)}</td></tr>`).join('');
       chart = { xs: [0].concat(r.schedule.map(s => s.to)), ys: [0].concat(r.schedule.map(s => s.close)), base: [0].concat(r.schedule.map(s => s.deposited)) };
-      yearly = Math.max(0, ...r.schedule.map(s => s.interest));
+      perYear = r.schedule.map(s => s.interest); yearly = Math.max(0, ...perYear);
     } else {
       const P = num('p'), n = +$('cmp').value, freq = +$('pf').value; t = Deposit.tenure(y, mo, dy);
       if (t < 7 / 365 - 1e-9) warn('', 'Most banks accept fixed deposits from 7 days. Add days or months to your tenure.');
@@ -122,7 +122,7 @@
         label = `You receive every ${FREQ[freq][0]}`; hero = f(r.per); sub = `${plural(r.periods, FREQ[freq][0])} of payouts` + (r.last > 0.5 ? `, plus ${f(r.last)} for the last few days` : '') + `, then your ${cr(P)} comes back`;
         const perYr = freq, yrs = Math.ceil(t - 1e-9);
         rows = '<tr><th>Year</th><th>Interest paid to you</th><th>Total interest so far</th></tr>'; let acc = 0;
-        for (let k = 1; k <= yrs; k++) { const portion = Math.min(1, t - (k - 1)), amt = r.perYear * portion; acc += amt; rows += `<tr><td>${k}${portion < 1 ? ' (part)' : ''}</td><td>${f(amt)}</td><td>${f(acc)}</td></tr>`; }
+        for (let k = 1; k <= yrs; k++) { const portion = Math.min(1, t - (k - 1)), amt = r.perYear * portion; acc += amt; rows += `<tr><td>${k}${portion < 1 ? ' (part)' : ''}</td><td>${f(amt)}</td><td>${f(acc)}</td></tr>`; perYear.push(amt); }
         yearly = r.perYear;
         kp = [['', 'Interest each year', f(r.perYear)]];
       } else {
@@ -131,22 +131,24 @@
         rows = '<tr><th>Year</th><th>Opening</th><th>Interest</th><th>Closing</th></tr>' + r.schedule.map(s => `<tr><td>${s.year}${s.to < s.year ? ' (part)' : ''}</td><td>${f(s.open)}</td><td>${f(s.interest)}</td><td>${f(s.close)}</td></tr>`).join('');
         const xs = [0]; for (let k = 1; k < r.t; k++) xs.push(k); if (r.t > 0) xs.push(r.t);
         chart = { xs, ys: xs.map(x => r.value(x)), base: xs.map(() => P) };
-        yearly = Math.max(0, ...r.schedule.map(s => s.interest));
+        perYear = r.schedule.map(s => s.interest); yearly = Math.max(0, ...perYear);
       }
     }
 
     // tax, TDS, inflation
-    const tax = Deposit.taxOn(interest, slab), net = interest - tax, tds = $('senior').checked ? Deposit.TDS.senior : Deposit.TDS.general;
+    const TX = Deposit.interestTax(perYear, sal, x => Tax.computeTax(x, 'new').total), tax = TX.total, net = interest - tax, tds = $('senior').checked ? Deposit.TDS.senior : Deposit.TDS.general;
     if (yearly > tds) warn('', `Your yearly interest (about ${f(yearly)}) is above ${f(tds)}, so one bank may deduct 10% TDS (20% without PAN). It is only an advance on your tax. Submit Form 15G or 15H if your total income is below the taxable limit.`);
     const finalVal = invested + net, realVal = t > 0 ? finalVal / Math.pow(1 + infl / 100, t) : finalVal;
-    const taxKeep = 1 - slab * 1.04 / 100, postYield = rd ? (Math.pow(1 + rate / 400, 4) - 1) * taxKeep : pay ? rate / 100 * taxKeep : t > 0 && invested > 0 ? Math.pow(finalVal / invested, 1 / t) - 1 : 0, realYield = (1 + postYield) / (1 + infl / 100) - 1;
+    const taxKeep = 1 - TX.rate, postYield = rd ? (Math.pow(1 + rate / 400, 4) - 1) * taxKeep : pay ? rate / 100 * taxKeep : t > 0 && invested > 0 ? Math.pow(finalVal / invested, 1 / t) - 1 : 0, realYield = (1 + postYield) / (1 + infl / 100) - 1;
     $('hLbl').textContent = label; $('mv').textContent = hero; $('mvSub').textContent = sub;
     $('hPill').textContent = t > 0 && invested > 0 ? `Real return after tax and inflation: ${(realYield * 100).toFixed(1).replace('-', '−')}% a year` : '';
     $('warns').innerHTML = W.join('');
     const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
     $('kpis').innerHTML = K('', rd ? 'Total deposited' : 'Invested', f(invested)) + K('good', 'Interest earned', f(interest)) +
-      (kp[0] ? K('', kp[0][1], kp[0][2]) : '') + K('bad', `Tax on interest (${slab}%)`, f(tax), 'Estimate') + K('', 'You keep', f(finalVal), 'After tax: ' + f(net) + ' interest') +
+      (kp[0] ? K('', kp[0][1], kp[0][2]) : '') + K('bad', 'Tax on the interest', f(tax), interest > 0 && tax < 0.5 ? 'No tax: your income stays within the ₹12 lakh rebate' : interest > 0 ? `About ${(TX.rate * 100).toFixed(1)}% of it · estimate` : 'Estimate') + K('', 'You keep', f(finalVal), 'After tax: ' + f(net) + ' interest') +
       K('', 'Worth in today’s money', f(realVal), `At ${infl}% inflation`) + (pay ? '' : K('', 'Effective yield (before tax)', (( rd ? Math.pow(1 + rate / 400, 4) - 1 : (Deposit.fd({ P: 1, rate, n: +$('cmp').value, years: 1, months: 0, days: 0 }).aer)) * 100).toFixed(2) + '%', rd ? 'Compounded every quarter' : 'For a full year'));
+    const y1 = perYear[0] || 0;
+    $('taxNote').innerHTML = y1 > 0 ? `How the tax is worked out: in year 1 you earn ${f(y1)} of interest ${sal > 0 ? `on top of your ${f(sal)} salary or pension` : 'and no other income'}. That adds <b>${f(TX.years[0])}</b> to your tax (new regime, with cess${TX.base + y1 > 5000000 ? ' and surcharge' : ''}).` + (perYear.length > 1 ? ` Every later year is worked out the same way.` : '') : '';
     $('ctTitle').textContent = pay ? '🥧 Total received' : '🥧 Where the money comes from';
     Common.donut($('donut'), $('legend'), pay ? [{ label: 'Your deposit (returned)', value: invested }, { label: 'Interest paid to you', value: interest }] : [{ label: rd ? 'You deposited' : 'Principal', value: invested }, { label: 'Interest', value: interest }], pay ? 'Total' : 'Maturity', cr(pay ? invested + interest : maturityAmt));
     if (chart && chart.xs.length > 1) Common.lineChart($('grow'), { xs: chart.xs, xfmt: v => (+v.toFixed(2)), xlabel: v => v === 0 ? 'Start' : 'After ' + (+v.toFixed(2)) + ' yr', label: 'Deposit growth', area: true,
@@ -154,8 +156,6 @@
     $('yrTbl').innerHTML = rows;
     $('tenHint').textContent = rd ? `= ${plural(months, 'month')}` : `= ${tenText(y, mo, dy)} (${Math.round(t * 365)} days)`;
   }
-  $('slabHelp').addEventListener('input', () => { if ($('slabHelp').value !== '') $('slab').value = $('slabHelp').value; });      // runs before calc (added first)
-  $('slab').addEventListener('input', () => { $('slabHelp').value = ''; });
   document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc));
   document.addEventListener('change', e => { if (e.target.closest && e.target.closest('#inputs')) calc(); });
   Common.restore(); calc();

@@ -41,6 +41,17 @@
   /** Tax on interest at a slab rate (%), plus 4% cess. */
   const taxOn = (interest, slab) => interest * (slab / 100) * 1.04;
 
-  const api = { tenure, fdValue, fd, payout, rd, taxOn, TDS: { general: 50000, senior: 100000 } };      // yearly interest above which a bank deducts TDS (from 1 April 2025)
+  /** Tax on the interest when it is added to the rest of your income (new regime): each year's interest is taxed on top of that year's
+      other income, so the slabs, the ₹12 lakh rebate, surcharge and cess all apply as they would on your return.
+      yearly: interest earned in each year; salary: yearly salary or pension before tax (the ₹75,000 standard deduction comes off it);
+      computeTax(income) gives the total tax on a taxable income (Tax.computeTax(x, 'new').total on the site). */
+  function interestTax(yearly, salary, computeTax) {
+    const base = Math.max(0, (Number(salary) || 0) - STD_DEDUCTION), before = computeTax(base);
+    const years = yearly.map(i => Math.max(0, computeTax(base + Math.max(0, i)) - before)), total = years.reduce((a, b) => a + b, 0), interest = yearly.reduce((a, b) => a + Math.max(0, b), 0);
+    return { years, total, rate: interest > 0 ? total / interest : 0, base };
+  }
+  const STD_DEDUCTION = 75000;
+
+  const api = { tenure, fdValue, fd, payout, rd, taxOn, interestTax, STD_DEDUCTION, TDS: { general: 50000, senior: 100000 } };      // yearly interest above which a bank deducts TDS (from 1 April 2025)
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Deposit = api;
 })(typeof window !== 'undefined' ? window : globalThis);
