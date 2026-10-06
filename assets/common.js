@@ -396,6 +396,31 @@ const Common = (() => {
   }
 
   /* ---------- Shareable state: inputs <-> URL query (?ctc=1800000&...) ---------- */
+  /* Nudges: one suggestion under a result that opens another calculator already filled in with the visitor's numbers.
+     The numbers travel in this tab's sessionStorage (gone when the tab closes), not in the link, and are used once. */
+  const handoff = (() => {
+    const KEY = 'rc-handoff', bare = f => String(f || '').replace(/\.html$/, ''), page = () => location.pathname.split('/').pop() || 'index.html';
+    let pending = null;
+    try { const h = JSON.parse(sessionStorage.getItem(KEY) || 'null'); if (h && bare(h.to) === bare(page()) && Date.now() - h.t < 30 * 60 * 1000 && h.data) { pending = h; sessionStorage.removeItem(KEY); } } catch (e) {}
+    function note() {
+      if (!pending || document.getElementById('handoffNote')) return;
+      const host = document.getElementById('inputs') || document.querySelector('section.card[aria-label="Inputs"]'); if (!host) return;
+      const d = document.createElement('div'); d.className = 'banner info'; d.id = 'handoffNote';
+      d.innerHTML = `<span>↪️</span><span>Filled in from your ${esc(pending.from)}. ${pending.note ? esc(pending.note) + ' ' : ''}Change anything.</span>`;
+      const title = host.querySelector('.card-title'); title ? title.after(d) : host.prepend(d);
+    }
+    /** host: an empty element under the result. o: { from, text (HTML), actions: [{ label, to, data, note }] }. Pass null to hide it. */
+    function nudge(host, o) {
+      if (!host) return; if (!o) { host.hidden = true; host.innerHTML = ''; return; }
+      host.hidden = false;
+      host.innerHTML = `<div class="nudge-card"><p>${o.text}</p><div class="nudge-acts${o.actions.length > 2 ? ' multi' : ''}">${o.actions.map((a, i) => `<a class="btn btn-sm ${i ? 'btn-ghost' : 'btn-primary'}" href="${a.to}" data-i="${i}">${esc(a.label)}${a.sub ? `<small>${esc(a.sub)}</small>` : ''}</a>`).join('')}</div></div>`;
+      host.querySelectorAll('a[data-i]').forEach(el => el.addEventListener('click', () => {
+        const a = o.actions[+el.dataset.i]; try { sessionStorage.setItem(KEY, JSON.stringify({ to: a.to, from: o.from, note: a.note || '', data: a.data, t: Date.now() })); } catch (e) {}
+        track('nudge_click', { from: page(), to: a.to });
+      }));
+    }
+    return { get pending() { return pending; }, used: false, note, nudge };
+  })();
   const state = (() => {
     const controls = () => [...document.querySelectorAll('input[id], input[data-e], select[id]')].filter(i => i.type !== 'range' || i.dataset.e);
     const key = el => el.id || (el.dataset.e + '.' + el.dataset.k);
@@ -411,17 +436,31 @@ const Common = (() => {
       try { history.replaceState(null, '', location.pathname + (p.toString() ? '?' + p.toString() : '')); } catch (e) {}
     }
     function restore() {
-      snapshot(); const p = new URLSearchParams(location.search); if (![...p.keys()].length) return;
+      snapshot(); let p = new URLSearchParams(location.search), fromHandoff = false;
+      if (handoff.pending && (fromHandoff = !location.search || handoff.used)) { handoff.used = true; Object.entries(handoff.pending.data).forEach(([k, v]) => p.set(k, String(v))); }   // pages that build fields late call restore twice: carry the numbers both times
+      if (![...p.keys()].length) return;
       controls().forEach(el => { const k = key(el); if (!p.has(k)) return; const v = p.get(k);
         if (el.type === 'checkbox') el.checked = v === '1'; else el.value = v.slice(0, 400);
         el.dispatchEvent(new Event('input', { bubbles: true })); });
       segs().forEach(sg => { if (!p.has(sg.id)) return; const b = [...sg.querySelectorAll('button')].find(x => x.dataset.v === p.get(sg.id)); if (b) { sg.querySelectorAll('button').forEach(x => x.classList.remove('on')); b.classList.add('on'); } });
+      if (fromHandoff) { handoff.note(); write(); }                                   // keep the carried numbers in the address, so a reload or Back keeps them
     }
     function watch() { if (ready) return; ready = true; snapshot();
       const later = () => { clearTimeout(timer); timer = setTimeout(write, 300); };
       document.addEventListener('input', later); document.addEventListener('click', e => { if (e.target.closest && e.target.closest('.dseg')) later(); }); }
     return { restore, watch, write };
   })();
+  /** Desktop: the inputs and results columns are rarely the same height, which left a long empty strip under the shorter one.
+      The shorter column now scrolls until its end is in view, then stays there while the longer one carries on. */
+  function stickyCols() {
+    const L = document.querySelector('.tool-layout'); if (!L || L.children.length !== 2 || !('ResizeObserver' in window)) return;
+    const kids = [...L.children]; let raf = 0;
+    const fit = () => { raf = 0; const wide = innerWidth > 920, [a, b] = kids, short = a.offsetHeight <= b.offsetHeight ? a : b;
+      kids.forEach(k => { k.style.position = wide && k !== short ? 'static' : ''; k.style.top = ''; });
+      if (wide) { short.style.position = 'sticky'; short.style.top = Math.min(88, innerHeight - short.offsetHeight - 16) + 'px'; } };
+    const later = () => { if (!raf) raf = requestAnimationFrame(fit); };
+    const ro = new ResizeObserver(later); kids.forEach(k => ro.observe(k)); addEventListener('resize', later); fit();
+  }
   function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.classList.add('show'), 10); setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2200); }
   function addShare() {
     const hero = document.querySelector('.results .hero-result, .hero-result'); if (!hero || hero.querySelector('.share-btn') || !document.querySelector('input[id]')) return;
@@ -473,10 +512,10 @@ const Common = (() => {
     });
   }
   function init(activeId) {
-    layout(activeId); a11y(); initLimits(); initA11y(); fillCities(); document.querySelectorAll('input[data-money]').forEach(e => attachMoney(e)); state.restore(); enhanceFields(); related(activeId);
+    layout(activeId); a11y(); initLimits(); initA11y(); fillCities(); document.querySelectorAll('input[data-money]').forEach(e => attachMoney(e)); state.restore(); enhanceFields(); related(activeId); stickyCols();
     placeAds(); placeAffiliates(); addShare(); addResultBar(activeId); tidyTables(); consentBanner(); startThirdParties();
     window.addEventListener('load', () => { state.watch(); let used = false; document.addEventListener('input', () => { if (!used) { used = true; track('calculator_used', { tool: activeId }); } }); });
   }
   initTheme();
-  return { esc, fmt, fmtCompact, num, raw, fillCities, attachMoney, setVal, segSet, donut, seg, init, layout, enhanceFields, related, lineChart, restore: state.restore, track, toast };
+  return { esc, fmt, fmtCompact, num, raw, fillCities, attachMoney, setVal, segSet, donut, seg, init, layout, enhanceFields, related, lineChart, restore: state.restore, track, toast, nudge: handoff.nudge };
 })();

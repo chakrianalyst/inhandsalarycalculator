@@ -59,6 +59,7 @@
         <div class="kpi"><div class="k">Debt-to-asset ratio <button type="button" class="help-btn" data-tip="ratio" data-box="kpiTip" aria-expanded="false" aria-controls="kpiTip" aria-label="How is the debt-to-asset ratio worked out?">?</button></div><div class="v" id="kD"></div></div>
       </div>
       <div class="help-tip" id="kpiTip" role="note" hidden></div>
+      <div class="nudge" id="nudge" hidden></div>
 
       <div class="card" style="margin-bottom:18px">
         <h2 class="card-title">❤️ Financial health score <button type="button" class="help-btn" data-tip="score" data-box="scoreTip" aria-expanded="false" aria-controls="scoreTip" aria-label="How is the health score worked out?">?</button></h2>
@@ -303,6 +304,13 @@
     $('nwPill').textContent = nw < 0 ? 'Liabilities exceed assets' : nw === 0 ? 'Add your assets to begin' : 'Positive net worth ✓';
     $('kA').textContent = f(assets); $('kL').textContent = f(liabs); $('kLiq').textContent = f(liquid);
     $('kD').textContent = Math.round(ratio * 100) + '%';
+    const invested = gt.cash + gt.fixed + gt.market + gt.retire, fd = { corp: Math.round(invested) };
+    if (age >= 18 && age <= 70) fd.age = Math.round(age);
+    if (exp > 0) fd.exp = Math.round(exp);
+    Common.nudge($('nudge'), invested > 0 && {
+      from: 'net worth', text: `<b>When could ${f(invested)} let you stop working?</b> That is your savings and investments, leaving out your home and other property.`,
+      actions: [{ label: 'Check with the FIRE calculator', to: 'fire-calculator.html', data: fd, note: 'Add what you invest each month.' }]
+    });
 
     /* score */
     const parts = [];

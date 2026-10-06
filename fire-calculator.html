@@ -64,6 +64,7 @@
         <div class="kpi"><div class="k">Monthly SIP needed</div><div class="v" id="kSip"></div></div>
       </div>
       <div class="banner info" id="verdict"></div>
+      <div class="nudge" id="nudge" hidden></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">🚀 Your wealth journey</h2><div id="chart"></div><p class="chart-cap" id="chartCap"></p></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">🧭 Lean, regular or fat FIRE?</h2><p class="grp-hint" style="margin-top:0">The same plan with a smaller or bigger retirement lifestyle. Your “regular” row is the spending you entered.</p><div class="tbl-wrap"><table class="tbl" id="styles"></table></div></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">⛵ Coast FIRE</h2><div id="coast"></div></div>
@@ -121,6 +122,12 @@
     Common.lineChart($('chart'), { xs, xfmt: v => v, xlabel: v => 'Age ' + v, label: 'Corpus over time', area: true,
       series: [{ name: 'Your corpus', color: 'var(--c1)', ys }, { name: 'Needed to retire at that age', color: 'var(--c4)', ys: tg, dash: true }], markers: [{ x: ra, label: '🏖️' }] });
     $('chartCap').textContent = `The solid line follows your plan to retire at ${ra}. ` + (out !== null ? `Your money would run out at about age ${out}.` + (fireAge !== null && fireAge > ra ? ` Retiring at ${fireAge} instead makes it last to ${life}.` : '') : `Your money lasts beyond age ${life}.`) + ' The dashed line is the money you would need to retire at each age.';
+    const wdRA = Math.round(Math.max(0, P.exp0 - P.pension) * Math.pow(1 + infl, n) / 12 / 100) * 100;
+    Common.nudge($('nudge'), projRA > 0 && wdRA > 0 && {
+      from: 'FIRE plan', text: `<b>Will ${cr(projRA)} last from ${ra} to ${life}?</b> See it month by month, with the tax on each withdrawal.`,
+      actions: [{ label: 'Check with the SWP calculator', to: 'swp-calculator.html', note: `Your corpus at ${ra} and your monthly spending then${P.pension > 0 ? ', after your pension' : ''}.`,
+        data: { corpus: Math.round(projRA), wd: wdRA, step: P.infl, ret: P.post, yrs: life - ra } }]
+    });
     const row = (a, b, cls = '') => `<tr class="${cls}"><td>${a}</td><td>${b}</td></tr>`, netNow = Math.max(0, P.exp0 - P.pension);
     $('tbl').innerHTML = row('Annual spending today', f(P.exp0)) + (P.pension > 0 ? row('Minus pension or rent (today’s rupees)', '− ' + f(P.pension)) : '') + row(`Annual spending at ${ra} (inflated)`, f(netNow * Math.pow(1 + infl, n))) +
       row(`÷ ${P.swr.toFixed(2)}% withdrawal rate`, cr(Fire.swrNeed(P, ra))) + row('Corpus that lasts to age ' + life, cr(Fire.lastNeed(P, ra))) + row('Corpus needed (the larger)', f(T), 'total') + row(`Projected corpus at ${ra}`, f(projRA), ok ? 'pos' : 'neg');

@@ -761,5 +761,24 @@ if (chromium) {
     assert.match(await s2.$eval('#kpis', e => e.innerText), new RegExp('₹' + Math.floor(ann).toLocaleString('en-IN') + '|₹' + Math.round(ann).toLocaleString('en-IN'))); await s2.close();
   });
 
+  test('next-step nudges carry the numbers to the next calculator once, and desktop columns stay side by side', async () => {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 900 } }), go = async (from, pick) => { const pg = await ctx.newPage(); pg.errs = []; pg.on('pageerror', e => pg.errs.push(e.message));
+      await pg.goto(url(SITE, from)); await pg.waitForTimeout(200); await Promise.all([pg.waitForNavigation(), pg.click(`#nudge a[data-i="${pick || 0}"]`)]); await pg.waitForTimeout(250); return pg; };
+    let pg = await go('salary-calculator.html', 2);
+    assert.match(pg.url(), /sip-calculator\.html\?sip=26500$/); assert.equal(await pg.inputValue('#sip'), '26,500'); assert.match(await pg.$eval('#handoffNote', e => e.innerText), /Filled in from your salary\. 30% of your monthly in-hand pay/);
+    await pg.reload(); await pg.waitForTimeout(200); assert.equal(await pg.inputValue('#sip'), '26,500'); assert.equal(await pg.$('#handoffNote'), null, 'the note shows only once'); assert.deepEqual(pg.errs, []); await pg.close();
+    pg = await go('hra-calculator.html');                                                     // the salary page fills its payslip fields late: the numbers must still land
+    assert.deepEqual(await Promise.all(['pBasic', 'pHra', 'pOther', 'pPf', 'rent'].map(i => pg.inputValue('#' + i))), ['50,000', '25,000', '0', '6,000', '28,000']); assert.equal(await pg.isVisible('#payMode'), true); await pg.close();
+    pg = await go('fire-calculator.html'); assert.match(pg.url(), /swp-calculator\.html\?corpus=\d+&wd=\d+&step=6&ret=8&yrs=45/); assert.ok(await pg.$('#handoffNote')); await pg.close();
+    pg = await go('networth-calculator.html'); assert.equal(await pg.inputValue('#corp'), '27,70,000'); assert.ok(await pg.$('#handoffNote')); await pg.close();
+    pg = await go('abroad-calculator.html'); assert.equal(await pg.inputValue('#country'), 'US'); assert.equal(await pg.inputValue('#cash'), '0'); assert.notEqual(await pg.inputValue('#saveYear'), '60,000'); await pg.close();
+    for (const f of ['salary-hike-calculator.html', 'return-calculator.html']) { pg = await go(f); assert.match(pg.url(), /(sip|swp)-calculator\.html\?/); assert.deepEqual(pg.errs, [], f); await pg.close(); }
+    pg = await ctx.newPage(); await pg.goto(url(SITE, 'sip-calculator.html')); await pg.waitForTimeout(150); assert.equal(await pg.$('#handoffNote'), null, 'plain visits get no note'); await pg.close(); await ctx.close();
+    const d = await open(SITE, 'return-calculator.html', 1366);
+    assert.deepEqual(await d.evaluate(() => [...document.querySelector('.tool-layout').children].map(k => getComputedStyle(k).position)), ['sticky', 'static']);
+    await d.evaluate(() => scrollTo({ top: 2600, behavior: 'instant' })); await d.waitForTimeout(200);
+    const r = await d.evaluate(() => innerHeight - document.querySelector('.tool-layout').children[0].getBoundingClientRect().bottom); assert.ok(r >= 0 && r < 40, 'the inputs stay in view beside the results, not a blank strip: ' + r); await d.close();
+  });
+
   test('teardown', async () => { await browser.close(); fs.rmSync(LIVE, { recursive: true, force: true }); });
 }

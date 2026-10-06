@@ -683,3 +683,12 @@ table.tbl tr.sel td { background: var(--grad-soft); font-weight: 700; }
 }
 
 .chart-cap { margin: 10px 0 0; font-size: .86rem; color: var(--muted); }
+
+/* Nudge: one suggestion under a result that opens another calculator already filled in. */
+.nudge { margin: 0 0 18px; }
+.nudge-card { border: 1px dashed color-mix(in srgb, var(--brand) 45%, var(--line)); background: var(--surface); border-radius: var(--radius-sm); padding: 14px 16px; }
+.nudge-card p { margin: 0 0 10px; font-size: .92rem; }
+.nudge-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.nudge-acts.multi { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 460px; }
+.nudge-acts.multi .btn { flex-direction: column; gap: 0; padding-left: 6px; padding-right: 6px; line-height: 1.25; }
+.nudge-acts .btn small { font-weight: 600; opacity: .8; font-size: .74rem; }

@@ -54,6 +54,7 @@
       </div>
       <div class="banner" id="rBanner"></div>
       <div class="warns" id="warns"></div>
+      <div class="nudge" id="nudge" hidden></div>
 
       <div class="card" style="margin-bottom:18px">
         <h2 class="card-title">⚖️ Old vs new regime</h2>
@@ -416,6 +417,13 @@
 
     // mobile sticky bar
     $('mBarVal').textContent = f(b.fixedMonthly) + '/mo'; $('mBarLbl').textContent = keyName + ' regime · in-hand';
+
+    // next step: invest part of the in-hand pay
+    const sipAt = pct => Math.max(500, Math.round(b.fixedMonthly * pct / 100 / 100) * 100);
+    Common.nudge($('nudge'), b.fixedMonthly >= 10000 && {
+      from: 'salary', text: `<b>Invest part of your ${f(b.fixedMonthly)} a month?</b> See what a monthly SIP could grow to.`,
+      actions: [10, 20, 30].map(pct => ({ label: f(sipAt(pct)), sub: `${pct}% of pay`, to: 'sip-calculator.html', data: { sip: sipAt(pct) }, note: `${pct}% of your monthly in-hand pay.` }))
+    });
   }
 
   /* ---------- wiring ---------- */

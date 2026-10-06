@@ -77,6 +77,7 @@
       <div class="hero-result" id="hero"><div class="lbl" id="hLbl">After 10 years</div><div class="big" id="hBig">—</div><div class="sub" id="hSub"></div><span class="pill" id="hPill"></span></div>
       <div class="warns" id="warns"></div>
       <div class="kpis" id="kpis"></div>
+      <div class="nudge" id="nudge" hidden></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">📈 Net worth, India vs abroad</h2>
         <div class="seg" id="mode" style="margin-bottom:12px"><button type="button" data-v="nom" class="on">Future rupees</button><button type="button" data-v="real">Today’s money</button></div><div id="chart"></div></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">🧾 Where the first year’s pay goes</h2><div class="tbl-wrap"><table class="tbl" id="payTbl"></table></div></div>
@@ -156,6 +157,12 @@
     const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
     $('kpis').innerHTML = K('', 'Take-home each month, year 1', f(monthlyA), `Abroad, in rupees. India: ${f(monthlyI)}`) + K('', 'Living costs each month', f(costA / 1), `Abroad, in rupees. India: ${f(costI)}`) +
       K(y1.abroadSave >= y1.indiaSave ? 'good' : 'bad', 'Saved in year 1', f(y1.abroadSave), `Abroad. India: ${f(y1.indiaSave)}`) + K('', `Net worth after ${H} years`, cr(nw(last, 'a')), `Abroad. India: ${cr(nw(last, 'i'))}`) + K('', 'Of which in pensions', cr((real ? last.abroadRetire / (last.abroadNW / last.abroadNWReal) : last.abroadRetire)), `Abroad. India: ${cr(real ? last.indiaRetire / (last.indiaNW / last.indiaNWReal) : last.indiaRetire)}`);
+    const npY1 = y1.tax || {}, sv = Math.max(0, Math.round(y1.abroadSaveLocal / 100) * 100), rtY = Math.round(((npY1.contrib || 0) + (npY1.employer || 0)) / 100) * 100;
+    Common.nudge($('nudge'), (sv > 0 || rtY > 0) && {
+      from: 'move abroad plan', text: `<b>Thinking of moving back one day?</b> See when you could afford to return to India, saving ${c.sym.trim()}${Intl.NumberFormat('en-IN').format(sv)} a year there.`,
+      actions: [{ label: 'Plan the return', to: 'return-calculator.html', note: 'Savings start at zero; enter what you already have there.',
+        data: { country: $('country').value, cash: 0, saveYear: sv, retire: 0, retireYear: rtY, fx: P.abroad.fx } }]
+    });
     const xs = [0].concat(rows.map(r => r.year));
     Common.lineChart($('chart'), { xs, xfmt: v => v + 'y', xlabel: v => v === 0 ? 'Start' : 'Year ' + v, label: 'Net worth in rupees', area: true,
       series: [{ name: `Abroad (${c.name.split(' (')[0]})`, color: 'var(--c1)', ys: [0].concat(rows.map(r => nw(r, 'a'))) }, { name: 'India', color: 'var(--c2)', ys: [0].concat(rows.map(r => nw(r, 'i'))) }] });

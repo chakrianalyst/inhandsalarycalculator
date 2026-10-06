@@ -37,6 +37,7 @@
       <div class="banner info" id="regimeNote"><span>ℹ️</span><span>This saving counts only if you choose the <b>old tax regime</b>. The new regime gives no HRA exemption, and for many people it still leaves more in hand. <a href="salary-calculator.html">Check which regime is better for you →</a></span></div>
       <div class="warns" id="warns"></div>
       <div class="kpis" id="kpis"></div>
+      <div class="nudge" id="nudge" hidden></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">📐 The three-way test</h2><div class="tbl-wrap"><table class="tbl" id="tbl"></table></div>
         <p class="hint" style="margin-top:10px;color:var(--muted);font-size:.82rem">Exempt HRA is the <b>lowest</b> of the three amounts. The limit that holds you back is marked ✓.</p></div>
       <div class="card" style="margin-bottom:18px" id="tipCard"><h2 class="card-title">💡 What would change it</h2><div id="tips"></div></div>
@@ -88,6 +89,12 @@
     $('warns').innerHTML = W.join('');
     const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
     $('kpis').innerHTML = K('good', 'Exempt HRA', f(r.exempt)) + K('bad', 'Taxable HRA', f(r.taxable), 'Added to your income') + (+$('slab').value > 0 ? K('good', 'Tax you save (old regime)', f(r.tax), `At ${$('slab').value}% plus cess`) : '') + K('', 'HRA received', f(r.a), `${months} months`);
+    const basic = num('basic');
+    Common.nudge($('nudge'), r.exempt > 0 && basic > 0 && {
+      from: 'HRA numbers', text: '<b>Your HRA saving counts only in the old regime.</b> Is the old regime better for your whole salary?',
+      actions: [{ label: 'Compare old vs new', to: 'salary-calculator.html', note: 'Add your special and other allowances to see the full picture.',
+        data: { mode: 'payslip', pBasic: basic, pHra: num('hra'), pOther: 0, pPf: Math.round(basic * 0.12), rent: num('rent'), city } }]
+    });
     const min = Math.min(r.a, r.c, r.d), row = (l, v) => `<tr class="${v === min ? 'pos' : ''}"><td>${l}</td><td>${f(v)}${v === min ? ' ✓' : ''}</td></tr>`;
     $('tbl').innerHTML = row('Actual HRA received', r.a) + row('Rent paid − 10% of basic', r.c) + row(`${metro ? 50 : 40}% of basic`, r.d);
     const tips = [];
