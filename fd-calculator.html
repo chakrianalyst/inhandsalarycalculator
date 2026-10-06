@@ -39,7 +39,8 @@
       <p class="hint" id="rdNote" hidden>A recurring deposit compounds every quarter, the way most banks do it. Days are ignored; the tenure is rounded to whole months.</p>
       <details class="grp" id="sec-tax"><summary><div class="gi">🧾</div><div class="gt">Tax and inflation<small>See what you keep</small></div><span class="chev">›</span></summary><div class="grp-body">
         <div class="field"><label for="slab">Your income-tax rate</label><select id="slab"><option value="0">No tax (income below the taxable limit)</option><option value="5">5%</option><option value="10">10%</option><option value="15">15%</option><option value="20" selected>20%</option><option value="25">25%</option><option value="30">30%</option></select><span class="hint">FD interest is added to your income and taxed at your slab rate, plus 4% cess. Pick the top rate your income reaches.</span></div>
-        <label class="toggle"><span>I am a senior citizen<small>Raises the yearly limit for TDS</small></span><span class="switch"><input type="checkbox" id="senior"><i></i></span></label>
+        <div class="field"><label for="slabHelp">Not sure of your rate? Pick your yearly salary</label><select id="slabHelp"><option value="">Choose…</option><option value="0">Up to ₹12.75 lakh</option><option value="15">₹12.75 to 16.75 lakh</option><option value="20">₹16.75 to 20.75 lakh</option><option value="25">₹20.75 to 24.75 lakh</option><option value="30">Above ₹24.75 lakh</option></select><span class="hint">For the new tax regime. Up to ₹12.75 lakh of salary there is no tax, but FD interest that takes your total income above that limit is taxed.</span></div>
+        <label class="toggle"><span>I am a senior citizen<small>The bank deducts tax only when your interest is above ₹1,00,000 a year, instead of ₹50,000</small></span><span class="switch"><input type="checkbox" id="senior"><i></i></span></label>
         <div class="field"><label for="infl">Price rise each year (inflation)</label><div class="input-wrap"><input type="number" id="infl" value="6" min="0" max="15" step="0.5"><span class="suf">%</span></div><span class="hint">Used to show what your money is worth in today’s rupees.</span></div>
       </div></details>
     </section>
@@ -153,6 +154,8 @@
     $('yrTbl').innerHTML = rows;
     $('tenHint').textContent = rd ? `= ${plural(months, 'month')}` : `= ${tenText(y, mo, dy)} (${Math.round(t * 365)} days)`;
   }
+  $('slabHelp').addEventListener('input', () => { if ($('slabHelp').value !== '') $('slab').value = $('slabHelp').value; });      // runs before calc (added first)
+  $('slab').addEventListener('input', () => { $('slabHelp').value = ''; });
   document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc));
   document.addEventListener('change', e => { if (e.target.closest && e.target.closest('#inputs')) calc(); });
   Common.restore(); calc();

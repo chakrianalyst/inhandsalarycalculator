@@ -54,7 +54,7 @@
       <div class="field"><label for="end">Plan until age</label><div class="input-wrap"><input type="number" id="end" value="85" min="65" max="100" step="1"><span class="suf">years</span></div>
         <span class="hint">How long your money needs to last. 85 is a common choice.</span></div>
 
-      <details class="adv" open><summary>Assumptions that matter a lot</summary>
+      <details class="adv"><summary>Assumptions that matter a lot <small class="adv-sum" id="assumSum"></small></summary>
         <p class="grp-hint">These are typical long-run guesses. Try your own and watch the result change.</p>
         <div class="sub-h">The economy</div>
         <div class="row-2">
@@ -237,6 +237,7 @@
   }
   function calc() {
     syncAges();
+    $('assumSum').textContent = (() => { const q = params(); return `Pay +${q.growth}% a year, prices +${q.inflation}%, return ${q.ret}%, you invest ${q.investPct == null ? 100 : q.investPct}% of spare money. Tap to change.`; })();
     const P = params(), S = LifeSim.run(P), real = modeGet() === 'real', net = P.incomeMode === 'net', infl = P.inflation / 100;
     const inv = Math.min(100, Math.max(0, P.investPct)), crp = Math.min(100, Math.max(0, P.creep)), idxAt = a => Math.pow(1 + infl, Math.max(0, a - S.a0)), idxE = a => Math.pow(1 + P.eduInfl / 100, Math.max(0, a - S.a0)), idxH = a => Math.pow(1 + (P.homeGrowth == null ? P.inflation : P.homeGrowth) / 100, Math.max(0, a - S.a0));
     const sc = p => p ? (real ? p.nw / p.idx : p.nw) : NaN, scl = p => p ? (real ? p.corp / p.idx : p.corp) : NaN;

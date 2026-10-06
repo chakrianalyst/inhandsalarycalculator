@@ -510,7 +510,7 @@ if (chromium) {
     const pg = await open(SITE, 'life-simulator.html'); const t = id => pg.$eval('#' + id, e => e.innerText.replace(/\s+/g, ' ').trim()), num = x => Number(String(x).replace(/[^0-9.]/g, ''));
     assert.equal(await pg.inputValue('#invest'), '80'); assert.equal(await pg.inputValue('#creep'), '25'); assert.match(await t('story'), /invest 80% of it/); assert.match(await t('month'), /You invest 80% of it/);
     const before = num((await t('hBig')).replace(/Cr.*/, ''));
-    await pg.fill('#invest', '100'); await pg.fill('#creep', '0'); assert.match(await t('story'), /invest 100% of it/); assert.ok(num((await t('hBig')).replace(/Cr.*/, '')) > before, 'investing more and creeping less leaves more');
+    await pg.$eval('details.adv', e => (e.open = true)); await pg.fill('#invest', '100'); await pg.fill('#creep', '0'); assert.match(await t('story'), /invest 100% of it/); assert.ok(num((await t('hBig')).replace(/Cr.*/, '')) > before, 'investing more and creeping less leaves more');
     await pg.fill('#invest', '150'); assert.equal(await pg.inputValue('#invest'), '100');
     assert.equal(await pg.$eval('#nomNote', e => e.hidden), true); await pg.click('#mode [data-v=nom]');
     assert.equal(await pg.$eval('#nomNote', e => e.hidden), false); assert.match(await t('nomNote'), /higher by age/); assert.match(await t('hSub'), /in today.s money/); assert.match(await t('kEnd2'), /in today.s money/);
@@ -725,6 +725,27 @@ if (chromium) {
     await pg.setViewportSize({ width: 1280, height: 900 }); await pg.waitForTimeout(300);
     assert.ok(Math.min(...await pg.$$eval('.lc svg text', t => t.filter(x => x.textContent.trim()).map(x => x.getBoundingClientRect().height))) >= 11, 'and after resizing to desktop');
     await pg.close();
+  });
+
+  test('audit round 3: FIRE caption, FD rate helper, abroad table adds up, salary old-regime label, HRA tip, home groups, life-sim assumptions', async () => {
+    const fire = await open(SITE, 'fire-calculator.html'); await fire.waitForTimeout(250);
+    assert.match(await fire.textContent('#chartCap'), /plan to retire at 45\. Your money would run out at about age 77\. Retiring at 48 instead makes it last to 90/); await fire.close();
+    const fd = await open(SITE, 'fd-calculator.html'); await fd.$eval('#sec-tax', e => (e.open = true)); const before = await fd.textContent('#kpis');
+    await fd.selectOption('#slabHelp', '30'); await fd.waitForTimeout(200); assert.equal(await fd.inputValue('#slab'), '30'); assert.match(await fd.textContent('#kpis'), /Tax on interest \(30%\)/); assert.notEqual(await fd.textContent('#kpis'), before);
+    await fd.selectOption('#slab', '10'); assert.equal(await fd.inputValue('#slabHelp'), '', 'picking a rate directly clears the salary helper'); await fd.close();
+    const ab = await open(SITE, 'abroad-calculator.html'); await ab.waitForTimeout(250);
+    const last = await ab.$$eval('#payTbl tr:last-child td', t => t.map(x => x.textContent)); const card = await ab.$$eval('#kpis .kpi', k => k[2].innerText);
+    assert.equal(last[0], 'Saved in year 1'); assert.ok(card.includes(last[2]) && card.includes(last[1]), 'table ends at the card’s numbers: ' + last.join(' | ') + ' vs ' + card); await ab.close();
+    const sal = await open(SITE, 'salary-calculator.html'); await sal.waitForTimeout(200);
+    assert.match(await sal.$eval('#sec-old summary', e => e.innerText), /None added yet/); assert.match(await sal.textContent('#oldAuto'), /₹50,000 standard deduction, your PF of ₹57,600/);
+    await sal.$eval('#sec-old', e => (e.open = true)); await sal.fill('#c80elss', '50,000'); await sal.waitForTimeout(200); assert.match(await sal.$eval('#sec-old summary', e => e.innerText), /₹50,000 added/);
+    assert.ok(await sal.$eval('#city', e => !!e.closest('#sec-old')), 'city sits with rent in the HRA part'); await sal.close();
+    const hra = await open(SITE, 'hra-calculator.html'); await hra.waitForTimeout(200); assert.match(await hra.textContent('#tips'), /₹24,000 over the year[\s\S]*save only about ₹7,488 in tax/); await hra.close();
+    const ix = await open(SITE, 'index.html'); assert.deepEqual(await ix.$$eval('#toolGrid .tool-group', g => g.map(x => x.textContent)), ['Salary & tax', 'Loans & savings', 'Big life decisions']);
+    assert.equal(await ix.$$eval('#toolGrid .tag', t => t.filter(x => x.textContent === 'New').length), 1); assert.equal(await ix.inputValue('#q'), '12,00,000');
+    assert.equal(await ix.$$eval('#guideGrid .tool-card p', p => p.length), await ix.$$eval('#guideGrid .tool-card', c => c.length), 'every guide card has a line'); await ix.close();
+    const ls = await open(SITE, 'life-simulator.html', 390); await ls.waitForTimeout(250); assert.equal(await ls.$eval('details.adv', d => d.open), false);
+    assert.match(await ls.textContent('#assumSum'), /Pay \+8% a year, prices \+6%, return 10%, you invest 80%/); await ls.close();
   });
 
   test('teardown', async () => { await browser.close(); fs.rmSync(LIVE, { recursive: true, force: true }); });

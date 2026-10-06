@@ -27,7 +27,7 @@
         <p class="grp-hint" id="goalNote" style="margin:8px 0 0"></p></div>
       <div class="field" id="fSip" data-slider><label for="sip">Monthly investment</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="sip" data-money data-words="sipWords" value="10000" min="500" max="200000" step="500" aria-describedby="sipWords"></div><div class="words" id="sipWords"></div></div>
-      <div class="field" id="fLump"><label for="lump" id="lumpL">Amount you already have to invest (optional)</label>
+      <div class="field" id="fLump"><label for="lump" id="lumpL">Lump sum you invest today (optional)</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="lump" data-money data-words="lumpWords" value="0" placeholder="0" aria-describedby="lumpWords"></div><div class="words" id="lumpWords"></div></div>
       <div class="field" data-slider><label for="ret">Expected return (per year)</label>
         <div class="input-wrap"><input type="number" id="ret" value="12" min="1" max="30" step="0.5"><span class="suf">%</span></div><span class="hint" id="retHint">Equity funds have given roughly 10 to 12% over long periods, with big swings along the way. Use a lower number to be safe.</span></div>
@@ -40,7 +40,7 @@
       <details class="grp" id="sec-tax"><summary><div class="gi">🧾</div><div class="gt">Tax, inflation and settings<small>See what you actually keep</small></div><span class="chev">›</span></summary><div class="grp-body">
         <div class="field"><label for="taxk">Type of investment</label><select id="taxk"><option value="none" selected>Do not include tax</option><option value="equity">Equity fund or ETF: 12.5% on gains above ₹1.25 lakh</option><option value="slab">Debt fund, gold or other: taxed at my slab rate</option></select><span class="hint">Tax is worked out as if you sell everything at the end. Held up to a year, equity gains are taxed at 20%. Rules change, so check the latest.</span></div>
         <div class="field" id="fSlab" hidden><label for="slab">Your income-tax rate</label><select id="slab"><option value="0">0%</option><option value="5">5%</option><option value="10">10%</option><option value="15">15%</option><option value="20" selected>20%</option><option value="25">25%</option><option value="30">30%</option></select></div>
-        <div class="field"><label for="conv">How the yearly return is applied</label><select id="conv"><option value="eff" selected>Effective yearly return (matches fund CAGR and XIRR)</option><option value="nom">Monthly compounding: return ÷ 12 each month (many online calculators)</option></select><span class="hint">The second option gives a higher result, because 1% a month adds up to more than 12% over a year. Use it to match another calculator, and prefer the first for planning.</span></div>
+        <div class="field"><label for="conv">How the yearly return is applied</label><select id="conv"><option value="eff" selected>Yearly return (recommended)</option><option value="nom">Return ÷ 12 each month (like many other sites)</option></select><span class="hint">The second option gives a higher result, because 1% a month adds up to more than 12% over a year. Use it to match another calculator, and prefer the first for planning.</span></div>
         <div class="field"><label for="infl">Price rise each year (inflation)</label><div class="input-wrap"><input type="number" id="infl" value="6" min="0" max="15" step="0.5"><span class="suf">%</span></div><span class="hint">Used to show the result in today’s money.</span></div>
       </div></details>
     </section>
@@ -96,7 +96,7 @@
   function calc() {
     const mode = modeGet(), goal = mode === 'goal', lumpMode = mode === 'lump';
     $('fGoal').hidden = !goal; $('fSip').hidden = lumpMode || goal; $('fStep').hidden = lumpMode; $('delayCard').hidden = false;
-    $('lumpL').textContent = lumpMode ? 'Amount you invest today' : goal ? 'Money you already have set aside for this goal (optional)' : 'Amount you already have to invest (optional)';
+    $('lumpL').textContent = lumpMode ? 'Amount you invest today' : goal ? 'Money you already have set aside for this goal (optional)' : 'Lump sum you invest today (optional)';
     const ret = num('ret'), months = Math.floor(num('yrs')) * 12 + Math.floor(num('mon')), step = lumpMode ? 0 : num('step'), lump = num('lump'), infl = num('infl'), taxk = $('taxk').value, slab = +$('slab').value, nominal = $('conv').value === 'nom'; $('fSlab').hidden = taxk !== 'slab';
     const W = [], warn = (cls, t) => W.push(`<div class="warn ${cls}"><span>${cls === 'bad' ? '⛔' : '⚠️'}</span><span>${t}</span></div>`);
     const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;

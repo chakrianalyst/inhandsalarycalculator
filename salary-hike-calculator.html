@@ -93,7 +93,7 @@
     const dCtc = c1 - c0, keep = dCtc ? (b.inHandYear - a.inHandYear) / dCtc * 100 : 0;
     $('warns').innerHTML = W.join('');
     const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
-    $('kpis').innerHTML = K('', 'Headline hike', pct1(h), 'The CTC rise') + K('good', 'Real in-hand hike', pct1(realHike), 'Take-home rise') + K(powerHike >= 0 ? 'good' : 'bad', 'After inflation', pct1(powerHike), 'Buying-power change') + K('', 'You keep per extra ₹100 of CTC', dCtc > 0 ? '₹' + keep.toFixed(0) : '—', 'The rest is tax, PF, gratuity');
+    $('kpis').innerHTML = K('', 'Headline hike', pct1(h), 'The CTC rise') + K('good', 'Real in-hand hike', pct1(realHike), 'Take-home rise') + K(powerHike >= 0 ? 'good' : 'bad', 'After inflation', pct1(powerHike), 'Buying-power change') + K('', 'You keep per extra ₹100 of CTC', dCtc > 0 ? '₹' + keep.toFixed(0) : '—', 'The rest is tax, plus PF and gratuity you get later');
     const row = (l, x, y, cls = '') => `<tr class="${cls}"><td>${l}</td><td>${f(x)}</td><td>${f(y)}</td></tr>`, eff = (o, c) => c ? (o.tax / c * 100).toFixed(1) + '%' : '—';
     $('tbl').innerHTML = '<tr><th></th><th>Before</th><th>After</th></tr>' + row('Annual CTC', c0, c1) + row('Income tax / yr', -a.tax, -b.tax, 'neg') + `<tr><td>Tax as % of CTC</td><td>${eff(a, c0)}</td><td>${eff(b, c1)}</td></tr>` + row('In-hand / year', a.inHandYear, b.inHandYear) + row('In-hand / month', m0, m1, 'total') + `<tr><td>Regime used</td><td>${usedKey(ra) === 'new' ? 'New' : 'Old'}</td><td>${usedKey(rb) === 'new' ? 'New' : 'Old'}</td></tr>`;
     // 5-year projection

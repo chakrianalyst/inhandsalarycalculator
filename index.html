@@ -40,7 +40,7 @@
         <h2 class="card-title" style="font-size:1.2rem">⚡ Quick in-hand salary check</h2>
         <div class="row-2" style="align-items:end">
           <div class="field" style="margin:0"><label for="q">Annual CTC</label>
-            <div class="input-wrap"><span class="pre">₹</span><input type="number" id="q" value="1200000" min="0" step="10000"></div></div>
+            <div class="input-wrap"><span class="pre">₹</span><input id="q" data-money value="12,00,000"></div></div>
           <div class="hero-result" style="margin:0;padding:18px 22px">
             <div class="lbl">Estimated monthly in-hand</div>
             <div class="big" id="qOut" style="font-size:2rem">—</div>
@@ -104,9 +104,10 @@
 <script>
   Common.init('home');
   (function(){var c=document.getElementById('toolCount');if(c)c.textContent=TOOLS.length;})();
-  document.getElementById('guideGrid').innerHTML = GUIDES.map(g => `<a class="tool-card" href="${g[0]}"><h3>${g[1]}</h3><span class="go">Read →</span></a>`).join('');
-  document.getElementById('toolGrid').innerHTML = TOOLS.map(t =>
-    `<a class="tool-card" href="${t.href}"><div class="ico">${t.icon}</div><h3>${t.name}${t.hot ? '<span class="tag">Popular</span>' : ''}${t.isNew ? '<span class="tag">New</span>' : ''}</h3><p>${t.desc}</p><span class="go">Open calculator →</span></a>`).join('');
+  document.getElementById('guideGrid').innerHTML = GUIDES.map(g => `<a class="tool-card" href="${g[0]}"><h3>${g[1]}</h3>${g[2] ? `<p>${g[2]}</p>` : ''}<span class="go">Read →</span></a>`).join('');
+  const card = t => `<a class="tool-card" href="${t.href}"><div class="ico">${t.icon}</div><h3>${t.name}${t.hot ? '<span class="tag">Popular</span>' : ''}${t.isNew ? '<span class="tag">New</span>' : ''}</h3><p>${t.desc}</p><span class="go">Open calculator →</span></a>`;
+  document.getElementById('toolGrid').innerHTML = [['pay', 'Salary & tax'], ['save', 'Loans & savings'], ['plan', 'Big life decisions']]
+    .map(([g, name]) => `<h3 class="tool-group">${name}</h3>` + TOOLS.filter(t => t.group === g).map(card).join('')).join('');
   function quick() {
     const ctc = Common.num('q');
     const r = Tax.salary({ ctc, basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, metro: true, rentMonthly: 0 });

@@ -165,7 +165,11 @@
     const incTax = np.items.filter(i => !pay.test(i.label)).reduce((s, i) => s + i.amt, 0), payroll = sumItems(pay), houseA = (P.abroad.rent + P.abroad.other) * 12 * k;
     $('payTbl').innerHTML = '<tr><th>You, year 1</th><th>India</th><th>Abroad, in ₹</th></tr>' + row('Salary before tax', tx.gross, np.gross * k) + row('Income tax', -tb.tax, -incTax * k, 'neg') +
       row('PF, payroll and social contributions', -(tx.employeePf + tx.pt), -payroll * k, 'neg') + (np.contrib > 0 ? row('Put into your retirement account (kept as savings)', 0, -np.contrib * k, 'neg') : '') + row('Take-home pay', tb.inHandYear, np.net * k, 'total') +
-      row('Rent and living costs', -costI * 12, -houseA, 'neg') + row('Left over before extras', tb.inHandYear - costI * 12, np.net * k - houseA, 'total');
+      row('Rent and living costs', -costI * 12, -houseA, 'neg') + row('Left after rent and living costs', tb.inHandYear - costI * 12, np.net * k - houseA, 'total') +
+      (P.partner.on ? row('Your partner’s take-home', y1.indiaInHand - tb.inHandYear, y1.abroadNet - np.net * k, 'pos') : '') +
+      (P.parents > 0 ? row('Money sent to family in India', -P.parents * 12, -P.parents * 12, 'neg') : '') +
+      (P.abroad.trips > 0 ? row('Trips to India', 0, -P.abroad.trips, 'neg') : '') + (P.abroad.oneTime > 0 ? row('One-time cost of moving', 0, -P.abroad.oneTime, 'neg') : '') +
+      row('Saved in year 1', y1.indiaSave, y1.abroadSave, 'total');
     // tips
     const be = Abroad.breakEvenSalary(P), tips = [];
     if (be === null) tips.push('No salary up to ten times your offer makes moving pay off under these costs. Rent and living costs are the issue.'); else if (be <= 0) tips.push('Moving pays off even with a very low salary, so the offer leaves a wide margin.');
