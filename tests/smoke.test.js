@@ -793,7 +793,11 @@ if (chromium) {
       assert.deepEqual(pg.errs, [], f); await pg.close();
     }
     const pg = await open(SITE, 'salary-calculator.html', 390); await pg.click('.share-btn'); await pg.waitForSelector('.share-img[src^="data:"]');
-    const [dl] = await Promise.all([pg.waitForEvent('download'), pg.click('.share-sheet [data-a=img]')]); assert.equal(dl.suggestedFilename(), 'rupeecheck-salary.png'); await pg.close();
+    await pg.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'null' }).catch(() => {});
+    const [dl] = await Promise.all([pg.waitForEvent('download'), pg.click('.share-sheet [data-a=img]')]); assert.equal(dl.suggestedFilename(), 'rupeecheck-salary.png');
+    await pg.waitForSelector('.toast'); assert.match(await pg.textContent('.toast'), /Picture saved/);
+    const clip = await pg.evaluate(() => Promise.race([navigator.clipboard.readText().catch(() => null), new Promise(r => setTimeout(() => r(null), 500))])); if (clip !== null) assert.equal(clip, 'https://rupeecheck.in/salary-calculator.html', 'the bare calculator link, never the typed numbers');
+    await pg.close();
   });
 
   test('analytics (Umami): sets no cookies and never receives the numbers in the address', async () => {
