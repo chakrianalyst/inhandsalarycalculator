@@ -373,13 +373,13 @@ if (chromium) {
 
   test('Return to India calculator: best year, runway, bringing money home, retirement choice, sensitivity and share link', async () => {
     const pg = await open(SITE, 'return-calculator.html'); const txt = sel => pg.$eval(sel, e => e.innerText), hero = () => txt('#hero');
-    assert.match(await hero(), /In 2 years/); assert.equal((await pg.$$('#yrTbl tr')).length, 12); assert.match(await txt('#yrTbl'), /Not yet[\s\S]*Not yet[\s\S]*✓ Ready/);
+    assert.match(await hero(), /If you return now[\s\S]*Short by ₹1\.05 Cr[\s\S]*Earliest you can afford it: in 2 years \(age 38\)/); assert.equal((await pg.$$('#yrTbl tr')).length, 12); assert.match(await txt('#yrTbl'), /Not yet[\s\S]*Not yet[\s\S]*✓ Ready/);
     assert.match(await txt('#kpis'), /Without a job, money lasts[\s\S]*17 years/); assert.match(await txt('#homeTbl'), /Tax on your profits[\s\S]*Money you start life in India with/); assert.match(await txt('#homeTbl'), /left abroad/);
-    await pg.selectOption('#when', '3'); assert.match(await txt('#hero'), /Returning in 3 years: covered/);
+    await pg.selectOption('#when', '3'); assert.match(await txt('#hero'), /If you return in 3 years \(age 39\)[\s\S]*to spare/);
     await pg.$eval('#sec-tax', e => (e.open = true)); assert.equal(await pg.isVisible('#penalty'), false); await pg.selectOption('#retMode', 'withdraw'); assert.equal(await pg.isVisible('#penalty'), true); assert.match(await txt('#homeTbl'), /cashed out/);
-    await pg.fill('#jobCtc', '30,00,000'); assert.match(await hero(), /Now/); await pg.fill('#jobCtc', '0'); await pg.selectOption('#retMode', 'leave');
+    await pg.fill('#jobCtc', '30,00,000'); assert.match(await hero(), /You can afford to return now/); await pg.fill('#jobCtc', '0'); await pg.selectOption('#retMode', 'leave');
     await pg.selectOption('#country', 'AE'); assert.equal(await pg.inputValue('#fx'), '26.1'); assert.match(await txt('#cashL'), /AED/); assert.equal((await pg.$$('#grid tr')).length, 5);
-    const lk = await browser.newPage(); await lk.goto(url(SITE, 'return-calculator.html') + '?spend=60000'); await lk.waitForTimeout(300); assert.equal(await lk.inputValue('#spend'), '60,000'); assert.match(await lk.$eval('#hero', e => e.innerText), /Now/); await lk.close();
+    const lk = await browser.newPage(); await lk.goto(url(SITE, 'return-calculator.html') + '?spend=60000'); await lk.waitForTimeout(300); assert.equal(await lk.inputValue('#spend'), '60,000'); assert.match(await lk.$eval('#hero', e => e.innerText), /You can afford to return now/); await lk.close();
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
@@ -691,7 +691,7 @@ if (chromium) {
 
   test('results say what they mean: return year, HRA regime, rent vs buy assumption, life-sim amounts, net worth sample, third offer', async () => {
     const ret = await open(SITE, 'return-calculator.html'); await ret.waitForTimeout(250);
-    assert.equal(await ret.textContent('#hLbl'), 'Earliest year you can afford to return'); assert.match(await ret.textContent('#kpiHead'), /^If you return now \(age 36\)/);
+    assert.equal(await ret.textContent('#hLbl'), 'If you return now'); assert.match(await ret.textContent('#kpiHead'), /^If you return now \(age 36\)/);
     await ret.selectOption('#when', '3'); await ret.waitForTimeout(250); assert.match(await ret.textContent('#kpiHead'), /^If you return in 3 years \(age 39\)/); await ret.close();
     const hra = await open(SITE, 'hra-calculator.html'); assert.equal(await hra.isVisible('#regimeNote'), true); assert.match(await hra.textContent('#hPill'), /old regime: you save/); await hra.close();
     const rb = await open(SITE, 'rent-vs-buy-calculator.html'); await rb.waitForTimeout(250); assert.equal(await rb.isVisible('#investNote'), true, 'renting wins by default, so the note shows');
@@ -818,6 +818,21 @@ if (chromium) {
     assert.ok(all.some(x => x.name === 'calculator_used'), 'events are counted');
     assert.ok(!JSON.stringify(all).includes('26500') && !JSON.stringify(all).includes('?'), 'nothing after "?" ever leaves: ' + JSON.stringify(all));
     assert.deepEqual(await pg.context().cookies(base), []); await pg.close(); srv.close();
+  });
+
+  test('Return to India: answers "if we return now" first, shows what closes the gap, year buttons by the result, job-search months up front', async () => {
+    const pg = await open(SITE, 'return-calculator.html', 390); const txt = sel => pg.$eval(sel, e => e.innerText.replace(/\s+/g, ' '));
+    assert.equal(await pg.isVisible('#jobGap'), true, 'months to find a job sits in the main form');
+    assert.match(await txt('#gridNote'), /weaker rupee has stopped helping/);
+    assert.match(await txt('#fix'), /How to close the ₹1\.05 Cr gap[\s\S]*Spend about ₹1,11,000 a month[\s\S]*Work in India at about ₹7,00,000 a year[\s\S]*Return in 2 years/);
+    await pg.click('#fixL button[data-act=jobCtc]'); await pg.waitForTimeout(250);
+    assert.equal(await pg.inputValue('#jobCtc'), '7,00,000'); assert.match(await txt('#hero'), /to spare/); assert.equal(await pg.isVisible('#fix'), false, 'covered: the card goes away');
+    await pg.fill('#jobCtc', '0'); await pg.waitForTimeout(200); await pg.click('#fixL button[data-act=spend]'); await pg.waitForTimeout(250); assert.equal(await pg.inputValue('#spend'), '1,11,000'); assert.match(await txt('#hero'), /to spare/);
+    await pg.fill('#spend', '1,50,000'); await pg.waitForTimeout(200); await pg.click('#whenChips [data-w="2"]'); await pg.waitForTimeout(250);
+    assert.equal(await pg.inputValue('#when'), '2'); assert.match(await txt('#hero'), /If you return in 2 years \(age 38\)[\s\S]*₹82\.03 L to spare/); assert.equal(await pg.$eval('#whenChips [data-w="2"]', b => b.classList.contains('on')), true);
+    assert.equal(await pg.$eval('#whenChips', e => e.scrollHeight <= 48), true, 'the year buttons stay on one row on a phone');
+    assert.deepEqual(pg.errs, []); await pg.close();
+    const lk = await browser.newPage(); await lk.goto(url(SITE, 'return-calculator.html') + '?when=3'); await lk.waitForTimeout(300); assert.equal(await lk.$eval('#whenChips [data-w="3"]', b => b.classList.contains('on')), true); await lk.close();
   });
 
   test('teardown', async () => { await browser.close(); fs.rmSync(LIVE, { recursive: true, force: true }); });

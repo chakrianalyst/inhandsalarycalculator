@@ -118,6 +118,18 @@
     return { ...h, need, gap: h.corpus - need, ready: h.corpus >= need - 1e-6, extra, inflows };
   }
 
+  /** The smallest yearly CTC from a job in India (read the way p.ctcBasis says) that makes returning in year r affordable.
+      0 if no job is needed, null if no package up to ₹50 crore would do it (or the job would end before you return). */
+  function minCtc(p, r) {
+    if (!(p.workUntil > atReturn(p, r).age)) return null;
+    const ok = x => evaluate({ ...p, jobCtc: x }, r).ready;
+    if (ok(0)) return 0;
+    let lo = 0, hi = 1000000;
+    while (!ok(hi)) { lo = hi; hi *= 2; if (hi > 5e8) return null; }
+    for (let i = 0; i < 40 && hi - lo > 1000; i++) { const mid = (lo + hi) / 2; ok(mid) ? hi = mid : lo = mid; }
+    return hi;
+  }
+
   /** Today's money to the money of the year you return: what a salary or monthly spending quoted today becomes after r years of raises or inflation. */
   function todayToReturn(p, r) { return { ctc: p.ctcBasis === 'return' ? p.jobCtc : p.jobCtc * Math.pow(1 + (p.jobGrowth || 0) / 100, r), spend: p.spend * Math.pow(1 + (p.infl || 0) / 100, r) }; }
 
@@ -135,6 +147,6 @@
     return q;
   }
 
-  const api = { incomeByYear, pfInflow, eventSpend, atReturn, live, needed, evaluate, analyse, maxSpend, todayToReturn, rupeeDriftFromInflation, scenario, SCENARIOS };
+  const api = { minCtc, incomeByYear, pfInflow, eventSpend, atReturn, live, needed, evaluate, analyse, maxSpend, todayToReturn, rupeeDriftFromInflation, scenario, SCENARIOS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Returning = api;
 })(typeof window !== 'undefined' ? window : globalThis);
