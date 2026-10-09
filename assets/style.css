@@ -418,7 +418,7 @@ td.nw, th.nw { white-space: nowrap; }
 .share-btn { position: absolute; top: 14px; right: 14px; z-index: 3; background: rgba(255,255,255,.22); color: #fff; border: 1px solid rgba(255,255,255,.35); backdrop-filter: blur(6px); padding: 7px 13px; border-radius: 99px; font: inherit; font-weight: 700; font-size: .8rem; cursor: pointer; transition: .15s; }
 .share-btn:hover { background: rgba(255,255,255,.34); transform: translateY(-1px); }
 .hero-result { position: relative; }
-.hero-result.has-share .lbl { padding-right: 96px; }                 /* the Share button sits top-right; keep the headline from running under it */
+.hero-result.has-share .lbl { padding-right: 96px; min-height: 36px; }   /* the Share button sits top-right: keep the label clear of it, and the headline below it */
 .hero-result.has-share > div:first-child:not(.lbl) { padding-right: 96px; }
 .consent { position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 90; max-width: 720px; margin-inline: auto; display: flex; gap: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap;
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 16px 18px; font-size: .88rem; color: var(--muted); }
@@ -704,3 +704,14 @@ table.tbl tr.sel td { background: var(--grad-soft); font-weight: 700; }
 .share-note { font-size: .84rem; color: var(--muted); margin: 12px 0; }
 .share-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 @media (max-width: 380px) { .share-acts { grid-template-columns: 1fr; } }
+
+/* Return to India: year buttons above the result, and the "how to close the gap" card */
+.when-chips { margin: 0 0 12px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.when-chips::-webkit-scrollbar { display: none; }
+.when-chips .chip { flex-shrink: 0; }
+.chip.on { background: var(--grad); color: #fff; border-color: transparent; }
+.chip.on:hover { color: #fff; background: var(--grad); }
+.fix-card { margin-bottom: 18px; border-color: color-mix(in srgb, var(--brand) 35%, var(--line)); }
+.fix-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.fix-row p { margin: 0; font-size: .92rem; }
+.fix-row .btn { flex-shrink: 0; }

@@ -131,3 +131,13 @@ test('markets fall just before you return: investments abroad and retirement acc
   near(b.cashLocal, a.cashLocal * 0.8, 0.01); near(b.retLocal, a.retLocal * 0.8, 0.01); near(b.india, a.india, 1e-9); near(b.corpus, a.corpus - a.cashLocal * 0.2 * 2, 0.01);
   assert.equal(R.atReturn({ ...p, marketHit: 0 }, 2).corpus, a.corpus); assert.ok(R.evaluate({ ...p, marketHit: 35, spend: 20000 }, 2).gap < R.evaluate({ ...p, spend: 20000 }, 2).gap);
 });
+
+test('minCtc: the smallest India package that makes a return year work, and none when no job could', () => {
+  const P = { age: 36, fx: 96, dep: 3, retAbroad: 7, retIndia: 9, infl: 6, cash: 250000, saveYear: 60000, saveGrowth: 3, retire: 150000, retireYear: 20000, retireGrowth: 0, ctcBasis: 'today', jobGap: 0, countPf: 'no', pfRate: 8, indiaTax: 0, partnerCtc: 0, partnerYears: 15,
+    events: [], indiaAssets: 3000000, spend: 150000, planEnd: 85, jobCtc: 0, jobGrowth: 7, workUntil: 60, lump: 2500000, convCost: 1, gainShare: 40, gainTax: 15, retireMode: 'leave', retireTax: 25, penalty: 10, retireAge: 60 };
+  const c = R.minCtc(P, 0); assert.ok(c > 600000 && c < 750000, String(c));
+  assert.equal(R.evaluate({ ...P, jobCtc: c }, 0).ready, true); assert.equal(R.evaluate({ ...P, jobCtc: c * 0.97 }, 0).ready, false);   // just enough, and a little less is not
+  assert.ok(R.minCtc({ ...P, jobGap: 12 }, 0) > c, 'months without pay raise the package needed');
+  assert.equal(R.minCtc(P, 3), 0, 'already covered in year 3: no job needed');
+  assert.equal(R.minCtc({ ...P, workUntil: 30 }, 0), null, 'a job that ends before you return cannot help');
+});
