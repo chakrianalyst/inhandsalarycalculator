@@ -361,6 +361,15 @@ const Common = (() => {
   const pathOnly = u => { try { const x = new URL(u, location.href); return x.host === location.host ? x.pathname : x.origin + x.pathname; } catch (e) { return ''; } };
   function startAnalytics() {
     const id = SITE.umamiId; if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || '') || !/^https?:$/.test(location.protocol)) return;
+    // The owner opens any page with #notrack once per browser to stop counting their own visits (#track undoes it). Same switch Umami itself honours.
+    let off = false;
+    try {
+      const h = location.hash;
+      if (h === '#notrack') localStorage.setItem('umami.disabled', '1'); else if (h === '#track') localStorage.removeItem('umami.disabled');
+      if (h === '#notrack' || h === '#track') { history.replaceState(null, '', location.pathname + location.search); setTimeout(() => toast(h === '#notrack' ? 'This browser is no longer counted in visitor numbers.' : 'This browser is counted again.'), 400); }
+      off = localStorage.getItem('umami.disabled') === '1';
+    } catch (e) {}
+    if (off) return;
     window.rcTrim = (type, p) => { if (p) { if (p.url) p.url = pathOnly(p.url); if (p.referrer) p.referrer = pathOnly(p.referrer); } return p; };
     let host = ''; try { host = new URL(SITE.siteUrl).host; } catch (e) {}
     const el = loadScript('https://cloud.umami.is/script.js', { 'data-website-id': id, 'data-auto-track': 'false', 'data-exclude-search': 'true', 'data-exclude-hash': 'true', 'data-before-send': 'rcTrim', 'data-do-not-track': 'true', ...(host ? { 'data-domains': host } : {}) });
@@ -574,7 +583,7 @@ const Common = (() => {
     if (!document.querySelector('.site-header h1') && document.querySelector('h1')) return;
   }
   /** Which reading paths work: article → calculator, calculator → article, the home headline, article cards, and how many readers reach the end of an article.
-      Only page file names are sent, never the "?…" part of a link, because prefilled links carry numbers. */
+      Only page file names, option names and field names are sent: never a value anyone types, and never the "?…" part of a link, because prefilled links carry numbers. */
   function trackPaths(activeId) {
     const file = h => { const u = pathOnly(h); return u.split('/').pop() || 'home'; }, here = file(location.href), isArticle = !!document.querySelector('meta[name="rc-article"]');
     const tools = TOOLS.map(t => t.href);
@@ -585,6 +594,31 @@ const Common = (() => {
       else if (a.closest('.read-card')) track('calculator_to_article', { tool: activeId, article: to });
       else if (a.closest('.art-card')) track('article_card', { from: here, article: to });
       else if (isArticle && a.closest('article') && tools.includes(to)) track('article_to_calculator', { article: here, tool: to, prefilled: a.href.includes('?') ? 'yes' : 'no' });
+    }, true);
+    // How people use each calculator, never what they type: the options they pick (regime, mode, year chips), sections they open,
+    // switches they flip, and which fields they change from the example, each counted once per page view.
+    const seen = new Set(), once = (k, f) => { if (!seen.has(k)) { seen.add(k); f(); } };
+    const fieldName = el => el.id || (el.dataset && el.dataset.e ? el.dataset.e + '.' + el.dataset.k : '');
+    document.addEventListener('click', e => {
+      const b = e.target.closest && e.target.closest('.seg button[data-v], .chip, button[data-act]'); if (!b) return;
+      const seg = b.closest('.seg[id], .chips, [id]'), control = (seg && (seg.id || seg.dataset.for)) || 'chip';
+      if (b.dataset.act) once('act:' + b.dataset.act, () => track('fix_tried', { tool: activeId, action: b.dataset.act }));
+      else if (b.dataset.v) once('opt:' + control + ':' + b.dataset.v, () => track('option_chosen', { tool: activeId, control, choice: b.dataset.v }));
+      else once('chip:' + control, () => track('option_chosen', { tool: activeId, control, choice: 'chip' }));
+    }, true);
+    document.addEventListener('toggle', e => {
+      const d = e.target; if (!d || d.tagName !== 'DETAILS' || !d.open) return;
+      const sum = d.querySelector('summary'), section = (d.id || (sum ? sum.textContent : '')).replace(/\s+/g, ' ').trim().slice(0, 60);
+      if (section) once('sec:' + section, () => track(d.closest('.faq') ? 'faq_opened' : 'section_opened', { tool: activeId, section }));
+    }, true);
+    document.addEventListener('change', e => {
+      const el = e.target, name = el && fieldName(el); if (!name) return;
+      if (el.type === 'checkbox') track('switch_flipped', { tool: activeId, field: name, on: el.checked ? 'yes' : 'no' });
+      else if (el.tagName === 'SELECT') once('sel:' + name, () => track('field_changed', { tool: activeId, field: name }));
+    }, true);
+    document.addEventListener('input', e => {
+      const el = e.target; if (!e.isTrusted || !el || el.tagName !== 'INPUT' || el.type === 'checkbox') return;
+      const name = fieldName(el); if (name) once('in:' + name, () => track('field_changed', { tool: activeId, field: name }));
     }, true);
     const end = isArticle && document.querySelector('article .faq');
     if (end && 'IntersectionObserver' in window) { const io = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) { io.disconnect(); track('article_read', { article: here }); } }); io.observe(end); }

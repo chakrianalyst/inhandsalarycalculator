@@ -873,11 +873,11 @@ if (chromium) {
     assert.deepEqual(await pg.context().cookies(base), []); await pg.close(); srv.close();
   });
 
-  test('analytics: counts reading paths (article ↔ calculator, home headline, article read) with page names only', async () => {
+  test('analytics: counts reading paths and how calculators are used, with page, option and field names only', async t => {
     const http = require('http'), srv = http.createServer((q, r) => { const f = path.join(LIVE, decodeURIComponent(q.url.split('?')[0]).replace(/^\/$/, '/index.html'));
       fs.readFile(f, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': f.endsWith('.js') ? 'text/javascript' : f.endsWith('.css') ? 'text/css' : 'text/html' }); r.end(b); }); });
     await new Promise(r => srv.listen(0, '127.0.0.1', r)); const base = `http://127.0.0.1:${srv.address().port}/`;
-    const pg = await browser.newPage(); pg.setDefaultTimeout(10000); const sent = [];
+    const pg = await browser.newPage(); pg.setDefaultTimeout(10000); const sent = []; t.after(() => { srv.close(); pg.close().catch(() => {}); });
     await pg.addInitScript(() => { try { localStorage.setItem('inhand-consent', 'no'); } catch (e) {} });                     // no cookie banner over the buttons
     await pg.exposeFunction('__sent', x => sent.push(x));
     await pg.route('https://cloud.umami.is/script.js', r => r.fulfill({ contentType: 'text/javascript', body: `window.umami = { track(a, b) { const out = typeof a === 'function' ? a({ url: location.href }) : { name: a, data: b }; window.__sent(JSON.stringify(out)); } };` }));
@@ -888,13 +888,25 @@ if (chromium) {
     for (let i = 0; i < 30 && !sent.some(x => x.includes('article_read')); i++) await pg.waitForTimeout(100);
     await pg.goto(base + 'emi-calculator.html'); await pg.waitForTimeout(400); await stay(); await pg.click('.read-card');
     await pg.goto(base); await pg.waitForTimeout(400); await stay(); await pg.click('#rotCta'); await pg.click('#articles .art-card >> nth=0'); await pg.waitForTimeout(300);
+    await pg.goto(base + 'salary-calculator.html'); await pg.waitForTimeout(400);
+    await pg.fill('#ctc', '15,43,210'); await pg.fill('#ctc', '15,43,219'); await pg.click('#regime button[data-v=old]'); await pg.click('#regime button[data-v=old]');
+    await pg.evaluate(() => { [...document.querySelectorAll('details')].find(d => !d.closest('.faq') && !d.open).open = true; document.querySelector('.faq details').open = true; }); await pg.waitForTimeout(300);
     const ev = sent.map(x => JSON.parse(x)).filter(x => x.name), by = n => ev.filter(x => x.name === n).map(x => x.data);
+    assert.deepEqual(by('field_changed'), [{ tool: 'salary', field: 'ctc' }], 'a field is counted once, by name');
+    assert.deepEqual(by('option_chosen'), [{ tool: 'salary', control: 'regime', choice: 'old' }]);
+    assert.equal(by('section_opened').length, 1); assert.equal(by('section_opened')[0].tool, 'salary'); assert.equal(by('faq_opened').length, 1);
+    assert.ok(!/1543|15,43/.test(JSON.stringify(ev)), 'typed values never leave: ' + JSON.stringify(ev));
+    // the owner's switch: #notrack stops counting this browser on every page, #track turns it back on
+    await pg.goto(base + 'index.html#notrack'); await pg.waitForTimeout(300);
+    assert.equal(await pg.$('script[src="https://cloud.umami.is/script.js"]'), null, 'no analytics after #notrack'); assert.equal(await pg.evaluate(() => location.hash), '');
+    await pg.goto(base + 'sip-calculator.html'); await pg.waitForTimeout(300); assert.equal(await pg.$('script[src="https://cloud.umami.is/script.js"]'), null, 'still off on other pages');
+    await pg.goto(base + 'fd-calculator.html#track'); await pg.waitForTimeout(300); assert.ok(await pg.$('script[src="https://cloud.umami.is/script.js"]'), 'back on after #track');
     assert.deepEqual(by('article_to_calculator'), [{ article: 'prepay-home-loan-or-invest.html', tool: 'emi-calculator.html', prefilled: 'yes' }]);
     assert.deepEqual(by('article_read'), [{ article: 'prepay-home-loan-or-invest.html' }]);
     assert.deepEqual(by('calculator_to_article'), [{ tool: 'emi', article: 'prepay-home-loan-or-invest.html' }]);
     assert.deepEqual(by('hero_cta'), [{ to: 'salary-calculator.html' }]);
     assert.equal(by('article_card').length, 1); assert.equal(by('article_card')[0].from, 'home');
-    assert.ok(!JSON.stringify(ev).includes('?') && !JSON.stringify(ev).includes('5000000'), 'no prefilled numbers leave: ' + JSON.stringify(ev));
+    assert.ok(!/\.html\?|\?[a-z0-9]+=/i.test(JSON.stringify(ev)) && !JSON.stringify(ev).includes('5000000'), 'no prefilled numbers leave: ' + JSON.stringify(ev));
     await pg.close(); srv.close();
   });
 
