@@ -712,7 +712,7 @@ if (chromium) {
       const right = await pg.evaluate(() => Math.max(...[...document.querySelectorAll('header *')].filter(e => e.offsetParent).map(e => e.getBoundingClientRect().right)));
       assert.ok(right <= w, `header fits at ${w}px (rightmost ${right})`);
       assert.equal(await pg.isVisible('.nav-quick'), w > 900, `popular links at ${w}px`);
-      await pg.click('#menuBtn'); assert.equal(await pg.$$eval('#navLinks a', a => a.filter(x => x.offsetParent).length), 15, `all 15 calculators listed at ${w}px`);
+      await pg.click('#menuBtn'); assert.equal(await pg.$$eval('#navLinks a', a => a.filter(x => x.offsetParent).length), 16, `all 16 calculators listed at ${w}px`);
       assert.equal(await pg.getAttribute('#menuBtn', 'aria-expanded'), 'true');
       await pg.keyboard.press('Escape'); assert.equal(await pg.isVisible('#navLinks'), false); await pg.close();
     }
@@ -833,6 +833,20 @@ if (chromium) {
     assert.equal(await pg.$eval('#whenChips', e => e.scrollHeight <= 48), true, 'the year buttons stay on one row on a phone');
     assert.deepEqual(pg.errs, []); await pg.close();
     const lk = await browser.newPage(); await lk.goto(url(SITE, 'return-calculator.html') + '?when=3'); await lk.waitForTimeout(300); assert.equal(await lk.$eval('#whenChips [data-w="3"]', b => b.classList.contains('on')), true); await lk.close();
+  });
+
+  test('Layoff runway: settlement after tax, runway today and cut back, job-search check, PF as a last resort, quick picks and share link', async () => {
+    const pg = await open(SITE, 'layoff-runway-calculator.html', 390); const txt = sel => pg.$eval(sel, e => e.innerText.replace(/\s+/g, ' '));
+    assert.match(await txt('#hero'), /Your money lasts 9 months[\s\S]*Cut back to ₹80,000 and it lasts 12 months[\s\S]*Covers a 6-month job search with 3 months to spare/);
+    assert.match(await txt('#setTbl'), /Tax on the payout \(estimate\) − ₹1,30,000 Settlement after tax ₹5,20,000[\s\S]*Money you can use now ₹10,20,000/);   // ₹6.5 L on top of ₹10.5 L of salary: ₹1.25 L + 4% cess
+    assert.match(await txt('#tips'), /^Cutting “everything else”[\s\S]*Your PF, as a last resort/, 'PF is offered last');
+    await pg.click('.chips[data-for=severance] .chip[data-n="3"]'); await pg.waitForTimeout(200); assert.equal(await pg.inputValue('#severance'), '4,50,000');
+    await pg.click('label.toggle:has(#pfOn)'); await pg.waitForTimeout(200); assert.equal(await pg.isChecked('#pfOn'), true); assert.match(await txt('#kpis'), /PF counted/);
+    await pg.fill('#savings', '0'); await pg.fill('#severance', '0'); await pg.fill('#notice', '0'); await pg.fill('#leave', '0'); await pg.click('label.toggle:has(#pfOn)'); await pg.waitForTimeout(200);
+    assert.match(await txt('#hero'), /Under a month/); assert.doesNotMatch(await txt('main'), /NaN|undefined|Infinity/);
+    assert.deepEqual(pg.errs, []); await pg.close();
+    const lk = await browser.newPage(); await lk.goto(url(SITE, 'layoff-runway-calculator.html') + '?savings=1500000&search=9&pfOn=1'); await lk.waitForTimeout(300);
+    assert.equal(await lk.inputValue('#savings'), '15,00,000'); assert.equal(await lk.isChecked('#pfOn'), true); assert.match(await lk.$eval('#hero', e => e.innerText), /9-month job search/); await lk.close();
   });
 
   test('teardown', async () => { await browser.close(); fs.rmSync(LIVE, { recursive: true, force: true }); });

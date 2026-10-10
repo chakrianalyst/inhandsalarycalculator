@@ -715,3 +715,8 @@ table.tbl tr.sel td { background: var(--grad-soft); font-weight: 700; }
 .fix-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
 .fix-row p { margin: 0; font-size: .92rem; }
 .fix-row .btn { flex-shrink: 0; }
+
+/* Layoff runway: the first-two-weeks checklist */
+.check-list { margin: 0; padding-left: 20px; }
+.check-list li { margin: 0 0 10px; font-size: .92rem; line-height: 1.5; }
+.check-list li:last-child { margin-bottom: 0; }
