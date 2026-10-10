@@ -20,29 +20,29 @@
   <div class="container tool-layout">
     <section class="card" id="inputs" aria-label="Inputs">
       <h2 class="card-title">📈 Current pay &amp; raise</h2>
-      <div class="field" data-slider><label for="ctc">Current annual CTC</label>
+      <div class="field"><label for="ctc" data-q="What is your CTC now?" data-help="CTC is the yearly cost to company in your offer or appraisal letter.|It includes PF, gratuity and any variable pay, so it is bigger than what reaches your bank.">What is your CTC now?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="ctc" data-money data-words="ctcWords" value="1000000" min="100000" max="10000000" step="10000" aria-describedby="ctcWords"></div><div class="words" id="ctcWords"></div></div>
-      <div class="field"><span class="lbl">How do you know your raise?</span><div class="seg" id="hmode"><button type="button" data-v="pct" class="on">As a % hike</button><button type="button" data-v="ctc">As a new CTC</button></div></div>
-      <div class="field" id="fHike" data-slider><label for="hike">Hike percentage</label>
+      <div class="field"><label for="hmode" data-q="How was the raise given to you?" data-help="As a % hike: for example “15% hike”.|As a new CTC: the new yearly figure in your letter.">How was the raise given to you?</label><div class="seg" id="hmode"><button type="button" data-v="pct" class="on">As a % hike</button><button type="button" data-v="ctc">As a new CTC</button></div></div>
+      <div class="field" id="fHike"><label for="hike" data-q="How big is the hike?" data-help="The % rise in your CTC, as your company states it.">How big is the hike?</label>
         <div class="input-wrap"><input type="number" id="hike" value="15" min="0" max="300" step="1"><span class="suf">%</span></div></div>
-      <div class="field" id="fNew" hidden><label for="newctc">New annual CTC</label>
+      <div class="field" id="fNew" hidden><label for="newctc" data-q="What is your new CTC?" data-help="The new yearly CTC from your appraisal or offer letter.">What is your new CTC?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="newctc" data-money data-words="newWords" value="1150000" min="100000" max="1000000000" step="10000" aria-describedby="newWords"></div><div class="words" id="newWords"></div></div>
-      <div class="field" data-slider><label for="infl">Price rise each year (inflation)</label>
-        <div class="input-wrap"><input type="number" id="infl" value="6" min="0" max="15" step="0.5"><span class="suf">%</span></div><span class="hint">A raise below this number means you can buy less than before.</span></div>
+      <div class="field"><label for="infl" data-q="How fast do prices rise each year?" data-help="Inflation: how much more the same things cost a year later.|About 5 to 6% a year is a common planning number in India.|A raise below this means you can buy less than before.">How fast do prices rise each year?</label>
+        <div class="input-wrap"><input type="number" id="infl" value="6" min="0" max="15" step="0.5"><span class="suf">% a year</span></div></div>
       <details class="grp" id="sec-as"><summary><div class="gi">⚙️</div><div class="gt">Salary structure<small>Defaults match the salary calculator</small></div><span class="chev">›</span></summary><div class="grp-body">
         <div class="row-2"><div class="field"><label for="basicPct">Basic (% of CTC)</label><div class="input-wrap"><input type="number" id="basicPct" value="40" min="10" max="80" step="1"><span class="suf">%</span></div></div>
           <div class="field"><label for="varPct">Variable (% of CTC)</label><div class="input-wrap"><input type="number" id="varPct" value="0" min="0" max="60" step="1"><span class="suf">%</span></div></div></div>
         <label class="toggle"><span>PF only on ₹15,000 of basic<small>Switch on if your employer caps PF</small></span><span class="switch"><input type="checkbox" id="pfcap"><i></i></span></label>
-        <div class="field"><label for="regime">Tax regime</label><select id="regime"><option value="best" selected>Whichever leaves me more</option><option value="new">New regime</option><option value="old">Old regime</option></select></div>
-        <div class="field"><label for="city">City you live in (for HRA)</label><select id="city" data-cities data-default="Bengaluru"></select></div>
-        <div class="field"><label for="rent">Monthly rent you pay</label><div class="input-wrap"><span class="pre">₹</span><input id="rent" data-money value="0" placeholder="0"></div><span class="hint">Only matters in the old regime. Leave 0 if you do not claim HRA.</span></div>
+        <div class="field"><label for="regime" data-help="New and old regime tax the same salary differently.|“Whichever leaves me more” picks the better one for each salary.">Tax regime</label><select id="regime"><option value="best" selected>Whichever leaves me more</option><option value="new">New regime</option><option value="old">Old regime</option></select></div>
+        <div class="field"><label for="city" data-help="Used only for HRA in the old regime.|Metro cities allow a bigger tax-free HRA.">City you live in (for HRA)</label><select id="city" data-cities data-default="Bengaluru"></select></div>
+        <div class="field"><label for="rent" data-help="Only matters in the old regime.|Leave 0 if you do not claim HRA.">Monthly rent you pay</label><div class="input-wrap"><span class="pre">₹</span><input id="rent" data-money value="0" placeholder="0"></div></div>
       </div></details>
       <p class="hint" style="margin-top:12px">Everything else follows the <a href="salary-calculator.html">salary calculator</a> defaults, including gratuity inside CTC and no investments or other deductions. <a href="salary-calculator.html">Customise there →</a></p>
     </section>
     <section class="results" aria-live="polite">
-      <div class="hero-result"><div class="lbl">Your real monthly gain</div><div class="big" id="gain">—</div><div class="sub" id="gainSub"></div><span class="pill" id="hPill"></span></div>
+      <div class="hero-result"><div class="lbl" id="hLbl">Your take-home goes up by</div><div class="big" id="gain">—</div><div class="sub" id="gainSub"></div><span class="pill" id="hPill"></span></div>
       <div class="warns" id="warns"></div>
-      <div class="kpis" id="kpis"></div>
+      <div class="card"><h2 class="card-title">💡 Good to know</h2><ul class="facts" id="facts"></ul></div>
       <div class="nudge" id="nudge" hidden></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">🔍 Before vs after</h2><div class="tbl-wrap"><table class="tbl" id="tbl"></table></div></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">🗓️ If you got this raise every year</h2><p class="grp-hint" style="margin-top:0">Monthly in-hand pay over the next 5 years, also shown in today’s money so you can see the real gain.</p><div class="tbl-wrap"><table class="tbl" id="proj"></table></div></div>
@@ -84,17 +84,23 @@
   const usedKey = r => $('regime').value === 'best' ? r.best : $('regime').value, pick = r => r[usedKey(r)];
   function calc() {
     const byCtc = modeGet() === 'ctc'; $('fHike').hidden = byCtc; $('fNew').hidden = !byCtc;
+    [...document.querySelectorAll('#inputs [data-q]')].filter(l => !l.closest('[hidden]')).forEach((l, i) => { l.textContent = `${i + 1}. ${l.dataset.q}`; });   // number only the questions on show
     const c0 = num('ctc'), infl = num('infl') / 100, c1 = byCtc ? num('newctc') : c0 * (1 + num('hike') / 100), h = c0 > 0 ? (c1 / c0 - 1) * 100 : 0, W = [];
     const warn = (cls, t) => W.push(`<div class="warn ${cls}"><span>${cls === 'bad' ? '⛔' : '⚠️'}</span><span>${t}</span></div>`);
     const ra = sal(c0), rb = sal(c1), a = pick(ra), b = pick(rb), m0 = a.inHandMonth, m1 = b.inHandMonth, gain = m1 - m0, realHike = m0 ? (gain / m0) * 100 : 0, powerHike = m0 ? (m1 / (m0 * (1 + infl)) - 1) * 100 : 0;
-    $('gain').innerHTML = (gain >= 0 ? '+' : '−') + f(Math.abs(gain)) + '<span class="per">a month</span>'; $('gainSub').textContent = `That is ${f(Math.abs(gain) * 12)} ${gain >= 0 ? 'more' : 'less'} in your bank account over a full year.`;
-    $('hPill').textContent = `Monthly take-home: ${f(m0)} → ${f(m1)}`;
+    $('hLbl').textContent = gain >= 0 ? 'Your take-home goes up by' : 'Your take-home goes down by';
+    $('gain').innerHTML = (gain >= 0 ? '+' : '−') + f(Math.abs(gain)) + '<span class="per">a month</span>'; $('gainSub').textContent = `From ${f(m0)} to ${f(m1)} a month. That is ${f(Math.abs(gain) * 12)} ${gain >= 0 ? 'more' : 'less'} over a full year.`;
+    $('hPill').textContent = `Your CTC ${h >= 0 ? 'rises' : 'falls'} ${pct1(Math.abs(h))}, your take-home ${realHike >= 0 ? 'rises' : 'falls'} ${pct1(Math.abs(realHike))}`;
     if (h < 0) warn('', 'Your new CTC is lower than your current one. This is a pay cut.');
     else if (h > 0 && h / 100 < infl) warn('', `A ${h.toFixed(1)}% hike is below inflation (${(infl * 100).toFixed(1)}%), so you can buy less than before even though the number is higher.`);
     const dCtc = c1 - c0, keep = dCtc ? (b.inHandYear - a.inHandYear) / dCtc * 100 : 0;
     $('warns').innerHTML = W.join('');
-    const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
-    $('kpis').innerHTML = K('', 'Headline hike', pct1(h), 'The CTC rise') + K('good', 'Real in-hand hike', pct1(realHike), 'Take-home rise') + K(powerHike >= 0 ? 'good' : 'bad', 'After inflation', pct1(powerHike), 'Buying-power change') + K('', 'You keep per extra ₹100 of CTC', dCtc > 0 ? '₹' + keep.toFixed(0) : '—', 'The rest is tax, plus PF and gratuity you get later');
+    const rk0 = usedKey(ra), rk1 = usedKey(rb);
+    $('facts').innerHTML = [
+      `After prices rise ${(infl * 100).toFixed(1)}% in a year, your buying power ${powerHike >= 0 ? 'grows' : 'falls'} by <b>${pct1(Math.abs(powerHike))}</b>.` + (powerHike < 0 ? ' You can buy less than before.' : ''),
+      dCtc > 0 ? `Of every extra ₹100 of CTC, you keep <b>₹${keep.toFixed(0)}</b> in hand. The rest is tax, plus PF and gratuity you get later.` : '',
+      rk0 !== rk1 ? `The best tax regime changes with the raise: the ${rk0} regime before, the ${rk1} regime after.` : `Worked out under the <b>${rk1} tax regime</b>` + ($('regime').value === 'best' ? ', which leaves you more.' : '.'),
+    ].filter(Boolean).map(x => `<li>${x}</li>`).join('');
     const raise = Math.round(gain / 100) * 100;
     Common.nudge($('nudge'), raise >= 500 && {
       from: 'hike', text: `<b>Invest the ${f(raise)} a month raise?</b> You were living without it until now. See what it grows to as a SIP.`,

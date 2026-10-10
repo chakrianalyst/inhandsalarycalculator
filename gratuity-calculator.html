@@ -20,29 +20,27 @@
   <div class="container tool-layout">
     <section class="card" id="inputs" aria-label="Inputs">
       <h2 class="card-title">🎁 Service details</h2>
-      <div class="field"><span class="lbl">Who pays your gratuity?</span><div class="seg" id="kind"><button type="button" data-v="covered" class="on">Private job, covered by the Act</button><button type="button" data-v="notcovered">Private, not covered</button><button type="button" data-v="govt">Government</button></div>
-        <span class="hint" id="kindHint">The Payment of Gratuity Act covers firms with 10 or more employees. Most private-sector employees are covered.</span></div>
-      <div class="field" data-slider><label for="wage">Last drawn basic + DA (per month)</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="wage" data-money data-words="wageWords" value="50000" min="5000" max="500000" step="1000" aria-describedby="wageWords"></div><div class="words" id="wageWords"></div>
-        <span class="hint">Basic salary plus dearness allowance. For an employee not covered by the Act, use the average of your last 10 months.</span></div>
-      <div class="field"><span class="lbl">How long have you worked there?</span>
+      <div class="field"><label for="kind" data-help="Covered by the Act: most private companies with 10 or more employees. Pick this if you are not sure.|Not covered: smaller firms outside the Payment of Gratuity Act.|Government: central government rules. State rules can differ.">1. Who do you work for?</label><div class="seg" id="kind"><button type="button" data-v="covered" class="on">Private, covered by the Act</button><button type="button" data-v="notcovered">Private, not covered</button><button type="button" data-v="govt">Government</button></div></div>
+      <div class="field"><label for="wage" data-help="Your latest monthly basic pay, plus dearness allowance (DA) if you get it.|Not your full salary or CTC.|If your firm is not covered by the Act, use the average of your last 10 months.">2. What is your basic salary each month?</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="wage" data-money data-words="wageWords" value="50000" min="5000" max="500000" step="1000" aria-describedby="wageWords"></div><div class="words" id="wageWords"></div></div>
+      <div class="field"><label for="yrs" data-help="Count up to your last working day, including the notice period.|A part-year of more than 6 months counts as a full year under the Act.">3. How long have you worked there?</label>
         <div class="row-2"><div><label for="yrs" class="sub-l">Years</label><div class="input-wrap"><input type="number" id="yrs" value="10" min="0" max="50" step="1"><span class="suf">yrs</span></div></div>
           <div><label for="mon" class="sub-l">Months</label><div class="input-wrap"><input type="number" id="mon" value="0" min="0" max="11" step="1"><span class="suf">mo</span></div></div></div>
         <span class="hint" id="svcHint"></span></div>
       <label class="toggle" id="ftRow"><span>I am on a fixed-term contract<small>Eligible after 1 year under the new labour codes</small></span><span class="switch"><input type="checkbox" id="fixed"><i></i></span></label>
       <details class="grp" id="sec-50"><summary><div class="gi">⚖️</div><div class="gt">Check the 50% wages rule<small>New labour codes, from 21 Nov 2025</small></div><span class="chev">›</span></summary><div class="grp-body">
         <p class="grp-hint">Under the new codes, “wages” for gratuity must be at least 50% of your total monthly pay. If your basic is lower, your gratuity wage may be higher than your basic. Ask HR how your company applies this.</p>
-        <div class="field"><label for="total">Your total monthly pay (CTC ÷ 12)</label><div class="input-wrap"><span class="pre">₹</span><input id="total" data-money value="0" placeholder="0"></div><span class="hint">Leave empty to ignore the rule.</span></div>
+        <div class="field"><label for="total" data-help="Your yearly CTC divided by 12.|Leave it at 0 to ignore the rule.">Your total monthly pay</label><div class="input-wrap"><span class="pre">₹</span><input id="total" data-money value="0" placeholder="0"></div><span class="hint">Your CTC ÷ 12. Leave it at 0 to ignore the rule.</span></div>
       </div></details>
       <details class="grp" id="sec-grow"><summary><div class="gi">📈</div><div class="gt">If you stay longer<small>Your pay rise decides the projection</small></div><span class="chev">›</span></summary><div class="grp-body">
-        <div class="field" data-slider><label for="growth">Expected yearly raise in basic</label><div class="input-wrap"><input type="number" id="growth" value="7" min="0" max="25" step="0.5"><span class="suf">%</span></div></div>
+        <div class="field"><label for="growth" data-help="How much your basic pay goes up each year.|Used only for the “If you stay longer” table.">Your basic goes up every year by</label><div class="input-wrap"><input type="number" id="growth" value="7" min="0" max="25" step="0.5"><span class="suf">%</span></div></div>
       </div></details>
     </section>
 
     <section class="results" aria-live="polite">
       <div class="hero-result"><div class="lbl" id="gLbl">Estimated gratuity</div><div class="big" id="g">—</div><div class="sub" id="gSub"></div><span class="pill" id="gPill"></span></div>
-      <div class="banner info" id="gNote"></div>
-      <div class="kpis" id="kpis"></div>
+      <div class="warns" id="warns"></div>
+      <div class="card"><h2 class="card-title">💡 Good to know</h2><ul class="facts" id="facts"></ul></div>
       <div class="card" id="projCard"><h2 class="card-title">📈 If you stay longer</h2><p class="grp-hint" style="margin-top:0">Your basic rises every year, and each extra year of service adds to both the wage and the years.</p><div class="tbl-wrap"><table class="tbl" id="projTbl"></table></div></div>
       <div class="offer"><div><b>Planning your exit or next move?</b><small>See what your new offer means for your take-home.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="career">Compare offers</a></div>
     </section>
@@ -82,27 +80,25 @@
   const kindGet = Common.seg($('kind'), () => calc());
   const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
   const span = n => { const y = Math.floor(n / 12), m = n % 12; return [y && plural(y, 'year'), m && plural(m, 'month')].filter(Boolean).join(' ') || '0 months'; };
-  const HINT = { covered: 'The Payment of Gratuity Act covers firms with 10 or more employees. Most private-sector employees are covered.', notcovered: 'Employees of firms outside the Act get half a month’s average pay for each completed year.', govt: 'Central government rules pay a quarter of your last pay for every completed six months, up to 16.5 months of pay and ₹20 lakh. It is fully tax-free. State rules can differ.' };
 
   function calc() {
-    const kind = kindGet(); $('kindHint').textContent = HINT[kind]; $('ftRow').hidden = kind !== 'covered';
+    const kind = kindGet(); $('ftRow').hidden = kind !== 'covered';
     const y = Math.floor(num('yrs')), mo = Math.floor(num('mon')), total = y * 12 + mo;
     const P = { wage: num('wage'), totalPay: num('total'), apply50: kind === 'covered' && num('total') > 0, kind, fixedTerm: kind === 'covered' && $('fixed').checked, years: y, months: mo };
     const r = Gratuity.calc(P), covered = kind === 'covered';
     $('svcHint').textContent = total > 0 ? (kind === 'govt' ? `Counted in completed six-month periods: ${r.counted * 2}.` : covered && mo > 6 ? `${span(total)} counts as ${plural(r.counted, 'year')}, because the part-year is more than 6 months.` : covered && mo > 0 ? `${span(total)} counts as ${plural(r.counted, 'year')}. A part-year counts only when it is more than 6 months.` : kind === 'notcovered' && mo > 0 ? `Only completed years count: ${plural(r.counted, 'year')}.` : '') : '';
-    $('gLbl').textContent = r.eligible ? 'Estimated gratuity' : 'Gratuity not payable yet';
+    $('gLbl').textContent = r.eligible ? 'Your gratuity if you leave now' : 'No gratuity yet';
     $('g').textContent = f(r.eligible ? r.payable : 0);
-    $('gSub').textContent = covered ? `(${f(r.wage)} × 15 ÷ 26) × ${plural(r.counted, 'year')}` : kind === 'govt' ? `${f(r.wage)} ÷ 4 × ${r.counted * 2} completed half-years` : `(${f(r.wage)} × 15 ÷ 30) × ${plural(r.counted, 'completed year')}`;
-    $('gPill').textContent = r.eligible ? '' : `Eligible in ${span(r.monthsToGo)}. Without it you would get ${cr(r.amount)}.`;
-    const warn = [];
-    if (!r.eligible) warn.push(`<span>⚠️</span><span>You need ${r.need === 12 ? '1 year' : '5 years'} of continuous service to be eligible${r.need === 60 ? ' (waived on death or disability)' : ''}. You are ${span(r.monthsToGo)} away.</span>`);
-    else if (r.aboveCap > 0) warn.push(`<span>ℹ️</span><span>The Act caps gratuity at ₹20 lakh. If your employer pays the full ${f(r.amount)}, the ${f(r.aboveCap)} above the cap is taxable.</span>`);
-    else if (kind === 'govt') warn.push('<span>✅</span><span>Government employees’ gratuity is fully tax-free.</span>');
-    else warn.push('<span>✅</span><span>This is within the ₹20 lakh tax-free limit for private-sector employees.</span>');
-    if (r.raised) warn.push(`<span>⚖️</span><span>Your wage for gratuity is taken as ${f(r.wage)}, half of your total pay, because your basic is below 50%.</span>`);
-    $('gNote').className = 'banner' + (r.eligible ? '' : ' info'); $('gNote').innerHTML = warn.join('<br>');
-    const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
-    $('kpis').innerHTML = K('', 'Wage used', f(r.wage), 'Per month') + K('', 'Adds for each year of service', f(r.perYear)) + K('good', 'Tax-free part', f(r.taxFree)) + K(r.aboveCap > 0 ? 'bad' : '', 'Taxable part', f(r.eligible ? Math.max(0, r.amount - r.taxFree) : 0), r.aboveCap > 0 ? 'Above ₹20 lakh' : 'Nothing is taxed');
+    $('gSub').textContent = r.eligible ? `For ${span(total)} of service on a ${f(r.wage)} monthly wage.` : `You need ${r.need === 12 ? '1 year' : '5 years'} of service. You have ${span(total)}.`;
+    $('gPill').textContent = !r.eligible ? `Eligible in ${span(r.monthsToGo)}. Then you would get about ${cr(r.amount)}` : r.aboveCap > 0 ? 'The Act caps it at ₹20 lakh. All of it is tax-free' : 'All of it is tax-free';
+    $('warns').innerHTML = r.eligible ? '' : `<div class="warn"><span>⚠️</span><span>Gratuity needs ${r.need === 12 ? '1 year' : '5 years'} of continuous service. You are ${span(r.monthsToGo)} away.${r.need === 60 ? '<br>The 5-year rule does not apply on death or disability.' : ''}</span></div>`;
+    $('facts').innerHTML = [
+      covered ? `How it is worked out: ${f(r.wage)} × 15 ÷ 26 × ${plural(r.counted, 'year')}. That is 15 days of wages for every year, taking a month as 26 working days.`
+        : kind === 'govt' ? `How it is worked out: ${f(r.wage)} ÷ 4 for each of your ${r.counted * 2} completed half-years, up to 16.5 months of pay.` : `How it is worked out: ${f(r.wage)} × 15 ÷ 30 × ${plural(r.counted, 'completed year')}. Only completed years count.`,
+      `Each year of service adds about <b>${f(r.perYear)}</b>.`,
+      r.raised ? `Your wage for gratuity is taken as <b>${f(r.wage)}</b>, half of your total pay, because your basic is below 50% of it. Ask HR how your company applies this rule.` : '',
+      !r.eligible ? '' : kind === 'govt' ? 'Government employees’ gratuity is <b>fully tax-free</b>.' : r.aboveCap > 0 ? `The Act caps gratuity at ₹20 lakh. If your employer pays the full ${f(r.amount)}, the <b>${f(r.aboveCap)}</b> above the cap is taxed as salary.` : 'This is within the <b>₹20 lakh</b> tax-free limit for private-sector employees.'
+    ].filter(Boolean).map(x => `<li>${x}</li>`).join('');
     const rows = Gratuity.projection(P, num('growth'), [5, 7, 10, 15, 20, 25, 30, 35]);
     $('projCard').hidden = rows.length === 0;
     $('projTbl').innerHTML = '<tr><th>Years of service</th><th>Expected basic</th><th>Gratuity</th></tr>' + rows.map(x => `<tr><td>${x.years}</td><td>${f(x.wage)}</td><td>${f(x.gratuity)}</td></tr>`).join('');

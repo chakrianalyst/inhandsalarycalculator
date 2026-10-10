@@ -20,27 +20,26 @@
   <div class="container tool-layout">
     <section class="card" id="inputs" aria-label="Inputs">
       <h2 class="card-title">🏠 Rent &amp; salary</h2>
-      <div class="field"><span class="lbl">Financial year</span><div class="seg" id="fy"><button type="button" data-v="2026" class="on">FY 2026-27</button><button type="button" data-v="2025">FY 2025-26</button></div><span class="hint" id="fyHint"></span></div>
-      <div class="field" data-slider><label for="basic">Basic salary + DA (per month)</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="basic" data-money data-words="basicWords" value="50000" min="5000" max="500000" step="1000" aria-describedby="basicWords"></div><div class="words" id="basicWords"></div><span class="hint">Include dearness allowance only if it counts for retirement benefits. If you get a fixed commission on sales, add it too.</span></div>
-      <div class="field" data-slider><label for="hra">HRA you receive (per month)</label>
+      <div class="field"><label for="fy" data-help="The tax year April to March you want the answer for.|FY 2026-27 is the year that started in April 2026.|Use FY 2025-26 for the return you file in 2026.">1. Which year is this for?</label><div class="seg" id="fy"><button type="button" data-v="2026" class="on">FY 2026-27</button><button type="button" data-v="2025">FY 2025-26</button></div><span class="hint" id="fyHint"></span></div>
+      <div class="field"><label for="basic" data-help="Your monthly basic pay, from your payslip.|Add dearness allowance (DA) only if it counts for retirement benefits.|If you get a fixed commission on sales, add it too.">2. What is your basic salary each month?</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="basic" data-money data-words="basicWords" value="50000" min="5000" max="500000" step="1000" aria-describedby="basicWords"></div><div class="words" id="basicWords"></div></div>
+      <div class="field"><label for="hra" data-help="House Rent Allowance: the part of your salary meant for rent.|It is shown as HRA on your payslip.">3. How much HRA does your employer pay you each month?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="hra" data-money value="25000" min="0" max="300000" step="500"></div></div>
-      <div class="field" data-slider><label for="rent">Rent you pay (per month)</label>
+      <div class="field"><label for="rent" data-help="The rent you actually pay to your landlord each month.|Do not include maintenance, electricity or a deposit.">4. How much rent do you pay each month?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="rent" data-money data-words="rentWords" value="28000" min="0" max="300000" step="500" aria-describedby="rentWords"></div><div class="words" id="rentWords"></div></div>
-      <div class="field"><label for="city">City you live in</label><select id="city" data-cities data-default="Bengaluru"></select></div>
-      <div class="field"><label for="months">Months you paid this rent in the year</label><div class="input-wrap"><input type="number" id="months" value="12" min="1" max="12" step="1"><span class="suf">of 12</span></div><span class="hint">If you moved or changed rent during the year, calculate each stay separately and add the two results.</span></div>
-      <div class="field"><label for="slab">Your income-tax rate (to estimate the tax you save)</label><select id="slab"><option value="0">Do not show tax saved</option><option value="5">5%</option><option value="10">10%</option><option value="15">15%</option><option value="20">20%</option><option value="25">25%</option><option value="30" selected>30%</option></select></div>
+      <div class="field"><label for="city" data-help="The city where you live and rent.|In metro cities, up to 50% of basic can be tax-free; elsewhere, 40%.">5. Which city do you live in?</label><select id="city" data-cities data-default="Bengaluru"></select></div>
+      <div class="field"><label for="months" data-help="Enter 12 if you paid this rent for the whole year.|If you moved or changed rent, calculate each stay separately and add the two results.">6. For how many months did you pay this rent?</label><div class="input-wrap"><input type="number" id="months" value="12" min="1" max="12" step="1"><span class="suf">of 12</span></div></div>
+      <div class="field"><label for="slab" data-help="The highest rate your income is taxed at in the old regime.|30% if your taxable income is above ₹10 lakh.|We use it only to show the tax you save.">7. What is your income-tax rate?</label><select id="slab"><option value="0">Do not show tax saved</option><option value="5">5%</option><option value="10">10%</option><option value="15">15%</option><option value="20">20%</option><option value="25">25%</option><option value="30" selected>30%</option></select></div>
     </section>
 
     <section class="results" aria-live="polite">
       <div class="hero-result"><div class="lbl" id="hLbl">Tax-exempt HRA (for the year)</div><div class="big" id="ex">—</div><div class="sub" id="exSub"></div><span class="pill" id="hPill"></span></div>
       <div class="banner info" id="regimeNote"><span>ℹ️</span><span>This saving counts only if you choose the <b>old tax regime</b>. The new regime gives no HRA exemption, and for many people it still leaves more in hand. <a href="salary-calculator.html">Check which regime is better for you →</a></span></div>
       <div class="warns" id="warns"></div>
-      <div class="kpis" id="kpis"></div>
       <div class="nudge" id="nudge" hidden></div>
+      <div class="card" style="margin-bottom:18px" id="tipCard"><h2 class="card-title">💡 Good to know</h2><ul class="facts" id="tips"></ul></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">📐 The three-way test</h2><div class="tbl-wrap"><table class="tbl" id="tbl"></table></div>
         <p class="hint" style="margin-top:10px;color:var(--muted);font-size:.82rem">Exempt HRA is the <b>lowest</b> of the three amounts. The limit that holds you back is marked ✓.</p></div>
-      <div class="card" style="margin-bottom:18px" id="tipCard"><h2 class="card-title">💡 What would change it</h2><div id="tips"></div></div>
       <div class="offer"><div><b>Pay rent via credit card?</b><small>Earn rewards on rent payments with select cards.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="rent">Compare offers</a></div>
     </section>
 
@@ -79,16 +78,15 @@
     $('fyHint').textContent = fy === '2026' ? 'Bengaluru, Hyderabad, Pune and Ahmedabad count as metros from FY 2026-27.' : 'For FY 2025-26 only Delhi, Mumbai, Kolkata and Chennai count as metros (50% limit). Other cities get 40%.';
     const r = HRA.calc({ basicM: num('basic'), hraM: num('hra'), rentM: num('rent'), months, pctOfBasic: metro ? 0.5 : 0.4, slab: +$('slab').value });
     const W = [], warn = (cls, t) => W.push(`<div class="warn ${cls}"><span>${cls === 'bad' ? '⛔' : '⚠️'}</span><span>${t}</span></div>`);
-    $('hLbl').textContent = months < 12 ? `Tax-exempt HRA (for ${months} months)` : 'Tax-exempt HRA (for the year)';
-    $('ex').textContent = f(r.exempt); $('exSub').textContent = f(r.exempt / months) + ' per month';
-    $('hPill').textContent = (metro ? 'Metro: ' : 'Non-metro: ') + (metro ? '50' : '40') + '% of basic' + (+$('slab').value > 0 ? ` · old regime: you save about ${f(r.tax)} in tax` : '');
+    const slab = +$('slab').value;
+    $('hLbl').textContent = months < 12 ? `Your tax-free HRA for ${months} months` : 'Your tax-free HRA for the year';
+    $('ex').textContent = f(r.exempt); $('exSub').textContent = `That is ${f(r.exempt / months)} a month.` + (r.taxable > 0.5 ? ` The other ${f(r.taxable)} of your HRA is taxed.` : r.a > 0 ? ' All of your HRA is tax-free.' : '');
+    $('hPill').textContent = slab > 0 && r.tax > 0.5 ? `In the old regime, this saves you about ${f(r.tax)} in tax` : '';
     if (num('rent') <= 0) warn('', 'Enter the rent you pay. Without rent there is no HRA exemption.');
     else if (r.c === 0) warn('', 'Your rent is not more than 10% of your basic salary, so no HRA is exempt.');
     if (r.needsPan) warn('', `Your rent is ${f(r.rentAnnual)} for the year, above ₹1 lakh. You must give your landlord’s PAN to your employer.`);
     if (num('hra') <= 0) warn('', 'You receive no HRA. If you pay rent, you may claim a deduction under section 80GG instead (old regime).');
     $('warns').innerHTML = W.join('');
-    const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
-    $('kpis').innerHTML = K('good', 'Exempt HRA', f(r.exempt)) + K('bad', 'Taxable HRA', f(r.taxable), 'Added to your income') + (+$('slab').value > 0 ? K('good', 'Tax you save (old regime)', f(r.tax), `At ${$('slab').value}% plus cess`) : '') + K('', 'HRA received', f(r.a), `${months} months`);
     const basic = num('basic');
     Common.nudge($('nudge'), r.exempt > 0 && basic > 0 && {
       from: 'HRA numbers', text: '<b>Your HRA saving counts only in the old regime.</b> Is the old regime better for your whole salary?',
@@ -97,17 +95,19 @@
     });
     const min = Math.min(r.a, r.c, r.d), row = (l, v) => `<tr class="${v === min ? 'pos' : ''}"><td>${l}</td><td>${f(v)}${v === min ? ' ✓' : ''}</td></tr>`;
     $('tbl').innerHTML = row('Actual HRA received', r.a) + row('Rent paid − 10% of basic', r.c) + row(`${metro ? 50 : 40}% of basic`, r.d);
-    const tips = [];
-    if (r.exempt >= Math.min(r.a, r.d) - 0.5 && r.taxable > 0.5) tips.push(r.which === 'hra' ? '' : `The ${metro ? 50 : 40}% of basic limit is the one holding you back, so paying more rent will not help.`);
+    const cityName = HRA.isMetro(city, '2026') ? city : 'Your city';
+    const tips = [`${cityName} counts as ${metro ? 'a metro' : 'a non-metro city'} for FY ${fy}-${String(+fy + 1).slice(2)}, so up to <b>${metro ? 50 : 40}% of your basic</b> can be tax-free.`,
+      r.taxable > 0.5 ? `The taxable <b>${f(r.taxable)}</b> of HRA is added to your income.` : '',
+      slab > 0 && r.tax > 0.5 ? `Tax saved is worked out at ${slab}% plus 4% cess.` : ''];
+    if (r.exempt >= Math.min(r.a, r.d) - 0.5 && r.taxable > 0.5) tips.push(r.which === 'hra' ? '' : `The ${metro ? 50 : 40}% of basic limit is the one holding you back, so paying more rent will not help. A higher basic, or a city with a higher limit, would raise it.`);
     if (r.which === 'rent' && r.rentForFull > num('rent') + 0.5) {
-      const moreRent = (r.rentForFull - num('rent')) * months, moreTax = (Math.min(r.a, r.d) - r.exempt) * (+$('slab').value / 100) * 1.04;
+      const moreRent = (r.rentForFull - num('rent')) * months, moreTax = (Math.min(r.a, r.d) - r.exempt) * (slab / 100) * 1.04;
       tips.push(`You are limited by rent. Paying <b>${f(r.rentForFull - num('rent'))}</b> more a month (${f(moreRent)} over ${months === 12 ? 'the year' : months + ' months'}) would raise the exemption to ${f(Math.min(r.a, r.d))}` +
         (moreTax > 0 ? `, but save only about <b>${f(moreTax)}</b> in tax. The extra rent costs more than the tax it saves, so this is worth it only if you want the bigger home anyway.` : '.'));
     }
     if (r.which === 'hra' && r.exempt > 0) tips.push('All of your HRA is exempt. Nothing more can be saved on HRA.');
-    if (r.which === 'basic') tips.push(`The ${metro ? 50 : 40}% of basic limit is the lowest. A higher basic, or a city with a higher limit, would raise it.`);
     if (!metro && fy === '2026') tips.push('Living in one of the eight metros would raise the limit from 40% to 50% of basic.');
-    $('tips').innerHTML = tips.filter(Boolean).map(t => `<p style="margin:0 0 8px">${t}</p>`).join('') || '<p style="margin:0">Nothing to change. You are using the full exemption available.</p>';
+    $('tips').innerHTML = tips.filter(Boolean).map(t => `<li>${t}</li>`).join('');
   }
   document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc));
   document.addEventListener('change', e => { if (e.target.closest && e.target.closest('#inputs')) calc(); });

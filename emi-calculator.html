@@ -20,41 +20,41 @@
   <div class="container tool-layout">
     <section class="card" id="inputs" aria-label="Inputs">
       <h2 class="card-title">🏦 Loan details</h2>
-      <div class="seg" id="mode" style="margin-bottom:16px"><button type="button" data-v="emi" class="on">Find my EMI</button><button type="button" data-v="afford">How much loan can I afford?</button></div>
+      <div class="field" style="margin-bottom:8px"><label for="mode" data-q="What do you want to find?" data-help="My EMI: the monthly instalment for a loan amount you already know.|Loan I can afford: the biggest loan your monthly pay can support.">What do you want to find?</label></div>
+      <div class="seg" id="mode" style="margin:-8px 0 18px"><button type="button" data-v="emi" class="on">My EMI</button><button type="button" data-v="afford">Loan I can afford</button></div>
 
       <div id="emiOnly">
         <div class="chips" id="typeChips" style="margin-bottom:12px"><span class="chips-l">Typical loan</span><button type="button" class="chip" data-t="5000000,8.5,20,0">Home</button><button type="button" class="chip" data-t="800000,9,5,0">Car</button><button type="button" class="chip" data-t="300000,12,3,0">Personal</button><button type="button" class="chip" data-t="1000000,9.5,10,0">Education</button></div>
-        <div class="field" data-slider><label for="amt">Loan amount</label>
+        <div class="field"><label for="amt" data-q="How much do you want to borrow?" data-help="The loan amount only, not the full price.|For a home or car, this is the price minus the money you pay yourself (the down payment).">How much do you want to borrow?</label>
           <div class="input-wrap"><span class="pre">₹</span><input id="amt" data-money data-words="amtWords" value="5000000" min="100000" max="30000000" step="50000" aria-describedby="amtWords"></div><div class="words" id="amtWords"></div></div>
       </div>
       <div id="affOnly" hidden>
-        <div class="field"><label for="inc">Your monthly take-home pay</label>
+        <div class="field"><label for="inc" data-q="How much reaches your bank account every month?" data-help="Your salary after tax, PF and other deductions.|If two people will repay the loan together, add both take-home amounts.">How much reaches your bank account every month?</label>
           <div class="input-wrap"><span class="pre">₹</span><input id="inc" data-money data-words="incWords" value="100000" min="0" max="100000000" step="5000" aria-describedby="incWords"></div><div class="words" id="incWords"></div></div>
-        <div class="field"><label for="old">EMIs you already pay each month</label>
-          <div class="input-wrap"><span class="pre">₹</span><input id="old" data-money value="0" placeholder="0"></div><span class="hint">Include credit-card minimums and other loans.</span></div>
-        <div class="field" data-slider><label for="foir">Share of your pay that can go to EMIs</label>
-          <div class="input-wrap"><input type="number" id="foir" value="40" min="10" max="70" step="5"><span class="suf">%</span></div><span class="hint">Lenders usually allow 40 to 50% of take-home for all EMIs together. Keeping it at 30 to 40% is safer.</span></div>
-        <div class="field"><label for="dp">Down payment you can add (optional)</label>
-          <div class="input-wrap"><span class="pre">₹</span><input id="dp" data-money value="0" placeholder="0"></div><span class="hint">We add it to the loan to show the price of the home or car you could buy.</span></div>
+        <div class="field"><label for="old" data-q="How much do you already pay in EMIs every month?" data-help="Car, personal, education and other loans you are still repaying.|Add the minimum due on credit cards too.|Enter 0 if you have none.">How much do you already pay in EMIs every month?</label>
+          <div class="input-wrap"><span class="pre">₹</span><input id="old" data-money value="0" placeholder="0"></div></div>
+        <div class="field"><label for="foir" data-q="How much of your pay can go to EMIs?" data-help="This includes the EMIs you already pay.|Lenders usually allow 40 to 50% of take-home pay.|Keeping it at 30 to 40% leaves room for living costs and savings.">How much of your pay can go to EMIs?</label>
+          <div class="input-wrap"><input type="number" id="foir" value="40" min="10" max="70" step="5"><span class="suf">%</span></div><span class="hint">Lenders usually allow 40 to 50%.<br>30 to 40% is safer.</span></div>
+        <div class="field"><label for="dp" data-q="How much can you pay yourself, upfront? (optional)" data-help="The down payment: money you pay from savings, not borrowed.|We add it to the loan to show the price of the home or car you could buy.">How much can you pay yourself, upfront? (optional)</label>
+          <div class="input-wrap"><span class="pre">₹</span><input id="dp" data-money value="0" placeholder="0"></div></div>
       </div>
 
-      <div class="field" data-slider><label for="rate">Interest rate (per year)</label>
-        <div class="input-wrap"><input type="number" id="rate" value="8.5" min="1" max="36" step="0.05"><span class="suf">%</span></div>
-        <span class="hint">Use the rate your lender quotes. The typical-loan buttons only fill in a starting point.</span></div>
-      <div class="field"><span class="lbl">Loan period</span>
+      <div class="field"><label for="rate" data-q="What interest rate does the lender offer?" data-help="Use the yearly rate your lender quotes.|Home loans are often 8 to 9.5%, car loans 9 to 11%, personal loans 11 to 16%.|The typical-loan buttons only fill in a starting point.">What interest rate does the lender offer?</label>
+        <div class="input-wrap"><input type="number" id="rate" value="8.5" min="1" max="36" step="0.05"><span class="suf">% a year</span></div></div>
+      <div class="field"><label for="yrs" data-q="For how long?" data-help="The loan period.|Home loans run up to 20 to 30 years, car loans up to 7, personal loans up to 5.|A longer period lowers the EMI but costs more interest.">For how long?</label>
         <div class="row-2"><div><label for="yrs" class="sub-l">Years</label><div class="input-wrap"><input type="number" id="yrs" value="20" min="0" max="30" step="1"><span class="suf">yrs</span></div></div>
           <div><label for="mon" class="sub-l">Months</label><div class="input-wrap"><input type="number" id="mon" value="0" min="0" max="11" step="1"><span class="suf">mo</span></div></div></div>
         <span class="hint" id="tenHint"></span></div>
 
       <div id="emiExtra">
         <details class="grp" id="sec-pre"><summary><div class="gi">⚡</div><div class="gt">Pay extra to save interest<small>Monthly extra or a one-time prepayment</small></div><span class="chev">›</span></summary><div class="grp-body">
-          <div class="field"><label for="extra">Extra amount you pay every month</label><div class="input-wrap"><span class="pre">₹</span><input id="extra" data-money value="0" placeholder="0"></div><span class="hint">It goes straight to the principal, so the loan ends sooner.</span></div>
-          <div class="row-2"><div class="field"><label for="lump">One-time prepayment</label><div class="input-wrap"><span class="pre">₹</span><input id="lump" data-money value="0" placeholder="0"></div></div>
-            <div class="field"><label for="lumpM">Paid after month</label><div class="input-wrap"><input type="number" id="lumpM" value="24" min="1" max="360" step="1"><span class="suf">mo</span></div></div></div>
-          <span class="hint">Some lenders charge a fee for prepaying fixed-rate loans. Home loans on a floating rate usually have none for individuals.</span>
+          <div class="field"><label for="extra" data-help="Paid on top of your EMI every month.|It goes straight to the loan, so the loan ends sooner.">Extra amount you pay every month</label><div class="input-wrap"><span class="pre">₹</span><input id="extra" data-money value="0" placeholder="0"></div></div>
+          <div class="row-2"><div class="field"><label for="lump" data-help="One extra payment, for example from a bonus.|Early prepayments save the most interest.">One-time prepayment</label><div class="input-wrap"><span class="pre">₹</span><input id="lump" data-money value="0" placeholder="0"></div></div>
+            <div class="field"><label for="lumpM" data-help="Which month of the loan you make the one-time payment.|Month 24 is the end of the second year.">Paid after month</label><div class="input-wrap"><input type="number" id="lumpM" value="24" min="1" max="360" step="1"><span class="suf">mo</span></div></div></div>
+          <span class="hint">Some lenders charge a fee for prepaying fixed-rate loans.<br>Home loans on a floating rate usually have none for individuals.</span>
         </div></details>
         <details class="grp" id="sec-fee"><summary><div class="gi">🧾</div><div class="gt">Processing fee<small>See the rate you really pay</small></div><span class="chev">›</span></summary><div class="grp-body">
-          <div class="field"><label for="fee">Processing fee</label><div class="input-wrap"><input type="number" id="fee" value="0" min="0" max="5" step="0.05"><span class="suf">% of loan</span></div><span class="hint">Usually 0.25 to 2%. Most lenders add 18% GST on the fee, and we include it.</span></div>
+          <div class="field"><label for="fee" data-help="A one-time charge for setting up the loan, as a % of the loan.|Usually 0.25 to 2%.|Most lenders add 18% GST on the fee, and we include it.">Processing fee</label><div class="input-wrap"><input type="number" id="fee" value="0" min="0" max="5" step="0.05"><span class="suf">% of loan</span></div></div>
         </div></details>
       </div>
     </section>
@@ -62,7 +62,7 @@
     <section class="results" aria-live="polite">
       <div class="hero-result"><div class="lbl" id="hLbl">Monthly EMI</div><div class="big" id="emi">—</div><div class="sub" id="emiSub"></div><span class="pill" id="hPill"></span></div>
       <div class="warns" id="warns"></div>
-      <div class="kpis" id="kpis"></div>
+      <div class="card"><h2 class="card-title">💡 Good to know</h2><ul class="facts" id="facts"></ul></div>
       <div id="emiRes">
         <div class="card" style="margin-bottom:18px"><h2 class="card-title">🥧 Principal vs interest</h2>
           <div class="chart-row"><svg class="donut" id="donut" viewBox="0 0 170 170"></svg><div class="legend" id="legend"></div></div></div>
@@ -117,20 +117,27 @@
     const aff = modeGet() === 'afford'; $('emiOnly').hidden = aff; $('affOnly').hidden = !aff; $('emiExtra').hidden = aff; $('emiRes').hidden = aff;
     const rate = num('rate'), n = Math.floor(num('yrs')) * 12 + Math.floor(num('mon')), W = [];
     const warn = (cls, t) => W.push(`<div class="warn ${cls}"><span>${cls === 'bad' ? '⛔' : '⚠️'}</span><span>${t}</span></div>`);
-    const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
+    const facts = a => { $('facts').innerHTML = a.filter(Boolean).map(x => `<li>${x}</li>`).join(''); };
+    [...document.querySelectorAll('#inputs [data-q]')].filter(l => !l.closest('[hidden]')).forEach((l, i) => { l.textContent = `${i + 1}. ${l.dataset.q}`; });   // number only the questions on show
     $('tenHint').textContent = n > 0 ? `= ${plural(n, 'month')} of EMIs` : '';
-    if (n <= 0) { $('emi').textContent = '—'; $('emiSub').textContent = ''; $('hPill').textContent = ''; $('kpis').innerHTML = ''; $('warns').innerHTML = ''; warn('bad', 'Enter a loan period of at least 1 month.'); $('warns').innerHTML = W.join(''); return; }
+    if (n <= 0) { $('emi').textContent = '—'; $('emiSub').textContent = ''; $('hPill').textContent = ''; facts([]); $('warns').innerHTML = ''; warn('bad', 'Enter a loan period of at least 1 month.'); $('warns').innerHTML = W.join(''); return; }
     if (n > 480) warn('', 'Most lenders offer loans for up to 30 years. Check that this period is possible for your loan.');
     if (rate > 24) warn('', 'This rate is very high. Check whether your lender quotes a flat rate on the original amount; a flat rate is much more expensive than the reducing-balance rate this calculator uses.');
 
     if (aff) {
       const inc = num('inc'), foir = num('foir') / 100, old = num('old'), maxEmi = Math.max(0, inc * foir - old), loan = Loan.affordable(maxEmi, rate, n), dp = num('dp');
-      $('hLbl').textContent = 'You could borrow up to'; $('emi').textContent = f(loan); $('emiSub').textContent = `with an EMI of ${f(maxEmi)} a month for ${span(n)}`; $('hPill').textContent = dp > 0 ? `With your down payment, a price of about ${cr(loan + dp)}` : '';
+      const total = maxEmi * n, safe = Math.max(0, inc * 0.3 - old);
+      $('hLbl').textContent = 'You could borrow up to'; $('emi').textContent = f(loan); $('emiSub').textContent = `With an EMI of ${f(maxEmi)} a month for ${span(n)} at ${rate}%.`;
+      $('hPill').textContent = dp > 0 ? `With your ${cr(dp)} down payment, you could buy at about ${cr(loan + dp)}` : maxEmi > 0 ? `You would repay ${cr(total)} in total` : '';
       if (inc <= 0) warn('', 'Enter your monthly take-home pay.');
       else if (maxEmi <= 0) warn('bad', `Your existing EMIs already use ${Math.round(old / inc * 100)}% of your pay, which is above the ${Math.round(foir * 100)}% limit. A new loan is unlikely to be approved.`);
       if (foir > 0.5) warn('', 'Above 50% of your pay going to EMIs leaves little room for living costs and savings. Most lenders will not approve this.');
-      const total = maxEmi * n;
-      $('kpis').innerHTML = K('', 'Largest EMI', f(maxEmi), `${Math.round(foir * 100)}% of ${cr(inc)}, less ${f(old)} existing`) + K('bad', 'Interest on that loan', f(Math.max(0, total - loan)), 'Over the full period') + K('', 'Total you would repay', f(total)) + K('', 'A safer EMI (30%)', f(Math.max(0, inc * 0.3 - old)), `Loan of ${cr(Loan.affordable(Math.max(0, inc * 0.3 - old), rate, n))}`);
+      facts([
+        inc > 0 ? `The largest EMI is <b>${f(maxEmi)}</b>: ${Math.round(foir * 100)}% of your ${f(inc)} pay` + (old > 0 ? `, minus the ${f(old)} you already pay.` : '.') : '',
+        maxEmi > 0 ? `Over ${span(n)}, that loan costs <b>${f(Math.max(0, total - loan))}</b> of interest. You repay ${f(total)} in all.` : '',
+        inc > 0 && foir > 0.3 ? `A safer EMI, 30% of your pay, is <b>${f(safe)}</b>. That supports a loan of about ${cr(Loan.affordable(safe, rate, n))}.` : '',
+        'This is the most a lender might allow. Borrowing less leaves room for savings and surprises.'
+      ]);
       $('warns').innerHTML = W.join(''); return;
     }
 
@@ -138,11 +145,18 @@
     const lumps = lumpAmt > 0 ? [{ month: Math.max(1, Math.floor(num('lumpM'))), amount: lumpAmt }] : [], extra = num('extra'), prepay = extra > 0 || lumpAmt > 0;
     const base = Loan.schedule({ P, rate, n }), S = prepay ? Loan.schedule({ P, rate, n, extra, lumps }) : base, emi = base.emi;
     if (lumps[0] && lumps[0].month > n) warn('', 'The one-time prepayment month is after the loan ends, so it is ignored.');
-    $('hLbl').textContent = 'Monthly EMI'; $('emi').textContent = f(emi); $('emiSub').textContent = extra > 0 ? `${f(emi + extra)} a month with your extra payment` : lumpAmt > 0 && lumps[0].month <= n ? `${cr(lumpAmt)} prepaid after month ${lumps[0].month}, so the loan ends sooner` : `for ${span(n)} (${n} months)`;
-    const eff = Loan.effectiveRate(P, rate, n, fee); $('hPill').textContent = fee > 0 ? `Rate you really pay with the fee: ${eff.toFixed(2)}%` : '';
-    const total = S.paid + fee, intr = S.interest;
-    $('kpis').innerHTML = K('', 'Loan amount', f(P)) + K('bad', 'Total interest', f(intr), prepay ? `Without extra: ${f(base.interest)}` : '') + K('', fee > 0 ? 'Total you pay (with fee)' : 'Total you pay', f(total), fee > 0 ? `Fee with GST: ${f(fee)}` : '') + K('', 'Interest share', (total ? Math.round(intr / total * 100) : 0) + '%', 'Of everything you pay') +
-      (prepay ? K('good', 'Interest you save', f(base.interest - S.interest), 'By paying extra') + K('good', 'Loan ends', span(S.months), `${span(n - S.months)} sooner`) : '');
+    const pre = lumpAmt > 0 && lumps[0].month <= n, eff = Loan.effectiveRate(P, rate, n, fee), total = S.paid + fee, intr = S.interest, saved = base.interest - S.interest;
+    $('hLbl').textContent = 'Your monthly EMI'; $('emi').textContent = f(emi);
+    $('emiSub').textContent = `To borrow ${f(P)} at ${rate}% for ${span(n)}.` + (extra > 0 ? ` With your extra payment, you pay ${f(emi + extra)} a month.` : '');
+    $('hPill').textContent = prepay && saved > 0.5 ? `Paying extra saves ${f(saved)} of interest and ends the loan ${span(n - S.months)} sooner` : `You pay back ${f(total)} in total, ${f(intr)} of it interest`;
+    const y1 = S.years[0] || { interest: 0, principal: 0 };
+    facts([
+      prepay && saved > 0.5 ? `In total you pay back <b>${f(total)}</b>, of which <b>${f(intr)}</b> is interest. Without the extra payments, the interest would be ${f(base.interest)}.` : '',
+      `Interest is <b>${total ? Math.round(intr / total * 100) : 0}%</b> of everything you pay.`,
+      n > 12 ? `In the first year, <b>${f(y1.interest)}</b> of your payments goes to interest and only ${f(y1.principal)} reduces the loan. That is why early prepayments save the most.` : '',
+      pre ? `Your ${cr(lumpAmt)} prepayment after month ${lumps[0].month} goes straight to the loan, so it ends after ${span(S.months)} instead of ${span(n)}.` : '',
+      fee > 0 ? `The processing fee with GST is <b>${f(fee)}</b>. With the fee, the rate you really pay is <b>${eff.toFixed(2)}%</b>, not ${rate}%.` : ''
+    ]);
     Common.donut($('donut'), $('legend'), [{ label: 'Principal', value: P }, { label: 'Interest', value: intr }].concat(fee > 0 ? [{ label: 'Fee with GST', value: fee }] : []), 'Total', cr(total));
     const xs = []; for (let m = 0; m <= n; m += Math.max(1, Math.round(n / 60))) xs.push(m); if (xs[xs.length - 1] !== n) xs.push(n);
     Common.lineChart($('balChart'), { xs, xfmt: v => (v % 12 === 0 ? v / 12 : ''), xlabel: v => 'Month ' + v + ' (year ' + (v / 12).toFixed(1) + ')', label: 'Outstanding loan', area: true,

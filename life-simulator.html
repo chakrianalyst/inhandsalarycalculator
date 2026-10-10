@@ -23,55 +23,51 @@
     <section class="card" id="inputs" aria-label="Inputs">
       <h2 class="card-title">🧑 Your money today</h2>
 
-      <div class="field"><span class="lbl">I’ll enter my pay as</span>
+      <div class="field"><label for="incM" data-help="Monthly take-home: what reaches your bank account each month.|Yearly gross: your pay before tax. We work out the tax for you.">1. How do you want to enter your pay?</label>
         <div class="seg" id="incM"><button type="button" data-v="net" class="on">Monthly take-home</button><button type="button" data-v="gross">Yearly gross (before tax)</button></div></div>
       <div class="field">
-        <label for="inc" id="incLabel">Monthly take-home pay</label>
+        <label for="inc" id="incLabel" data-help="Take-home: what reaches your bank account after tax and PF.|Yearly gross: your pay before tax. We work out the tax for you.">2. How much do you take home each month?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="inc" data-money data-words="incWords" value="150000" aria-describedby="incWords"><span class="suf" id="incSuf">/month</span></div>
         <div class="words" id="incWords" aria-live="polite"></div>
         <div class="cap" id="incCap"></div>
         <span class="hint" id="incHint">What lands in your bank account each month, after tax and PF.</span>
       </div>
 
-      <div class="row-2">
-        <div class="field"><label for="expenses">Living costs</label>
+      <div class="field"><label for="expenses" data-help="Food, bills, travel, fun and everything else, but not rent or EMIs.">3. What do you spend each month, apart from rent?</label>
           <div class="input-wrap"><span class="pre">₹</span><input id="expenses" data-money value="40000"><span class="suf">/month</span></div>
-          <span class="hint">Food, bills, travel, fun and everything else, but not rent or EMIs.</span></div>
-        <div class="field"><label for="rent">Rent</label>
+          </div>
+      <div class="field"><label for="rent" data-help="Stops automatically when you buy a home.|Enter 0 if you own.">4. How much rent do you pay each month?</label>
           <div class="input-wrap"><span class="pre">₹</span><input id="rent" data-money value="20000"><span class="suf">/month</span></div>
-          <span class="hint">Stops automatically when you buy a home. Enter 0 if you own.</span></div>
-      </div>
+          </div>
 
-      <div class="field"><label for="corp">Savings &amp; investments today</label>
+      <div class="field"><label for="corp" data-help="Bank balance, FDs, mutual funds, stocks: money you could use.|Leave out your home.">5. How much have you saved and invested so far?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="corp" data-money data-words="corpWords" value="800000" aria-describedby="corpWords"></div>
         <div class="words" id="corpWords" aria-live="polite"></div>
-        <span class="hint">Bank balance, FDs, mutual funds, stocks: money you could use. Leave out your home.</span></div>
+        </div>
 
-      <div class="row-2">
-        <div class="field"><label for="age">Your age</label><div class="input-wrap"><input type="number" id="age" value="28" min="18" max="70" step="1"><span class="suf">years</span></div></div>
-        <div class="field"><label for="retire">You stop working at</label><div class="input-wrap"><input type="number" id="retire" value="58" min="30" max="80" step="1"><span class="suf">years</span></div></div>
-      </div>
-      <div class="field"><label for="end">Plan until age</label><div class="input-wrap"><input type="number" id="end" value="85" min="65" max="100" step="1"><span class="suf">years</span></div>
-        <span class="hint">How long your money needs to last. 85 is a common choice.</span></div>
+      <div class="field"><label for="age" data-help="Your age today.">6. How old are you?</label><div class="input-wrap"><input type="number" id="age" value="28" min="18" max="70" step="1"><span class="suf">years</span></div></div>
+      <div class="field"><label for="retire" data-help="The age you plan to stop working.|You can see the earliest possible age in the results.">7. At what age do you want to stop working?</label><div class="input-wrap"><input type="number" id="retire" value="58" min="30" max="80" step="1"><span class="suf">years</span></div></div>
+      <div class="field"><label for="end" data-help="How long your money needs to last.|85 is a common choice.">8. Until what age should your money last?</label><div class="input-wrap"><input type="number" id="end" value="85" min="65" max="100" step="1"><span class="suf">years</span></div>
+        </div>
 
       <details class="adv"><summary>Assumptions that matter a lot <small class="adv-sum" id="assumSum"></small></summary>
         <p class="grp-hint">These are typical long-run guesses. Try your own and watch the result change.</p>
         <div class="sub-h">The economy</div>
         <div class="row-2">
-          <div class="field"><label for="growth">Pay rise each year</label><div class="input-wrap"><input type="number" id="growth" value="8" min="0" max="25" step="0.5"><span class="suf">%</span></div><span class="hint">How fast your income grows.</span></div>
-          <div class="field"><label for="infl">Price rise each year</label><div class="input-wrap"><input type="number" id="infl" value="6" min="0" max="15" step="0.5"><span class="suf">%</span></div><span class="hint">Inflation: makes future costs bigger.</span></div>
+          <div class="field"><label for="growth" data-help="How fast your income grows.">Pay rise each year</label><div class="input-wrap"><input type="number" id="growth" value="8" min="0" max="25" step="0.5"><span class="suf">%</span></div></div>
+          <div class="field"><label for="infl" data-help="Inflation: makes future costs bigger.">Price rise each year</label><div class="input-wrap"><input type="number" id="infl" value="6" min="0" max="15" step="0.5"><span class="suf">%</span></div></div>
         </div>
         <div class="row-2">
-          <div class="field"><label for="eduInfl">Education fee rise each year</label><div class="input-wrap"><input type="number" id="eduInfl" value="10" min="0" max="20" step="0.5"><span class="suf">%</span></div><span class="hint">School and college fees usually rise faster than other prices. Used for your child’s higher education.</span></div>
-          <div class="field"><label for="homeG">Home price rise each year</label><div class="input-wrap"><input type="number" id="homeG" value="" placeholder="same as prices" min="0" max="15" step="0.5"><span class="suf">%</span></div><span class="hint">Leave empty to use the price rise above. Used for the price you pay and for your home’s value.</span></div>
+          <div class="field"><label for="eduInfl" data-help="School and college fees usually rise faster than other prices.|Used for your child’s higher education.">Education fee rise each year</label><div class="input-wrap"><input type="number" id="eduInfl" value="10" min="0" max="20" step="0.5"><span class="suf">%</span></div></div>
+          <div class="field"><label for="homeG" data-help="Leave empty to use the price rise above.|Used for the price you pay and for your home’s value.">Home price rise each year</label><div class="input-wrap"><input type="number" id="homeG" value="" placeholder="same as prices" min="0" max="15" step="0.5"><span class="suf">%</span></div></div>
         </div>
-        <div class="field"><label for="retRet">Return after you stop working</label><div class="input-wrap"><input type="number" id="retRet" value="" placeholder="same as above" min="0" max="20" step="0.5"><span class="suf">%</span></div><span class="hint">Many people move to safer investments after retiring and earn less. Leave empty to use the same return.</span></div>
-        <div class="field"><label for="ret">Investment return each year</label><div class="input-wrap"><input type="number" id="ret" value="10" min="0" max="20" step="0.5"><span class="suf">%</span></div><span class="hint">Average growth of your savings after costs. Not guaranteed.</span></div>
+        <div class="field"><label for="retRet" data-help="Many people move to safer investments after retiring and earn less.|Leave empty to use the same return.">Return after you stop working</label><div class="input-wrap"><input type="number" id="retRet" value="" placeholder="same as above" min="0" max="20" step="0.5"><span class="suf">%</span></div></div>
+        <div class="field"><label for="ret" data-help="Average growth of your savings after costs.|Not guaranteed.">Investment return each year</label><div class="input-wrap"><input type="number" id="ret" value="10" min="0" max="20" step="0.5"><span class="suf">%</span></div></div>
         <div class="sub-h">Your habits</div>
-        <div class="field"><label for="invest">Share of your spare money you actually invest</label><div class="input-wrap"><input type="number" id="invest" value="80" min="0" max="100" step="5"><span class="suf">%</span></div>
-          <span class="hint">Spare money is pay minus the costs you listed. Real life leaks: gifts, medical bills, trips, gadgets. 80% is a cautious guess; 100% means every spare rupee is invested.</span></div>
-        <div class="field"><label for="creep">Lifestyle creep: share of each real pay rise you spend</label><div class="input-wrap"><input type="number" id="creep" value="25" min="0" max="100" step="5"><span class="suf">%</span></div>
-          <span class="hint">A real raise is pay growth above inflation (or a career jump). At 25%, a quarter of every raise goes into a better lifestyle for good, and the rest to savings. 0% means your spending only ever rises with inflation.</span></div>
+        <div class="field"><label for="invest" data-help="Spare money is pay minus the costs you listed.|Real life leaks: gifts, medical bills, trips, gadgets.|80% is a cautious guess; 100% means every spare rupee is invested.">Share of your spare money you actually invest</label><div class="input-wrap"><input type="number" id="invest" value="80" min="0" max="100" step="5"><span class="suf">%</span></div>
+          </div>
+        <div class="field"><label for="creep" data-help="A real raise is pay growth above inflation (or a career jump).|At 25%, a quarter of every raise goes into a better lifestyle for good, and the rest to savings.|0% means your spending only ever rises with inflation.">Lifestyle creep: share of each real pay rise you spend</label><div class="input-wrap"><input type="number" id="creep" value="25" min="0" max="100" step="5"><span class="suf">%</span></div>
+          </div>
       </details>
 
       <h2 class="card-title" style="margin-top:24px">🎛️ Life events <span style="font-weight:500;color:var(--muted);font-size:.8rem">(switch on, then set the age)</span></h2>
@@ -160,18 +156,18 @@
     { id: 'home', icon: '🏠', name: 'Home', blurb: 'Planning to buy one, or already own one with a loan? Choose below.', pastLabel: 'I already own a home (with a loan)', fields: [
       ['price', 'Home price today', '₹', 'The price of a similar home today.', null, 'planned'], ['dp', 'Down payment', '%', 'Paid from your savings on the day.', 100, 'planned'],
       ['value', 'Home value today', '₹', 'What it would sell for now.', null, 'past'], ['loan', 'Loan still to repay', '₹', 'The outstanding principal.', null, 'past'],
-      ['emi', 'EMI you pay', '₹', 'Per month. Not part of the living costs above.', null, 'past'], ['yearsLeft', 'Years of EMI left', 'yrs', '', 40, 'past'],
-      ['rate', 'Loan interest rate', '%', '', 30], ['tenure', 'Loan period', 'yrs', 'Rent stops when you buy.', 40, 'planned']] },
-    { id: 'wed', icon: '💍', name: 'Wedding', blurb: 'Planning one? Skip this if you are already married: your family is already in your living costs.', fields: [['cost', 'Wedding cost today', '₹', ''], ['uplift', 'Living costs rise by', '%', 'Two people spend more than one.', 300]] },
+      ['emi', 'EMI you pay', '₹', 'Per month. Not part of the living costs above.', null, 'past'], ['yearsLeft', 'Years of EMI left', 'yrs', 'How many years of EMIs are still to go on your home loan.', 40, 'past'],
+      ['rate', 'Loan interest rate', '%', 'The yearly interest rate on the home loan.', 30], ['tenure', 'Loan period', 'yrs', 'Rent stops when you buy.', 40, 'planned']] },
+    { id: 'wed', icon: '💍', name: 'Wedding', blurb: 'Planning one? Skip this if you are already married: your family is already in your living costs.', fields: [['cost', 'Wedding cost today', '₹', 'What the wedding would cost at today’s prices.'], ['uplift', 'Living costs rise by', '%', 'Two people spend more than one.', 300]] },
     { id: 'kid', icon: '👶', name: 'Child', blurb: 'Already have a child, or planning one? Choose below.', pastLabel: 'I already have a child', fields: [
       ['cost', 'One-time cost today', '₹', 'Birth, setup and first-year costs.', null, 'planned'], ['monthly', 'Extra cost per month today', '₹', 'Until your child turns 22.', null, 'planned'],
-      ['childAge', 'Your child’s age now', 'yrs', '', 30, 'past'], ['share', 'Child’s share of your living costs', '₹', 'Per month, already inside your living costs. We drop it when your child turns 22. Enter 0 if unsure.', null, 'past'],
+      ['childAge', 'Your child’s age now', 'yrs', 'Your child’s age today, in years.', 30, 'past'], ['share', 'Child’s share of your living costs', '₹', 'Per month, already inside your living costs. We drop it when your child turns 22. Enter 0 if unsure.', null, 'past'],
       ['edu', 'Higher-education cost today', '₹', 'Paid over your child’s ages 18 to 21. Only the years still to come are counted.'],
-      ['wedCost', 'Child’s wedding cost today', '₹', 'Optional. Leave 0 to ignore it.'], ['wedAge', 'Child’s age at the wedding', 'yrs', '', 45]] },
-    { id: 'kid2', icon: '🍼', name: 'Another child', blurb: 'Planning another child?', fields: [['cost', 'One-time cost today', '₹', 'Birth, setup and first-year costs.'], ['monthly', 'Extra cost per month today', '₹', 'Until the child turns 22.'], ['edu', 'Higher-education cost today', '₹', 'Paid over the child’s ages 18 to 21.'], ['wedCost', 'Child’s wedding cost today', '₹', 'Optional. Leave 0 to ignore it.'], ['wedAge', 'Child’s age at the wedding', 'yrs', '', 45]] },
+      ['wedCost', 'Child’s wedding cost today', '₹', 'Optional. Leave 0 to ignore it.'], ['wedAge', 'Child’s age at the wedding', 'yrs', 'The age your child marries. Only used if you enter a wedding cost.', 45]] },
+    { id: 'kid2', icon: '🍼', name: 'Another child', blurb: 'Planning another child?', fields: [['cost', 'One-time cost today', '₹', 'Birth, setup and first-year costs.'], ['monthly', 'Extra cost per month today', '₹', 'Until the child turns 22.'], ['edu', 'Higher-education cost today', '₹', 'Paid over the child’s ages 18 to 21.'], ['wedCost', 'Child’s wedding cost today', '₹', 'Optional. Leave 0 to ignore it.'], ['wedAge', 'Child’s age at the wedding', 'yrs', 'The age your child marries. Only used if you enter a wedding cost.', 45]] },
     { id: 'jump', icon: '🚀', name: 'Career jump', blurb: 'A promotion or a better job.', fields: [['pct', 'Your pay rises by', '%', 'A rise on top of normal yearly increases.', 300], ['every', 'Repeat every', 'yrs', '0 means one jump only. Otherwise you change jobs or get promoted every this many years until you stop working.', 40]] },
-    { id: 'car', icon: '🚗', name: 'Buy or replace a car', blurb: 'Paid in cash from your savings.', fields: [['cost', 'Car price today', '₹', ''], ['every', 'Replace it every', 'yrs', '0 means you buy only one car.', 40]] },
-    { id: 'parents', icon: '👪', name: 'Support your parents', blurb: 'If you already support them and it is in your living costs above, leave this off.', fields: [['monthly', 'Support per month today', '₹', ''], ['yrs', 'For how many years', 'yrs', '', 60]] },
+    { id: 'car', icon: '🚗', name: 'Buy or replace a car', blurb: 'Paid in cash from your savings.', fields: [['cost', 'Car price today', '₹', 'What the car costs at today’s prices. Paid from your savings.'], ['every', 'Replace it every', 'yrs', '0 means you buy only one car.', 40]] },
+    { id: 'parents', icon: '👪', name: 'Support your parents', blurb: 'If you already support them and it is in your living costs above, leave this off.', fields: [['monthly', 'Support per month today', '₹', 'What you send your parents each month, at today’s prices.'], ['yrs', 'For how many years', 'yrs', 'How many years you expect to support them.', 60]] },
     { id: 'pension', icon: '💰', name: 'Pension or rental income', blurb: 'Income that starts later, such as a pension, rent from a property or a business. Taxes are not included.', fields: [['monthly', 'Income per month today', '₹', 'In today’s rupees; it rises with price rises.']] },
     { id: 'crash', icon: '📉', name: 'Market crash', blurb: 'Test your plan against a bad year. A crash just before or after you stop working hurts the most.', fields: [['drop', 'Your savings fall by', '%', 'In that one year. Markets usually recover, and this plan keeps earning your normal return afterwards.', 90]] },
     { id: 'break', icon: '🌴', name: 'Career break', blurb: 'A sabbatical, study leave or time off.', fields: [['yrs', 'Years without income', 'yrs', 'Your spending carries on.', 10]] },
@@ -179,24 +175,22 @@
   const host = $('events');
   EVENTS.forEach(e => {
     const st = ev[e.id], d = document.createElement('div'); d.className = 'ev' + (st.on ? ' on' : ''); d.dataset.past = st.past ? '1' : '0';
-    const fld = ([k, label, unit, hint, max, scope]) => `<div class="field${scope === 'planned' ? ' only-planned' : scope === 'past' ? ' only-past' : ''}"><label>${label}</label><div class="input-wrap">${unit === '₹' ? '<span class="pre">₹</span>' : ''}<input ${unit === '₹' ? 'type="text" data-money' : `type="number" min="0" ${max ? `max="${max}"` : ''} step="any"`} data-e="${e.id}" data-k="${k}" aria-label="${e.name}: ${label}" value="${st[k]}">${unit !== '₹' ? `<span class="suf">${unit}</span>` : ''}</div>${hint ? `<span class="hint">${hint}</span>` : ''}</div>`;
+    const fld = ([k, label, unit, hint, max, scope]) => `<div class="field${scope === 'planned' ? ' only-planned' : scope === 'past' ? ' only-past' : ''}"><label for="ev-${e.id}-${k}"${hint ? ` data-help="${Common.esc(hint)}"` : ''}>${label}</label><div class="input-wrap">${unit === '₹' ? '<span class="pre">₹</span>' : ''}<input ${unit === '₹' ? 'type="text" data-money' : `type="number" min="0" ${max ? `max="${max}"` : ''} step="any"`} id="ev-${e.id}-${k}" data-e="${e.id}" data-k="${k}" aria-label="${e.name}: ${label}" value="${st[k]}">${unit !== '₹' ? `<span class="suf">${unit}</span>` : ''}</div></div>`;
     const pastToggle = e.pastLabel ? `<label class="toggle"><span>${e.pastLabel}</span><span class="switch"><input type="checkbox" data-e="${e.id}" data-k="past" ${st.past ? 'checked' : ''}><i></i></span></label>` : '';
     d.innerHTML = `<div class="ev-top"><div class="gi">${e.icon}</div><span class="t">${e.name}</span><label class="switch"><input type="checkbox" data-e="${e.id}" data-k="on" ${st.on ? 'checked' : ''} aria-label="${e.name}"><i></i></label></div>
       <div class="ev-blurb">${e.blurb}</div>
-      <div class="ev-body">${pastToggle}<div class="field${e.pastLabel ? ' only-planned' : ''}"><label>It happens at age <b id="age-${e.id}">${st.age}</b></label><input type="range" aria-label="${e.name}: age it happens" data-e="${e.id}" data-k="age" min="20" max="75" step="1" value="${st.age}"></div>
+      <div class="ev-body">${pastToggle}<div class="field${e.pastLabel ? ' only-planned' : ''}"><label for="ev-${e.id}-age" data-help="Your age when this happens.|It must be between your age today and the end of your plan.">At what age?</label><div class="input-wrap"><input type="number" id="ev-${e.id}-age" aria-label="${e.name}: age it happens" data-e="${e.id}" data-k="age" min="20" max="75" step="1" value="${st.age}"><span class="suf">yrs</span></div></div>
       <div class="row-2">${e.fields.map(fld).join('')}</div><div class="cap ev-info" id="info-${e.id}"></div></div>`;
     host.appendChild(d);
   });
   host.querySelectorAll('input[data-money]').forEach(i => Common.attachMoney(i));
-  const paintRange = r => r.style.setProperty('--p', ((r.value - r.min) / (r.max - r.min) * 100) + '%');
-  host.querySelectorAll('input[type=range]').forEach(paintRange);
   document.addEventListener('input', x => {
     const t = x.target; if (!t.closest || !t.closest('#inputs')) return;
     if (t.dataset && t.dataset.e) {
       const e = t.dataset.e, k = t.dataset.k;
       if (k === 'on') { ev[e].on = t.checked; t.closest('.ev').classList.toggle('on', t.checked); }
       else if (k === 'past') { ev[e].past = t.checked; t.closest('.ev').dataset.past = t.checked ? '1' : '0'; }
-      else { ev[e][k] = parseFloat(Common.raw(t)) || 0; if (t.type === 'range') { paintRange(t); $('age-' + e).textContent = t.value; } }
+      else ev[e][k] = parseFloat(Common.raw(t)) || 0;
     }
     calc();
   });
@@ -227,12 +221,13 @@
       const d = t === 'money' && a !== null && b !== null ? b - a : null, cls = d === null ? '' : d >= 0 ? 'pos' : 'neg';
       return `<tr><td>${l}</td><td>${cell(a)}</td><td><b>${cell(b)}</b></td><td class="${cls}">${d === null ? '' : (d >= 0 ? '+' : '−') + cr(Math.abs(d))}</td></tr>`; }).join('') + `</tbody>`;
   }
-  /** Events can only happen from today on, and (for pay-related ones) before you stop working: keep every age slider inside that range. */
+  /** Events can only happen from today on, and (for pay-related ones) before you stop working: keep every event age inside that range (not while it is being typed). */
   function syncAges() {
     const a0 = Math.round(num('age')) || 18, ret = Math.max(a0 + 1, Math.round(num('retire')) || 58), end = Math.max(ret + 1, Math.round(num('end')) || 85);
-    host.querySelectorAll('input[type=range][data-k=age]').forEach(r => {
+    host.querySelectorAll('input[data-k=age]').forEach(r => {
       const id = r.dataset.e, hi = id === 'jump' || id === 'break' ? ret - 1 : end - 1, lo = Math.min(a0, hi);
-      r.min = lo; r.max = hi; const v = Math.min(hi, Math.max(lo, +r.value)); if (v !== +r.value) { r.value = v; ev[id].age = v; $('age-' + id).textContent = v; } paintRange(r);
+      r.min = lo; r.max = hi; if (r === document.activeElement) return;
+      const v = Math.min(hi, Math.max(lo, Math.round(+r.value) || lo)); if (v !== +r.value) { r.value = v; ev[id].age = v; }
     });
   }
   function calc() {
@@ -245,7 +240,7 @@
     const nameOf = id => id === 'kid' && ev.kid.past ? 'your child' : id === 'home' && ev.home.past ? 'your current home loan' : names[id];
 
     // pay field wording
-    $('incLabel').textContent = net ? 'Monthly take-home pay' : 'Yearly gross pay (before tax)'; $('incSuf').textContent = net ? '/month' : '/year';
+    $('incLabel').textContent = net ? '2. How much do you take home each month?' : '2. What is your yearly pay before tax?'; $('incSuf').textContent = net ? '/month' : '/year';
     $('incHint').textContent = net ? 'What lands in your bank account each month, after tax and PF.' : 'Your yearly pay before tax. We work out the tax for you.';
     const fy = S.firstYear, thMonth = fy.takeHome / 12, otherM = fy.extra / 12, homeM = (fy.emi + (S.firstYear.maint || 0)) / 12, spend = (fy.living + fy.rent + fy.extra + fy.emi + fy.maint) / 12, left = thMonth - spend;
     $('incCap').textContent = P.income > 0 ? (net ? `= ${f(P.income * 12)} a year after tax` : `After tax you would take home about ${f(thMonth)} a month`) : '';

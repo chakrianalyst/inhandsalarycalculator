@@ -23,18 +23,14 @@
     <section class="card" aria-label="Inputs">
       <div class="banner info" id="sampleNote" hidden><span>👋</span><span>These are <b>sample numbers</b> to show how the calculator works. <button type="button" class="linkbtn" id="startOwn">Clear them and enter yours</button></span></div>
       <h2 class="card-title">🧾 About you <span style="font-weight:500;color:var(--muted);font-size:.8rem">(for benchmarks)</span></h2>
-      <div class="row-2">
-        <div class="field"><label for="age">Age</label><div class="input-wrap"><input type="number" id="age" min="18" max="90" step="1"><span class="suf">yrs</span></div></div>
-        <div class="field"><label for="inc">Annual income</label><div class="input-wrap"><span class="pre">₹</span><input id="inc" data-money data-words="incWords" min="0" step="10000" aria-describedby="incWords"></div><div class="words" id="incWords"></div></div>
-      </div>
-      <div class="field"><label for="exp">Monthly spending, including EMIs</label><div class="input-wrap"><span class="pre">₹</span><input id="exp" data-money data-words="expWords" min="0" step="1000" aria-describedby="expWords"></div><div class="words" id="expWords"></div>
-        <span class="hint">Everything that goes out in a month, loan EMIs included. Used to check your emergency fund. Leave blank to skip.</span></div>
-      <div class="field"><label for="emi">Of which, loan EMIs</label><div class="input-wrap"><span class="pre">₹</span><input id="emi" data-money min="0" step="1000"></div>
-        <span class="hint">The EMI part of the amount above: home, car, personal and education loans together. Used to check your debt burden. Leave blank to skip.</span></div>
+      <div class="field"><label for="age" data-help="Your age today.|Used to compare your net worth with common rules of thumb for your age.">1. How old are you?</label><div class="input-wrap"><input type="number" id="age" min="18" max="90" step="1"><span class="suf">yrs</span></div></div>
+      <div class="field"><label for="inc" data-help="Your yearly income before tax, from salary and anything else.|Used for the benchmarks.">2. What is your yearly income?</label><div class="input-wrap"><span class="pre">₹</span><input id="inc" data-money data-words="incWords" min="0" step="10000" aria-describedby="incWords"></div><div class="words" id="incWords"></div></div>
+      <div class="field"><label for="exp" data-help="Everything that goes out in a month, loan EMIs included.|Used to check your emergency fund.|Leave blank to skip.">3. How much do you spend each month?</label><div class="input-wrap"><span class="pre">₹</span><input id="exp" data-money data-words="expWords" min="0" step="1000" aria-describedby="expWords"></div><div class="words" id="expWords"></div></div>
+      <div class="field"><label for="emi" data-help="The EMI part of your monthly spending: home, car, personal and education loans together.|Used to check your debt burden.|Leave blank to skip.">4. How much of that goes to loan EMIs?</label><div class="input-wrap"><span class="pre">₹</span><input id="emi" data-money min="0" step="1000"></div></div>
 
-      <div class="sec-label">Assets — what you own</div>
+      <div class="sec-label q" style="margin-top:18px">5. What do you own?</div>
       <div class="nw-groups" id="assets"></div>
-      <div class="sec-label" style="margin-top:18px">Liabilities — what you owe</div>
+      <div class="sec-label q" style="margin-top:18px">6. What do you owe?</div>
       <div class="nw-groups" id="liabs"></div>
 
       <div class="toolbar">

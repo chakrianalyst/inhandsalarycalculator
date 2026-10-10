@@ -21,22 +21,24 @@
   <div class="container tool-layout">
     <!-- ================= INPUTS ================= -->
     <section class="card" id="inputs" aria-label="Inputs">
+      <div class="field" style="margin-bottom:8px"><label for="mode" data-help="An offer (CTC): you know the yearly CTC from an offer or appraisal letter.|My payslip: you know the monthly amounts on your payslip.">1. What do you have?</label></div>
       <div class="seg mode-seg" id="mode"><button type="button" data-v="ctc" class="on">💼 I have an offer (CTC)</button><button type="button" data-v="payslip">🧾 I have my payslip</button></div>
 
       <div id="ctcMode">
-        <div class="field" data-slider>
-          <label for="ctc">Annual CTC</label>
+        <div class="field">
+          <label for="ctc" data-help="CTC = Cost to Company: everything your employer spends on you in a year, from your offer letter.|It includes their PF, gratuity and insurance, so it is bigger than what reaches your bank account.">2. What is your yearly CTC?</label>
           <div class="input-wrap"><span class="pre">₹</span><input id="ctc" data-money data-words="ctcWords" value="1200000" min="100000" max="10000000" step="10000" aria-describedby="ctcWords"></div>
           <div class="words" id="ctcWords" aria-live="polite"></div>
         </div>
         <div class="alloc" id="alloc" aria-label="How your CTC is split"></div>
         <div class="ab" id="ab"></div>
+        <div class="sec-label q" style="margin:22px 0 8px">3. Does your offer letter show a different split? (optional)</div>
         <div class="nw-groups" id="ctcSecs"></div>
       </div>
 
-      <div id="payMode" hidden><div class="nw-groups" id="paySecs"></div></div>
+      <div id="payMode" hidden><div class="sec-label q" style="margin:22px 0 8px">2. Copy these from your payslip</div><div class="nw-groups" id="paySecs"></div></div>
 
-      <div class="sec-label" style="margin:22px 0 8px">Taxes &amp; deductions</div>
+      <div class="sec-label q" style="margin:22px 0 8px" id="taxLbl">4. Taxes and deductions (optional)</div>
       <div class="nw-groups" id="taxSecs"></div>
       <div class="toolbar"><button class="btn btn-ghost btn-sm" id="btnReset" type="button">↺ Reset everything</button></div>
     </section>
@@ -46,14 +48,14 @@
       <div class="hero-result">
         <div class="lbl" id="rLbl">Monthly in-hand salary</div>
         <div class="big" id="rMonth">—</div>
-        <div class="sub" id="rYear"></div><div class="hchips" id="rChips"></div>
+        <div class="sub" id="rYear"></div>
         <span class="pill" id="rPill"></span>
       </div>
       <div class="pay-tools" style="margin-top:-6px">
         <div class="seg" id="regime" style="flex:1;min-width:230px"><button type="button" data-v="auto" class="on">Best regime</button><button type="button" data-v="new">New</button><button type="button" data-v="old">Old</button></div>
       </div>
-      <div class="banner" id="rBanner"></div>
       <div class="warns" id="warns"></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">💡 Good to know</h2><ul class="facts" id="facts"></ul></div>
       <div class="nudge" id="nudge" hidden></div>
 
       <div class="card" style="margin-bottom:18px">
@@ -147,7 +149,8 @@
     d.innerHTML = `<summary><div class="gi">${icon}</div><div class="gt">${title}<small>${sub}</small></div><div class="gv" id="v-${id}"></div><span class="chev">›</span></summary><div class="grp-body" id="b-${id}"></div>`;
     return d;
   }
-  const mfield = (id, label, val, hint, suf) => `<div class="field"><label for="${id}">${label}</label><div class="input-wrap"><span class="pre">₹</span><input id="${id}" data-money value="${val}" placeholder="0">${suf ? `<span class="suf">${suf}</span>` : ''}</div>${hint ? `<span class="hint">${hint}</span>` : ''}</div>`;
+  const HELP_TXT = { payout: 'How much of the variable pay you expect to actually receive.|Many people get less than 100%.', ins: 'Health or term insurance and similar benefits your employer pays for.|They are part of CTC but never reach your bank account.', pOther: 'Special allowance, conveyance, LTA and any other monthly allowances on your payslip, added together.', pBonus: 'Any bonus or variable pay you expect this year, before tax.', pTds: 'The income tax your employer deducts each month, shown as TDS on your payslip.', pt: 'A small state tax taken from your salary, shown on your payslip.|Most states charge ₹200 a month.', city: 'The city where you live and pay rent.|Metro cities allow a bigger tax-free HRA.', rent: 'The monthly rent you pay.|Used only for the HRA exemption in the old regime.', c80ppf: 'What you put into your Public Provident Fund this year.|Counts under Section 80C.', c80elss: 'Tax-saving mutual funds (ELSS) you buy this year.|Counts under Section 80C.', c80lic: 'Life insurance premiums you pay this year.|Counts under Section 80C.', c80hl: 'The part of your home-loan EMIs that repays the loan, not the interest.|Counts under Section 80C.', c80tui: 'Tuition fees for up to two children.|Counts under Section 80C.', c80oth: 'Other 80C items, such as NSC, a 5-year tax-saver FD or Sukanya Samriddhi.', d80s: 'Health insurance premium for yourself, your spouse and children.|Section 80D, old regime only.', d80p: 'Health insurance premium you pay for your parents.|Section 80D, old regime only.', hli: 'Interest on a loan for the home you live in.|Section 24(b), old regime only.', ltac: 'Leave Travel Allowance you claim as tax-free for trips within India.', edu: 'Interest on a loan for higher education.|Section 80E, old regime only.', don: 'Donations to approved charities that you can claim.|Section 80G, old regime only.', dis: 'A deduction for a disability, yours or a dependant’s.|Sections 80DD and 80U.', othd: 'Any other deduction you can claim in the old regime.' };   // ? notes for fields the shared jargon list does not cover
+  const mfield = (id, label, val, hint, suf) => `<div class="field"><label for="${id}"${HELP_TXT[id] ? ` data-help="${HELP_TXT[id]}"` : ''}>${label}</label><div class="input-wrap"><span class="pre">₹</span><input id="${id}" data-money value="${val}" placeholder="0">${suf ? `<span class="suf">${suf}</span>` : ''}</div>${hint ? `<span class="hint">${hint}</span>` : ''}</div>`;
   const toggle = (id, title, small, on) => `<label class="toggle"><span>${title}<small>${small}</small></span><span class="switch"><input type="checkbox" id="${id}"${on ? ' checked' : ''}><i></i></span></label>`;
   const sub = t => `<div class="sub-h">${t}</div>`;
 
@@ -180,7 +183,7 @@
   const sBonus = sec('bonus', '🎯', 'Bonus / variable pay', 'Performance bonus, incentives', false);
   ctcSecs.appendChild(sBonus);
   $('b-bonus').appendChild(dual('bonus', 'Variable pay (target)', { mode: 'pct', val: 0, base: ctcAnnual, baseName: 'CTC', hint: 'Part of CTC that is paid only if targets are met.' }).el);
-  $('b-bonus').insertAdjacentHTML('beforeend', `<div class="field"><label for="payout">Expected payout</label><div class="input-wrap"><input type="number" id="payout" value="100" min="0" max="200" step="5"><span class="suf">%</span></div><span class="hint">Try 70–80% for a conservative estimate. Unpaid variable is simply not received.</span></div>`);
+  $('b-bonus').insertAdjacentHTML('beforeend', `<div class="field"><label for="payout" data-help="${HELP_TXT.payout}">Expected payout</label><div class="input-wrap"><input type="number" id="payout" value="100" min="0" max="200" step="5"><span class="suf">%</span></div><span class="hint">Try 70–80% for a conservative estimate. Unpaid variable is simply not received.</span></div>`);
 
   const sOther = sec('other', '🧩', 'Special allowance & extras', 'The rest of your CTC, plus allowances such as LTA or meal cards', false);
   ctcSecs.appendChild(sOther);
@@ -222,7 +225,7 @@
   const sOld = sec('old', '🧮', 'Old-regime benefits', 'Used only if the old regime comes out better', false); taxSecs.appendChild(sOld);
   $('b-old').innerHTML = `<p class="grp-hint">The new regime ignores these. We use them to check if the old regime would leave you with more.</p>` +
     `<div class="cap" id="oldAuto"></div>` +
-    sub('HRA') + `<div class="field"><label for="city">City you live in</label><select id="city" data-cities data-default="Bengaluru"></select><span class="hint">From FY 2026-27, HRA exemption can be up to 50% of basic in Delhi, Mumbai, Kolkata, Chennai, Bengaluru, Hyderabad, Pune and Ahmedabad, and 40% elsewhere. Please confirm with your employer.</span></div>` +
+    sub('HRA') + `<div class="field"><label for="city" data-help="${HELP_TXT.city}">City you live in</label><select id="city" data-cities data-default="Bengaluru"></select><span class="hint">From FY 2026-27, HRA exemption can be up to 50% of basic in Delhi, Mumbai, Kolkata, Chennai, Bengaluru, Hyderabad, Pune and Ahmedabad, and 40% elsewhere. Please confirm with your employer.</span></div>` +
     mfield('rent', 'Rent you pay', '', 'Used for the HRA exemption. Needs HRA in your salary.', '/month') + `<div class="cap" id="hraInfo"></div>` +
     sub('Section 80C (limit ₹1.5 lakh, your PF counts first)') +
     mfield('c80ppf', 'PPF', '', '', '/year') + mfield('c80elss', 'ELSS / tax-saving mutual funds', '', '', '/year') + mfield('c80lic', 'Life insurance premium', '', '', '/year') +
@@ -298,16 +301,20 @@
     const hasBonus = r.bonus > 0, pct = r.ctc ? Math.round(b.inHandYear / r.ctc * 100) : null;
 
     // hero
-    $('rLbl').textContent = (isCtc ? 'Monthly in-hand salary' : 'Expected monthly in-hand') + (hasBonus ? ' (fixed pay)' : '');
+    $('taxLbl').textContent = (isCtc ? '4' : '3') + '. Taxes and deductions (optional)';
+    $('rLbl').textContent = 'Your monthly in-hand salary' + (hasBonus ? ', before bonus' : '');
     $('rMonth').textContent = f(b.fixedMonthly);
-    $('rYear').textContent = hasBonus ? `Bonus: ${f(r.bonus)} before tax, ${f(b.bonusAfterTax)} after tax · ${f(b.inHandMonth)}/mo on average` : `${f(b.inHandYear)} per year` + (pct !== null ? ` · ${pct}% of CTC` : '');
-    $('rPill').textContent = keyName + ' regime' + (reg === 'auto' ? ' (best for you)' + (r.saving >= 1 ? ` · saves you ${f(r.saving)}/yr` : '') : ' selected');
-    $('rChips').innerHTML = (hasBonus ? `<span>Fixed pay: ${f(b.fixedMonthly)}/mo</span><span>Bonus after tax: ${f(b.bonusAfterTax)}/yr</span>` : '') + (b.otherDed > 0 ? `<span>After ${f(b.otherDed / 12)}/mo of other deductions</span>` : '');
-    const diff = b.inHandYear - o.inHandYear;
-    $('rBanner').className = 'banner' + (Math.abs(diff) < 1 ? ' info' : '');
-    $('rBanner').innerHTML = Math.abs(diff) < 1 ? '<span>ℹ️</span><span>Both regimes give the same take-home for your inputs.</span>'
-      : reg === 'auto' ? `<span>💡</span><span>The <b>${key} regime</b> is better for you: you keep <b>${f(r.saving)}</b> more per year (${f(r.saving / 12)}/month) than under the ${key === 'new' ? 'old' : 'new'} regime.</span>`
-      : `<span>${diff >= 0 ? '✅' : '⚠️'}</span><span>You chose the <b>${key} regime</b>. It gives you <b>${f(Math.abs(diff))}</b> ${diff >= 0 ? 'more' : 'less'} per year than the ${key === 'new' ? 'old' : 'new'} regime.</span>`;
+    $('rYear').textContent = hasBonus ? `Plus a bonus of ${f(b.bonusAfterTax)} after tax (${f(r.bonus)} before tax). That averages ${f(b.inHandMonth)} a month.` : `${f(b.inHandYear)} a year` + (pct !== null ? `, ${pct}% of your CTC.` : '.');
+    $('rPill').textContent = reg === 'auto' ? `Under the ${key} regime, best for you` + (r.saving >= 1 ? `: saves ${f(r.saving)} a year` : '') : `Under the ${key} regime, as you chose`;
+    const diff = b.inHandYear - o.inHandYear, other = key === 'new' ? 'old' : 'new';
+    $('facts').innerHTML = [
+      Math.abs(diff) < 1 ? 'Both tax regimes give the same take-home for your numbers.'
+        : reg === 'auto' ? `The <b>${key} regime</b> leaves you <b>${f(r.saving)}</b> more a year (${f(r.saving / 12)} a month) than the ${other} regime.`
+        : `You chose the <b>${key} regime</b>. It gives you <b>${f(Math.abs(diff))}</b> ${diff >= 0 ? 'more' : 'less'} a year than the ${other} regime.`,
+      b.tax >= 1 ? `Income tax takes <b>${f(b.tax)}</b> a year (${f(b.tax / 12)} a month).` : `<b>No income tax</b> under the ${key} regime for your pay.`,
+      a.employerPf + a.gratuity > 0 && isCtc ? `<b>${f(a.employerPf + a.gratuity)}</b> of your CTC goes to employer PF and gratuity. It is still your money, paid out later.` : '',
+      b.otherDed > 0 ? `This is after <b>${f(b.otherDed / 12)}</b> a month of other payslip deductions.` : ''
+    ].filter(Boolean).map(x => `<li>${x}</li>`).join('');
     $('cnV').textContent = f(r.new.fixedMonthly) + '/mo'; $('cnS').textContent = 'Tax ' + f(r.new.tax) + '/yr'; $('coV').textContent = f(r.old.fixedMonthly) + '/mo'; $('coS').textContent = 'Tax ' + f(r.old.tax) + '/yr';
     $('cmpNew').classList.toggle('best', r.best === 'new' && r.saving >= 1); $('cmpOld').classList.toggle('best', r.best === 'old' && r.saving >= 1);
 
