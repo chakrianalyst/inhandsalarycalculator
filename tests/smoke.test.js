@@ -237,15 +237,17 @@ if (chromium) {
   });
 
   test('EMI calculator: tenure in years and months, extra payments, fee, month view and loan eligibility', async () => {
-    const pg = await open(SITE, 'emi-calculator.html'); const hero = () => pg.$eval('.hero-result', e => e.innerText), kp = () => pg.$eval('#kpis', e => e.innerText);
-    assert.match(await hero(), /₹43,391/); assert.match(await kp(), /₹54,13,879/);
+    const pg = await open(SITE, 'emi-calculator.html'); const hero = () => pg.$eval('.hero-result', e => e.innerText), kp = () => pg.$eval('#facts', e => e.innerText);
+    assert.match(await hero(), /₹43,391/); assert.match(await hero(), /₹54,13,879 of it interest/); assert.match(await kp(), /In the first year, ₹4,21,182/);
+    assert.equal(await pg.$('#inputs input[type=range]'), null, 'no sliders'); assert.ok(await pg.$$eval('#inputs .help-btn', x => x.length) >= 4, 'every question has ? help');
     await pg.fill('#yrs', '1'); await pg.fill('#mon', '6'); assert.match(await pg.$eval('#tenHint', e => e.textContent), /18 months/); assert.match(await hero(), /1 year 6 months/);
     await pg.click('#typeChips .chip:text("Home")'); assert.equal(await pg.inputValue('#yrs'), '20');
-    await pg.$eval('#sec-pre', e => (e.open = true)); await pg.fill('#extra', '5,000'); assert.match(await kp(), /Interest you save[\s\S]*₹13,89,250/); assert.match(await kp(), /4 years 5 months sooner/);
-    await pg.fill('#extra', '0'); await pg.fill('#lump', '5,00,000'); await pg.fill('#lumpM', '24'); assert.match(await hero(), /prepaid after month 24/);
-    await pg.$eval('#sec-fee', e => (e.open = true)); await pg.fill('#fee', '1'); assert.match(await hero(), /Rate you really pay with the fee: 8\.\d\d%/);
+    await pg.$eval('#sec-pre', e => (e.open = true)); await pg.fill('#extra', '5,000'); assert.match(await hero(), /saves ₹13,89,250 of interest and ends the loan 4 years 5 months sooner/); assert.match(await kp(), /Without the extra payments, the interest would be ₹54,13,879/);
+    await pg.fill('#extra', '0'); await pg.fill('#lump', '5,00,000'); await pg.fill('#lumpM', '24'); assert.match(await kp(), /prepayment after month 24/);
+    await pg.$eval('#sec-fee', e => (e.open = true)); await pg.fill('#fee', '1'); assert.match(await kp(), /the rate you really pay is 8\.\d\d%/);
     await pg.click('#view [data-v=month]'); assert.ok((await pg.$$('#sched tr')).length > 100);
-    await pg.click('#mode [data-v=afford]'); assert.match(await hero(), /borrow up to[\s\S]*₹46,09,234/); assert.equal(await pg.isVisible('#balChart'), false);
+    await pg.click('#mode [data-v=afford]'); assert.match(await hero(), /borrow up to[\s\S]*₹46,09,234/); assert.equal(await pg.isVisible('#balChart'), false); assert.match(await kp(), /A safer EMI/);
+    assert.deepEqual(await pg.$$eval('#inputs [data-q]', l => l.filter(x => !x.closest('[hidden]')).map(x => x.textContent.split('.')[0])), ['1', '2', '3', '4', '5', '6', '7'], 'questions on show are numbered in order');
     await pg.fill('#yrs', '0'); await pg.fill('#mon', '0'); assert.match(await pg.$eval('#warns', e => e.textContent), /at least 1 month/);
     assert.deepEqual(pg.errs, []); await pg.close();
   });
@@ -266,31 +268,35 @@ if (chromium) {
 
   test('Gratuity calculator: years and months, part-year rule, eligibility, 50% rule, government, projection', async () => {
     const pg = await open(SITE, 'gratuity-calculator.html'); const hero = () => pg.$eval('.hero-result', e => e.innerText);
-    assert.match(await hero(), /₹2,88,462/);
+    assert.match(await hero(), /₹2,88,462/); assert.match(await hero(), /All of it is tax-free/); assert.match(await pg.$eval('#facts', e => e.textContent), /Each year of service adds about ₹28,846/);
+    assert.equal(await pg.$('#inputs input[type=range]'), null, 'no sliders'); assert.ok(await pg.$$eval('#inputs .help-btn', x => x.length) >= 3, 'every question has ? help');
     await pg.fill('#mon', '7'); assert.match(await hero(), /₹3,17,308/); assert.match(await pg.$eval('#svcHint', e => e.textContent), /counts as 11 years/);
     await pg.fill('#mon', '6'); assert.match(await hero(), /₹2,88,462/);                              // exactly 6 months does not round up
-    await pg.fill('#yrs', '3'); assert.match(await hero(), /not payable yet/); assert.match(await pg.$eval('#gNote', e => e.textContent), /away/);
-    await pg.$eval('#ftRow input', e => e.click()); assert.match(await hero(), /Estimated gratuity/);                               // fixed-term: eligible after 1 year
+    await pg.fill('#yrs', '3'); assert.match(await hero(), /No gratuity yet/); assert.match(await pg.$eval('#warns', e => e.textContent), /away/);
+    await pg.$eval('#ftRow input', e => e.click()); assert.match(await hero(), /if you leave now/);                               // fixed-term: eligible after 1 year
     await pg.$eval('#ftRow input', e => e.click()); await pg.fill('#yrs', '10'); await pg.fill('#mon', '0');
-    await pg.$eval('#sec-50', e => (e.open = true)); await pg.fill('#total', '1,50,000'); assert.match(await hero(), /₹4,32,692/); assert.match(await pg.$eval('#gNote', e => e.textContent), /half of your total pay/);
+    await pg.$eval('#sec-50', e => (e.open = true)); await pg.fill('#total', '1,50,000'); assert.match(await hero(), /₹4,32,692/); assert.match(await pg.$eval('#facts', e => e.textContent), /half of your total pay/);
     assert.ok((await pg.$$('#projTbl tr')).length > 2);
-    await pg.click('#kind [data-v=govt]'); assert.equal(await pg.isVisible('#ftRow'), false); assert.match(await pg.$eval('#gNote', e => e.textContent), /fully tax-free/);
+    await pg.click('#kind [data-v=govt]'); assert.equal(await pg.isVisible('#ftRow'), false); assert.match(await pg.$eval('#facts', e => e.textContent), /fully tax-free/);
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
   test('HRA calculator: three-way test, financial-year metro list, months, rent needed, tax saved', async () => {
     const pg = await open(SITE, 'hra-calculator.html'); const hero = () => pg.$eval('.hero-result', e => e.innerText);
-    assert.match(await hero(), /₹2,76,000/); assert.match(await hero(), /Metro: 50% of basic/); assert.match(await pg.$eval('#tips', e => e.textContent), /limited by rent/);
-    await pg.click('#fy [data-v="2025"]'); assert.match(await hero(), /Non-metro: 40% of basic/);                      // Bengaluru was not a metro for FY 2025-26
+    const tips = () => pg.$eval('#tips', e => e.textContent);
+    assert.match(await hero(), /₹2,76,000/); assert.match(await tips(), /Bengaluru counts as a metro[\s\S]*50% of your basic/); assert.match(await tips(), /limited by rent/);
+    assert.equal(await pg.$('#inputs input[type=range]'), null, 'no sliders'); assert.ok(await pg.$$eval('#inputs .help-btn', x => x.length) >= 7, 'every question has ? help');
+    await pg.click('#fy [data-v="2025"]'); assert.match(await tips(), /Bengaluru counts as a non-metro city[\s\S]*40% of your basic/);                      // Bengaluru was not a metro for FY 2025-26
     await pg.click('#fy [data-v="2026"]'); await pg.fill('#months', '6'); assert.match(await hero(), /₹1,38,000/); assert.match(await hero(), /6 months/); await pg.fill('#months', '12');
     await pg.fill('#rent', '4,000'); assert.match(await pg.$eval('#warns', e => e.textContent), /not more than 10%/);
-    await pg.fill('#rent', '30,000'); assert.match(await pg.$eval('#warns', e => e.textContent), /landlord’s PAN/); assert.match(await pg.$eval('#kpis', e => e.innerText), /Tax you save/);
+    await pg.fill('#rent', '30,000'); assert.match(await pg.$eval('#warns', e => e.textContent), /landlord’s PAN/); assert.match(await hero(), /In the old regime, this saves you about ₹[\d,]+ in tax/);
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
   test('Salary hike calculator: % or new CTC, inflation check, keep per ₹100, projection', async () => {
-    const pg = await open(SITE, 'salary-hike-calculator.html'); const hero = () => pg.$eval('.hero-result', e => e.innerText), kp = () => pg.$eval('#kpis', e => e.innerText);
-    assert.match(await hero(), /\+₹11,060/); assert.match(await kp(), /After inflation[\s\S]*8\.5%/); assert.match(await kp(), /per extra ₹100 of CTC[\s\S]*₹88/);
+    const pg = await open(SITE, 'salary-hike-calculator.html'); const hero = () => pg.$eval('.hero-result', e => e.innerText), kp = () => pg.$eval('#facts', e => e.innerText);
+    assert.match(await hero(), /\+₹11,060/); assert.match(await hero(), /From ₹73,530 to ₹84,590 a month/); assert.match(await kp(), /buying power grows by 8\.5%/); assert.match(await kp(), /extra ₹100 of CTC, you keep ₹88/);
+    assert.equal(await pg.$('#inputs input[type=range]'), null, 'no sliders'); assert.ok(await pg.$$eval('#inputs .help-btn', x => x.length) >= 4, 'every question has ? help');
     assert.equal((await pg.$$('#proj tr')).length, 7);
     await pg.click('#hmode [data-v=ctc]'); assert.equal(await pg.isVisible('#hike'), false); await pg.fill('#newctc', '10,50,000'); assert.match(await pg.$eval('#warns', e => e.textContent), /below inflation/);
     await pg.fill('#newctc', '9,00,000'); assert.match(await pg.$eval('#warns', e => e.textContent), /pay cut/);
@@ -490,7 +496,7 @@ if (chromium) {
     await shows('offer-comparison.html?n0=Bengaluru%20%E2%82%B920%20L&ctc0=2000000&var0=10&bonus0=0&esop0=0&rent0=28000&oth0=4000&n1=Mumbai%20%E2%82%B924%20L&ctc1=2400000&var1=20&rent1=45000&oth1=6000&hz=1', '#bars', /₹1,01,558[\s\S]*₹1,04,873/);
     await shows('offer-comparison.html?n0=Bengaluru%20%E2%82%B920%20L&ctc0=2000000&var0=10&bonus0=0&esop0=0&rent0=28000&oth0=4000&n1=Mumbai%20%E2%82%B924%20L&ctc1=2400000&var1=20&rent1=45000&oth1=6000&hz=1&pay=60', '#hero', /₹40,406/);
     await shows('offer-comparison.html?n0=Startup&ctc0=1800000&var0=0&bonus0=150000&esop0=400000&rent0=30000&oth0=4000&n1=Big%20company&ctc1=2200000&var1=10&bonus1=0&esop1=0&rent1=30000&oth1=4000&hz=4', '#hero', /₹1,50,026/);
-    await shows('salary-hike-calculator.html?ctc=1800000&hike=6', '#kpis', /-0\.9%/);
+    await shows('salary-hike-calculator.html?ctc=1800000&hike=6', '#facts', /falls by 0\.9%/);
     await shows('salary-hike-calculator.html?ctc=1360000&hmode=ctc&newctc=1440000', '.hero-result', /₹1,00,073 → ₹1,00,063/);
     await shows('layoff-runway-calculator.html?monthly=80000&severance=160000&notice=80000&leave=30000&savings=200000&pf=300000&essentials=30000&emi=0&other=20000&otherCut=8000&insurance=18000', '#kpis', /₹4\.70 L[\s\S]*11 months/);
     await shows('life-simulator.html', '.hero-result', /₹5\.65 Cr/);
