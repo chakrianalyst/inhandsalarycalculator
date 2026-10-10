@@ -444,6 +444,42 @@ if (chromium) {
     await pg.close();
   });
 
+  test('articles: fit a phone, link to working prefilled calculators, and show the figures they quote', async () => {
+    const arts = pagesOf(SITE).filter(f => /rc-article/.test(fs.readFileSync(path.join(SITE, f), 'utf8')));
+    assert.equal(arts.length, 16);
+    const links = new Set();
+    for (const f of arts) {
+      const pg = await open(SITE, f, 390);
+      assert.deepEqual(pg.errs, [], f); assert.ok(await pg.evaluate(() => document.documentElement.scrollWidth <= innerWidth), f + ' scrolls sideways at 390px');
+      assert.match(await pg.$eval('.art-meta', e => e.textContent), /\d+ min read.*Updated \d+ \w+ 2026/, f);
+      assert.equal(await pg.$$eval('.section .tool-grid .art-card', x => x.length), 3, f + ' has 3 more articles');
+      for (const h of await pg.$$eval('article a[href*="?"]', a => a.map(x => x.getAttribute('href')))) links.add(h);
+      await pg.close();
+    }
+    for (const h of links) { const pg = await open(SITE, h); assert.deepEqual(pg.errs, [], h); await pg.close(); }       // every prefilled calculator link opens cleanly
+    const shows = async (h, sel, re) => { const pg = await open(SITE, h); await pg.waitForTimeout(300); assert.match(await pg.$eval(sel, e => e.innerText), re, h); await pg.close(); };
+    await shows('offer-comparison.html?n0=Bengaluru%20%E2%82%B920%20L&ctc0=2000000&var0=10&bonus0=0&esop0=0&rent0=28000&oth0=4000&n1=Mumbai%20%E2%82%B924%20L&ctc1=2400000&var1=20&rent1=45000&oth1=6000&hz=1', '#bars', /₹1,01,558[\s\S]*₹1,04,873/);
+    await shows('offer-comparison.html?n0=Bengaluru%20%E2%82%B920%20L&ctc0=2000000&var0=10&bonus0=0&esop0=0&rent0=28000&oth0=4000&n1=Mumbai%20%E2%82%B924%20L&ctc1=2400000&var1=20&rent1=45000&oth1=6000&hz=1&pay=60', '#hero', /₹40,406/);
+    await shows('offer-comparison.html?n0=Startup&ctc0=1800000&var0=0&bonus0=150000&esop0=400000&rent0=30000&oth0=4000&n1=Big%20company&ctc1=2200000&var1=10&bonus1=0&esop1=0&rent1=30000&oth1=4000&hz=4', '#hero', /₹1,50,026/);
+    await shows('salary-hike-calculator.html?ctc=1800000&hike=6', '#kpis', /-0\.9%/);
+    await shows('salary-hike-calculator.html?ctc=1360000&hmode=ctc&newctc=1440000', '.hero-result', /₹1,00,073 → ₹1,00,063/);
+    await shows('layoff-runway-calculator.html?monthly=80000&severance=160000&notice=80000&leave=30000&savings=200000&pf=300000&essentials=30000&emi=0&other=20000&otherCut=8000&insurance=18000', '#kpis', /₹4\.70 L[\s\S]*11 months/);
+    await shows('life-simulator.html', '.hero-result', /₹5\.65 Cr/);
+    await shows('life-simulator.html?kid.on=0', '.hero-result', /₹6\.87 Cr/);
+    await shows('life-simulator.html?creep=50', '.hero-result', /₹4\.53 Cr/);
+    await shows('networth-calculator.html', '.hero-result', /₹60,15,000/);
+    await shows('abroad-calculator.html?country=DE&city=ber&gross=75000&rentA=1300&otherA=1300', '.hero-result', /₹1,71,16,958/);
+    await shows('return-calculator.html?jobCtc=2500000&jobGap=6', '.hero-result', /₹2\.05 Cr to spare/);
+    await shows('salary-calculator.html?ctc=3000000&rent=60000&c80ppf=6000&d80s=25000&nps1b=50000', 'body', /₹1,87,297/);
+    await shows('salary-calculator.html?ctc=1400000&nps=10', 'body', /₹98,355/);
+    await shows('gratuity-calculator.html?wage=40000&yrs=6&total=120000', '.hero-result', /₹2,07,692/);
+    // the hub lists every article, the home page features eight, and each calculator links to its article
+    let pg = await open(SITE, 'articles.html'); assert.equal(await pg.$$eval('.art-card', x => x.length), 16); await pg.close();
+    pg = await open(SITE, 'index.html'); assert.equal(await pg.$$eval('#articles .art-card', x => x.length), 8); await pg.close();
+    pg = await open(SITE, 'emi-calculator.html'); assert.equal(await pg.$eval('.read-card', e => e.getAttribute('href')), 'prepay-home-loan-or-invest.html'); await pg.close();
+    pg = await open(SITE, 'offer-comparison.html'); assert.equal(await pg.$eval('.read-card', e => e.getAttribute('href')), 'compare-two-job-offers.html'); await pg.close();
+  });
+
   test('readable colours: green, red and brand text meet 4.5:1 on their surfaces in light and dark; index quick check agrees with the salary page', async () => {
     for (const theme of ['light', 'dark']) {
       const pg = await browser.newPage({ colorScheme: theme }); await pg.goto(url(SITE, 'sip-calculator.html')); await pg.evaluate(t => { document.documentElement.dataset.theme = t; }, theme);
@@ -722,7 +758,7 @@ if (chromium) {
       const right = await pg.evaluate(() => Math.max(...[...document.querySelectorAll('header *')].filter(e => e.offsetParent).map(e => e.getBoundingClientRect().right)));
       assert.ok(right <= w, `header fits at ${w}px (rightmost ${right})`);
       assert.equal(await pg.isVisible('.nav-quick'), w > 900, `popular links at ${w}px`);
-      await pg.click('#menuBtn'); assert.equal(await pg.$$eval('#navLinks a', a => a.filter(x => x.offsetParent).length), 16, `all 16 calculators listed at ${w}px`);
+      await pg.click('#menuBtn'); assert.equal(await pg.$$eval('#navLinks a', a => a.filter(x => x.offsetParent).length), 17, `all 16 calculators and the articles listed at ${w}px`);
       assert.equal(await pg.getAttribute('#menuBtn', 'aria-expanded'), 'true');
       await pg.keyboard.press('Escape'); assert.equal(await pg.isVisible('#navLinks'), false); await pg.close();
     }

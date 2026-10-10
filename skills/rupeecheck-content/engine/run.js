@@ -97,7 +97,7 @@ function fd(o) {
 }
 
 /* ---------- gratuity / hra ---------- */
-function gratuity(o) { const d = merge('gratuity-calculator', o), r = Gratuity.calc({ wage: n(d.wage), kind: d.kind, years: n(d.yrs), months: n(d.mon), fixedTerm: bool(d.fixed), totalPay: n(d.total) || undefined }); return { inputs: d, results: r, assumptions: ['Formula: wage × 15 ÷ 26 × completed years (covered employees)', 'New labour-code rules as built into the site. Confirm with a labour-law professional', 'Tax-free limit ₹20 lakh'] }; }
+function gratuity(o) { const d = merge('gratuity-calculator', o), r = Gratuity.calc({ wage: n(d.wage), kind: d.kind, years: n(d.yrs), months: n(d.mon), fixedTerm: bool(d.fixed), totalPay: n(d.total) || undefined, apply50: n(d.total) > 0 }); return { inputs: d, results: r, assumptions: ['Formula: wage × 15 ÷ 26 × completed years (covered employees)', 'New labour-code rules as built into the site. Confirm with a labour-law professional', 'Tax-free limit ₹20 lakh'] }; }
 function hra(o) {
   const d = merge('hra-calculator', { metro: true, ...o }), metro = bool(d.metro), r = HRA.calc({ basicM: n(d.basic), hraM: n(d.hra), rentM: n(d.rent), months: n(d.months), pctOfBasic: metro ? 0.5 : 0.4, slab: n(d.slab) });
   return { inputs: d, results: r, assumptions: ['Old regime only', 'Exempt HRA = least of HRA received, rent − 10% of basic, and ' + (metro ? '50%' : '40%') + ' of basic', 'Metro = Delhi, Mumbai, Kolkata, Chennai, Bengaluru, Hyderabad, Pune, Ahmedabad (Income-tax Rules 2026, Rule 279)'] };

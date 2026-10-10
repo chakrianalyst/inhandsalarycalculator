@@ -59,13 +59,13 @@ const Common = (() => {
     if (location.protocol !== 'file:' && /\/index\.html$/.test(location.pathname) && history.replaceState) history.replaceState(null, '', location.pathname.replace(/index\.html$/, '') + location.search + location.hash);
     const POPULAR = ['salary', 'sip', 'emi', 'fd', 'hra', 'return'];                        // shown in the bar on wide screens; everything is under "All tools"
     const links = TOOLS.map(t => `<a href="${t.href}" class="${t.id === activeId ? 'active' : ''}">${t.name}</a>`).join('');
-    const quick = POPULAR.map(id => TOOLS.find(t => t.id === id)).filter(Boolean).map(t => `<a href="${t.href}" class="${t.id === activeId ? 'active' : ''}">${t.short}</a>`).join('');
+    const quick = POPULAR.map(id => TOOLS.find(t => t.id === id)).filter(Boolean).map(t => `<a href="${t.href}" class="${t.id === activeId ? 'active' : ''}">${t.short}</a>`).join('') + `<a href="articles.html" class="${activeId === 'articles' ? 'active' : ''}">Articles</a>`;
     const header = `
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header"><div class="container nav">
       <a href="${HOME}" class="logo" aria-label="RupeeCheck home"><div class="logo-mark">₹</div><span>Rupee<b>Check</b></span></a>
       <nav class="nav-quick" aria-label="Popular calculators">${quick}</nav>
-      <nav class="nav-links" id="navLinks" aria-label="All calculators">${links}</nav>
+      <nav class="nav-links" id="navLinks" aria-label="All calculators">${links}<a href="articles.html" class="${activeId === 'articles' ? 'active' : ''}">📚 Articles &amp; guides</a></nav>
       <div class="nav-actions">
         <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode" title="Toggle theme">🌓</button>
         <button class="icon-btn menu-btn" id="menuBtn" aria-label="All calculators" aria-expanded="false" aria-controls="navLinks"><span aria-hidden="true">☰</span><span class="mb-txt">All tools</span></button>
@@ -78,7 +78,7 @@ const Common = (() => {
           <p>Fast, free, private money calculators for India. Everything runs in your browser. What you type is not sent to our servers.</p></div>
         <div><h4>Calculators</h4><ul>${TOOLS.slice(0, 6).map(t => `<li><a href="${t.href}">${t.name}</a></li>`).join('')}</ul></div>
         <div><h4>More</h4><ul>${TOOLS.slice(6).map(t => `<li><a href="${t.href}">${t.name}</a></li>`).join('')}<li><a href="in-hand-salary-by-ctc.html">Salary by CTC chart</a></li></ul></div>
-        <div><h4>Learn &amp; about</h4><ul>${GUIDES.map(g => `<li><a href="${g[0]}">${g[1]}</a></li>`).join('')}<li><a href="methodology.html">How we calculate</a></li><li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li><li><a href="privacy.html">Privacy &amp; Disclaimer</a></li></ul></div>
+        <div><h4>Learn &amp; about</h4><ul><li><a href="articles.html"><b>All articles</b></a></li>${GUIDES.map(g => `<li><a href="${g[0]}">${g[1]}</a></li>`).join('')}<li><a href="methodology.html">How we calculate</a></li><li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li><li><a href="privacy.html">Privacy &amp; Disclaimer</a></li></ul></div>
       </div>
       <p class="legal">© ${new Date().getFullYear()} RupeeCheck. Calculators give estimates for educational purposes based on Tax Year 2026-27 (FY 2026-27) rules and common salary structures; they are not tax, legal or investment advice. Your employer's actual payslip may differ.</p>
     </div></footer>`;
@@ -343,6 +343,9 @@ const Common = (() => {
   function related(activeId, n = 3) {
     const el = document.getElementById('related'); if (!el) return;
     const gl = (GUIDE_LINKS[activeId] || []).map(h => GUIDES.find(g => g[0] === h)).filter(Boolean);
+    const art = (SITE.articles || []).find(a => a.tool === activeId);                      // the in-depth article written for this calculator
+    const spot = document.querySelector('.tool-layout') || el;                              // just under the calculator, where people finish reading their result
+    if (art && !document.querySelector('.read-card')) spot.insertAdjacentHTML('afterend', `<a class="read-card" href="${art.href}"><span class="i" aria-hidden="true">${art.icon}</span><span><small>Read the article</small><b>${esc(art.title)}</b></span><span class="go">Read →</span></a>`);
     if (gl.length && !document.querySelector('.guide-links')) el.insertAdjacentHTML('afterend', `<p class="guide-links"><b>Read the guides:</b> ${gl.map(g => `<a href="${g[0]}">${g[1]}</a>`).join(' · ')}</p>`);
     el.innerHTML = TOOLS.filter(t => t.id !== activeId).slice(0, n).map(t =>
       `<a class="tool-card" href="${t.href}"><div class="ico" aria-hidden="true">${t.icon}</div><h3>${t.name}</h3><p>${t.desc}</p><span class="go">Open →</span></a>`).join('');

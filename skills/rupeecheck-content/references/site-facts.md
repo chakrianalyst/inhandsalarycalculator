@@ -32,6 +32,26 @@ Base address https://rupeecheck.in/ followed by the file name.
 | Salary hike | `salary-hike-calculator.html` | |
 | Net worth | `networth-calculator.html` | `net-worth-by-age.html` |
 | Life plan simulator | `life-simulator.html` | |
+**Articles** (hub: `articles.html`). One in-depth article per calculator; link the article when a post explains the topic, and the calculator when the reader should try their own numbers. Every figure in them is checked by `tests/articles.test.js`.
+| Calculator | Article |
+|---|---|
+| Salary | `12-lakh-no-tax-explained.html` |
+| Job offers | `compare-two-job-offers.html` |
+| Salary hike | `salary-hike-in-hand-reality.html` |
+| HRA | `pay-rent-to-parents-hra.html` |
+| Gratuity | `gratuity-rules-explained.html` |
+| Layoff runway | `laid-off-in-india-money-plan.html` |
+| EMI | `prepay-home-loan-or-invest.html` |
+| SIP | `sip-delay-cost-of-waiting.html` |
+| FD | `fd-interest-tax-explained.html` |
+| SWP | `monthly-income-from-mutual-funds-swp.html` |
+| FIRE | `retire-early-india-how-much.html` |
+| Rent vs buy | `rent-or-buy-house-india.html` |
+| Move abroad | `is-moving-abroad-worth-it.html` |
+| Return to India | `moving-back-to-india-money-checklist.html` |
+| Net worth | `how-to-calculate-net-worth.html` |
+| Life simulator | `life-events-cost-net-worth.html` |
+
 Not runnable in the engine (qualitative content only, or numbers supplied by the user): life simulator, net worth, offer comparison. Salary hike = run `salary` at the old and new CTC.
 
 ## Rules inside the engine
