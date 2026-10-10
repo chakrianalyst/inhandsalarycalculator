@@ -38,18 +38,18 @@
         <div class="input-wrap"><input type="number" id="step" value="8" min="0" max="25" step="1"><span class="suf">% a year</span></div></div>
       <details class="adv"><summary>Retirement assumptions</summary>
         <div class="row-2">
-      <div class="field"><label for="infl">Inflation</label>
+      <div class="field"><label for="infl" data-help="Inflation: how much more the same things cost a year later.|About 5 to 6% a year is a common planning number in India.">Inflation</label>
         <div class="input-wrap"><input type="number" id="infl" value="6" min="2" max="12" step="0.5"><span class="suf">%</span></div></div>
-      <div class="field"><label for="postRet">Return after retirement</label>
+      <div class="field"><label for="postRet" data-help="What your money earns after you retire.|Many people move to safer investments then, so this is often lower.">Return after retirement</label>
         <div class="input-wrap"><input type="number" id="postRet" value="8" min="3" max="14" step="0.5"><span class="suf">%</span></div></div>
-      <div class="field"><label for="swr">Safe withdrawal rate</label>
+      <div class="field"><label for="swr" data-help="The share of your money you take out in the first year of retirement, then raise with inflation.|3 to 4% is a common choice for early retirement in India.">Safe withdrawal rate</label>
         <div class="input-wrap"><input type="number" id="swr" value="3.5" min="2" max="6" step="0.25"><span class="suf">%</span></div><span class="hint">3–4% is commonly used; India's higher inflation argues for the lower end.</span></div>
-      <div class="field"><label for="life">Plan until age</label>
+      <div class="field"><label for="life" data-help="How long your money must last.|Planning to 85 or 90 is safer.">Plan until age</label>
         <div class="input-wrap"><input type="number" id="life" value="90" min="60" max="105" step="1"><span class="suf">yrs</span></div></div>
         </div>
-      <div class="field"><label for="pension">Pension or rental income after you retire</label>
+      <div class="field"><label for="pension" data-help="Monthly income you expect after you retire, such as a pension or rent, in today’s money.|It lowers the amount you need to save.">Pension or rental income after you retire</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="pension" data-money value="0" placeholder="0"></div><span class="hint">Per month, in today’s rupees. It rises with inflation and lowers the corpus you need.</span></div>
-      <div class="field"><label for="ratio">Retirement spending vs today</label>
+      <div class="field"><label for="ratio" data-help="Your spending in retirement as a share of today’s spending.|100% means the same lifestyle. Some costs fall, such as commuting; others rise, such as health.">Retirement spending vs today</label>
         <div class="input-wrap"><input type="number" id="ratio" value="100" min="40" max="200" step="5"><span class="suf">%</span></div><span class="hint">100% = same lifestyle as now, adjusted for inflation.</span></div>
       </details>
     </section>

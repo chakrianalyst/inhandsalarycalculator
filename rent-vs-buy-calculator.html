@@ -94,7 +94,7 @@
     const p = params(), s = RentBuy.sim(p), last = s.years.length - 1, bN = s.buy[last], rN = s.rentNW[last], diff = bN - rN, be = RentBuy.breakEven(s), buyWins = diff >= 0, infl = num('infl') / 100, k = Math.pow(1 + infl, s.H);
     $('vTitle').textContent = `After ${s.H} years, ${buyWins ? 'buying' : 'renting & investing'} wins by`;
     $('investNote').hidden = buyWins; $('vBig').textContent = f(Math.abs(diff)); $('vSub').textContent = (buyWins ? 'Your home equity outgrows the investment pot.' : 'Investing the difference beats owning the home.') + ` That is ${f(Math.abs(diff) / k)} in today’s money.`;
-    $('vPill').textContent = be ? `Break-even: year ${be}` : 'Buying never breaks even in this horizon';
+    $('vPill').textContent = be ? `Buying pulls ahead in year ${be}` : `Buying does not catch up within ${s.H} years`;
     $('fNw').innerHTML = `After ${s.H} years, you would own about <b>${cr(bN)}</b> if you buy, and <b>${cr(rN)}</b> if you rent and invest.`;
     $('fEmi').innerHTML = `The EMI is <b>${f(s.emi)}</b> a month. Rent for a similar home starts at <b>${f(s.rent0)}</b>.`;
     $('fYield').innerHTML = `A year’s rent is <b>${s.rentYield.toFixed(2)}%</b> of the price, so the home costs ${(s.P / Math.max(1, s.rent0 * 12)).toFixed(0)} times a year’s rent.`;

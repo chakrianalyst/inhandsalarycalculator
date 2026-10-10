@@ -20,64 +20,61 @@
   <div class="container tool-layout">
     <section class="card" id="inputs" aria-label="Inputs">
       <h2 class="card-title">💼 Your final settlement</h2>
-      <div class="field"><label for="monthly">Your monthly salary (gross, before tax)</label>
+      <div class="field"><label for="monthly" data-help="From your payslip.|Used for the quick picks below and to work out the tax on your payout.">1. What is your monthly salary before tax?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="monthly" data-money data-words="moWords" value="150000" placeholder="0" aria-describedby="moWords"></div><div class="words" id="moWords"></div>
-        <span class="hint">From your payslip. Used for the quick picks below and to work out the tax on your payout.</span></div>
-      <div class="field"><label for="lastMonth">Your last salary month</label><select id="lastMonth"></select>
+        </div>
+      <div class="field"><label for="lastMonth" data-help="The last month your employer pays your salary, including any notice period you work.">2. When is your last salary month?</label><select id="lastMonth"></select>
         <span class="hint" id="lmHint">Month 1 of your runway is the month after this.</span></div>
-      <div class="field"><label for="severance">Severance pay</label>
+      <div class="field"><label for="severance" data-help="The amount in your separation letter, before tax.|Enter 0 if there is none.">3. How much severance will you get?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="severance" data-money value="300000" placeholder="0"></div>
         <div class="chips" data-for="severance"><span class="chips-l">Months of salary</span><button type="button" class="chip" data-n="1">1</button><button type="button" class="chip" data-n="2">2</button><button type="button" class="chip" data-n="3">3</button><button type="button" class="chip" data-n="6">6</button></div>
-        <span class="hint">The amount in your separation letter, before tax. Enter 0 if there is none.</span></div>
-      <div class="field"><label for="notice">Notice pay (paid instead of working your notice)</label>
+        </div>
+      <div class="field"><label for="notice" data-help="If you are still working your notice and being paid, leave this at 0 and pick your real last salary month above.">4. How much notice pay will you get?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="notice" data-money value="300000" placeholder="0"></div>
         <div class="chips" data-for="notice"><span class="chips-l">Months of salary</span><button type="button" class="chip" data-n="1">1</button><button type="button" class="chip" data-n="2">2</button><button type="button" class="chip" data-n="3">3</button></div>
-        <span class="hint">If you are still working your notice and being paid, leave this at 0 and pick your real last salary month above.</span></div>
-      <div class="field"><label for="leave">Leave encashment</label>
+        </div>
+      <div class="field"><label for="leave" data-help="Pay for unused leave.|Usually your basic salary ÷ 30 × days of leave left.|Check your full and final statement.">5. How much leave encashment will you get?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="leave" data-money value="50000" placeholder="0"></div>
-        <span class="hint">Pay for unused leave. Usually your basic salary ÷ 30 × days of leave left. Check your full and final statement.</span></div>
-      <div class="field"><label for="gratuity">Gratuity</label>
+        </div>
+      <div class="field"><label for="gratuity" data-help="Usually paid only after 5 years with the employer.|Enter 0 if you will not get it.">6. How much gratuity will you get?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="gratuity" data-money value="0" placeholder="0"></div>
         <span class="hint">Usually only after 5 years with the employer. Work it out with the <a href="gratuity-calculator.html">gratuity calculator</a>.</span></div>
 
       <h2 class="card-title" style="margin-top:8px">🏦 Money you have</h2>
-      <div class="field"><label for="savings">Savings you can use</label>
+      <div class="field"><label for="savings" data-help="Bank balance, FDs, liquid funds and investments you would sell if needed.|Not your PF or retirement money.">7. How much savings can you use?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="savings" data-money data-words="svWords" value="500000" placeholder="0" aria-describedby="svWords"></div><div class="words" id="svWords"></div>
-        <span class="hint">Bank balance, FDs, liquid funds and investments you would sell if needed. Not your PF or retirement money.</span></div>
-      <div class="field"><label for="pf">PF balance</label>
+        </div>
+      <div class="field"><label for="pf" data-help="Your EPF balance (your share plus your employer’s), from the EPFO passbook.">8. What is your PF balance?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="pf" data-money value="600000" placeholder="0"></div>
-        <span class="hint">Your EPF balance (your share plus your employer’s), from the EPFO passbook.</span></div>
+        </div>
       <label class="toggle"><span>Use my PF as a last resort<small>75% can be withdrawn after a month without work, the rest after 12 months. It is your retirement money, so it is off by default.</small></span><span class="switch"><input type="checkbox" id="pfOn"><i></i></span></label>
 
       <h2 class="card-title" style="margin-top:8px">🧾 Monthly spending</h2>
-      <div class="field"><label for="essentials">Essentials</label>
+      <div class="field"><label for="essentials" data-help="Rent, groceries, bills, school fees, support to parents: what you must pay every month.">9. What must you pay every month?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="essentials" data-money value="45000" placeholder="0"></div>
-        <span class="hint">Rent, groceries, bills, school fees, support to parents: what you must pay every month.</span></div>
-      <div class="field"><label for="emi">Loan EMIs</label>
+        </div>
+      <div class="field"><label for="emi" data-help="Home, car, personal loans and credit-card instalments.|These do not stop when the salary does.">10. How much do you pay in EMIs every month?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="emi" data-money value="25000" placeholder="0"></div>
-        <span class="hint">Home, car, personal loans and credit-card instalments. These do not stop when the salary does.</span></div>
-      <div class="row-2">
-        <div class="field"><label for="other">Everything else, today</label><div class="input-wrap"><span class="pre">₹</span><input id="other" data-money value="30000" placeholder="0"></div></div>
-        <div class="field"><label for="otherCut">…if you cut back</label><div class="input-wrap"><span class="pre">₹</span><input id="otherCut" data-money value="10000" placeholder="0"></div></div>
-      </div>
-      <span class="grp-hint" style="display:block;margin-top:-6px;margin-bottom:12px">Eating out, travel, shopping, subscriptions and SIPs you could pause.</span>
-      <div class="field"><label for="insurance">Health insurance you now pay yourself (a year)</label>
+        </div>
+      <div class="field"><label for="other" data-help="Eating out, travel, shopping, subscriptions and SIPs you could pause.">11. What else do you spend every month?</label><div class="input-wrap"><span class="pre">₹</span><input id="other" data-money value="30000" placeholder="0"></div></div>
+      <div class="field"><label for="otherCut" data-help="The same spending, cut back to what you would really need while you look for work.">12. …and if you cut back?</label><div class="input-wrap"><span class="pre">₹</span><input id="otherCut" data-money value="10000" placeholder="0"></div></div>
+      <div class="field"><label for="insurance" data-help="Your employer’s group cover usually ends with the job.|Enter 0 if you already have your own policy.">13. How much will your own health insurance cost a year?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="insurance" data-money value="25000" placeholder="0"></div>
-        <span class="hint">Your employer’s group cover usually ends with the job. Enter 0 if you already have your own policy.</span></div>
+        </div>
 
       <h2 class="card-title" style="margin-top:8px">🔎 While you look for work</h2>
-      <div class="field"><label for="income">Other income each month (after tax)</label>
+      <div class="field"><label for="income" data-help="A partner’s pay you would put towards these costs, freelance work, or rent you receive.">14. Will any other money come in each month?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="income" data-money value="0" placeholder="0"></div>
-        <span class="hint">A partner’s pay you would put towards these costs, freelance work, or rent you receive.</span></div>
-      <div class="field"><label for="search">How long you expect the job search to take</label>
+        </div>
+      <div class="field"><label for="search" data-help="Senior roles and slow markets take longer.|Six months is a sensible test.">15. How long might the job search take?</label>
         <div class="input-wrap"><input type="number" id="search" value="6" min="1" max="36" step="1"><span class="suf">months</span></div>
-        <span class="hint">Senior roles and slow markets take longer. Six months is a sensible test.</span></div>
+        </div>
     </section>
 
     <section class="results" aria-live="polite">
       <div class="hero-result" id="hero"><div class="lbl" id="hLbl">Your money lasts</div><div class="big" id="hBig">—</div><div class="sub" id="hSub"></div><span class="pill" id="hPill"></span></div>
       <div class="warns" id="warns"></div>
-      <div class="kpis" id="kpis"></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">💡 Good to know</h2><ul class="facts" id="kpis"></ul></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">📉 Month by month</h2><div id="chart"></div><p class="chart-cap" id="chartCap"></p></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">🎯 What buys you the most time</h2><div id="tips"></div></div>
       <div class="card" style="margin-bottom:18px"><h2 class="card-title">💰 Your settlement, after tax</h2><div class="tbl-wrap"><table class="tbl" id="setTbl"></table></div><p class="cap" id="taxNote"></p></div>
@@ -136,7 +133,7 @@
     const S = Layoff.settlement({ monthly: num('monthly'), monthsWorked: worked, severance: num('severance'), notice: num('notice'), leave: num('leave'), gratuity: num('gratuity') }, x => Tax.computeTax(x, 'new').total);
     const cash = num('savings') + S.net, ess = num('essentials') + num('emi'), now$ = ess + num('other'), cut$ = ess + Math.min(num('otherCut'), num('other'));
     const o = { insurance: num('insurance'), income: num('income'), pf: num('pf'), pfOn: $('pfOn').checked }, search = Math.max(1, Math.round(num('search')) || 1);
-    const A = Layoff.runway(cash, now$, o), B = Layoff.runway(cash, cut$, o), W = [], K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
+    const A = Layoff.runway(cash, now$, o), B = Layoff.runway(cash, cut$, o), W = [];
     const until = r => r.lasts ? 'beyond 10 years' : Math.floor(r.months) >= 1 ? 'the end of ' + label(last + Math.floor(r.months)) : 'less than a month';
     if (!(now$ > 0)) W.push('Enter your monthly spending to see your runway.');
     if (!(cash > 0) && !(o.pfOn && o.pf > 0)) W.push('Enter your savings or your settlement.');
@@ -150,12 +147,12 @@
     $('hPill').textContent = gap >= 0 ? `Covers a ${search}-month job search with ${A.lasts ? 'years' : plural(gap, 'month')} to spare` : Math.floor(B.months) >= search ? `Short of a ${search}-month search, but cutting back covers it` : `Runs out ${plural(-gap, 'month')} before a ${search}-month search ends`;
 
     const pfAdds = !o.pfOn && o.pf > 0 ? Layoff.runway(cash, now$, { ...o, pfOn: true }).months - A.months : 0;
-    $('kpis').innerHTML = K('', 'Money you can use now', cr(cash), `Savings ${cr(num('savings'))} + settlement ${cr(S.net)}`) +
-      K('', 'Settlement after tax', cr(S.net), S.gross > 0 ? `${cr(S.gross)} before tax, ${cr(S.tax)} tax` : 'No settlement entered') +
-      K('', 'You spend now', f(now$) + '/mo', `${f(ess)} of it is essentials and EMIs`) +
-      K('good', 'If you cut back', span(B.months), `At ${f(cut$)} a month`) +
-      K(gap >= 0 ? 'good' : 'bad', 'Your job search', plural(search, 'month'), gap >= 0 ? 'Covered by your money' : `${plural(-gap, 'month')} short at today’s spending`) +
-      K('', o.pfOn ? 'PF counted' : 'PF, as a last resort', o.pfOn ? cr(o.pf) : pfAdds > 0.5 ? '+' + span(pfAdds) : '—', o.pfOn ? '75% after a month, the rest after 12' : o.pf > 0 ? 'More if you withdrew it. Not counted' : 'No PF entered');
+    $('kpis').innerHTML = [
+      `You can use <b>${cr(cash)}</b> now: savings of ${cr(num('savings'))} plus a settlement of ${cr(S.net)} after tax` + (S.gross > 0 ? ` (${cr(S.gross)} before ${cr(S.tax)} of tax).` : '.'),
+      `You spend <b>${f(now$)}</b> a month now. ${f(ess)} of it is essentials and EMIs.`,
+      `If you cut back to ${f(cut$)} a month, your money lasts <b>${span(B.months)}</b>.`,
+      o.pfOn ? `Your PF of <b>${cr(o.pf)}</b> is counted: 75% after a month without work, the rest after 12 months.` : pfAdds > 0.5 ? `Your PF would add about <b>${span(pfAdds)}</b> if you withdrew it. It is not counted, because it is your retirement money.` : ''
+    ].filter(Boolean).map(x => `<li>${x}</li>`).join('');
 
     const n = Math.min(121, Math.max(search, Math.ceil(Math.max(A.lasts ? 24 : A.months, B.lasts ? 24 : B.months))) + 2), pad = r => Array.from({ length: n }, (_, i) => i < r.bals.length ? r.bals[i] : 0);
     Common.lineChart($('chart'), { xs: Array.from({ length: n }, (_, i) => i), xfmt: v => v === 0 ? 'Now' : 'M' + v, xlabel: v => v === 0 ? 'Now' : label(last + v), label: 'Money left each month', area: true,

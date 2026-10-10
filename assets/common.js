@@ -1,7 +1,7 @@
 /* RupeeCheck — shared layout + helpers */
 const TOOLS = [
   { id: 'salary', group: 'pay', href: 'salary-calculator.html', icon: '💼', name: 'In-Hand Salary Calculator', short: 'Salary', desc: 'CTC to monthly take-home with old vs new tax regime, PF, HRA and more.', hot: true },
-  { id: 'lifesim', group: 'plan', href: 'life-simulator.html', icon: '🧭', name: 'Life Money Simulator', short: 'Life Sim', desc: 'Drag life events — home, marriage, kids, career jumps — and watch your net worth unfold.' },
+  { id: 'lifesim', group: 'plan', href: 'life-simulator.html', icon: '🧭', name: 'Life Money Simulator', short: 'Life Sim', desc: 'Add life events — home, marriage, kids, career jumps — and watch your net worth unfold.' },
   { id: 'networth', group: 'plan', href: 'networth-calculator.html', icon: '🏆', name: 'Net Worth Calculator', short: 'Net Worth', desc: 'Add your assets and liabilities. Get net worth, a health score and a trend over time.' },
   { id: 'fire', group: 'plan', href: 'fire-calculator.html', icon: '🔥', name: 'FIRE / Retirement Planner', short: 'FIRE', desc: 'How much you need to retire early and when, with lean and fat FIRE, coast FIRE and a stress test.' },
   { id: 'rentbuy', group: 'plan', href: 'rent-vs-buy-calculator.html', icon: '🏡', name: 'Rent vs Buy Calculator', short: 'Rent vs Buy', desc: 'Buy a home or rent and invest the difference? Break-even year, tax and a what-if grid.' },
@@ -451,7 +451,7 @@ const Common = (() => {
   })();
   const state = (() => {
     const controls = () => [...document.querySelectorAll('input[id], input[data-e], select[id]')].filter(i => i.type !== 'range' || i.dataset.e);
-    const key = el => el.id || (el.dataset.e + '.' + el.dataset.k);
+    const key = el => el.dataset.e ? el.dataset.e + '.' + el.dataset.k : el.id;           // life events keep their short event.field names in share links
     const segs = () => [...document.querySelectorAll('.seg[id]')];
     const segVal = sg => (sg.querySelector('button.on') || sg.querySelector('button')).dataset.v;
     const defaults = new Map(); let ready = false, timer = null;
