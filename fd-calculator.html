@@ -19,23 +19,23 @@
   </div>
   <div class="container tool-layout">
     <section class="card" id="inputs" aria-label="Inputs">
-      <h2 class="card-title">🔒 Deposit details</h2>
-      <div class="seg" id="mode" style="margin-bottom:16px"><button type="button" data-v="fd" class="on">FD: interest added</button><button type="button" data-v="payout">FD: interest paid out</button><button type="button" data-v="rd">Recurring deposit</button></div>
-      <div class="field" id="fP" data-slider><label for="p">Deposit amount</label>
+      <h2 class="card-title">🔒 Your deposit</h2>
+      <div class="field" style="margin-bottom:8px"><label for="mode" data-help="Interest added: the interest stays in the deposit and earns more interest, paid with your money at the end. Interest paid out: the bank sends you the interest regularly. Recurring deposit: you put in a fixed amount every month.">1. What kind of deposit is it?</label></div>
+      <div class="seg" id="mode" style="margin:-8px 0 18px"><button type="button" data-v="fd" class="on">FD: interest added</button><button type="button" data-v="payout">FD: interest paid out</button><button type="button" data-v="rd">Recurring deposit</button></div>
+      <div class="field" id="fP"><label for="p" data-help="The amount you put in the bank once, at the start.">2. How much are you putting in?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="p" data-money data-words="pWords" value="500000" min="10000" max="10000000" step="10000" aria-describedby="pWords"></div><div class="words" id="pWords"></div></div>
-      <div class="field" id="fD" hidden><label for="d">Monthly deposit</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="d" data-money data-words="dWords" value="10000" min="100" max="10000000" step="500" aria-describedby="dWords"></div><div class="words" id="dWords"></div><span class="hint">The same amount goes in at the start of every month.</span></div>
-      <div class="field" data-slider><label for="rate">Interest rate (per year)</label>
-        <div class="input-wrap"><input type="number" id="rate" value="7" min="1" max="12" step="0.05"><span class="suf">%</span></div>
-        <span class="hint">Use the rate your bank quotes for this tenure. Senior citizens usually get an extra 0.25 to 0.50%.</span></div>
-      <div class="field"><span class="lbl">How long?</span>
+      <div class="field" id="fD" hidden><label for="d" data-help="The same amount goes in at the start of every month, for the whole period.">2. How much will you put in every month?</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="d" data-money data-words="dWords" value="10000" min="100" max="10000000" step="500" aria-describedby="dWords"></div><div class="words" id="dWords"></div></div>
+      <div class="field"><label for="rate" data-help="Use the rate your bank quotes for this length of deposit. Senior citizens usually get an extra 0.25 to 0.50%.">3. What interest rate does the bank offer?</label>
+        <div class="input-wrap"><input type="number" id="rate" value="7" min="1" max="12" step="0.05"><span class="suf">% a year</span></div></div>
+      <div class="field"><span class="lbl">4. For how long?</span>
         <div class="row-3"><div><label for="yrs" class="sub-l">Years</label><div class="input-wrap"><input type="number" id="yrs" value="5" min="0" max="30" step="1"><span class="suf">yrs</span></div></div>
           <div><label for="mon" class="sub-l">Months</label><div class="input-wrap"><input type="number" id="mon" value="0" min="0" max="11" step="1"><span class="suf">mo</span></div></div>
           <div id="fDays"><label for="day" class="sub-l">Days</label><div class="input-wrap"><input type="number" id="day" value="0" min="0" max="364" step="1"><span class="suf">days</span></div></div></div>
         <div class="chips" id="tenChips"><span class="chips-l">Quick pick</span><button type="button" class="chip" data-t="0,0,45">45 days</button><button type="button" class="chip" data-t="0,6,0">6 months</button><button type="button" class="chip" data-t="1,0,0">1 year</button><button type="button" class="chip" data-t="2,0,0">2 years</button><button type="button" class="chip" data-t="3,0,0">3 years</button><button type="button" class="chip" data-t="5,0,0">5 years</button><button type="button" class="chip" data-t="10,0,0">10 years</button></div>
         <span class="hint" id="tenHint"></span></div>
-      <div class="field" id="fCmp"><label for="cmp">Interest is added (compounded)</label><select id="cmp"><option value="4" selected>Every quarter (most banks)</option><option value="12">Every month</option><option value="2">Every 6 months</option><option value="1">Once a year</option></select></div>
-      <div class="field" id="fPay" hidden><label for="pf">Interest is paid to you</label><select id="pf"><option value="12" selected>Every month</option><option value="4">Every quarter</option><option value="2">Every 6 months</option><option value="1">Once a year</option></select><span class="hint">Paid interest is not compounded. Your deposit comes back in full at the end.</span></div>
+      <div class="field" id="fCmp"><label for="cmp" data-help="Each time interest is added, it starts earning interest too. Most banks add it every quarter.">5. How often does the bank add the interest?</label><select id="cmp"><option value="4" selected>Every quarter (most banks)</option><option value="12">Every month</option><option value="2">Every 6 months</option><option value="1">Once a year</option></select></div>
+      <div class="field" id="fPay" hidden><label for="pf" data-help="With a payout deposit the interest is sent to your bank account instead of being added. Your deposit comes back in full at the end.">5. How often do you want the interest paid to you?</label><select id="pf"><option value="12" selected>Every month</option><option value="4">Every quarter</option><option value="2">Every 6 months</option><option value="1">Once a year</option></select></div>
       <p class="hint" id="rdNote" hidden>A recurring deposit compounds every quarter, the way most banks do it. Days are ignored; the tenure is rounded to whole months.</p>
       <details class="grp" id="sec-tax"><summary><div class="gi">🧾</div><div class="gt">Tax and inflation<small>See what you keep</small></div><span class="chev">›</span></summary><div class="grp-body">
         <div class="field"><label for="sal">Your yearly salary or pension</label><div class="input-wrap"><span class="pre">₹</span><input id="sal" data-money data-words="salWords" value="1500000" placeholder="0" aria-describedby="salWords"></div><div class="words" id="salWords"></div><span class="hint">Before tax. Enter 0 if this interest is your only income. The interest is added to it each year and taxed under the new regime, with the ₹75,000 standard deduction, the ₹12 lakh rebate, surcharge and 4% cess.</span></div>
@@ -45,10 +45,9 @@
     </section>
 
     <section class="results" aria-live="polite">
-      <div class="hero-result"><div class="lbl" id="hLbl">Maturity amount</div><div class="big" id="mv">—</div><div class="sub" id="mvSub"></div><span class="pill" id="hPill"></span></div>
+      <div class="hero-result"><div class="lbl" id="hLbl">Your deposit grows to</div><div class="big" id="mv">—</div><div class="sub" id="mvSub"></div><span class="pill" id="hPill"></span></div>
       <div class="warns" id="warns"></div>
-      <div class="kpis" id="kpis"></div>
-      <p class="cap" id="taxNote" style="margin:-6px 0 18px"></p>
+      <div class="card"><h2 class="card-title">💡 Good to know</h2><ul class="facts" id="facts"></ul></div>
       <div class="card"><h2 class="card-title" id="ctTitle">🥧 Where the money comes from</h2>
         <div class="chart-row"><svg class="donut" id="donut" viewBox="0 0 170 170"></svg><div class="legend" id="legend"></div></div></div>
       <div class="card" id="growCard"><h2 class="card-title">📈 How it grows</h2><div id="grow"></div></div>
@@ -107,7 +106,7 @@
 
     if (rd) {
       t = months / 12; const r = Deposit.rd({ D: num('d'), rate, months });
-      invested = r.invested; interest = r.interest; maturityAmt = r.maturity; label = 'Maturity amount'; hero = f(r.maturity); sub = `${f(num('d'))} a month for ${tenText(Math.floor(months / 12), months % 12, 0)}`;
+      invested = r.invested; interest = r.interest; maturityAmt = r.maturity; label = 'Your deposits grow to'; hero = f(r.maturity); sub = `${f(num('d'))} a month for ${tenText(Math.floor(months / 12), months % 12, 0)} at ${rate}%. You put in ${f(r.invested)} and earn ${f(r.interest)} of interest.`;
       if (months < 6 || months > 120) warn('', 'Most banks offer recurring deposits from 6 months to 10 years.');
       rows = '<tr><th>Year</th><th>Deposited so far</th><th>Interest this year</th><th>Balance</th></tr>' + r.schedule.map(s => `<tr><td>${s.year}${s.to < s.year ? ' (' + plural(Math.round(s.to * 12) - 12 * (s.year - 1), 'month') + ')' : ''}</td><td>${f(s.deposited)}</td><td>${f(s.interest)}</td><td>${f(s.close)}</td></tr>`).join('');
       chart = { xs: [0].concat(r.schedule.map(s => s.to)), ys: [0].concat(r.schedule.map(s => s.close)), base: [0].concat(r.schedule.map(s => s.deposited)) };
@@ -126,8 +125,8 @@
         yearly = r.perYear;
         kp = [['', 'Interest each year', f(r.perYear)]];
       } else {
-        const r = Deposit.fd({ P, rate, n, years: y, months: mo, days: dy }); interest = r.interest; maturityAmt = r.maturity; label = 'Maturity amount'; hero = f(r.maturity);
-        sub = `after ${tenText(y, mo, dy)} · effective yield ${(r.aer * 100).toFixed(2)}% a year`;
+        const r = Deposit.fd({ P, rate, n, years: y, months: mo, days: dy }); interest = r.interest; maturityAmt = r.maturity; label = 'Your deposit grows to'; hero = f(r.maturity);
+        sub = `${f(P)} at ${rate}% for ${tenText(y, mo, dy)}. You earn ${f(r.interest)} of interest.`;
         rows = '<tr><th>Year</th><th>Opening</th><th>Interest</th><th>Closing</th></tr>' + r.schedule.map(s => `<tr><td>${s.year}${s.to < s.year ? ' (part)' : ''}</td><td>${f(s.open)}</td><td>${f(s.interest)}</td><td>${f(s.close)}</td></tr>`).join('');
         const xs = [0]; for (let k = 1; k < r.t; k++) xs.push(k); if (r.t > 0) xs.push(r.t);
         chart = { xs, ys: xs.map(x => r.value(x)), base: xs.map(() => P) };
@@ -141,14 +140,16 @@
     const finalVal = invested + net, realVal = t > 0 ? finalVal / Math.pow(1 + infl / 100, t) : finalVal;
     const taxKeep = 1 - TX.rate, postYield = rd ? (Math.pow(1 + rate / 400, 4) - 1) * taxKeep : pay ? rate / 100 * taxKeep : t > 0 && invested > 0 ? Math.pow(finalVal / invested, 1 / t) - 1 : 0, realYield = (1 + postYield) / (1 + infl / 100) - 1;
     $('hLbl').textContent = label; $('mv').textContent = hero; $('mvSub').textContent = sub;
-    $('hPill').textContent = t > 0 && invested > 0 ? `Real return after tax and inflation: ${(realYield * 100).toFixed(1).replace('-', '−')}% a year` : '';
+    $('hPill').textContent = interest > 0 ? (tax >= 0.5 ? `After tax on the interest, you keep ${f(finalVal)}` + (pay ? ' in total' : '') : 'No tax on this interest') : '';
     $('warns').innerHTML = W.join('');
-    const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
-    $('kpis').innerHTML = K('', rd ? 'Total deposited' : 'Invested', f(invested)) + K('good', 'Interest earned', f(interest)) +
-      (kp[0] ? K('', kp[0][1], kp[0][2]) : '') + K('bad', 'Tax on the interest', f(tax), interest > 0 && tax < 0.5 ? 'No tax: your income stays within the ₹12 lakh rebate' : interest > 0 ? `About ${(TX.rate * 100).toFixed(1)}% of it · estimate` : 'Estimate') + K('', 'You keep', f(finalVal), 'After tax: ' + f(net) + ' interest') +
-      K('', 'Worth in today’s money', f(realVal), `At ${infl}% inflation`) + (pay ? '' : K('', 'Effective yield (before tax)', (( rd ? Math.pow(1 + rate / 400, 4) - 1 : (Deposit.fd({ P: 1, rate, n: +$('cmp').value, years: 1, months: 0, days: 0 }).aer)) * 100).toFixed(2) + '%', rd ? 'Compounded every quarter' : 'For a full year'));
-    const y1 = perYear[0] || 0;
-    $('taxNote').innerHTML = y1 > 0 ? `How the tax is worked out: in year 1 you earn ${f(y1)} of interest ${sal > 0 ? `on top of your ${f(sal)} salary or pension` : 'and no other income'}. That adds <b>${f(TX.years[0])}</b> to your tax (new regime, with cess${TX.base + y1 > 5000000 ? ' and surcharge' : ''}).` + (perYear.length > 1 ? ` Every later year is worked out the same way.` : '') : '';
+    const real = (realYield * 100).toFixed(1), y1 = perYear[0] || 0, every = rd ? 'quarter' : FREQ[+$('cmp').value][0];
+    $('facts').innerHTML = [
+      interest > 0 ? (tax >= 0.5 ? `Tax on the interest is about <b>${f(tax)}</b> (${(TX.rate * 100).toFixed(1)}% of it). The interest is added to ${sal > 0 ? `your ${f(sal)} salary or pension` : 'your income'} and taxed under the new regime. Change your income under “Tax and inflation”.`
+        : `<b>No tax</b> on this interest: ${sal > 0 ? `with your ${f(sal)} salary or pension, ` : ''}your income stays within the ₹12 lakh rebate.`) : '',
+      t > 0 && invested > 0 ? `In today’s prices, the ${f(finalVal)} you keep is worth about <b>${f(realVal)}</b>, because prices rise ${infl}% a year.` : '',
+      t > 0 && invested > 0 ? `After tax and rising prices, your money grows <b>${real.replace('-', '−')}% a year</b>.` + (realYield < 0 ? ' It is slowly losing buying power.' : realYield < 0.01 ? ' That is only just ahead of rising prices.' : '') : '',
+      pay ? `You get <b>${f(yearly)}</b> of interest a year.` : `With interest added every ${every}, the deposit earns <b>${(((rd ? Math.pow(1 + rate / 400, 4) - 1 : Deposit.fd({ P: 1, rate, n: +$('cmp').value, years: 1, months: 0, days: 0 }).aer)) * 100).toFixed(2)}% a year</b> before tax, a little more than the ${rate}% quoted.`
+    ].filter(Boolean).map(x => `<li>${x}</li>`).join('');
     $('ctTitle').textContent = pay ? '🥧 Total received' : '🥧 Where the money comes from';
     Common.donut($('donut'), $('legend'), pay ? [{ label: 'Your deposit (returned)', value: invested }, { label: 'Interest paid to you', value: interest }] : [{ label: rd ? 'You deposited' : 'Principal', value: invested }, { label: 'Interest', value: interest }], pay ? 'Total' : 'Maturity', cr(pay ? invested + interest : maturityAmt));
     if (chart && chart.xs.length > 1) Common.lineChart($('grow'), { xs: chart.xs, xfmt: v => (+v.toFixed(2)), xlabel: v => v === 0 ? 'Start' : 'After ' + (+v.toFixed(2)) + ' yr', label: 'Deposit growth', area: true,

@@ -19,24 +19,25 @@
   </div>
   <div class="container tool-layout">
     <section class="card" id="inputs" aria-label="Inputs">
-      <h2 class="card-title">🌱 Investment details</h2>
-      <div class="seg" id="mode" style="margin-bottom:16px"><button type="button" data-v="sip" class="on">Monthly SIP</button><button type="button" data-v="lump">Lump sum</button><button type="button" data-v="goal">Plan for a goal</button></div>
-      <div class="field" id="fGoal" hidden><label for="goal">The amount you want</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="goal" data-money data-words="goalWords" value="10000000" min="10000" max="10000000000" step="100000" aria-describedby="goalWords"></div><div class="words" id="goalWords"></div><span class="hint">Choose below how you want to enter it. If you only know what it costs today, pick “Today’s prices” and we add the price rise for you.</span>
+      <h2 class="card-title">🌱 Your investment</h2>
+      <div class="field" style="margin-bottom:8px"><label for="mode" data-q="What do you want to work out?" data-help="Monthly SIP: what a fixed monthly investment grows to. Lump sum: what one investment today grows to. Plan for a goal: the monthly SIP you need to reach an amount.">What do you want to work out?</label></div>
+      <div class="seg" id="mode" style="margin:-8px 0 18px"><button type="button" data-v="sip" class="on">Monthly SIP</button><button type="button" data-v="lump">Lump sum</button><button type="button" data-v="goal">Plan for a goal</button></div>
+      <div class="field" id="fGoal" hidden><label for="goal" data-q="How much money do you want to have?" data-help="The amount you are saving for. If you only know what it costs today, pick “Today’s prices” and we add the price rise for you.">How much money do you want to have?</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="goal" data-money data-words="goalWords" value="10000000" min="10000" max="10000000000" step="100000" aria-describedby="goalWords"></div><div class="words" id="goalWords"></div>
         <div class="seg" id="goalIn" role="group" aria-label="Is the goal amount in today’s prices or future rupees?" style="margin-top:10px"><button type="button" data-v="today" class="on">Today’s prices</button><button type="button" data-v="future">Future rupees</button></div>
         <p class="grp-hint" id="goalNote" style="margin:8px 0 0"></p></div>
-      <div class="field" id="fSip" data-slider><label for="sip">Monthly investment</label>
+      <div class="field" id="fSip"><label for="sip" data-q="How much will you invest every month?" data-help="The amount that goes into your mutual fund every month through the SIP.">How much will you invest every month?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="sip" data-money data-words="sipWords" value="10000" min="500" max="200000" step="500" aria-describedby="sipWords"></div><div class="words" id="sipWords"></div></div>
-      <div class="field" id="fLump"><label for="lump" id="lumpL">Lump sum you invest today (optional)</label>
+      <div class="field" id="fLump"><label for="lump" id="lumpL" data-q="Money you invest today (optional)" data-help="A one-time amount you put in at the start. Leave it at 0 if you only invest monthly.">Money you invest today (optional)</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="lump" data-money data-words="lumpWords" value="0" placeholder="0" aria-describedby="lumpWords"></div><div class="words" id="lumpWords"></div></div>
-      <div class="field" data-slider><label for="ret">Expected return (per year)</label>
-        <div class="input-wrap"><input type="number" id="ret" value="12" min="1" max="30" step="0.5"><span class="suf">%</span></div><span class="hint" id="retHint">Equity funds have given roughly 10 to 12% over long periods, with big swings along the way. Use a lower number to be safe.</span></div>
-      <div class="field"><span class="lbl">For how long?</span>
+      <div class="field"><label for="ret" data-q="How much will your investment grow every year?" data-help="Equity funds have given roughly 10 to 12% a year over long periods, with big swings along the way. Use a lower number to be safe. This is an assumption, not a promise.">How much will your investment grow every year?</label>
+        <div class="input-wrap"><input type="number" id="ret" value="12" min="1" max="30" step="0.5"><span class="suf">% a year</span></div></div>
+      <div class="field"><span class="lbl" data-q="For how long?">For how long?</span>
         <div class="row-2"><div><label for="yrs" class="sub-l">Years</label><div class="input-wrap"><input type="number" id="yrs" value="15" min="0" max="50" step="1"><span class="suf">yrs</span></div></div>
           <div><label for="mon" class="sub-l">Months</label><div class="input-wrap"><input type="number" id="mon" value="0" min="0" max="11" step="1"><span class="suf">mo</span></div></div></div>
         <div class="chips" id="tenChips"><span class="chips-l">Quick pick</span><button type="button" class="chip" data-t="1">1 year</button><button type="button" class="chip" data-t="3">3 years</button><button type="button" class="chip" data-t="5">5 years</button><button type="button" class="chip" data-t="10">10 years</button><button type="button" class="chip" data-t="15">15 years</button><button type="button" class="chip" data-t="20">20 years</button><button type="button" class="chip" data-t="30">30 years</button></div></div>
-      <div class="field" id="fStep" data-slider><label for="step">Raise the SIP every year by</label>
-        <div class="input-wrap"><input type="number" id="step" value="0" min="0" max="50" step="1"><span class="suf">%</span></div><span class="hint">Match it to your yearly pay rise. A 10% step-up helps a lot over 15 years.</span></div>
+      <div class="field" id="fStep"><label for="step" data-q="Raise your SIP every year by" data-help="Most people earn more each year. Raising the SIP with your pay rise, say 10% a year, makes a big difference over 15 years or more. Enter 0 to keep it the same.">Raise your SIP every year by</label>
+        <div class="input-wrap"><input type="number" id="step" value="0" min="0" max="50" step="1"><span class="suf">% a year</span></div></div>
       <details class="grp" id="sec-tax"><summary><div class="gi">🧾</div><div class="gt">Tax, inflation and settings<small>See what you actually keep</small></div><span class="chev">›</span></summary><div class="grp-body">
         <div class="field"><label for="taxk">Type of investment</label><select id="taxk"><option value="none" selected>Do not include tax</option><option value="equity">Equity fund or ETF: 12.5% on gains above ₹1.25 lakh</option><option value="slab">Debt fund, gold or other: taxed at my slab rate</option></select><span class="hint">Tax is worked out as if you sell everything at the end. Held up to a year, equity gains are taxed at 20%. Rules change, so check the latest.</span></div>
         <div class="field" id="fSlab" hidden><label for="slab">Your income-tax rate</label><select id="slab"><option value="0">0%</option><option value="5">5%</option><option value="10">10%</option><option value="15">15%</option><option value="20" selected>20%</option><option value="25">25%</option><option value="30">30%</option></select></div>
@@ -46,9 +47,9 @@
     </section>
 
     <section class="results" aria-live="polite">
-      <div class="hero-result"><div class="lbl" id="hLbl">Estimated future value</div><div class="big" id="fv">—</div><div class="sub" id="fvSub"></div><span class="pill" id="hPill"></span></div>
+      <div class="hero-result"><div class="lbl" id="hLbl">Your SIP could grow to</div><div class="big" id="fv">—</div><div class="sub" id="fvSub"></div><span class="pill" id="hPill"></span></div>
       <div class="warns" id="warns"></div>
-      <div class="kpis" id="kpis"></div>
+      <div class="card"><h2 class="card-title">💡 Good to know</h2><ul class="facts" id="facts"></ul></div>
       <div class="card"><h2 class="card-title">🥧 Invested vs returns</h2>
         <div class="chart-row"><svg class="donut" id="donut" viewBox="0 0 170 170"></svg><div class="legend" id="legend"></div></div></div>
       <div class="card"><h2 class="card-title">📈 How it grows</h2><div id="grow"></div></div>
@@ -96,11 +97,13 @@
   function calc() {
     const mode = modeGet(), goal = mode === 'goal', lumpMode = mode === 'lump';
     $('fGoal').hidden = !goal; $('fSip').hidden = lumpMode || goal; $('fStep').hidden = lumpMode; $('delayCard').hidden = false;
-    $('lumpL').textContent = lumpMode ? 'Amount you invest today' : goal ? 'Money you already have set aside for this goal (optional)' : 'Lump sum you invest today (optional)';
+    $('lumpL').dataset.q = lumpMode ? 'How much are you investing today?' : goal ? 'Money you already have for this goal (optional)' : 'Money you invest today (optional)';
+    const fl = $('fLump'), spot = lumpMode ? $('fGoal') : $('sec-tax'); if (fl.nextElementSibling !== spot) spot.parentNode.insertBefore(fl, spot);   // the main amount comes first; an optional extra comes last
+    [...document.querySelectorAll('#inputs [data-q]')].filter(l => !l.closest('[hidden]')).forEach((l, i) => { l.textContent = `${i + 1}. ${l.dataset.q}`; });   // number only the questions on show
     const ret = num('ret'), months = Math.floor(num('yrs')) * 12 + Math.floor(num('mon')), step = lumpMode ? 0 : num('step'), lump = num('lump'), infl = num('infl'), taxk = $('taxk').value, slab = +$('slab').value, nominal = $('conv').value === 'nom'; $('fSlab').hidden = taxk !== 'slab';
     const W = [], warn = (cls, t) => W.push(`<div class="warn ${cls}"><span>${cls === 'bad' ? '⛔' : '⚠️'}</span><span>${t}</span></div>`);
     const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
-    if (months <= 0) { $('fv').textContent = '—'; $('fvSub').textContent = ''; $('hPill').textContent = ''; $('kpis').innerHTML = ''; warn('bad', 'Enter a period of at least 1 month.'); $('warns').innerHTML = W.join(''); return; }
+    if (months <= 0) { $('fv').textContent = '—'; $('fvSub').textContent = ''; $('hPill').textContent = ''; $('facts').innerHTML = ''; warn('bad', 'Enter a period of at least 1 month.'); $('warns').innerHTML = W.join(''); return; }
     if (ret > 18) warn('', `A return of ${ret}% a year is higher than what most funds have delivered over long periods. The result may be too hopeful.`);
     if (months < 12 && !lumpMode) warn('', 'A SIP is meant for a few years or more. Over less than a year, markets can move more than the return you enter.');
 
@@ -109,12 +112,20 @@
     $('goalNote').textContent = !goal ? '' : goalToday ? `${cr(entered)} at today’s prices will cost about ${cr(target)} in ${span(months)}, allowing for ${infl}% price rise a year. The plan aims for that future amount. Change the price rise under “Tax, inflation and settings”.` : `${cr(entered)} in future rupees is worth about ${cr(entered / fut)} in today’s prices, at ${infl}% price rise a year.`;
     if (goal) { sip = Invest.requiredSip({ target, ret, months, step, lump, nominal }); if (lump >= target) warn('', 'The money you already have grows past your goal on its own, so no SIP is needed.'); }
     const R = Invest.run({ sip: lumpMode ? 0 : sip, step, lump, ret, months, nominal }), tax = Invest.tax(R.gain, taxk, months, slab), net = R.value - tax, t = months / 12, realVal = net / Math.pow(1 + infl / 100, t);
-    $('hLbl').textContent = goal ? 'Start with a monthly SIP of' : lumpMode ? 'Your lump sum would grow to' : 'Estimated future value';
+    const how = `${span(months)} at ${ret}% a year`;
+    $('hLbl').textContent = goal ? 'Start with a monthly SIP of' : lumpMode ? 'Your money could grow to' : 'Your SIP could grow to';
     $('fv').textContent = goal ? f(sip) : f(R.value);
-    $('fvSub').textContent = goal ? `${step > 0 ? `rising ${step}% every year, ` : ''}to reach ${cr(target)} in ${span(months)}${goalToday ? ` (${cr(entered)} in today’s prices)` : ''}` : `${cr(R.value)} after ${span(months)}`;
-    $('hPill').textContent = goal ? (step > 0 ? `By the last year your SIP is ${f(R.lastSip)} a month` : `Total you invest: ${cr(R.invested)}`) : `That is ${cr(realVal)} in today’s money` + (taxk !== 'none' ? ' after tax' : '');
-    $('kpis').innerHTML = K('', 'Amount invested', f(R.invested)) + K('good', goal ? 'Wealth gained' : 'Wealth gained', f(R.gain), R.invested > 0 ? `${(R.value / R.invested).toFixed(2)}× your money` : '') +
-      (taxk !== 'none' ? K('bad', 'Estimated tax', f(tax), 'If sold at the end') + K('', 'You keep', f(net), 'After tax') : '') + K('', 'Worth in today’s money', f(realVal), `At ${infl}% inflation`) + (taxk === 'none' ? K('', 'Growth per year', ret + '%', 'Effective yearly return') : '');
+    $('fvSub').textContent = goal ? `${step > 0 ? `Raised ${step}% every year, it reaches` : 'It reaches'} ${cr(target)} in ${span(months)}${goalToday ? ` (${cr(entered)} in today’s prices)` : ''}.`
+      : lumpMode ? `${f(lump)} invested today, for ${how}.` : `${f(sip)} a month for ${how}${step > 0 ? `, raised ${step}% every year` : ''}${lump > 0 ? `, plus ${f(lump)} today` : ''}.`;
+    $('hPill').textContent = `You put in ${cr(R.invested)}. Growth adds ${cr(Math.max(0, R.gain))}`;
+    $('facts').innerHTML = [
+      R.invested > 0 ? `That is <b>${(R.value / R.invested).toFixed(2)} times</b> the money you put in.` : '',
+      taxk !== 'none' ? `If you sell everything at the end, tax is about <b>${f(tax)}</b>, so you keep <b>${f(net)}</b>.` : '',
+      `In today’s prices, ${taxk !== 'none' ? 'what you keep' : `the ${cr(R.value)}`} is worth about <b>${cr(realVal)}</b>, because prices rise ${infl}% a year.`,
+      !lumpMode && step > 0 && !goal ? `Raised ${step}% a year, your SIP reaches <b>${f(R.lastSip)} a month</b> in the last year.` : '',
+      goal && step > 0 ? `By the last year your SIP is <b>${f(R.lastSip)} a month</b>.` : '',
+      `The ${ret}% growth is an assumption, not a promise. Try a lower number to see a careful result.`
+    ].filter(Boolean).map(x => `<li>${x}</li>`).join('');
     Common.donut($('donut'), $('legend'), [{ label: 'Invested', value: R.invested }, { label: 'Returns', value: Math.max(0, R.gain) }], 'Total', cr(R.value));
     const xs = []; R.years.forEach(y => xs.push(y.to)); xs.unshift(0);
     Common.lineChart($('grow'), { xs, xfmt: v => +v.toFixed(2), xlabel: v => v === 0 ? 'Start' : 'After ' + (+v.toFixed(2)) + ' yr', label: 'Investment growth', area: true,
