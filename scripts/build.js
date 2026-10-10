@@ -26,6 +26,22 @@ for (const f of fs.readdirSync(ROOT)) if (f.endsWith('.html')) pages[f] = fs.rea
 const hub = CTC.hubPage(Tax); pages[hub.file] = hub.html;
 for (const l of CTC.LPAS) { const p = CTC.ctcPage(Tax, l); pages[p.file] = p.html; }
 
+// ---------- articles: any page with <meta name="rc-article" ...> is listed on the Articles hub and linked from its calculator ----------
+const GROUPS = [['pay', 'Salary, tax & work'], ['save', 'Loans & savings'], ['plan', 'Big life decisions']];
+const articles = Object.entries(pages).filter(([, h]) => /<meta name="rc-article"/.test(h)).map(([file, h]) => {
+  const m = h.match(/<meta name="rc-article" content="([^"]*)" data-group="([^"]*)" data-icon="([^"]*)" data-date="([^"]*)">/);
+  if (!m) throw new Error(file + ': rc-article meta must be <meta name="rc-article" content="tool" data-group="pay|save|plan" data-icon="…" data-date="YYYY-MM-DD">');
+  const body = (h.match(/<article[\s\S]*?<\/article>/) || [''])[0], words = strip(body).split(' ').length;
+  return { file, tool: m[1], group: m[2], icon: m[3], date: m[4], title: strip((h.match(/<h1[^>]*>([\s\S]*?)<\/h1>/) || [, file])[1]), dek: strip((h.match(/<p class="dek">([\s\S]*?)<\/p>/) || [, ''])[1]), mins: Math.max(3, Math.round(words / 220)), headline: strip((h.match(/<title>([\s\S]*?)<\/title>/) || [, ''])[1]).replace(/ \| .*$/, '') };
+}).sort((a, b) => GROUPS.findIndex(g => g[0] === a.group) - GROUPS.findIndex(g => g[0] === b.group) || a.file.localeCompare(b.file));
+const artCard = a => `<a class="tool-card art-card" href="${a.file}"><div class="ico" aria-hidden="true">${a.icon}</div><h3>${a.title}</h3><p>${a.dek}</p><span class="meta">${a.mins} min read</span><span class="go">Read →</span></a>`;
+const fmtDate = d => new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+for (const a of articles) {
+  const more = [...articles.filter(x => x !== a && x.group === a.group), ...articles.filter(x => x.group !== a.group)].slice(0, 3);
+  pages[a.file] = pages[a.file].split('{{READ_MINS}}').join(String(a.mins)).split('{{UPDATED_ON}}').join(fmtDate(a.date)).split('{{MORE_ARTICLES}}').join(more.map(artCard).join(''))
+    .replace('</head>', `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'Article', headline: a.headline, description: a.dek, datePublished: a.date, dateModified: a.date, author: { '@type': 'Organization', name: cfg.siteName, url: siteUrl }, publisher: { '@type': 'Organization', name: cfg.siteName }, mainEntityOfPage: `${siteUrl}/${a.file}` })}</script>\n</head>`);
+}
+
 // ---------- tokens + per-page head/scripts ----------
 const tokens = { '{{SITE_NAME}}': cfg.siteName, '{{CONTACT_EMAIL}}': cfg.contactEmail, '{{SITE_URL}}': siteUrl, '{{UPDATED}}': today };
 function regimeTable() {
@@ -46,6 +62,9 @@ tokens['{{NEW_TAX_EXAMPLES}}'] = table(['Gross salary', 'Taxable after ₹75,000
 tokens['{{SIP_TABLE}}'] = table(['Years', ...[8, 10, 12, 15].map(r => r + '% a year')], [5, 10, 15, 20, 25, 30].map(y => [y, ...[8, 10, 12, 15].map(r => '₹' + nf(Invest.requiredSip({ target: 1e7, ret: r, months: y * 12, step: 0, lump: 0, nominal: false })))]));
 tokens['{{EMI_TABLE}}'] = table(['Interest rate', ...[1, 3, 5, 10, 15, 20].map(y => y + (y === 1 ? ' year' : ' years'))], [7, 8, 9, 10, 11, 12, 14, 15].map(r => [r + '%', ...[1, 3, 5, 10, 15, 20].map(y => '₹' + nf(Loan.emi(1e5, r, y * 12)))]));
 tokens['{{HRA_METROS}}'] = HRA.METROS_2026.join(', ');
+tokens['{{ARTICLE_CARDS}}'] = GROUPS.map(([g, name]) => articles.some(a => a.group === g) ? `<h3 class="tool-group">${name}</h3>` + articles.filter(a => a.group === g).map(artCard).join('') : '').join('');
+tokens['{{ARTICLE_FEATURED}}'] = ['no-tax', 'laid-off', 'moving-back', 'rent-or-buy', 'sip-delay', 'retire-early', 'prepay-home', 'compare-two'].map(k => articles.find(a => a.file.includes(k))).filter(Boolean).map(artCard).join('');
+tokens['{{ARTICLE_COUNT}}'] = String(articles.length);
 
 
 const sitemap = [];
@@ -88,7 +107,7 @@ if (fs.existsSync(path.join(ROOT, 'favicon.ico'))) fs.copyFileSync(path.join(ROO
 if (fs.existsSync(path.join(ROOT, 'manifest.webmanifest'))) fs.copyFileSync(path.join(ROOT, 'manifest.webmanifest'), path.join(OUT, 'manifest.webmanifest'));
 
 const pub = { siteName: cfg.siteName, siteUrl, gaId: (cfg.analytics || {}).gaId || '', umamiId: (cfg.analytics || {}).umamiId || '', adsenseClient: (cfg.adsense || {}).client || '', adsenseSlot: (cfg.adsense || {}).slot || '',
-  affiliates: Object.fromEntries(Object.entries(cfg.affiliates || {}).filter(([, v]) => v)) };
+  affiliates: Object.fromEntries(Object.entries(cfg.affiliates || {}).filter(([, v]) => v)), articles: articles.map(a => ({ href: a.file, title: a.title, tool: a.tool, icon: a.icon })) };
 fs.writeFileSync(path.join(OUT, 'assets', 'site.js'), `window.SITE = ${JSON.stringify(pub)};\n`);
 if (siteUrl !== PLACEHOLDER && !/github\.io$/.test(new URL(siteUrl).hostname)) fs.writeFileSync(path.join(OUT, 'CNAME'), new URL(siteUrl).hostname + '\n');      // GitHub Pages custom domain
 fs.writeFileSync(path.join(OUT, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`);

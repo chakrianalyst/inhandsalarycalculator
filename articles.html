@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Money Articles for India: Salary, Tax, Loans, Retirement | {{SITE_NAME}}</title>
+<meta name="description" content="Plain-English articles on salary, tax, home loans, SIPs, layoffs, retirement and moving abroad, each with worked examples you can rerun with your own numbers.">
+<link rel="canonical" href="https://inhand.example/articles.html">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero"><div class="crumbs"><a href="index.html">Home</a> › Articles</div>
+    <h1>Money articles that end in <span class="grad-text">your own numbers</span></h1>
+    <p>{{ARTICLE_COUNT}} in-depth reads on the money questions people in India actually ask: the ₹12 lakh tax rule, a layoff, a home loan, moving abroad or back. Every example is worked out with our calculators, and every one has a button that opens the calculator with that example filled in, so you can swap in your own numbers.</p></div>
+  <section class="section" style="padding-top:20px"><div class="container"><div class="tool-grid">{{ARTICLE_CARDS}}</div></div></section>
+  <section class="section" style="padding-top:0"><div class="container">
+    <div class="section-head"><h2>Quick reference guides</h2><p>Short pages with the tables people look up most.</p></div>
+    <div class="tool-grid" id="guideGrid"></div>
+  </div></section>
+</main>
+<script src="assets/tax.js"></script>
+<script src="assets/common.js"></script>
+<script>
+  Common.init('articles');
+  document.getElementById('guideGrid').innerHTML = GUIDES.map(g => `<a class="tool-card" href="${g[0]}"><h3>${g[1]}</h3>${g[2] ? `<p>${g[2]}</p>` : ''}<span class="go">Read →</span></a>`).join('') + `<a class="tool-card" href="in-hand-salary-by-ctc.html"><h3>In-hand salary by CTC</h3><p>Monthly take-home for every CTC from ₹3 LPA to ₹50 LPA.</p><span class="go">Read →</span></a>`;
+</script>
+</body>
+</html>
