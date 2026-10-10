@@ -807,14 +807,19 @@ if (chromium) {
   test('SWP calculator: matches the content-skill runner, taxes only the profit part, says when the money runs out, and restores from a share link', async () => {
     const run = require(path.join(ROOT, 'skills', 'rupeecheck-content', 'engine', 'run.js')), digits = s => parseInt(String(s).replace(/[^0-9]/g, ''), 10), R = run.TOOLS.swp({}).results;
     const pg = await open(SITE, 'swp-calculator.html'); await pg.waitForTimeout(250); const t = id => pg.$eval('#' + id, e => e.innerText.replace(/\s+/g, ' ').trim());
-    assert.match(await t('hLbl'), /lasts all 25 years/); assert.equal(digits(await t('hBig')), Math.round(R.leftAtEnd)); assert.match(await t('hPill'), new RegExp('₹' + Math.round(R.maxMonthlyWithdrawalThatLasts).toLocaleString('en-IN')));
+    assert.equal(await t('hLbl'), 'Your money lasts'); assert.match(await t('hSub'), /Taking ₹50,000 a month, raised 5% every year/);
+    assert.match(await t('hPill'), new RegExp('^Left after 25 years: ' + (R.leftAtEnd >= 1e7 ? '₹' + (R.leftAtEnd / 1e7).toFixed(2) + ' Cr' : '₹' + (R.leftAtEnd / 1e5).toFixed(2) + ' L')));
+    assert.equal(await pg.$$eval('#inputs .help-btn', x => x.length), 5, 'every question has a ? help button');
+    assert.match(await t('facts'), new RegExp('use it all up in exactly 25 years, you could start at ₹' + Math.round(R.maxMonthlyWithdrawalThatLasts).toLocaleString('en-IN')));
+    assert.equal(await pg.$('#inputs input[type=range]'), null, 'no sliders: people type the numbers');
     assert.match(await t('taxNote'), /only ₹27,188 of it \(4\.5%\) is profit[\s\S]*Tax in year 1: ₹5,655/); assert.match(await t('chartCap'), /grows for the first \d+ years/);
-    await pg.fill('#wd', '60,000'); await pg.waitForTimeout(250); assert.equal(await t('hLbl'), 'Your money runs out after'); assert.match(await t('hBig'), /^20 years 4 months$/);
+    await pg.fill('#wd', '60,000'); await pg.waitForTimeout(250); assert.equal(await t('hBig'), '20 years');
+    assert.match(await t('hPill'), /^Runs out 4 years 8 months before your 25 years\. To last, start at ₹/);
     assert.match(await t('warns'), /^$|balance falls/); await pg.$eval('#sec-tax', e => (e.open = true)); await pg.selectOption('#taxk', 'none'); await pg.waitForTimeout(150); assert.equal(await pg.isVisible('#taxCard'), false);
     assert.deepEqual(pg.errs, []); await pg.close();
     const s2 = await browser.newPage(); await s2.goto(url(SITE, 'swp-calculator.html') + '?corpus=5000000&wd=40000&step=0&ret=8&yrs=20'); await s2.waitForTimeout(250);
     const i = Math.pow(1.08, 1 / 12) - 1, ann = 5000000 * i / (1 - Math.pow(1 + i, -240)); assert.equal(await s2.inputValue('#wd'), '40,000');
-    assert.match(await s2.$eval('#kpis', e => e.innerText), new RegExp('₹' + Math.floor(ann).toLocaleString('en-IN') + '|₹' + Math.round(ann).toLocaleString('en-IN'))); await s2.close();
+    assert.match(await s2.$eval('#facts', e => e.innerText), new RegExp('₹' + Math.floor(ann).toLocaleString('en-IN') + '|₹' + Math.round(ann).toLocaleString('en-IN'))); await s2.close();
   });
 
   test('next-step nudges carry the numbers to the next calculator once, and desktop columns stay side by side', async () => {
@@ -825,7 +830,7 @@ if (chromium) {
     await pg.reload(); await pg.waitForTimeout(200); assert.equal(await pg.inputValue('#sip'), '26,500'); assert.equal(await pg.$('#handoffNote'), null, 'the note shows only once'); assert.deepEqual(pg.errs, []); await pg.close();
     pg = await go('hra-calculator.html');                                                     // the salary page fills its payslip fields late: the numbers must still land
     assert.deepEqual(await Promise.all(['pBasic', 'pHra', 'pOther', 'pPf', 'rent'].map(i => pg.inputValue('#' + i))), ['50,000', '25,000', '0', '6,000', '28,000']); assert.equal(await pg.isVisible('#payMode'), true); await pg.close();
-    pg = await go('fire-calculator.html'); assert.match(pg.url(), /swp-calculator\.html\?corpus=\d+&wd=\d+&step=6&ret=8&yrs=45/); assert.ok(await pg.$('#handoffNote')); await pg.close();
+    pg = await go('fire-calculator.html'); assert.match(pg.url(), /swp-calculator\.html\?corpus=\d+&wd=\d+&(step=6&ret=8|ret=8&step=6)&yrs=45/); assert.ok(await pg.$('#handoffNote')); await pg.close();
     pg = await go('networth-calculator.html'); assert.equal(await pg.inputValue('#corp'), '27,70,000'); assert.ok(await pg.$('#handoffNote')); await pg.close();
     pg = await go('abroad-calculator.html'); assert.equal(await pg.inputValue('#country'), 'US'); assert.equal(await pg.inputValue('#cash'), '0'); assert.notEqual(await pg.inputValue('#saveYear'), '60,000'); await pg.close();
     for (const f of ['salary-hike-calculator.html', 'return-calculator.html']) { pg = await go(f); assert.match(pg.url(), /(sip|swp)-calculator\.html\?/); assert.deepEqual(pg.errs, [], f); await pg.close(); }

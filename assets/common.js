@@ -182,7 +182,7 @@ const Common = (() => {
   function addHelp() {
     document.querySelectorAll('label[for]:not(.toggle):not([data-nohelp])').forEach(l => {
       if (l.parentElement.classList.contains('lbl-row') || l.closest('.toggle')) return;
-      const hit = HELP.find(h => h[0].test(l.textContent.trim())); if (!hit) return;
+      const hit = l.dataset.help ? [null, l.dataset.help] : HELP.find(h => h[0].test(l.textContent.trim())); if (!hit) return;   // a page can give its own help text with data-help
       const id = 'help-' + l.getAttribute('for'), row = document.createElement('div'); row.className = 'lbl-row';
       l.parentNode.insertBefore(row, l); row.appendChild(l);
       const b = document.createElement('button'); b.type = 'button'; b.className = 'help-btn'; b.textContent = '?'; b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-controls', id);

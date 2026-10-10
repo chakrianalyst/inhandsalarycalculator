@@ -779,3 +779,6 @@ table.tbl tr.sel td { background: var(--grad-soft); font-weight: 700; }
 .read-card b { display: block; line-height: 1.3; }
 .read-card .go { margin-left: auto; color: var(--brand-text); font-weight: 700; white-space: nowrap; }
 @media (max-width: 520px) { .scenario { padding: 16px; } .sc-out { grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); } .sc-out b { font-size: 1.12rem; } .hbars .r { grid-template-columns: 1fr 112px; } .hbars .r > span { grid-column: 1 / -1; } .read-card .go { display: none; } }
+.facts { margin: 0; padding-left: 20px; }
+.facts li { color: var(--muted); margin-bottom: 10px; }
+.facts li b { color: var(--text); }

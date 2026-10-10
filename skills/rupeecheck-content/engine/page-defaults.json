@@ -171,8 +171,8 @@
  "swp-calculator": {
   "corpus": "10000000",
   "wd": "50000",
-  "step": "5",
   "ret": "9",
+  "step": "5",
   "yrs": "25",
   "gainPct": "0",
   "infl": "6",
