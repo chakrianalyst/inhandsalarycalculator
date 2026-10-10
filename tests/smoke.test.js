@@ -317,6 +317,25 @@ if (chromium) {
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
+  test('each page agrees with itself: the headline matches the table, chart and lists below it (FD, SIP, FIRE)', async () => {
+    const d = x => parseInt(String(x).replace(/[^0-9]/g, ''), 10), T = (pg, s) => pg.$eval(s, e => e.innerText.replace(/\s+/g, ' ').trim());
+    const lastRow = pg => pg.$$eval('#yrTbl tr', r => r.slice(-1)[0].innerText.split('\t')), col = (pg, name) => pg.$$eval('#yrTbl tr', (r, n) => r[0].innerText.split('\t').map(h => h.toLowerCase()).indexOf(n), name);
+    for (const q of ['', '?mode=rd', '?yrs=0&mon=6&day=10', '?p=70000000&sal=0&yrs=10']) {
+      const pg = await open(SITE, 'fd-calculator.html' + q); assert.equal(d((await lastRow(pg)).slice(-1)[0]), d(await T(pg, '#mv')), 'FD table ends at the headline ' + q);
+      const keep = (await T(pg, '#hPill')).match(/keep (₹[\d,]+)/); if (keep) assert.ok((await T(pg, '#facts')).includes(keep[1]), 'FD facts repeat what you keep ' + q); await pg.close();
+    }
+    for (const q of ['', '?step=10', '?mode=lump&lump=500000', '?lump=200000', '?mode=goal&step=10']) {
+      const pg = await open(SITE, 'sip-calculator.html' + q), row = await lastRow(pg), first = await pg.$$eval('#yrTbl tr', r => r[1].innerText.split('\t'));
+      if (q.includes('goal')) assert.equal(d(first[await col(pg, 'sip that year')]), d(await T(pg, '#fv')), 'goal SIP is the year-1 SIP');
+      else assert.equal(d(row[await col(pg, 'value')]), d(await T(pg, '#fv')), 'SIP table ends at the headline ' + q);
+      const ls = (await T(pg, '#facts')).match(/(?:reaches|SIP is) (₹[\d,]+) a month/); if (ls) assert.equal(d(ls[1]), d(row[await col(pg, 'sip that year')]), 'last-year SIP matches the table ' + q); await pg.close();
+    }
+    for (const q of ['', '?sav=200000', '?retAge=50', '?exp=100000']) {
+      const pg = await open(SITE, 'fire-calculator.html' + q), reg = await pg.$$eval('#styles tr', r => r.map(x => x.innerText.split('\t')).find(x => /Regular/.test(x[0]))), num = (await T(pg, '#fPill')).match(/₹[\d.]+ (?:Cr|L)/)[0];
+      assert.equal(reg[2], num, 'FIRE number matches the lean/fat table ' + q); assert.equal(reg[3], await T(pg, '#fBig'), 'earliest age matches the table ' + q); assert.ok((await T(pg, '#facts')).includes(num)); await pg.close();
+    }
+  });
+
   test('Rent vs buy: tax options, rent yield, break-even appreciation and sensitivity grid', async () => {
     const pg = await open(SITE, 'rent-vs-buy-calculator.html'); const txt = sel => pg.$eval(sel, e => e.innerText);
     assert.match(await txt('#hero'), /renting & investing wins by/); assert.match(await txt('.kpis'), /Rent yield[\s\S]*3\.36%/); assert.match(await txt('.kpis'), /prices rise faster than[\s\S]*9\.\d%/);
