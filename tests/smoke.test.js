@@ -232,6 +232,7 @@ if (chromium) {
     await pg.fill('#p', '2000000'); assert.match(await pg.$eval('#warns', e => e.textContent), /TDS/);
     assert.match(await pg.$eval('#facts', e => e.textContent), /After tax and rising prices, your money grows/); assert.match(await pg.$eval('.hero-result', e => e.textContent), /After tax on the interest, you keep/);
     assert.equal(await pg.$('#inputs input[type=range]'), null, 'no sliders'); assert.ok(await pg.$$eval('#inputs .help-btn', x => x.length) >= 5, 'every question has ? help');
+    await pg.click('label[for=mode] + .help-btn'); assert.deepEqual(await pg.$$eval('#help-mode .help-line b', b => b.map(x => x.textContent)), ['Interest added: ', 'Interest paid out: ', 'Recurring deposit: '], 'each option in the ? note sits on its own line');
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 

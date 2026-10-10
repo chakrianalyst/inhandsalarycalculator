@@ -187,7 +187,12 @@ const Common = (() => {
       l.parentNode.insertBefore(row, l); row.appendChild(l);
       const b = document.createElement('button'); b.type = 'button'; b.className = 'help-btn'; b.textContent = '?'; b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-controls', id);
       b.setAttribute('aria-label', 'What does ' + l.textContent.trim() + ' mean?');
-      const tip = document.createElement('div'); tip.className = 'help-tip'; tip.id = id; tip.hidden = true; tip.textContent = hit[1];
+      const tip = document.createElement('div'); tip.className = 'help-tip'; tip.id = id; tip.hidden = true;
+      hit[1].split('|').map(t => t.trim()).filter(Boolean).forEach(t => {                  // one line per "|"; a "Label: text" line gets a bold label
+        const line = document.createElement('span'), m = t.match(/^([^:]{2,40}):\s+(.*)$/); line.className = 'help-line';
+        if (m) { const b = document.createElement('b'); b.textContent = m[1] + ': '; line.append(b, m[2]); } else line.textContent = t;
+        tip.appendChild(line);
+      });
       b.addEventListener('click', () => { const open = tip.hidden; document.querySelectorAll('.help-tip').forEach(t => { t.hidden = true; }); document.querySelectorAll('.help-btn').forEach(x => x.setAttribute('aria-expanded', 'false')); tip.hidden = !open; b.setAttribute('aria-expanded', String(open)); });
       row.appendChild(b); row.insertAdjacentElement('afterend', tip);
       const inp = document.getElementById(l.getAttribute('for')); if (inp) inp.setAttribute('aria-describedby', ((inp.getAttribute('aria-describedby') || '') + ' ' + id).trim());
