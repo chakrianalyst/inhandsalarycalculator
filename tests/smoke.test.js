@@ -77,7 +77,7 @@ if (chromium) {
 
   test('salary: bonus shown separately, allowance chips reduce special allowance, overshoot is flagged', async () => {
     const pg = await open(SITE, 'salary-calculator.html'); const t = id => pg.$eval('#' + id, e => e.textContent.trim());
-    await pg.$eval('#sec-bonus', e => (e.open = true)); await pg.fill('#bonus', '10'); assert.match(await t('rLbl'), /fixed pay/); assert.match(await t('rYear'), /before tax, ₹[\d,]+ after tax/);
+    await pg.$eval('#sec-bonus', e => (e.open = true)); await pg.fill('#bonus', '10'); assert.match(await t('rLbl'), /before bonus/); assert.match(await t('rYear'), /Plus a bonus of ₹[\d,]+ after tax \(₹[\d,]+ before tax\)/);
     await pg.fill('#bonus', '0'); await pg.$eval('#sec-other', e => (e.open = true)); const before = await t('specialRow');
     await pg.click('#ochips .chip:text("Phone")'); await (await pg.$('#orows .ov')).fill('3000'); assert.notEqual(await t('specialRow'), before);
     await pg.fill('#basic', '90'); await pg.fill('#ctc', '300000'); assert.ok((await pg.$$('#warns .warn.bad')).length >= 1); await pg.close();
@@ -87,7 +87,7 @@ if (chromium) {
     const pg = await browser.newPage(); await pg.goto(url(SITE, 'salary-calculator.html') + '?basicM=yr&basic=480000&pfMode=cap&othersData=Phone~2000~mo~other&regime=old');
     assert.equal(await pg.$eval('#basicM .on', e => e.dataset.v), 'yr'); assert.equal(await pg.$eval('#pfMode .on', e => e.dataset.v), 'cap');
     assert.equal((await pg.$$('#orows .orow')).length, 1); assert.equal(await pg.$eval('#orows .nm', e => e.value), 'Phone');
-    assert.match(await pg.$eval('#rPill', e => e.textContent), /Old regime selected/); await pg.close();
+    assert.match(await pg.$eval('#rPill', e => e.textContent), /Under the old regime, as you chose/); await pg.close();
   });
 
   test('salary: gratuity base (basic / wages / custom), A + B summary, flexible-benefit chip', async () => {
@@ -173,10 +173,11 @@ if (chromium) {
   test('polish: PF label, regime saving in the badge, bonus chips, mobile bar above the cookie banner', async () => {
     const sal = await open(SITE, 'salary-calculator.html'); await sal.fill('#ctc', '2000000');
     assert.match(await sal.$eval('#pfMode', e => e.textContent), /Capped at ₹15,000 basic/);
-    assert.match(await sal.$eval('#rPill', e => e.textContent), /best for you\)( · saves you ₹[\d,]+\/yr)?$/);
+    assert.match(await sal.$eval('#rPill', e => e.textContent), /^Under the (new|old) regime, best for you(: saves ₹[\d,]+ a year)?$/);
+    assert.match(await sal.$eval('#facts', e => e.textContent), /regime leaves you ₹[\d,]+ more a year/); assert.equal(await sal.$('#inputs input[type=range]'), null, 'no sliders');
     await sal.close();
     const bon = await browser.newPage(); await bon.goto(url(SITE, 'salary-calculator.html') + '?bonus=10'); await bon.waitForTimeout(300);
-    assert.match(await bon.$eval('#rChips', e => e.textContent), /Fixed pay: ₹[\d,]+\/mo.*Bonus after tax: ₹[\d,]+\/yr/); await bon.close();
+    assert.match(await bon.$eval('#rYear', e => e.textContent), /That averages ₹[\d,]+ a month/); await bon.close();
     const live = await browser.newPage({ viewport: { width: 390, height: 800 } }); await live.goto(url(LIVE, 'salary-calculator.html')); await live.waitForSelector('.consent');
     await live.evaluate(() => window.scrollTo(0, 900)); await live.waitForTimeout(500);
     const [mb, cb] = await live.evaluate(() => [document.querySelector('.m-bar').getBoundingClientRect(), document.querySelector('.consent').getBoundingClientRect()]);
@@ -305,6 +306,7 @@ if (chromium) {
 
   test('Offer comparison: horizon, yearly raise, variable payout, city-based professional tax and a tie', async () => {
     const pg = await open(SITE, 'offer-comparison.html'); const hero = () => pg.$eval('#hero', e => e.innerText);
+    assert.match(await hero(), /In year 1, it leaves you ₹[\d,]+ a month after rent and costs/); assert.ok(await pg.$$eval('#card0 .help-btn', x => x.length) >= 8, 'every question has ? help');
     assert.match(await hero(), /Best offer over 4 years/); const four = await hero();
     await pg.selectOption('#hz', '1'); assert.match(await hero(), /Best offer over 1 year/); assert.notEqual(await hero(), four);
     await pg.selectOption('#hz', '4'); await pg.fill('#g0', '0'); await pg.fill('#g1', '0'); const flat = await pg.$eval('#tbl', e => e.innerText); assert.match(flat, /Yearly raise\s+0%\s+0%/);
@@ -345,7 +347,8 @@ if (chromium) {
 
   test('Rent vs buy: tax options, rent yield, break-even appreciation and sensitivity grid', async () => {
     const pg = await open(SITE, 'rent-vs-buy-calculator.html'); const txt = sel => pg.$eval(sel, e => e.innerText);
-    assert.match(await txt('#hero'), /renting & investing wins by/); assert.match(await txt('.kpis'), /Rent yield[\s\S]*3\.36%/); assert.match(await txt('.kpis'), /prices rise faster than[\s\S]*9\.\d%/);
+    assert.match(await txt('#hero'), /renting & investing wins by/); assert.match(await txt('#facts'), /rent is 3\.36% of the price/); assert.match(await txt('#facts'), /prices rise faster than 9\.\d% a year/);
+    assert.equal(await pg.$('#inputs input[type=range]'), null, 'no sliders'); assert.ok(await pg.$$eval('#inputs .help-btn', x => x.length) >= 9, 'every question has ? help');
     assert.equal((await pg.$$('#grid tr')).length, 5); assert.match(await txt('#note'), /Capital-gains tax is included/);
     const before = await txt('#hero'); await pg.$eval('details.adv', e => (e.open = true)); await pg.$eval('#lben', e => e.click()); assert.notEqual(await txt('#hero'), before); assert.equal(await pg.isVisible('#fSlab'), true); assert.match(await txt('#tbl'), /Home-loan tax benefit received/);
     await pg.fill('#rent', '100,000'); assert.match(await pg.$eval('#yieldHint', e => e.textContent), /high for India/);
@@ -369,7 +372,7 @@ if (chromium) {
     assert.equal(await t('rMonth'), '₹88,276'); await pg.$eval('#sec-ded', e => (e.open = true));
     await pg.click('#dchips .chip:text("Cab")'); await pg.fill('#drows .orow:nth-child(1) .ov', '3,000'); assert.equal(await t('rMonth'), '₹85,276');
     await pg.click('#dchips .chip:text("Lunch")'); await pg.fill('#drows .orow:nth-child(2) .ov', '2,000'); assert.equal(await t('rMonth'), '₹83,276');
-    assert.match(await pg.$eval('#pay', e => e.innerText), /Cab \/ transport[\s\S]*Lunch \/ cafeteria/); assert.match(await t('dedTotal'), /Total: ₹5,000 a month/); assert.match(await pg.$eval('#rChips', e => e.textContent), /₹5,000\/mo of other deductions/);
+    assert.match(await pg.$eval('#pay', e => e.innerText), /Cab \/ transport[\s\S]*Lunch \/ cafeteria/); assert.match(await t('dedTotal'), /Total: ₹5,000 a month/); assert.match(await pg.$eval('#facts', e => e.textContent), /after ₹5,000 a month of other payslip deductions/);
     await pg.click('#drows .orow:nth-child(2) .x'); assert.equal(await t('rMonth'), '₹85,276');
     const lk = await browser.newPage(); await lk.goto(url(SITE, 'salary-calculator.html') + '?dedData=' + encodeURIComponent('Cab~3000~mo')); await lk.waitForTimeout(300); assert.equal(await lk.$eval('#rMonth', e => e.textContent.trim()), '₹85,276'); await lk.close();
     assert.deepEqual(pg.errs, []); await pg.close();
@@ -402,7 +405,7 @@ if (chromium) {
   test('Return to India calculator: best year, runway, bringing money home, retirement choice, sensitivity and share link', async () => {
     const pg = await open(SITE, 'return-calculator.html'); const txt = sel => pg.$eval(sel, e => e.innerText), hero = () => txt('#hero');
     assert.match(await hero(), /If you return now[\s\S]*Short by ₹1\.05 Cr[\s\S]*Earliest you can afford it: in 2 years \(age 38\)/); assert.equal((await pg.$$('#yrTbl tr')).length, 12); assert.match(await txt('#yrTbl'), /Not yet[\s\S]*Not yet[\s\S]*✓ Ready/);
-    assert.match(await txt('#kpis'), /Without a job, money lasts[\s\S]*17 years/); assert.match(await txt('#homeTbl'), /Tax on your profits[\s\S]*Money you start life in India with/); assert.match(await txt('#homeTbl'), /left abroad/);
+    assert.match(await txt('#kpis'), /Without a job, your money lasts 17 years/); assert.match(await txt('#homeTbl'), /Tax on your profits[\s\S]*Money you start life in India with/); assert.match(await txt('#homeTbl'), /left abroad/);
     await pg.selectOption('#when', '3'); assert.match(await txt('#hero'), /If you return in 3 years \(age 39\)[\s\S]*to spare/);
     await pg.$eval('#sec-tax', e => (e.open = true)); assert.equal(await pg.isVisible('#penalty'), false); await pg.selectOption('#retMode', 'withdraw'); assert.equal(await pg.isVisible('#penalty'), true); assert.match(await txt('#homeTbl'), /cashed out/);
     await pg.fill('#jobCtc', '30,00,000'); assert.match(await hero(), /You can afford to return now/); await pg.fill('#jobCtc', '0'); await pg.selectOption('#retMode', 'leave');
@@ -703,11 +706,8 @@ if (chromium) {
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
-  test('review fixes: slider values for screen readers, no Google Fonts, accurate privacy wording', async () => {
-    const pg = await open(SITE, 'salary-calculator.html'); await pg.waitForTimeout(200);
-    assert.match(await pg.$eval('.field[data-slider] input[type=range]', e => e.getAttribute('aria-valuetext')), /^₹[\d,]+$/);
-    assert.deepEqual(pg.errs, []); await pg.close();
-    for (const f of pagesOf(SITE)) { const h = fs.readFileSync(path.join(SITE, f), 'utf8'); assert.ok(!/fonts\.(googleapis|gstatic)\.com/.test(h), f + ' still loads Google Fonts'); }
+  test('review fixes: no sliders anywhere, no Google Fonts, accurate privacy wording', async () => {
+    for (const f of pagesOf(SITE)) { const h = fs.readFileSync(path.join(SITE, f), 'utf8'); assert.ok(!/fonts\.(googleapis|gstatic)\.com/.test(h), f + ' still loads Google Fonts'); assert.ok(!/data-slider|type="range"/.test(h), f + ' still has a slider'); }
     const home = fs.readFileSync(path.join(SITE, 'index.html'), 'utf8'); assert.ok(!/never leaves your browser/i.test(home) && /not sent to our servers/.test(home));
     const methodology = fs.readFileSync(path.join(SITE, 'methodology.html'), 'utf8'); assert.match(methodology, /Rule 279/); assert.match(methodology, /Not yet reviewed by a chartered accountant/);
     assert.ok(!/AY 2027-28/.test(fs.readdirSync(SITE).filter(x => x.endsWith('.html')).map(x => fs.readFileSync(path.join(SITE, x), 'utf8')).join('')), 'old assessment-year wording is gone');
@@ -774,7 +774,7 @@ if (chromium) {
     const ret = await open(SITE, 'return-calculator.html'); await ret.waitForTimeout(250);
     assert.equal(await ret.textContent('#hLbl'), 'If you return now'); assert.match(await ret.textContent('#kpiHead'), /^If you return now \(age 36\)/);
     await ret.selectOption('#when', '3'); await ret.waitForTimeout(250); assert.match(await ret.textContent('#kpiHead'), /^If you return in 3 years \(age 39\)/); await ret.close();
-    const hra = await open(SITE, 'hra-calculator.html'); assert.equal(await hra.isVisible('#regimeNote'), true); assert.match(await hra.textContent('#hPill'), /old regime: you save/); await hra.close();
+    const hra = await open(SITE, 'hra-calculator.html'); assert.equal(await hra.isVisible('#regimeNote'), true); assert.match(await hra.textContent('#hPill'), /In the old regime, this saves you/); await hra.close();
     const rb = await open(SITE, 'rent-vs-buy-calculator.html'); await rb.waitForTimeout(250); assert.equal(await rb.isVisible('#investNote'), true, 'renting wins by default, so the note shows');
     await rb.fill('#app', '12'); await rb.waitForTimeout(250); assert.match(await rb.textContent('#vTitle'), /buying/i); assert.equal(await rb.isVisible('#investNote'), false, 'no note when buying wins'); await rb.close();
     const ls = await open(SITE, 'life-simulator.html'); await ls.waitForTimeout(250); assert.match(await ls.textContent('#timeline .tl-head'), /Your net worth then/); await ls.close();
