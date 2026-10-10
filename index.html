@@ -130,7 +130,7 @@
 
   // Hero headline: starts on salary (what search engines read), then shows the other calculators one at a time in a random order.
   (function () {
-    const rot = document.getElementById('rot'), dots = document.getElementById('rotDots'), cta = document.getElementById('rotCta'), hero = rot.closest('.hero');
+    const rot = document.getElementById('rot'), dots = document.getElementById('rotDots'), cta = document.getElementById('rotCta');
     const S = [
       ['salary-calculator.html', 'Calculate my salary →', null, 'Salary'],
       ['layoff-runway-calculator.html', 'Check my runway →', 'Laid off? See how many months your money <span class="grad-text">will last</span>', 'Layoff runway'],
@@ -158,8 +158,8 @@
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!reduce) timer = setInterval(tick, 5000);
     btns.forEach((b, i) => b.addEventListener('click', () => { show(i); clearInterval(timer); stopped = true; }));
-    hero.addEventListener('mouseenter', () => { paused = true; }); hero.addEventListener('mouseleave', () => { paused = false; });
-    hero.addEventListener('focusin', () => { paused = true; }); hero.addEventListener('focusout', () => { paused = false; });
+    // Pause only while a mouse points at the headline itself (the hero fills the screen, and a tap on a phone never "leaves").
+    [rot, dots].forEach(el => { el.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') paused = true; }); el.addEventListener('pointerleave', () => { paused = false; }); });
     if ('IntersectionObserver' in window) new IntersectionObserver(e => { visible = e[0].isIntersecting; }).observe(rot);
   })();
 </script>
