@@ -23,18 +23,18 @@
       <div class="row-2">
       <div class="field"><label for="age" data-help="Your age today, in years.">1. How old are you?</label>
         <div class="input-wrap"><input type="number" id="age" value="30" min="18" max="70" step="1"><span class="suf">years</span></div></div>
-      <div class="field"><label for="retAge" data-help="The age at which you would like to stop depending on a salary. The result tells you whether that works and the earliest age that does.">2. When do you want to retire?</label>
+      <div class="field"><label for="retAge" data-help="The age at which you would like to stop depending on a salary.|The result tells you whether that works, and the earliest age that does.">2. When do you want to retire?</label>
         <div class="input-wrap"><input type="number" id="retAge" value="45" min="30" max="75" step="1"><span class="suf">age</span></div></div>
       </div>
-      <div class="field"><label for="exp" data-help="Everything your household spends in a month today, including rent and EMIs. Leave out an EMI that will end before you retire. We raise this with inflation every year.">3. How much do you spend every month?</label>
+      <div class="field"><label for="exp" data-help="Everything your household spends in a month today, including rent and EMIs.|Leave out an EMI that will end before you retire.|We raise this with inflation every year.">3. How much do you spend every month?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="exp" data-money data-words="expWords" value="60000" min="10000" max="500000" step="1000" aria-describedby="expWords"></div><div class="words" id="expWords"></div></div>
-      <div class="field"><label for="corp" data-help="Today’s value of your mutual funds, stocks, EPF, PPF, NPS, FDs and gold. Do not count the home you live in.">4. How much have you invested so far?</label>
+      <div class="field"><label for="corp" data-help="Today’s value of your mutual funds, stocks, EPF, PPF, NPS, FDs and gold.|Do not count the home you live in.">4. How much have you invested so far?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="corp" data-money data-words="corpWords" value="1500000" min="0" max="50000000" step="50000" aria-describedby="corpWords"></div><div class="words" id="corpWords"></div></div>
       <div class="field"><label for="sav" data-help="What you put into investments every month, including SIPs and your PF contribution.">5. How much do you invest every month?</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="sav" data-money data-words="savWords" value="50000" min="0" max="500000" step="1000" aria-describedby="savWords"></div><div class="words" id="savWords"></div></div>
-      <div class="field"><label for="ret" data-help="How much your investments grow each year until you retire. Equity-heavy portfolios have earned about 10 to 12% over long periods, with big swings. Use a careful figure, after tax.">6. How much will your investments grow every year?</label>
+      <div class="field"><label for="ret" data-help="How much your investments grow each year until you retire.|Equity-heavy portfolios: about 10 to 12% a year over long periods, with big swings.|Use a careful figure, after tax.">6. How much will your investments grow every year?</label>
         <div class="input-wrap"><input type="number" id="ret" value="11" min="4" max="18" step="0.5"><span class="suf">% a year</span></div></div>
-      <div class="field"><label for="step" data-help="Most people invest more as their pay rises. Raising your monthly investing with your pay brings retirement forward a lot. Enter 0 to keep it the same.">7. Raise your monthly investing every year by</label>
+      <div class="field"><label for="step" data-help="Most people invest more as their pay rises.|Raising your monthly investing with your pay brings retirement forward a lot.|Enter 0 to keep it the same.">7. Raise your monthly investing every year by</label>
         <div class="input-wrap"><input type="number" id="step" value="8" min="0" max="25" step="1"><span class="suf">% a year</span></div></div>
       <details class="adv"><summary>Retirement assumptions</summary>
         <div class="row-2">

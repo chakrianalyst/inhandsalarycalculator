@@ -599,6 +599,8 @@ table.yr tr.bad td, table.yr tr.bad td:first-child { background: color-mix(in sr
 .help-btn:hover, .help-btn[aria-expanded="true"] { color: var(--brand, currentColor); border-color: currentColor; }
 .help-tip { font-size: .82rem; line-height: 1.45; padding: 10px 12px; margin: -2px 0 10px; border-radius: 10px; background: var(--soft, rgba(127,127,127,.1)); border: 1px solid var(--line); color: var(--text, inherit); }
 .help-tip[hidden] { display: none; }
+.help-tip .help-line { display: block; }
+.help-tip .help-line + .help-line { margin-top: 6px; }
 
 /* mobile result bar sits above the cookie banner; hero chips */
 @media (max-width: 920px) { .m-bar { bottom: calc(12px + var(--consent-lift, 0px)); } }
