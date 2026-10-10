@@ -16,10 +16,13 @@
   <section class="hero">
     <div class="container fade-in">
       <span class="eyebrow">✨ Free · No signup · Calculations run in your browser, not on our servers</span>
-      <h1>Know what really lands in your <span class="grad-text">bank account</span></h1>
+      <div class="rotator" id="rot">
+        <h1 class="on">Know what really lands in your <span class="grad-text">bank account</span></h1>
+      </div>
+      <div class="rot-dots" id="rotDots"></div>
       <p class="lead">Quick, beautiful tools for everyday money questions — from CTC to in-hand salary, to net worth, FIRE and life-planning simulators. Answers in seconds.</p>
       <div class="hero-cta">
-        <a class="btn btn-primary" href="salary-calculator.html">Calculate my salary →</a>
+        <a class="btn btn-primary" id="rotCta" href="salary-calculator.html">Calculate my salary →</a>
         <a class="btn btn-ghost" href="#tools">Browse all tools</a>
       </div>
       <nav class="quick" aria-label="Popular tools">
@@ -116,6 +119,41 @@
     document.getElementById('qSub').textContent = `${Common.fmtCompact(best.inHandYear)} per year · ${r.best === 'new' ? 'New' : 'Old'} regime`;
   }
   document.getElementById('q').addEventListener('input', quick); quick();
+
+  // Hero headline: starts on salary (what search engines read), then shows the other calculators one at a time in a random order.
+  (function () {
+    const rot = document.getElementById('rot'), dots = document.getElementById('rotDots'), cta = document.getElementById('rotCta'), hero = rot.closest('.hero');
+    const S = [
+      ['salary-calculator.html', 'Calculate my salary →', null, 'Salary'],
+      ['layoff-runway-calculator.html', 'Check my runway →', 'Laid off? See how many months your money <span class="grad-text">will last</span>', 'Layoff runway'],
+      ['return-calculator.html', 'Plan my return →', 'Moving back to India? Find the <span class="grad-text">earliest year</span> you can afford it', 'Return to India'],
+      ['fire-calculator.html', 'Find my FIRE number →', 'Find your FIRE number and <span class="grad-text">when you can retire</span>', 'FIRE'],
+      ['rent-vs-buy-calculator.html', 'Compare rent vs buy →', 'Buy a home or keep renting? See the <span class="grad-text">break-even year</span>', 'Rent vs buy'],
+      ['offer-comparison.html', 'Compare my offers →', 'Two job offers? See which puts <span class="grad-text">more in your pocket</span>', 'Job offers'],
+      ['abroad-calculator.html', 'Compare countries →', 'Is that job abroad <span class="grad-text">really worth more</span> in rupees?', 'Move abroad'],
+      ['sip-calculator.html', 'Plan my SIP →', 'How much SIP gets you to <span class="grad-text">₹1 crore</span>?', 'SIP'],
+    ];
+    S.slice(1).forEach(x => { const d = document.createElement('div'); d.className = 'h1'; d.setAttribute('aria-hidden', 'true'); d.innerHTML = x[2]; rot.appendChild(d); });
+    const els = [...rot.children];
+    dots.innerHTML = S.map((x, i) => `<button type="button" aria-label="Show ${x[3]}"${i ? '' : ' class="on" aria-current="true"'}></button>`).join('');
+    const btns = [...dots.children];
+    let cur = 0, timer = null, paused = false, visible = true, stopped = false;
+    // Visit order: salary first, then the rest shuffled.
+    const order = [0].concat(S.slice(1).map((_, i) => i + 1).sort(() => Math.random() - .5));
+    function show(i) {
+      if (i === cur) return;
+      els[cur].classList.remove('on'); els[cur].setAttribute('aria-hidden', 'true'); btns[cur].classList.remove('on'); btns[cur].removeAttribute('aria-current');
+      els[i].classList.add('on'); els[i].removeAttribute('aria-hidden'); btns[i].classList.add('on'); btns[i].setAttribute('aria-current', 'true');
+      cta.href = S[i][0]; cta.textContent = S[i][1]; cur = i;
+    }
+    function tick() { if (!paused && visible && !document.hidden) show(order[(order.indexOf(cur) + 1) % order.length]); }
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduce) timer = setInterval(tick, 5000);
+    btns.forEach((b, i) => b.addEventListener('click', () => { show(i); clearInterval(timer); stopped = true; }));
+    hero.addEventListener('mouseenter', () => { paused = true; }); hero.addEventListener('mouseleave', () => { paused = false; });
+    hero.addEventListener('focusin', () => { paused = true; }); hero.addEventListener('focusout', () => { paused = false; });
+    if ('IntersectionObserver' in window) new IntersectionObserver(e => { visible = e[0].isIntersecting; }).observe(rot);
+  })();
 </script>
 </body>
 </html>

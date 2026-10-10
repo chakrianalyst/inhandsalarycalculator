@@ -434,6 +434,16 @@ if (chromium) {
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
+  test('home hero: headline rotates through calculators, keeps one h1, dots switch it and the button follows', async () => {
+    const pg = await open(SITE, 'index.html');
+    assert.equal(await pg.$$eval('h1', x => x.length), 1); assert.match(await pg.$eval('#rot .on', e => e.textContent), /bank account/);
+    assert.equal(await pg.$$eval('#rotDots button', x => x.length), await pg.$$eval('#rot > *', x => x.length));
+    await pg.click('#rotDots button:nth-child(2)'); await pg.waitForTimeout(600);
+    assert.match(await pg.$eval('#rot .on', e => e.textContent), /Laid off/); assert.equal(await pg.$eval('#rotCta', e => e.getAttribute('href')), 'layoff-runway-calculator.html');
+    for (const href of await pg.$$eval('#rotDots button', (b) => b.map((_, i) => i))) { await pg.click(`#rotDots button:nth-child(${href + 1})`); const h = await pg.$eval('#rotCta', e => e.getAttribute('href')); assert.ok(require('fs').existsSync(require('path').join(SITE, h)), h); }
+    await pg.close();
+  });
+
   test('readable colours: green, red and brand text meet 4.5:1 on their surfaces in light and dark; index quick check agrees with the salary page', async () => {
     for (const theme of ['light', 'dark']) {
       const pg = await browser.newPage({ colorScheme: theme }); await pg.goto(url(SITE, 'sip-calculator.html')); await pg.evaluate(t => { document.documentElement.dataset.theme = t; }, theme);

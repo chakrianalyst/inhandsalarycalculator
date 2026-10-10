@@ -118,6 +118,15 @@ body.menu-open .m-bar { display: none; }                                  /* the
   box-shadow: var(--shadow-sm);
 }
 .hero h1 { font-size: clamp(2.2rem, 5.4vw, 4rem); line-height: 1.08; letter-spacing: -.035em; margin: 22px auto 18px; max-width: 880px; font-weight: 800; }
+.rotator { display: grid; max-width: 880px; margin: 22px auto 14px; }
+.hero .rotator > * { grid-area: 1 / 1; align-self: center; margin: 0 auto; transition: opacity .5s ease, transform .5s ease, visibility 0s linear 0s; }
+.hero .rotator > :not(.on) { opacity: 0; transform: translateY(10px); visibility: hidden; pointer-events: none; transition: opacity .5s ease, transform .5s ease, visibility 0s linear .5s; }
+.hero .h1 { font-size: clamp(2.2rem, 5.4vw, 4rem); line-height: 1.08; letter-spacing: -.035em; font-weight: 800; color: var(--text); }
+.rot-dots { display: flex; justify-content: center; gap: 2px; margin: -4px 0 14px; }
+.rot-dots button { width: 24px; height: 24px; padding: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
+.rot-dots button::after { content: ""; width: 7px; height: 7px; border-radius: 99px; background: var(--muted); opacity: .35; transition: width .3s, opacity .3s, background .3s; }
+.rot-dots button.on::after { width: 20px; opacity: 1; background: var(--brand); }
+@media (prefers-reduced-motion: reduce) { .rotator > *, .rotator > :not(.on) { transition: none; } }
 .grad-text { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .hero p.lead { font-size: clamp(1rem, 1.6vw, 1.2rem); color: var(--muted); max-width: 640px; margin: 0 auto 30px; }
 .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
