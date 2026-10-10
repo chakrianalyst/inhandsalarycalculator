@@ -873,6 +873,31 @@ if (chromium) {
     assert.deepEqual(await pg.context().cookies(base), []); await pg.close(); srv.close();
   });
 
+  test('analytics: counts reading paths (article ↔ calculator, home headline, article read) with page names only', async () => {
+    const http = require('http'), srv = http.createServer((q, r) => { const f = path.join(LIVE, decodeURIComponent(q.url.split('?')[0]).replace(/^\/$/, '/index.html'));
+      fs.readFile(f, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': f.endsWith('.js') ? 'text/javascript' : f.endsWith('.css') ? 'text/css' : 'text/html' }); r.end(b); }); });
+    await new Promise(r => srv.listen(0, '127.0.0.1', r)); const base = `http://127.0.0.1:${srv.address().port}/`;
+    const pg = await browser.newPage(); pg.setDefaultTimeout(10000); const sent = [];
+    await pg.addInitScript(() => { try { localStorage.setItem('inhand-consent', 'no'); } catch (e) {} });                     // no cookie banner over the buttons
+    await pg.exposeFunction('__sent', x => sent.push(x));
+    await pg.route('https://cloud.umami.is/script.js', r => r.fulfill({ contentType: 'text/javascript', body: `window.umami = { track(a, b) { const out = typeof a === 'function' ? a({ url: location.href }) : { name: a, data: b }; window.__sent(JSON.stringify(out)); } };` }));
+    await pg.route(/googletagmanager|googlesyndication/, r => r.abort());
+    const stay = () => pg.evaluate(() => document.addEventListener('click', e => e.preventDefault()));           // count the click, don't leave the page
+    await pg.goto(base + 'prepay-home-loan-or-invest.html'); await pg.waitForTimeout(400); await stay();
+    await pg.click('.scenario a.btn >> nth=1'); await pg.$eval('article .faq', e => e.scrollIntoView());
+    for (let i = 0; i < 30 && !sent.some(x => x.includes('article_read')); i++) await pg.waitForTimeout(100);
+    await pg.goto(base + 'emi-calculator.html'); await pg.waitForTimeout(400); await stay(); await pg.click('.read-card');
+    await pg.goto(base); await pg.waitForTimeout(400); await stay(); await pg.click('#rotCta'); await pg.click('#articles .art-card >> nth=0'); await pg.waitForTimeout(300);
+    const ev = sent.map(x => JSON.parse(x)).filter(x => x.name), by = n => ev.filter(x => x.name === n).map(x => x.data);
+    assert.deepEqual(by('article_to_calculator'), [{ article: 'prepay-home-loan-or-invest.html', tool: 'emi-calculator.html', prefilled: 'yes' }]);
+    assert.deepEqual(by('article_read'), [{ article: 'prepay-home-loan-or-invest.html' }]);
+    assert.deepEqual(by('calculator_to_article'), [{ tool: 'emi', article: 'prepay-home-loan-or-invest.html' }]);
+    assert.deepEqual(by('hero_cta'), [{ to: 'salary-calculator.html' }]);
+    assert.equal(by('article_card').length, 1); assert.equal(by('article_card')[0].from, 'home');
+    assert.ok(!JSON.stringify(ev).includes('?') && !JSON.stringify(ev).includes('5000000'), 'no prefilled numbers leave: ' + JSON.stringify(ev));
+    await pg.close(); srv.close();
+  });
+
   test('Return to India: answers "if we return now" first, shows what closes the gap, year buttons by the result, job-search months up front', async () => {
     const pg = await open(SITE, 'return-calculator.html', 390); const txt = sel => pg.$eval(sel, e => e.innerText.replace(/\s+/g, ' '));
     assert.equal(await pg.isVisible('#jobGap'), true, 'months to find a job sits in the main form');

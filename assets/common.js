@@ -573,6 +573,22 @@ const Common = (() => {
     const m = document.querySelector('main'); if (m && !m.id) m.id = 'main';
     if (!document.querySelector('.site-header h1') && document.querySelector('h1')) return;
   }
+  /** Which reading paths work: article → calculator, calculator → article, the home headline, article cards, and how many readers reach the end of an article.
+      Only page file names are sent, never the "?…" part of a link, because prefilled links carry numbers. */
+  function trackPaths(activeId) {
+    const file = h => { const u = pathOnly(h); return u.split('/').pop() || 'home'; }, here = file(location.href), isArticle = !!document.querySelector('meta[name="rc-article"]');
+    const tools = TOOLS.map(t => t.href);
+    document.addEventListener('click', e => {
+      const a = e.target.closest && e.target.closest('a[href]'); if (!a) return;
+      const to = file(a.href);
+      if (a.id === 'rotCta') track('hero_cta', { to });
+      else if (a.closest('.read-card')) track('calculator_to_article', { tool: activeId, article: to });
+      else if (a.closest('.art-card')) track('article_card', { from: here, article: to });
+      else if (isArticle && a.closest('article') && tools.includes(to)) track('article_to_calculator', { article: here, tool: to, prefilled: a.href.includes('?') ? 'yes' : 'no' });
+    }, true);
+    const end = isArticle && document.querySelector('article .faq');
+    if (end && 'IntersectionObserver' in window) { const io = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) { io.disconnect(); track('article_read', { article: here }); } }); io.observe(end); }
+  }
   window.addEventListener('unhandledrejection', e => { try { track('js_error', { msg: String(e.reason).slice(0, 100) }); } catch (x) {} });
   window.addEventListener('error', e => { try { track('js_error', { msg: String(e.message).slice(0, 100), src: (e.filename || '').split('/').pop() }); } catch (x) {} });
 
@@ -600,7 +616,7 @@ const Common = (() => {
   }
   function init(activeId) {
     layout(activeId); a11y(); initLimits(); initA11y(); fillCities(); document.querySelectorAll('input[data-money]').forEach(e => attachMoney(e)); state.restore(); enhanceFields(); related(activeId); stickyCols();
-    placeAds(); placeAffiliates(); addShare(activeId); addResultBar(activeId); tidyTables(); consentBanner(); startThirdParties(); startAnalytics();
+    placeAds(); placeAffiliates(); addShare(activeId); addResultBar(activeId); tidyTables(); consentBanner(); startThirdParties(); startAnalytics(); trackPaths(activeId);
     window.addEventListener('load', () => { state.watch(); let used = false; document.addEventListener('input', () => { if (!used) { used = true; track('calculator_used', { tool: activeId }); } }); });
   }
   initTheme();
