@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Layoff Runway Calculator: How Long Will Your Money Last? | RupeeCheck</title>
+<meta name="description" content="Laid off in India? See how long your savings and final settlement last, after tax, at your spending and if you cut back, and what buys the most time.">
+<link rel="canonical" href="https://inhand.example/layoff-runway-calculator.html">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Layoff Runway Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <div class="container page-hero">
+    <div class="crumbs"><a href="index.html">Home</a> › Layoff runway calculator</div>
+    <h1>Layoff Runway Calculator <span class="grad-text">how long will your money last?</span></h1>
+    <p>Lost your job, or worried you might? Add your savings and your final settlement. We take off the tax, then show how many months it covers at your spending today, if you cut back, and what buys you the most time.</p>
+  </div>
+  <div class="container tool-layout">
+    <section class="card" id="inputs" aria-label="Inputs">
+      <h2 class="card-title">💼 Your final settlement</h2>
+      <div class="field"><label for="monthly">Your monthly salary (gross, before tax)</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="monthly" data-money data-words="moWords" value="150000" placeholder="0" aria-describedby="moWords"></div><div class="words" id="moWords"></div>
+        <span class="hint">From your payslip. Used for the quick picks below and to work out the tax on your payout.</span></div>
+      <div class="field"><label for="lastMonth">Your last salary month</label><select id="lastMonth"></select>
+        <span class="hint" id="lmHint">Month 1 of your runway is the month after this.</span></div>
+      <div class="field"><label for="severance">Severance pay</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="severance" data-money value="300000" placeholder="0"></div>
+        <div class="chips" data-for="severance"><span class="chips-l">Months of salary</span><button type="button" class="chip" data-n="1">1</button><button type="button" class="chip" data-n="2">2</button><button type="button" class="chip" data-n="3">3</button><button type="button" class="chip" data-n="6">6</button></div>
+        <span class="hint">The amount in your separation letter, before tax. Enter 0 if there is none.</span></div>
+      <div class="field"><label for="notice">Notice pay (paid instead of working your notice)</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="notice" data-money value="300000" placeholder="0"></div>
+        <div class="chips" data-for="notice"><span class="chips-l">Months of salary</span><button type="button" class="chip" data-n="1">1</button><button type="button" class="chip" data-n="2">2</button><button type="button" class="chip" data-n="3">3</button></div>
+        <span class="hint">If you are still working your notice and being paid, leave this at 0 and pick your real last salary month above.</span></div>
+      <div class="field"><label for="leave">Leave encashment</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="leave" data-money value="50000" placeholder="0"></div>
+        <span class="hint">Pay for unused leave. Usually your basic salary ÷ 30 × days of leave left. Check your full and final statement.</span></div>
+      <div class="field"><label for="gratuity">Gratuity</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="gratuity" data-money value="0" placeholder="0"></div>
+        <span class="hint">Usually only after 5 years with the employer. Work it out with the <a href="gratuity-calculator.html">gratuity calculator</a>.</span></div>
+
+      <h2 class="card-title" style="margin-top:8px">🏦 Money you have</h2>
+      <div class="field"><label for="savings">Savings you can use</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="savings" data-money data-words="svWords" value="500000" placeholder="0" aria-describedby="svWords"></div><div class="words" id="svWords"></div>
+        <span class="hint">Bank balance, FDs, liquid funds and investments you would sell if needed. Not your PF or retirement money.</span></div>
+      <div class="field"><label for="pf">PF balance</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="pf" data-money value="600000" placeholder="0"></div>
+        <span class="hint">Your EPF balance (your share plus your employer’s), from the EPFO passbook.</span></div>
+      <label class="toggle"><span>Use my PF as a last resort<small>75% can be withdrawn after a month without work, the rest after 12 months. It is your retirement money, so it is off by default.</small></span><span class="switch"><input type="checkbox" id="pfOn"><i></i></span></label>
+
+      <h2 class="card-title" style="margin-top:8px">🧾 Monthly spending</h2>
+      <div class="field"><label for="essentials">Essentials</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="essentials" data-money value="45000" placeholder="0"></div>
+        <span class="hint">Rent, groceries, bills, school fees, support to parents: what you must pay every month.</span></div>
+      <div class="field"><label for="emi">Loan EMIs</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="emi" data-money value="25000" placeholder="0"></div>
+        <span class="hint">Home, car, personal loans and credit-card instalments. These do not stop when the salary does.</span></div>
+      <div class="row-2">
+        <div class="field"><label for="other">Everything else, today</label><div class="input-wrap"><span class="pre">₹</span><input id="other" data-money value="30000" placeholder="0"></div></div>
+        <div class="field"><label for="otherCut">…if you cut back</label><div class="input-wrap"><span class="pre">₹</span><input id="otherCut" data-money value="10000" placeholder="0"></div></div>
+      </div>
+      <span class="grp-hint" style="display:block;margin-top:-6px;margin-bottom:12px">Eating out, travel, shopping, subscriptions and SIPs you could pause.</span>
+      <div class="field"><label for="insurance">Health insurance you now pay yourself (a year)</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="insurance" data-money value="25000" placeholder="0"></div>
+        <span class="hint">Your employer’s group cover usually ends with the job. Enter 0 if you already have your own policy.</span></div>
+
+      <h2 class="card-title" style="margin-top:8px">🔎 While you look for work</h2>
+      <div class="field"><label for="income">Other income each month (after tax)</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="income" data-money value="0" placeholder="0"></div>
+        <span class="hint">A partner’s pay you would put towards these costs, freelance work, or rent you receive.</span></div>
+      <div class="field"><label for="search">How long you expect the job search to take</label>
+        <div class="input-wrap"><input type="number" id="search" value="6" min="1" max="36" step="1"><span class="suf">months</span></div>
+        <span class="hint">Senior roles and slow markets take longer. Six months is a sensible test.</span></div>
+    </section>
+
+    <section class="results" aria-live="polite">
+      <div class="hero-result" id="hero"><div class="lbl" id="hLbl">Your money lasts</div><div class="big" id="hBig">—</div><div class="sub" id="hSub"></div><span class="pill" id="hPill"></span></div>
+      <div class="warns" id="warns"></div>
+      <div class="kpis" id="kpis"></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">📉 Month by month</h2><div id="chart"></div><p class="chart-cap" id="chartCap"></p></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🎯 What buys you the most time</h2><div id="tips"></div></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">💰 Your settlement, after tax</h2><div class="tbl-wrap"><table class="tbl" id="setTbl"></table></div><p class="cap" id="taxNote"></p></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">✅ The first two weeks</h2>
+        <ol class="check-list">
+          <li><b>Get your full and final settlement in writing:</b> severance, notice pay, leave encashment, any bonus due and gratuity if you have 5+ years, and the date it will be paid.</li>
+          <li><b>Sort out health insurance before the company cover ends.</b> Ask your insurer whether you can move to an individual policy, or buy one.</li>
+          <li><b>Keep your payslips and Form 16.</b> The payout changes your tax for the year; any difference from the tax deducted is settled when you file your return.</li>
+          <li><b>Leave your PF alone if you can.</b> It keeps growing and moves to your next employer. Withdraw only if your savings run short.</li>
+          <li><b>If EMIs will be hard, speak to your lender early,</b> before you miss one.</li>
+        </ol></div>
+      <div class="banner info"><span>ℹ️</span><span>A planning tool, not tax or legal advice. Severance, notice pay and leave encashment are taxed here as salary, the cautious reading; part of them can be tax-free. Confirm with a tax professional.</span></div>
+    </section>
+  </div>
+  <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
+  <article class="container prose">
+    <h2>How this calculator works</h2>
+    <p>We add your savings to your final settlement after tax. Month 1 is the first month without salary. Each month your spending is paid from that money, less any other income, and your health-insurance premium is paid in month 1 and every 12 months. The runway is how many months the money covers. We work it out twice: at your spending today, and with “everything else” cut back to the amount you choose. Savings are assumed to earn nothing, which keeps the answer on the safe side.</p>
+    <h2>Tax on your final settlement</h2>
+    <p>Severance, notice pay and leave encashment are added to the salary you were paid this financial year and taxed under the new regime, with the ₹75,000 standard deduction. That is why a large payout late in the year is taxed at a higher rate than one early in the year. Gratuity is tax-free up to ₹20 lakh. Part of a retrenchment payment and of leave encashment can also be tax-free under specific rules; we do not count that, so your real tax may be lower. Your employer deducts tax (TDS) from the payout, and any difference is settled when you file your return.</p>
+    <h2>Your PF after a job loss</h2>
+    <p>Under the EPF rules, you can withdraw 75% of your PF after one month without work, and the rest after 12 months of continuous unemployment. These rules changed in 2026, so confirm the current ones on the EPFO portal before you apply. Your PF earns more than most savings accounts and moves to your next employer, which is why this calculator leaves it out unless you switch it on.</p>
+    <h2>How long a runway do you need?</h2>
+    <p>Long enough for your job search, plus a buffer. Searches take longer for senior roles, in slow hiring markets and around year-end holidays. If your runway is shorter than your search, the biggest levers are usually the spending you can pause, other income in the household, and talking to your lender before EMIs become a problem.</p>
+    <h2>Frequently asked questions</h2>
+    <div class="faq">
+      <details><summary>Is severance pay taxable in India?</summary><p>Yes. Severance and notice pay are generally taxed as salary, at your slab rate for the year. Compensation paid on retrenchment can be partly tax-free under specific conditions, so ask your employer how it is classified and confirm with a tax professional.</p></details>
+      <details><summary>Should I withdraw my PF after a layoff?</summary><p>Only if your other savings run short. PF earns a good, steady rate and is meant for retirement. If you need it, you can take 75% after a month without work and the rest after 12 months. Switch on “Use my PF as a last resort” to see how much time it would add.</p></details>
+      <details><summary>How much emergency fund should I have?</summary><p>Enough to cover your essential spending for the time it would take to find a new job. For many people that is six months or more. The “if you cut back” runway shows how long your money lasts on essentials alone.</p></details>
+      <details><summary>What if my severance is paid in instalments?</summary><p>Enter the total. If it comes over several months it lands a little later, but the total it adds to your runway is about the same.</p></details>
+      <details><summary>I work abroad on a visa. Can I use this?</summary><p>This calculator is for income and tax in India. If losing your job abroad means moving back, the <a href="return-calculator.html">Return to India calculator</a> shows whether your money covers the move and life in India.</p></details>
+    </div>
+  </article>
+  <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
+</main>
+<script src="assets/tax.js"></script>
+<script src="assets/words.js"></script>
+<script src="assets/layoff.js"></script>
+<script src="assets/common.js"></script>
+<script>
+  Common.init('layoff');
+  const $ = id => document.getElementById(id), f = Common.fmt, num = Common.num, cr = Common.fmtCompact;
+  const IN = new Intl.NumberFormat('en-IN'), MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const now = new Date(), base = now.getFullYear() * 12 + now.getMonth();                   // months counted from year 0, so adding months is simple
+  const label = k => MONTHS[k % 12] + ' ' + Math.floor(k / 12);
+  $('lastMonth').innerHTML = [-3, -2, -1, 0, 1, 2, 3].map(d => `<option value="${d}"${d === 0 ? ' selected' : ''}>${label(base + d)}</option>`).join('');
+  const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+  const span = m => m >= 120 ? '10+ years' : plural(Math.floor(m), 'month');
+  document.querySelectorAll('.chips[data-for] .chip').forEach(b => b.addEventListener('click', () => {
+    const el = $(b.closest('.chips').dataset.for); el.value = IN.format(Math.round(num('monthly') * +b.dataset.n)); el.dispatchEvent(new Event('input', { bubbles: true }));
+  }));
+
+  function calc() {
+    const last = base + +$('lastMonth').value, mIdx = last % 12, worked = ((mIdx - 3 + 12) % 12) + 1;          // April is month 1 of the financial year
+    $('lmHint').textContent = `Month 1 of your runway is ${label(last + 1)}. Salary for ${plural(worked, 'month')} of this financial year (April to ${MONTHS[mIdx]}) is counted for tax.`;
+    const S = Layoff.settlement({ monthly: num('monthly'), monthsWorked: worked, severance: num('severance'), notice: num('notice'), leave: num('leave'), gratuity: num('gratuity') }, x => Tax.computeTax(x, 'new').total);
+    const cash = num('savings') + S.net, ess = num('essentials') + num('emi'), now$ = ess + num('other'), cut$ = ess + Math.min(num('otherCut'), num('other'));
+    const o = { insurance: num('insurance'), income: num('income'), pf: num('pf'), pfOn: $('pfOn').checked }, search = Math.max(1, Math.round(num('search')) || 1);
+    const A = Layoff.runway(cash, now$, o), B = Layoff.runway(cash, cut$, o), W = [], K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
+    const until = r => r.lasts ? 'beyond 10 years' : Math.floor(r.months) >= 1 ? 'the end of ' + label(last + Math.floor(r.months)) : 'less than a month';
+    if (!(now$ > 0)) W.push('Enter your monthly spending to see your runway.');
+    if (!(cash > 0) && !(o.pfOn && o.pf > 0)) W.push('Enter your savings or your settlement.');
+    if (o.income >= now$ && now$ > 0) W.push('Your other income covers your spending, so your savings are not drawn down.');
+    $('warns').innerHTML = W.map(w => `<div class="warn"><span>⚠️</span><span>${w}</span></div>`).join('');
+
+    if (!(now$ > 0)) { ['hBig', 'hSub', 'hPill'].forEach(id => { $(id).textContent = id === 'hBig' ? '—' : ''; }); $('kpis').innerHTML = ''; $('tips').innerHTML = ''; $('setTbl').innerHTML = ''; $('taxNote').textContent = ''; return; }
+    $('hBig').textContent = A.lasts ? '10+ years' : A.months < 1 ? 'Under a month' : span(A.months);
+    $('hSub').textContent = !A.lasts && A.months < 1 ? `Not enough to cover one month at ${f(now$)}. Cut back to ${f(cut$)} and it lasts ${B.months < 1 ? 'under a month' : span(B.months)}.` : A.lasts ? `Your money covers ${f(now$)} a month for the foreseeable future.` : `At your spending today (${f(now$)} a month), until ${until(A)}. Cut back to ${f(cut$)} and it lasts ${span(B.months)}${B.lasts ? '' : ', until ' + until(B)}.`;
+    const gap = Math.floor(A.months) - search;
+    $('hPill').textContent = gap >= 0 ? `Covers a ${search}-month job search with ${A.lasts ? 'years' : plural(gap, 'month')} to spare` : Math.floor(B.months) >= search ? `Short of a ${search}-month search, but cutting back covers it` : `Runs out ${plural(-gap, 'month')} before a ${search}-month search ends`;
+
+    const pfAdds = !o.pfOn && o.pf > 0 ? Layoff.runway(cash, now$, { ...o, pfOn: true }).months - A.months : 0;
+    $('kpis').innerHTML = K('', 'Money you can use now', cr(cash), `Savings ${cr(num('savings'))} + settlement ${cr(S.net)}`) +
+      K('', 'Settlement after tax', cr(S.net), S.gross > 0 ? `${cr(S.gross)} before tax, ${cr(S.tax)} tax` : 'No settlement entered') +
+      K('', 'You spend now', f(now$) + '/mo', `${f(ess)} of it is essentials and EMIs`) +
+      K('good', 'If you cut back', span(B.months), `At ${f(cut$)} a month`) +
+      K(gap >= 0 ? 'good' : 'bad', 'Your job search', plural(search, 'month'), gap >= 0 ? 'Covered by your money' : `${plural(-gap, 'month')} short at today’s spending`) +
+      K('', o.pfOn ? 'PF counted' : 'PF, as a last resort', o.pfOn ? cr(o.pf) : pfAdds > 0.5 ? '+' + span(pfAdds) : '—', o.pfOn ? '75% after a month, the rest after 12' : o.pf > 0 ? 'More if you withdrew it. Not counted' : 'No PF entered');
+
+    const n = Math.min(121, Math.max(search, Math.ceil(Math.max(A.lasts ? 24 : A.months, B.lasts ? 24 : B.months))) + 2), pad = r => Array.from({ length: n }, (_, i) => i < r.bals.length ? r.bals[i] : 0);
+    Common.lineChart($('chart'), { xs: Array.from({ length: n }, (_, i) => i), xfmt: v => v === 0 ? 'Now' : 'M' + v, xlabel: v => v === 0 ? 'Now' : label(last + v), label: 'Money left each month', area: true,
+      series: [{ name: 'Spending today', color: 'var(--c4)', ys: pad(A) }, { name: 'If you cut back', color: 'var(--c1)', dash: true, ys: pad(B) }], markers: [{ x: search, label: '🎯' }] });
+    $('chartCap').textContent = `Money left at the end of each month. The 🎯 marks the end of a ${search}-month job search${o.pfOn && o.pf > 0 ? '; the step up in month 2 is your PF' : ''}.`;
+
+    const tips = [], add = (r, t, last) => { const d = r.months - A.months; if (d >= 0.5 && !A.lasts) tips.push([d, t.replace('{d}', `<b>${r.lasts ? 'years' : span(d)}</b>`), last]); };
+    if (num('other') > num('otherCut')) add(B, `Cutting “everything else” from ${f(num('other'))} to ${f(num('otherCut'))} a month adds {d}.`);
+    if (now$ > 10000) add(Layoff.runway(cash, now$ - 10000, o), 'Each ₹10,000 less a month adds about {d}.');
+    if (o.income === 0) add(Layoff.runway(cash, now$, { ...o, income: 20000 }), 'Other income of ₹20,000 a month (freelance work, or a partner covering some costs) would add {d}.');
+    if (pfAdds > 0.5) add(Layoff.runway(cash, now$, { ...o, pfOn: true }), 'Your PF, as a last resort, would add {d}. It is retirement money, so use it only if your savings run short.', true);
+    tips.sort((a, b) => (a[2] ? 1 : 0) - (b[2] ? 1 : 0) || b[0] - a[0]);                      // PF stays last: it is the last resort
+    const emiShare = now$ > 0 ? num('emi') / now$ : 0;
+    $('tips').innerHTML = (A.lasts ? '<p style="margin:0 0 8px">Your money covers your spending for well over the time a job search usually takes.</p>' : tips.map(t => `<p style="margin:0 0 8px">${t[1]}</p>`).join('')) +
+      (emiShare >= 0.3 ? `<p style="margin:0">EMIs are ${Math.round(emiShare * 100)}% of your spending and do not shrink when you cut back. If they will be hard to pay, speak to your lender early.</p>` : '');
+
+    const row = (l, v, cls = '') => `<tr class="${cls}"><td>${l}</td><td>${v}</td></tr>`;
+    $('setTbl').innerHTML = '<tr><th>Part</th><th>Amount</th></tr>' + row('Severance pay', f(num('severance'))) + row('Notice pay', f(num('notice'))) + row('Leave encashment', f(num('leave'))) +
+      row('Gratuity' + (num('gratuity') > 0 ? ` (${f(S.gratFree)} tax-free)` : ''), f(num('gratuity'))) + row('Tax on the payout (estimate)', '− ' + f(S.tax), 'neg') + row('Settlement after tax', f(S.net), 'total') +
+      row('Savings you can use', '+ ' + f(num('savings')), 'pos') + row('Money you can use now', f(cash), 'total');
+    $('taxNote').textContent = S.taxable > 0 ? `The tax is what the payout adds to the ${f(S.earned)} salary you were paid this financial year (new regime): about ${(S.rate * 100).toFixed(1)}% of the taxable part. Part of severance and leave encashment can be tax-free; we do not count that.` : '';
+  }
+  document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc));
+  document.addEventListener('change', e => { if (e.target.closest && e.target.closest('#inputs')) calc(); });
+  Common.restore(); calc();
+</script>
+</body>
+</html>

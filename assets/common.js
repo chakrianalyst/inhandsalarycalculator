@@ -13,8 +13,9 @@ const TOOLS = [
   { id: 'emi', group: 'save', href: 'emi-calculator.html', icon: '🏦', name: 'EMI Calculator', short: 'EMI', desc: 'Loan EMI with prepayment, fees, loan eligibility and a full repayment schedule.' },
   { id: 'sip', group: 'save', href: 'sip-calculator.html', icon: '🌱', name: 'SIP Calculator', short: 'SIP', desc: 'SIP, lump sum or goal planner with step-up, tax, inflation and the cost of waiting.' },
   { id: 'fd', group: 'save', href: 'fd-calculator.html', icon: '🔒', name: 'FD Calculator', short: 'FD', desc: 'FD and RD for any tenure in years, months and days, with payout, tax and real return.' },
-  { id: 'swp', group: 'save', href: 'swp-calculator.html', icon: '🏧', name: 'SWP Calculator', short: 'SWP', desc: 'Monthly income from your mutual funds: how long it lasts, the most you can safely take, and the tax on the profit part only.', isNew: true },
+  { id: 'swp', group: 'save', href: 'swp-calculator.html', icon: '🏧', name: 'SWP Calculator', short: 'SWP', desc: 'Monthly income from your mutual funds: how long it lasts, the most you can safely take, and the tax on the profit part only.' },
   { id: 'gratuity', group: 'pay', href: 'gratuity-calculator.html', icon: '🎁', name: 'Gratuity Calculator', short: 'Gratuity', desc: 'Gratuity from years and months of service, with the new labour-code rules and tax-free part.' },
+  { id: 'layoff', group: 'pay', href: 'layoff-runway-calculator.html', icon: '🧯', name: 'Layoff Runway Calculator', short: 'Layoff', desc: 'Laid off? How long your savings and final settlement last after tax, if you cut back, and what buys the most time.', isNew: true },
 ];
 
 const GUIDES = [
