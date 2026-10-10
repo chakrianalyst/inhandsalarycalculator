@@ -49,7 +49,7 @@
       <div class="card"><h2 class="card-title">💡 Good to know</h2><ul class="facts" id="facts"></ul></div>
       <div class="card"><h2 class="card-title">📉 How your money changes</h2><div id="chart"></div><p class="chart-cap" id="chartCap"></p></div>
       <div class="card" id="taxCard"><h2 class="card-title">🧾 How the tax works</h2><div id="taxNote"></div></div>
-      <div class="card"><h2 class="card-title">📅 Year by year</h2><div class="tbl-wrap"><table class="tbl" id="yrTbl"></table></div></div>
+      <div class="card"><h2 class="card-title">📅 Year by year</h2><p class="grp-hint" id="yrNote" style="margin-top:0"></p><div class="tbl-wrap"><table class="tbl" id="yrTbl"></table></div></div>
       <div class="offer"><div><b>Setting up an SWP?</b><small>Compare direct mutual fund platforms with free SWP.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="mutual-funds">Compare offers</a></div>
     </section>
   </div>
@@ -115,21 +115,24 @@
       p.step > 0 && R.lasts ? `Raised ${p.step}% a year, your ${f(p.withdraw)} becomes <b>${f(p.withdraw * Math.pow(1 + p.step / 100, p.years - 1))} a month</b> by year ${p.years}.` : ''
     ].filter(Boolean).map(t => `<li>${t}</li>`).join('');
 
-    const xs = [0].concat(R.years.map(y => y.year - 1 + y.months / 12)); let cum = 0; const cums = [0].concat(R.years.map(y => (cum += y.withdrawn)));
+    // The chart and the table follow the money until it runs out, so they match "Your money lasts …"; the years you asked about are marked.
+    const TY = L.lasts ? R.years : L.years;
+    const xs = [0].concat(TY.map(y => y.year - 1 + y.months / 12)); let cum = 0; const cums = [0].concat(TY.map(y => (cum += y.withdrawn)));
     Common.lineChart($('chart'), { xs, xfmt: v => +v.toFixed(1), xlabel: v => v === 0 ? 'Start' : 'After ' + (+v.toFixed(1)) + ' yr', label: 'Balance and money withdrawn', area: true,
-      series: [{ name: 'Money left', color: 'var(--c1)', ys: [p.corpus].concat(R.years.map(y => y.balance)) }, { name: 'Withdrawn so far', color: 'var(--c2)', dash: true, ys: cums }] });
-    const peak = R.years.reduce((m, y) => (y.balance > m.balance ? y : m), { balance: p.corpus, year: 0 }), rises = peak.year > 0 && peak.year < R.years.length;
-    $('chartCap').textContent = (R.end >= p.corpus && R.lasts ? 'Your balance keeps growing, because the withdrawals stay below what the money earns.'
+      series: [{ name: 'Money left', color: 'var(--c1)', ys: [p.corpus].concat(TY.map(y => y.balance)) }, { name: 'Withdrawn so far', color: 'var(--c2)', dash: true, ys: cums }],
+      markers: TY.length > p.years ? [{ x: p.years, label: `${p.years} yrs` }] : [] });
+    const peak = TY.reduce((m, y) => (y.balance > m.balance ? y : m), { balance: p.corpus, year: 0 }), rises = peak.year > 0 && peak.year < TY.length;
+    $('chartCap').textContent = (L.lasts && R.end >= p.corpus ? 'Your balance keeps growing, because the withdrawals stay below what the money earns.'
       : (rises ? `Your balance grows for the first ${plural(peak.year, 'year')}, to ${cr(peak.balance)}, then falls as the rising withdrawals overtake what it earns. ` : 'Your balance falls from the start, because the withdrawals are more than the money earns. ') +
-        (R.lasts ? `It still has ${cr(R.end)} left at the end.` : `It reaches zero after ${span(R.fullMonths)}.`)) + ' The dashed line adds up everything you have taken out.';
-
+        (L.lasts ? `It still has ${cr(R.end)} left after ${plural(p.years, 'year')}.` : `It reaches zero after ${span(L.fullMonths)}.`)) + ' The dashed line adds up everything you have taken out.';
     $('taxCard').hidden = taxk === 'none';
     if (taxk !== 'none') {
       const profitShare = y1.withdrawn > 0 ? (R.years[0].gain / y1.withdrawn) * 100 : 0, y2 = R.years[1];
       $('taxNote').innerHTML = `<p style="margin:0 0 8px">In year 1 you withdraw <b>${f(y1.withdrawn)}</b>, but only <b>${f(R.years[0].gain)}</b> of it (${profitShare.toFixed(1)}%) is profit. The rest is your own money coming back, which is not taxed. Tax in year 1: <b>${f(y1.tax)}</b>.</p>` +
         (taxk === 'equity' ? `<p style="margin:0">${p.gainPct > 0 ? 'Your units are already over a year old, so profit is long-term' : 'Units sold in the first 12 months are short-term (20%); after that, profit is long-term'}: the first ₹1.25 lakh of long-term profit each year is tax-free, then 12.5%.${y2 ? ` Tax in year 2: <b>${f(y2.tax)}</b>.` : ''}</p>` : `<p style="margin:0">Debt fund profit is added to your income and taxed at ${$('slab').value}% plus cess.</p>`);
     }
-    $('yrTbl').innerHTML = `<tr><th>Year</th><th>Monthly</th><th>Year total</th>${taxk !== 'none' ? '<th>Tax</th>' : ''}<th>Left</th></tr>` + R.years.map(y => `<tr class="${y.balance === 0 ? 'neg' : ''}"><td>${y.year}${y.months < 12 ? `<small class="ph-sub"> (${y.months} mo)</small>` : ''}</td><td>${f(y.monthly)}</td><td>${cr(y.withdrawn)}</td>${taxk !== 'none' ? `<td>${cr(y.tax)}</td>` : ''}<td>${cr(y.balance)}</td></tr>`).join('');
+    $('yrNote').textContent = L.lasts ? `Your money is still there after 50 years, so this shows your ${plural(p.years, 'year')}.` : `Every year until the money runs out after ${span(L.fullMonths)}.` + (TY.length > p.years ? ` Your ${plural(p.years, 'year')} are marked.` : '');
+    $('yrTbl').innerHTML = `<tr><th>Year</th><th>Monthly</th><th>Year total</th>${taxk !== 'none' ? '<th>Tax</th>' : ''}<th>Left</th></tr>` + TY.map(y => `<tr class="${y.balance === 0 ? 'neg' : y.year === p.years && TY.length > p.years ? 'sel' : ''}"><td>${y.year}${y.year === p.years && TY.length > p.years ? ' ⬅ your ' + plural(p.years, 'year') : ''}${y.months < 12 ? `<small class="ph-sub"> (${y.months} mo)</small>` : ''}</td><td>${f(y.monthly)}</td><td>${cr(y.withdrawn)}</td>${taxk !== 'none' ? `<td>${cr(y.tax)}</td>` : ''}<td>${cr(y.balance)}</td></tr>`).join('');
   }
   document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc));
   document.addEventListener('change', e => { if (e.target.closest && e.target.closest('#inputs')) calc(); });

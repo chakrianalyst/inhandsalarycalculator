@@ -227,10 +227,11 @@ if (chromium) {
     await pg.click('#mode [data-v=payout]'); assert.match(await hero(), /every month[\s\S]*₹2,917/);
     await pg.click('#mode [data-v=rd]'); assert.equal(await pg.isVisible('#fDays'), false); assert.equal(await pg.isVisible('#d'), true);
     await pg.click('#mode [data-v=fd]'); await pg.fill('#yrs', '5'); await pg.fill('#mon', '0'); await pg.fill('#day', '0');
-    await pg.$eval('#sec-tax', e => (e.open = true)); await pg.fill('#sal', '30,00,000'); await pg.waitForTimeout(150); assert.match(await pg.$eval('#kpis', e => e.innerText), /Tax on the interest\s*₹64,705\s*About 31\.2% of it/);
+    await pg.$eval('#sec-tax', e => (e.open = true)); await pg.fill('#sal', '30,00,000'); await pg.waitForTimeout(150); assert.match(await pg.$eval('#facts', e => e.innerText), /Tax on the interest is about ₹64,705 \(31\.2% of it\)/);
     assert.equal(await pg.$eval('#warns', e => e.textContent), '');                                    // ₹5 L earns at most about ₹47,000 a year: under the ₹50,000 TDS limit
     await pg.fill('#p', '2000000'); assert.match(await pg.$eval('#warns', e => e.textContent), /TDS/);
-    assert.match(await pg.$eval('.hero-result', e => e.textContent), /Real return after tax and inflation/);
+    assert.match(await pg.$eval('#facts', e => e.textContent), /After tax and rising prices, your money grows/); assert.match(await pg.$eval('.hero-result', e => e.textContent), /After tax on the interest, you keep/);
+    assert.equal(await pg.$('#inputs input[type=range]'), null, 'no sliders'); assert.ok(await pg.$$eval('#inputs .help-btn', x => x.length) >= 5, 'every question has ? help');
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
@@ -249,12 +250,12 @@ if (chromium) {
   });
 
   test('SIP calculator: monthly SIP, step-up, lump sum, goal planner, tax, delay table and convention', async () => {
-    const pg = await open(SITE, 'sip-calculator.html'); const hero = () => pg.$eval('.hero-result', e => e.innerText), kp = () => pg.$eval('#kpis', e => e.innerText);
+    const pg = await open(SITE, 'sip-calculator.html'); const hero = () => pg.$eval('.hero-result', e => e.innerText), kp = () => pg.$eval('#facts', e => e.innerText);
     assert.match(await hero(), /₹47,59,314/); assert.match(await pg.$eval('#delayTbl', e => e.innerText), /5 years later/);
     await pg.fill('#step', '10'); assert.match(await hero(), /₹82,74,718/); assert.match(await pg.$eval('#yrTbl', e => e.innerText), /₹11,000/);
     await pg.fill('#step', '0'); await pg.fill('#yrs', '1'); await pg.fill('#mon', '6'); assert.match(await hero(), /1 year 6 months/);
     await pg.click('#tenChips [data-t="15"]'); assert.equal(await pg.inputValue('#yrs'), '15');
-    await pg.$eval('#sec-tax', e => (e.open = true)); await pg.selectOption('#taxk', 'equity'); assert.match(await kp(), /Estimated tax/); await pg.selectOption('#taxk', 'none');
+    await pg.$eval('#sec-tax', e => (e.open = true)); await pg.selectOption('#taxk', 'equity'); assert.match(await kp(), /If you sell everything at the end, tax is about/); await pg.selectOption('#taxk', 'none');
     await pg.selectOption('#conv', 'nom'); assert.match(await hero(), /₹50,45,/); await pg.selectOption('#conv', 'eff');
     await pg.click('#mode [data-v=lump]'); await pg.fill('#lump', '5,00,000'); assert.match(await hero(), /grow to[\s\S]*₹27,36,783/); assert.equal(await pg.isVisible('#sip'), false);
     await pg.click('#mode [data-v=goal]'); await pg.fill('#lump', '0'); assert.match(await hero(), /monthly SIP of[\s\S]*₹/);
@@ -308,10 +309,11 @@ if (chromium) {
 
   test('FIRE calculator: lasting-corpus target, lean/fat styles, coast number, stress test and pension', async () => {
     const pg = await open(SITE, 'fire-calculator.html'); const txt = sel => pg.$eval(sel, e => e.innerText);
-    assert.match(await txt('#hero'), /Age 48/); assert.match(await txt('.kpis'), /₹5\.30 Cr/); assert.match(await txt('#verdict'), /short at 45/);
+    assert.match(await txt('#hero'), /You can retire at[\s\S]*Age 48/); assert.match(await txt('#facts'), /₹5\.30 Cr to retire at 45/); assert.match(await txt('#facts'), /₹1\.17 Cr short/);
+    assert.equal(await pg.$('section[aria-label=Inputs] input[type=range]'), null, 'no sliders'); assert.equal(await pg.$$eval('section[aria-label=Inputs] .help-btn', x => x.length) >= 7, true, 'every question has ? help');
     assert.match(await txt('#styles'), /Lean[\s\S]*Regular[\s\S]*Fat/); assert.match(await txt('#coast'), /Coast|invested today/); assert.equal((await pg.$$('#grid tr')).length, 4);
-    await pg.$eval('details.adv', e => (e.open = true)); await pg.fill('#pension', '30,000'); assert.match(await txt('.kpis'), /FIRE number: needed at retirement[\s\S]*₹2\./);        // a ₹30,000 pension roughly halves the corpus
-    await pg.fill('#pension', '0'); await pg.fill('#sav', '2,00,000'); assert.match(await txt('#verdict'), /on track/);
+    await pg.$eval('details.adv', e => (e.open = true)); await pg.fill('#pension', '30,000'); assert.match(await txt('#facts'), /need on the day you retire: ₹2\./);        // a ₹30,000 pension roughly halves the corpus
+    await pg.fill('#pension', '0'); await pg.fill('#sav', '2,00,000'); assert.match(await txt('#facts'), /on track to retire at 45/);
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
@@ -783,12 +785,12 @@ if (chromium) {
   test('audit round 3: FIRE caption, FD tax from your income, abroad table adds up, salary old-regime label, HRA tip, home groups, life-sim assumptions', async () => {
     const fire = await open(SITE, 'fire-calculator.html'); await fire.waitForTimeout(250);
     assert.match(await fire.textContent('#chartCap'), /plan to retire at 45\. Your money would run out at about age 77\. Retiring at 48 instead makes it last to 90/);
-    assert.equal(await fire.textContent('#fPill'), 'Your FIRE number: ' + await fire.textContent('#kNeed') + ' to retire at 45', 'both answers sit in the result box, so the share picture carries them');
+    assert.equal(await fire.textContent('#fPill'), 'Your FIRE number: ₹5.30 Cr to retire at 45', 'both answers sit in the result box, so the share picture carries them');
     await fire.click('.share-btn'); await fire.waitForSelector('.share-img[src^="data:"]'); await fire.close();
-    const fd = await open(SITE, 'fd-calculator.html'); await fd.$eval('#sec-tax', e => (e.open = true)); const before = await fd.textContent('#kpis');
-    await fd.fill('#sal', '0'); await fd.waitForTimeout(200); assert.match(await fd.textContent('#kpis'), /Tax on the interest₹0No tax: your income stays within the ₹12 lakh rebate/); assert.notEqual(await fd.textContent('#kpis'), before);
+    const fd = await open(SITE, 'fd-calculator.html'); await fd.$eval('#sec-tax', e => (e.open = true)); const before = await fd.textContent('#facts');
+    await fd.fill('#sal', '0'); await fd.waitForTimeout(200); assert.match(await fd.textContent('#facts'), /No tax on this interest: your income stays within the ₹12 lakh rebate/); assert.notEqual(await fd.textContent('#facts'), before);
     await fd.fill('#p', '7,00,00,000'); await fd.waitForTimeout(200);                           // a big deposit with no other income: the interest itself climbs the slabs (and crosses ₹50 L, so surcharge)
-    assert.match(await fd.textContent('#kpis'), /Tax on the interest₹74,70,907/); assert.match(await fd.textContent('#taxNote'), /year 1 you earn ₹50,30,132 of interest and no other income\. That adds ₹11,54,537 to your tax \(new regime, with cess and surcharge\)/); await fd.close();
+    assert.match(await fd.textContent('#facts'), /Tax on the interest is about ₹74,70,907/); await fd.close();
     const ab = await open(SITE, 'abroad-calculator.html'); await ab.waitForTimeout(250);
     const last = await ab.$$eval('#payTbl tr:last-child td', t => t.map(x => x.textContent)); const card = await ab.$$eval('#kpis .kpi', k => k[2].innerText);
     assert.equal(last[0], 'Saved in year 1'); assert.ok(card.includes(last[2]) && card.includes(last[1]), 'table ends at the card’s numbers: ' + last.join(' | ') + ' vs ' + card); await ab.close();
@@ -812,6 +814,8 @@ if (chromium) {
     assert.equal(await pg.$$eval('#inputs .help-btn', x => x.length), 5, 'every question has a ? help button');
     assert.match(await t('facts'), new RegExp('use it all up in exactly 25 years, you could start at ₹' + Math.round(R.maxMonthlyWithdrawalThatLasts).toLocaleString('en-IN')));
     assert.equal(await pg.$('#inputs input[type=range]'), null, 'no sliders: people type the numbers');
+    const lasts = await t('hBig'), rows = await pg.$$eval('#yrTbl tr', r => r.length - 1);           // the table runs as long as the headline says the money lasts
+    assert.match(await t('yrNote'), new RegExp('runs out after ' + lasts.replace(' years', ' years( \\d+ months?)?'))); assert.equal(rows, parseInt(lasts) + 1);
     assert.equal(await pg.isVisible('#taxCard'), false, 'tax is left out by default'); assert.equal(await pg.inputValue('#taxk'), 'none');
     await pg.$eval('#sec-tax', e => (e.open = true)); await pg.selectOption('#taxk', 'equity'); await pg.waitForTimeout(150);
     assert.match(await t('taxNote'), /only ₹27,188 of it \(4\.5%\) is profit[\s\S]*Tax in year 1: ₹5,655/); assert.match(await t('chartCap'), /grows for the first \d+ years/);
