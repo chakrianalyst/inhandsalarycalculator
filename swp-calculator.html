@@ -103,7 +103,7 @@
     $('hLbl').textContent = 'Your money lasts';
     $('hBig').textContent = L.lasts ? '50+ years' : ly ? plural(ly, 'year') : plural(lm, 'month');
     $('hSub').textContent = `Taking ${f(p.withdraw)} a month${rising}.`;
-    $('hPill').textContent = R.lasts ? `Left after ${plural(p.years, 'year')}: ${cr(R.end)} (about ${cr(today(R.end, M))} in today’s prices)`
+    $('hPill').textContent = R.lasts ? `Left after ${plural(p.years, 'year')}: ${cr(R.end)}`
       : `Runs out ${span(M - R.fullMonths)} before your ${plural(p.years, 'year')}. To last, start at ${f(maxW)} a month`;
     const y1 = R.years[0] || { net: 0, withdrawn: 0, tax: 0 }, y1m = f(y1.net / Math.max(1, (R.years[0] || { months: 12 }).months));
     $('facts').innerHTML = [
@@ -111,6 +111,7 @@
       `To use it all up in exactly ${plural(p.years, 'year')}, you could start at <b>${f(maxW)} a month</b>.`,
       `To still have your ${cr(p.corpus)} after ${plural(p.years, 'year')}, start at <b>${f(keepW)} a month</b>.`,
       `Over ${plural(Math.min(p.years, Math.ceil(R.paidMonths / 12)), 'year')} you take out <b>${cr(R.totalWithdrawn)}</b> in total` + (taxk !== 'none' ? `, and pay about <b>${cr(R.totalTax)}</b> in tax, because only the profit part is taxed.` : '.'),
+      R.lasts && R.end > 0 ? `The ${cr(R.end)} left after ${plural(p.years, 'year')} will buy about what <b>${cr(today(R.end, M))}</b> buys today, because prices rise.` : '',
       p.step > 0 && R.lasts ? `Raised ${p.step}% a year, your ${f(p.withdraw)} becomes <b>${f(p.withdraw * Math.pow(1 + p.step / 100, p.years - 1))} a month</b> by year ${p.years}.` : ''
     ].filter(Boolean).map(t => `<li>${t}</li>`).join('');
 
