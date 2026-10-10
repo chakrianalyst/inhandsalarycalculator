@@ -19,24 +19,20 @@
   </div>
   <div class="container tool-layout">
     <section class="card" id="inputs" aria-label="Inputs">
-      <h2 class="card-title">🏧 Your withdrawal plan</h2>
-      <div class="field" data-slider><label for="corpus">Money you have invested</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="corpus" data-money data-words="corpusWords" value="10000000" min="100000" max="100000000" step="100000" aria-describedby="corpusWords"></div><div class="words" id="corpusWords"></div>
-        <span class="hint">Its value today, in the funds you will withdraw from.</span></div>
-      <div class="field" data-slider><label for="wd">Monthly withdrawal</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="wd" data-money data-words="wdWords" value="50000" min="1000" max="1000000" step="1000" aria-describedby="wdWords"></div><div class="words" id="wdWords"></div>
-        <span class="hint">What you take out in the first year, before tax.</span></div>
-      <div class="field" data-slider><label for="step">Raise the withdrawal every year by</label>
-        <div class="input-wrap"><input type="number" id="step" value="5" min="0" max="15" step="0.5"><span class="suf">%</span></div>
-        <span class="hint">Keep it close to price rises so your monthly income buys the same each year. 0% keeps it flat.</span></div>
-      <div class="field" data-slider><label for="ret">Expected return (per year)</label>
-        <div class="input-wrap"><input type="number" id="ret" value="9" min="0" max="20" step="0.5"><span class="suf">%</span></div>
-        <span class="hint">Debt funds have earned about 6 to 7.5%, balanced or hybrid funds about 8 to 10%, equity more but with large falls. Use a careful figure.</span></div>
-      <div class="field"><label for="yrs">For how many years?</label>
-        <div class="input-wrap"><input type="number" id="yrs" value="25" min="1" max="50" step="1"><span class="suf">yrs</span></div>
+      <h2 class="card-title">🏧 Your monthly income plan</h2>
+      <div class="field"><label for="corpus" data-help="Today’s value of the savings or mutual funds you will take a monthly income from. If you are investing a lump sum now, enter that amount.">1. How much money do you have now?</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="corpus" data-money data-words="corpusWords" value="10000000" min="100000" max="100000000" step="100000" aria-describedby="corpusWords"></div><div class="words" id="corpusWords"></div></div>
+      <div class="field"><label for="wd" data-help="The amount you want to take out every month in the first year, before tax.">2. How much do you want to take out every month?</label>
+        <div class="input-wrap"><span class="pre">₹</span><input id="wd" data-money data-words="wdWords" value="50000" min="1000" max="1000000" step="1000" aria-describedby="wdWords"></div><div class="words" id="wdWords"></div></div>
+      <div class="field"><label for="ret" data-help="The money you have not taken out yet stays invested and keeps growing. Debt funds have earned about 6 to 7.5% a year, balanced or hybrid funds about 8 to 10%, equity more but with large falls. Use a careful figure.">3. How much will your investment grow every year?</label>
+        <div class="input-wrap"><input type="number" id="ret" value="9" min="0" max="20" step="0.5"><span class="suf">% a year</span></div></div>
+      <div class="field"><label for="step" data-help="Prices rise every year, so the same amount buys less over time. Raising your monthly amount by 5 to 6% a year keeps it worth the same. Enter 0 to take the same amount every month.">4. Raise your monthly amount every year by</label>
+        <div class="input-wrap"><input type="number" id="step" value="5" min="0" max="15" step="0.5"><span class="suf">% a year</span></div></div>
+      <div class="field"><label for="yrs" data-help="How long you want this monthly income for. The result tells you whether your money lasts that long and what is left at the end.">5. For how many years do you need this income?</label>
+        <div class="input-wrap"><input type="number" id="yrs" value="25" min="1" max="50" step="1"><span class="suf">years</span></div>
         <div class="chips" id="yrChips"><span class="chips-l">Quick pick</span><button type="button" class="chip" data-t="10">10 years</button><button type="button" class="chip" data-t="15">15 years</button><button type="button" class="chip" data-t="20">20 years</button><button type="button" class="chip" data-t="25">25 years</button><button type="button" class="chip" data-t="30">30 years</button></div></div>
       <details class="grp" id="sec-tax"><summary><div class="gi">🧾</div><div class="gt">Tax, inflation and settings<small>See what reaches your bank account</small></div><span class="chev">›</span></summary><div class="grp-body">
-        <div class="field"><label for="taxk">Type of fund</label><select id="taxk"><option value="equity" selected>Equity or hybrid fund (65%+ in shares)</option><option value="slab">Debt fund (taxed at your slab rate)</option><option value="none">Do not include tax</option></select>
+        <div class="field"><label for="taxk">Type of fund</label><select id="taxk"><option value="none" selected>Do not include tax</option><option value="equity">Equity or hybrid fund (65%+ in shares)</option><option value="slab">Debt fund (taxed at your slab rate)</option></select>
           <span class="hint">Equity: profit on units held over a year is taxed at 12.5% above ₹1.25 lakh a year, and at 20% within a year. Debt funds bought after March 2023: profit is added to your income.</span></div>
         <div class="field" id="fSlab" hidden><label for="slab">Your income-tax rate</label><select id="slab"><option value="0">0%</option><option value="5">5%</option><option value="10">10%</option><option value="15">15%</option><option value="20">20%</option><option value="25">25%</option><option value="30" selected>30%</option></select></div>
         <div class="field"><label for="gainPct">How much of your money is already profit?</label>
@@ -50,7 +46,7 @@
     <section class="results" aria-live="polite">
       <div class="hero-result" id="hero"><div class="lbl" id="hLbl">Your money lasts</div><div class="big" id="hBig">—</div><div class="sub" id="hSub"></div><span class="pill" id="hPill"></span></div>
       <div class="warns" id="warns"></div>
-      <div class="kpis" id="kpis"></div>
+      <div class="card"><h2 class="card-title">💡 Good to know</h2><ul class="facts" id="facts"></ul></div>
       <div class="card"><h2 class="card-title">📉 How your money changes</h2><div id="chart"></div><p class="chart-cap" id="chartCap"></p></div>
       <div class="card" id="taxCard"><h2 class="card-title">🧾 How the tax works</h2><div id="taxNote"></div></div>
       <div class="card"><h2 class="card-title">📅 Year by year</h2><div class="tbl-wrap"><table class="tbl" id="yrTbl"></table></div></div>
@@ -94,31 +90,30 @@
     const p = { corpus: num('corpus'), withdraw: num('wd'), step: num('step'), ret: num('ret'), years: Math.max(1, Math.round(num('yrs')) || 1), gainPct: num('gainPct'), taxk, slab: +$('slab').value, nominal: $('conv').value === 'nom' };
     const infl = num('infl') / 100, W = [], warn = (cls, t) => W.push(`<div class="warn ${cls}"><span>${cls === 'bad' ? '⛔' : '⚠️'}</span><span>${t}</span></div>`);
     const K = (cls, k, v, s) => `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="kv2">${s}</div>` : ''}</div>`;
-    if (!(p.corpus > 0) || !(p.withdraw > 0)) { $('hBig').textContent = '—'; $('hSub').textContent = ''; $('hPill').textContent = ''; $('kpis').innerHTML = ''; warn('bad', 'Enter the money you have invested and a monthly withdrawal.'); $('warns').innerHTML = W.join(''); return; }
+    if (!(p.corpus > 0) || !(p.withdraw > 0)) { $('hBig').textContent = '—'; $('hSub').textContent = ''; $('hPill').textContent = ''; $('facts').innerHTML = ''; warn('bad', 'Enter how much money you have and how much you want each month.'); $('warns').innerHTML = W.join(''); return; }
     const R = SWP.run(p), maxW = SWP.maxWithdraw(p), keepW = SWP.maxWithdraw(p, p.corpus), rate = p.withdraw * 12 / p.corpus * 100, M = p.years * 12;
-    const today = (v, months) => v / Math.pow(1 + infl, months / 12), rising = p.step > 0 ? `, rising ${p.step}% a year` : '';
-    if (rate > p.ret) warn('', `You take out ${rate.toFixed(1)}% of your money a year but expect it to earn ${p.ret}%, so the balance falls from the start.`);
+    const L = SWP.run({ ...p, years: 50 });                                                  // how long it really lasts, beyond the years asked about
+    const today = (v, months) => v / Math.pow(1 + infl, months / 12), rising = p.step > 0 ? `, raised ${p.step}% every year` : ', the same every year';
+    if (rate > p.ret) warn('', `You take out ${rate.toFixed(1)}% of your money a year but expect it to grow ${p.ret}%, so the balance falls from the start.`);
     if (p.ret > 12) warn('', `A steady ${p.ret}% a year is more than most funds have delivered over long periods, especially the safer funds people use for withdrawals.`);
     $('warns').innerHTML = W.join('');
 
-    if (R.lasts) {
-      $('hLbl').textContent = `Your money lasts all ${plural(p.years, 'year')}. Left at the end`;
-      $('hBig').textContent = f(R.end);
-      $('hSub').textContent = `That is ${cr(today(R.end, M))} in today’s money, after paying ${f(p.withdraw)} a month${rising}.`;
-      $('hPill').textContent = `You could take up to ${f(maxW)} a month and still last ${plural(p.years, 'year')}`;
-    } else {
-      $('hLbl').textContent = 'Your money runs out after';
-      $('hBig').textContent = span(R.fullMonths);
-      $('hSub').textContent = `Paying ${f(p.withdraw)} a month${rising}. You planned for ${plural(p.years, 'year')}.`;
-      $('hPill').textContent = `To last ${plural(p.years, 'year')}, start at ${f(maxW)} a month`;
-    }
-    const y1 = R.years[0] || { net: 0, withdrawn: 0, tax: 0 };
-    $('kpis').innerHTML = K(R.lasts ? 'good' : 'bad', `Most you can take for ${plural(p.years, 'year')}`, f(maxW) + '/mo', p.step > 0 ? `Starting amount, rising ${p.step}% a year` : 'The same every month') +
-      K('', `To keep your ${cr(p.corpus)} intact`, f(keepW) + '/mo', `You still have ${cr(p.corpus)} after ${plural(p.years, 'year')}`) +
-      K('', 'Total you withdraw', f(R.totalWithdrawn), `Over ${span(R.paidMonths)}`) +
-      (taxk !== 'none' ? K('', 'Tax on your withdrawals', f(R.totalTax), 'Only the profit part is taxed') : '') +
-      K('', 'In your account, year 1', f(y1.net / Math.max(1, (R.years[0] || { months: 12 }).months)) + '/mo', taxk !== 'none' ? 'After tax' : 'Tax not included') +
-      K('', 'Withdrawal rate', rate.toFixed(1) + '% a year', `Of your ${cr(p.corpus)} in year 1`);
+    // One summary: how long the money lasts, then what is left after the years asked about.
+    const ly = Math.floor(L.fullMonths / 12), lm = L.fullMonths % 12;
+    $('hLbl').textContent = 'Your money lasts';
+    $('hBig').textContent = L.lasts ? '50+ years' : ly ? plural(ly, 'year') : plural(lm, 'month');
+    $('hSub').textContent = `Taking ${f(p.withdraw)} a month${rising}.`;
+    $('hPill').textContent = R.lasts ? `Left after ${plural(p.years, 'year')}: ${cr(R.end)}`
+      : `Runs out ${span(M - R.fullMonths)} before your ${plural(p.years, 'year')}. To last, start at ${f(maxW)} a month`;
+    const y1 = R.years[0] || { net: 0, withdrawn: 0, tax: 0 }, y1m = f(y1.net / Math.max(1, (R.years[0] || { months: 12 }).months));
+    $('facts').innerHTML = [
+      taxk !== 'none' ? `<b>${y1m} a month</b> reaches your bank in the first year, after tax.` : '',
+      `To use it all up in exactly ${plural(p.years, 'year')}, you could start at <b>${f(maxW)} a month</b>.`,
+      `To still have your ${cr(p.corpus)} after ${plural(p.years, 'year')}, start at <b>${f(keepW)} a month</b>.`,
+      `Over ${plural(Math.min(p.years, Math.ceil(R.paidMonths / 12)), 'year')} you take out <b>${cr(R.totalWithdrawn)}</b> in total` + (taxk !== 'none' ? `, and pay about <b>${cr(R.totalTax)}</b> in tax, because only the profit part is taxed.` : '.'),
+      R.lasts && R.end > 0 ? `The ${cr(R.end)} left after ${plural(p.years, 'year')} will buy about what <b>${cr(today(R.end, M))}</b> buys today, because prices rise.` : '',
+      p.step > 0 && R.lasts ? `Raised ${p.step}% a year, your ${f(p.withdraw)} becomes <b>${f(p.withdraw * Math.pow(1 + p.step / 100, p.years - 1))} a month</b> by year ${p.years}.` : ''
+    ].filter(Boolean).map(t => `<li>${t}</li>`).join('');
 
     const xs = [0].concat(R.years.map(y => y.year - 1 + y.months / 12)); let cum = 0; const cums = [0].concat(R.years.map(y => (cum += y.withdrawn)));
     Common.lineChart($('chart'), { xs, xfmt: v => +v.toFixed(1), xlabel: v => v === 0 ? 'Start' : 'After ' + (+v.toFixed(1)) + ' yr', label: 'Balance and money withdrawn', area: true,
