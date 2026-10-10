@@ -435,11 +435,18 @@ if (chromium) {
   });
 
   test('home hero: headline rotates through calculators, keeps one h1, dots switch it and the button follows', async () => {
-    const pg = await open(SITE, 'index.html');
+    let pg = await open(SITE, 'index.html');
     assert.equal(await pg.$$eval('h1', x => x.length), 1); assert.match(await pg.$eval('#rot .on', e => e.textContent), /bank account/);
     assert.equal(await pg.$$eval('#rotDots button', x => x.length), await pg.$$eval('#rot > *', x => x.length));
     await pg.click('#rotDots button:nth-child(2)'); await pg.waitForTimeout(600);
     assert.match(await pg.$eval('#rot .on', e => e.textContent), /Laid off/); assert.equal(await pg.$eval('#rotCta', e => e.getAttribute('href')), 'layoff-runway-calculator.html');
+    await pg.close();
+    // it really rotates on its own: on a desktop with the mouse resting in the (screen-filling) hero, and on a phone after a tap
+    pg = await open(SITE, 'index.html'); await pg.mouse.move(100, 600); await pg.waitForTimeout(5600);
+    assert.notEqual(await pg.$eval('#rotCta', e => e.getAttribute('href')), 'salary-calculator.html', 'headline rotates with the mouse in the hero'); await pg.close();
+    const ph = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }); await ph.goto(url(SITE, 'index.html')); await ph.tap('#rot'); await ph.waitForTimeout(5600);
+    assert.notEqual(await ph.$eval('#rotCta', e => e.getAttribute('href')), 'salary-calculator.html', 'headline keeps rotating on a phone after a tap'); await ph.close();
+    pg = await open(SITE, 'index.html');
     for (const href of await pg.$$eval('#rotDots button', (b) => b.map((_, i) => i))) { await pg.click(`#rotDots button:nth-child(${href + 1})`); const h = await pg.$eval('#rotCta', e => e.getAttribute('href')); assert.ok(require('fs').existsSync(require('path').join(SITE, h)), h); }
     await pg.close();
   });
