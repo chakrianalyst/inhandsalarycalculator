@@ -176,7 +176,7 @@
   "yrs": "25",
   "gainPct": "0",
   "infl": "6",
-  "taxk": "equity",
+  "taxk": "none",
   "slab": "30",
   "conv": "eff"
  }

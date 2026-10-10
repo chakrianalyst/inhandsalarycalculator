@@ -812,7 +812,10 @@ if (chromium) {
     assert.equal(await pg.$$eval('#inputs .help-btn', x => x.length), 5, 'every question has a ? help button');
     assert.match(await t('facts'), new RegExp('use it all up in exactly 25 years, you could start at ₹' + Math.round(R.maxMonthlyWithdrawalThatLasts).toLocaleString('en-IN')));
     assert.equal(await pg.$('#inputs input[type=range]'), null, 'no sliders: people type the numbers');
+    assert.equal(await pg.isVisible('#taxCard'), false, 'tax is left out by default'); assert.equal(await pg.inputValue('#taxk'), 'none');
+    await pg.$eval('#sec-tax', e => (e.open = true)); await pg.selectOption('#taxk', 'equity'); await pg.waitForTimeout(150);
     assert.match(await t('taxNote'), /only ₹27,188 of it \(4\.5%\) is profit[\s\S]*Tax in year 1: ₹5,655/); assert.match(await t('chartCap'), /grows for the first \d+ years/);
+    assert.match(await t('facts'), /reaches your bank in the first year, after tax/);
     await pg.fill('#wd', '60,000'); await pg.waitForTimeout(250); assert.equal(await t('hBig'), '20 years');
     assert.match(await t('hPill'), /^Runs out 4 years 8 months before your 25 years\. To last, start at ₹/);
     assert.match(await t('warns'), /^$|balance falls/); await pg.$eval('#sec-tax', e => (e.open = true)); await pg.selectOption('#taxk', 'none'); await pg.waitForTimeout(150); assert.equal(await pg.isVisible('#taxCard'), false);
