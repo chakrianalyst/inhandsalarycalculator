@@ -99,9 +99,8 @@
     $('warns').innerHTML = W.join('');
 
     // One summary: how long the money lasts, then what is left after the years asked about.
-    const ly = Math.floor(L.fullMonths / 12), lm = L.fullMonths % 12;
     $('hLbl').textContent = 'Your money lasts';
-    $('hBig').textContent = L.lasts ? '50+ years' : ly ? plural(ly, 'year') : plural(lm, 'month');
+    $('hBig').textContent = L.lasts ? '50+ years' : span(L.fullMonths);                     // the same "17 years 1 month" as the note and the pill
     $('hSub').textContent = `Taking ${f(p.withdraw)} a month${rising}.`;
     $('hPill').textContent = R.lasts ? `Left after ${plural(p.years, 'year')}: ${cr(R.end)}`
       : `Runs out ${span(M - R.fullMonths)} before your ${plural(p.years, 'year')}. To last, start at ${f(maxW)} a month`;
@@ -132,7 +131,11 @@
         (taxk === 'equity' ? `<p style="margin:0">${p.gainPct > 0 ? 'Your units are already over a year old, so profit is long-term' : 'Units sold in the first 12 months are short-term (20%); after that, profit is long-term'}: the first ₹1.25 lakh of long-term profit each year is tax-free, then 12.5%.${y2 ? ` Tax in year 2: <b>${f(y2.tax)}</b>.` : ''}</p>` : `<p style="margin:0">Debt fund profit is added to your income and taxed at ${$('slab').value}% plus cess.</p>`);
     }
     $('yrNote').textContent = L.lasts ? `Your money is still there after 50 years, so this shows your ${plural(p.years, 'year')}.` : `Every year until the money runs out after ${span(L.fullMonths)}.` + (TY.length > p.years ? ` Your ${plural(p.years, 'year')} are marked.` : '');
-    $('yrTbl').innerHTML = `<tr><th>Year</th><th>Monthly</th><th>Year total</th>${taxk !== 'none' ? '<th>Tax</th>' : ''}<th>Left</th></tr>` + TY.map(y => `<tr class="${y.balance === 0 ? 'neg' : y.year === p.years && TY.length > p.years ? 'sel' : ''}"><td>${y.year}${y.year === p.years && TY.length > p.years ? ' ⬅ your ' + plural(p.years, 'year') : ''}${y.months < 12 ? `<small class="ph-sub"> (${y.months} mo)</small>` : ''}</td><td>${f(y.monthly)}</td><td>${cr(y.withdrawn)}</td>${taxk !== 'none' ? `<td>${cr(y.tax)}</td>` : ''}<td>${cr(y.balance)}</td></tr>`).join('');
+    // The year the money runs out: say how many months are paid in full, and that the last payment is smaller.
+    const rowNote = y => { const fullIn = Math.max(0, L.fullMonths - (y.year - 1) * 12), cut = y.balance === 0 && !L.lasts && y.months > fullIn;
+      const t = cut ? (fullIn ? `${plural(fullIn, 'month')}, then a smaller last payment` : 'a smaller last payment') : y.months < 12 ? plural(y.months, 'month') : '';
+      return t ? `<small class="ph-sub"> (${t})</small>` : ''; };
+    $('yrTbl').innerHTML = `<tr><th>Year</th><th>Monthly</th><th>Year total</th>${taxk !== 'none' ? '<th>Tax</th>' : ''}<th>Left</th></tr>` + TY.map(y => `<tr class="${y.balance === 0 ? 'neg' : y.year === p.years && TY.length > p.years ? 'sel' : ''}"><td>${y.year}${y.year === p.years && TY.length > p.years ? ' ⬅ your ' + plural(p.years, 'year') : ''}${rowNote(y)}</td><td>${f(y.monthly)}</td><td>${cr(y.withdrawn)}</td>${taxk !== 'none' ? `<td>${cr(y.tax)}</td>` : ''}<td>${cr(y.balance)}</td></tr>`).join('');
   }
   document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc));
   document.addEventListener('change', e => { if (e.target.closest && e.target.closest('#inputs')) calc(); });

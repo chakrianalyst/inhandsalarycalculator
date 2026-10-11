@@ -841,12 +841,13 @@ if (chromium) {
     assert.match(await t('facts'), new RegExp('use it all up in exactly 25 years, you could start at ₹' + Math.round(R.maxMonthlyWithdrawalThatLasts).toLocaleString('en-IN')));
     assert.equal(await pg.$('#inputs input[type=range]'), null, 'no sliders: people type the numbers');
     const lasts = await t('hBig'), rows = await pg.$$eval('#yrTbl tr', r => r.length - 1);           // the table runs as long as the headline says the money lasts
-    assert.match(await t('yrNote'), new RegExp('runs out after ' + lasts.replace(' years', ' years( \\d+ months?)?'))); assert.equal(rows, parseInt(lasts) + 1);
+    assert.ok((await t('yrNote')).includes('runs out after ' + lasts + '.'), 'headline and note give the same years and months: ' + lasts); assert.equal(rows, parseInt(lasts) + 1);
+    assert.match(await pg.$eval('#yrTbl tr:last-child td', e => e.innerText), /\((\d+ months?, then )?a smaller last payment\)/, 'the last row says the final payment is smaller');
     assert.equal(await pg.isVisible('#taxCard'), false, 'tax is left out by default'); assert.equal(await pg.inputValue('#taxk'), 'none');
     await pg.$eval('#sec-tax', e => (e.open = true)); await pg.selectOption('#taxk', 'equity'); await pg.waitForTimeout(150);
     assert.match(await t('taxNote'), /only ₹27,188 of it \(4\.5%\) is profit[\s\S]*Tax in year 1: ₹5,655/); assert.match(await t('chartCap'), /grows for the first \d+ years/);
     assert.match(await t('facts'), /reaches your bank in the first year, after tax/);
-    await pg.fill('#wd', '60,000'); await pg.waitForTimeout(250); assert.equal(await t('hBig'), '20 years');
+    await pg.fill('#wd', '60,000'); await pg.waitForTimeout(250); assert.equal(await t('hBig'), '20 years 4 months');
     assert.match(await t('hPill'), /^Runs out 4 years 8 months before your 25 years\. To last, start at ₹/);
     assert.match(await t('warns'), /^$|balance falls/); await pg.$eval('#sec-tax', e => (e.open = true)); await pg.selectOption('#taxk', 'none'); await pg.waitForTimeout(150); assert.equal(await pg.isVisible('#taxCard'), false);
     assert.deepEqual(pg.errs, []); await pg.close();
