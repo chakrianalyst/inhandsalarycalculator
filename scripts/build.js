@@ -2,14 +2,14 @@
 /* Builds the deployable site into ./_site
  *  - stamps your real domain (site.config.json) into canonical URLs / sitemap
  *  - injects favicon, manifest, Open Graph / Twitter tags, FAQ rich-result schema
- *  - generates the "₹X LPA in-hand salary" pages from the tax engine
+ *  - generates the "₹X LPA in-hand salary" pages from the tax engine, and the "EMI for ₹X loan" pages from the loan engine
  *  - writes assets/site.js (public config), robots.txt, sitemap.xml, ads.txt
  *  - prints a launch checklist of anything still unconfigured
  */
 const fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..'), OUT = process.env.OUT_DIR ? path.resolve(process.env.OUT_DIR) : path.join(ROOT, '_site');
 const cfg = JSON.parse(fs.readFileSync(process.env.SITE_CONFIG ? path.resolve(process.env.SITE_CONFIG) : path.join(ROOT, 'site.config.json'), 'utf8'));
-const Tax = require('../assets/tax.js'), CTC = require('./ctc-pages.js');
+const Tax = require('../assets/tax.js'), CTC = require('./ctc-pages.js'), EMI = require('./emi-pages.js'), LoanEngine = require('../assets/loan.js');
 
 const PLACEHOLDER = 'https://inhand.example';
 const siteUrl = (cfg.siteUrl || PLACEHOLDER).replace(/\/+$/, '');
@@ -25,6 +25,7 @@ const pages = {};                                   // filename -> html
 for (const f of fs.readdirSync(ROOT)) if (f.endsWith('.html')) pages[f] = fs.readFileSync(path.join(ROOT, f), 'utf8');
 const hub = CTC.hubPage(Tax); pages[hub.file] = hub.html;
 for (const l of CTC.LPAS) { const p = CTC.ctcPage(Tax, l); pages[p.file] = p.html; }
+for (const l of EMI.AMOUNTS) { const p = EMI.emiPage(LoanEngine, Tax, l); pages[p.file] = p.html; }
 
 // ---------- articles: any page with <meta name="rc-article" ...> is listed on the Articles hub and linked from its calculator ----------
 const GROUPS = [['pay', 'Salary, tax & work'], ['save', 'Loans & savings'], ['plan', 'Big life decisions']];
@@ -61,6 +62,7 @@ tokens['{{NEW_SLAB_TABLE}}'] = table(['Taxable income', 'Tax rate'], Tax.NEW_SLA
 tokens['{{NEW_TAX_EXAMPLES}}'] = table(['Gross salary', 'Taxable after ₹75,000', 'Income tax a year', 'Per month'], [8, 10, 12, 12.75, 15, 20, 25, 30, 50].map(l => { const g = l * 1e5, t = Tax.computeTax(Math.max(0, g - 75000), 'new').total; return ['₹' + l + ' lakh', '₹' + nf(Math.max(0, g - 75000)), t ? '₹' + nf(t) : 'Nil', t ? '₹' + nf(t / 12) : 'Nil']; }));
 tokens['{{SIP_TABLE}}'] = table(['Years', ...[8, 10, 12, 15].map(r => r + '% a year')], [5, 10, 15, 20, 25, 30].map(y => [y, ...[8, 10, 12, 15].map(r => '₹' + nf(Invest.requiredSip({ target: 1e7, ret: r, months: y * 12, step: 0, lump: 0, nominal: false })))]));
 tokens['{{EMI_TABLE}}'] = table(['Interest rate', ...[1, 3, 5, 10, 15, 20].map(y => y + (y === 1 ? ' year' : ' years'))], [7, 8, 9, 10, 11, 12, 14, 15].map(r => [r + '%', ...[1, 3, 5, 10, 15, 20].map(y => '₹' + nf(Loan.emi(1e5, r, y * 12)))]));
+tokens['{{EMI_AMOUNT_LINKS}}'] = EMI.links();
 tokens['{{HRA_METROS}}'] = HRA.METROS_2026.join(', ');
 tokens['{{ARTICLE_CARDS}}'] = GROUPS.map(([g, name]) => articles.some(a => a.group === g) ? `<h3 class="tool-group">${name}</h3>` + articles.filter(a => a.group === g).map(artCard).join('') : '').join('');
 tokens['{{ARTICLE_FEATURED}}'] = ['no-tax', 'laid-off', 'moving-back', 'rent-or-buy', 'sip-delay', 'retire-early', 'prepay-home', 'compare-two'].map(k => articles.find(a => a.file.includes(k))).filter(Boolean).map(artCard).join('');
