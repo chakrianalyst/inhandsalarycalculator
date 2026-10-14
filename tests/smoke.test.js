@@ -926,11 +926,22 @@ if (chromium) {
     await pg.click('.scenario a.btn >> nth=1'); await pg.$eval('article .faq', e => e.scrollIntoView());
     for (let i = 0; i < 30 && !sent.some(x => x.includes('article_read')); i++) await pg.waitForTimeout(100);
     await pg.goto(base + 'emi-calculator.html'); await pg.waitForTimeout(400); await stay(); await pg.click('.read-card');
-    await pg.goto(base); await pg.waitForTimeout(400); await stay(); await pg.click('#rotCta'); await pg.click('#articles .art-card >> nth=0'); await pg.waitForTimeout(300);
+    await pg.goto(base); await pg.waitForTimeout(400); await stay(); await pg.click('#rotCta'); await pg.click('#articles .art-card >> nth=0'); await pg.click('main .tool-grid a.tool-card >> nth=0'); await pg.waitForTimeout(300);
     await pg.goto(base + 'salary-calculator.html'); await pg.waitForTimeout(400);
     await pg.fill('#ctc', '15,43,210'); await pg.fill('#ctc', '15,43,219'); await pg.click('#regime button[data-v=old]'); await pg.click('#regime button[data-v=old]');
     await pg.evaluate(() => { [...document.querySelectorAll('details')].find(d => !d.closest('.faq') && !d.open).open = true; document.querySelector('.faq details').open = true; }); await pg.waitForTimeout(300);
+    // did it help? the result was seen after a change, the reader reached the details, and the 👍 / 👎 card (a note only if they write one and tap Send)
+    await pg.$eval('#fb', e => e.scrollIntoView()); await pg.waitForTimeout(300);
+    await pg.click('#fb [data-vote=no]'); assert.equal(await pg.isVisible('#fbText'), true, 'a 👎 asks what was missing');
+    await pg.fill('#fbText', 'Wanted the old regime explained'); await pg.click('#fb [data-a=send]'); assert.equal(await pg.isVisible('#fb .fb-thanks'), true);
+    await pg.goto(base + 'emi-for-20-lakh-loan.html'); await pg.waitForTimeout(400); await stay(); await pg.click('.offer a.btn');
+    await pg.goto(base + 'salary-calculator.html'); await pg.waitForTimeout(400); assert.equal(await pg.$('#fb'), null, 'once answered, the card does not come back for a while');
+    await pg.goto(base + 'emi-calculator.html'); await pg.waitForTimeout(400); assert.ok(await pg.$('#fb'), 'each calculator asks for itself');
     const ev = sent.map(x => JSON.parse(x)).filter(x => x.name), by = n => ev.filter(x => x.name === n).map(x => x.data);
+    assert.deepEqual(by('result_seen'), [{ tool: 'salary' }]); assert.deepEqual(by('details_seen'), [{ tool: 'salary' }]);
+    assert.deepEqual(by('feedback'), [{ tool: 'salary', vote: 'no' }]); assert.deepEqual(by('feedback_comment'), [{ tool: 'salary', vote: 'no', comment: 'Wanted the old regime explained' }]);
+    assert.equal(by('home_click').length, 1, 'a calculator card on the home page is counted, with the page it leads to'); assert.match(by('home_click')[0].to, /\.html$/);
+    assert.deepEqual(by('page_to_calculator'), [{ from: 'emi-for-20-lakh-loan.html', tool: 'emi-calculator.html', prefilled: 'yes' }]);
     assert.deepEqual(by('field_changed'), [{ tool: 'salary', field: 'ctc' }], 'a field is counted once, by name');
     assert.deepEqual(by('option_chosen'), [{ tool: 'salary', control: 'regime', choice: 'old' }]);
     assert.equal(by('section_opened').length, 1); assert.equal(by('section_opened')[0].tool, 'salary'); assert.equal(by('faq_opened').length, 1);
@@ -981,7 +992,7 @@ if (chromium) {
   test('every question on every calculator has a ? note, and none has a slider', async () => {
     for (const f of pagesOf(SITE).filter(x => /calculator|simulator|offer-comparison/.test(x) && !/^\d/.test(x))) {
       const pg = await open(SITE, f); await pg.evaluate(() => document.querySelectorAll('details').forEach(d => { d.open = true; })); await pg.waitForTimeout(250);
-      const miss = await pg.evaluate(() => [...document.querySelectorAll('main label[for]')].filter(l => !l.classList.contains('sub-l') && !l.closest('.toggle') && !(l.parentElement.classList.contains('lbl-row') && l.parentElement.querySelector('.help-btn'))).map(l => l.textContent.trim()));
+      const miss = await pg.evaluate(() => [...document.querySelectorAll('main label[for]')].filter(l => !l.classList.contains('sub-l') && !l.closest('.toggle') && !l.hasAttribute('data-nohelp') && !(l.parentElement.classList.contains('lbl-row') && l.parentElement.querySelector('.help-btn'))).map(l => l.textContent.trim()));
       assert.deepEqual(miss, [], f + ': questions without a ? note'); assert.equal(await pg.$$eval('input[type=range]', x => x.length), 0, f + ' has a slider');
       assert.deepEqual(pg.errs, []); await pg.close();
     }

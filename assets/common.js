@@ -605,7 +605,7 @@ const Common = (() => {
     const seen = new Set(), once = (k, f) => { if (!seen.has(k)) { seen.add(k); f(); } };
     const fieldName = el => el.id || (el.dataset && el.dataset.e ? el.dataset.e + '.' + el.dataset.k : '');
     document.addEventListener('click', e => {
-      const b = e.target.closest && e.target.closest('.seg button[data-v], .chip, button[data-act]'); if (!b) return;
+      const b = e.target.closest && e.target.closest('.seg button[data-v], .chip, button[data-act]'); if (!b || b.closest('#fb')) return;   // 👍 / 👎 are counted as feedback
       const seg = b.closest('.seg[id], .chips, [id]'), control = (seg && (seg.id || seg.dataset.for)) || 'chip';
       if (b.dataset.act) once('act:' + b.dataset.act, () => track('fix_tried', { tool: activeId, action: b.dataset.act }));
       else if (b.dataset.v) once('opt:' + control + ':' + b.dataset.v, () => track('option_chosen', { tool: activeId, control, choice: b.dataset.v }));
@@ -627,6 +627,42 @@ const Common = (() => {
     }, true);
     const end = isArticle && document.querySelector('article .faq');
     if (end && 'IntersectionObserver' in window) { const io = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) { io.disconnect(); track('article_read', { article: here }); } }); io.observe(end); }
+  }
+  /** Did the calculator help? A "Was this helpful?" card under the result, and three behaviour counts: the result was seen after a change,
+      the reader scrolled on to the details, and a landing page (₹X LPA, EMI for ₹X) sent someone into the full calculator.
+      A vote sends only 👍 or 👎 and the calculator's name. A comment is sent only if the visitor writes one and taps Send, and it says so. */
+  function addInsights(activeId) {
+    const results = document.querySelector('.tool-layout .results') || (document.getElementById('bars') && document.getElementById('bars').closest('.container'));
+    const io = (el, f) => { if (!el || !('IntersectionObserver' in window)) return; const o = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting && x.intersectionRatio >= 0.4)) { o.disconnect(); f(); } }, { threshold: [0, 0.4] }); o.observe(el); };
+    const here = (pathOnly(location.href).split('/').pop() || 'home'), tools = TOOLS.map(t => t.href);
+    if (!results) {                                                                   // a landing page: count the step into the full calculator
+      if (here === 'home') { document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('main a[href]'); if (a && a.id !== 'rotCta' && !a.closest('.art-card')) track('home_click', { to: pathOnly(a.href).split('/').pop() || 'home' }); }, true); return; }   // which calculator or guide the home page sends people to
+      if (document.querySelector('meta[name="rc-article"]')) return;                           // articles have their own path counts
+      document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('main a[href]'); if (!a || a.closest('.tool-grid')) return;
+        const to = pathOnly(a.href).split('/').pop(); if (tools.includes(to)) track('page_to_calculator', { from: here, tool: to, prefilled: a.href.includes('?') ? 'yes' : 'no' }); }, true);
+      return;
+    }
+    let used = false; document.addEventListener('input', e => { if (e.isTrusted && !used && e.target && e.target.closest && e.target.closest('#inputs, .offer-card, section[aria-label=Inputs]')) { used = true; io(document.querySelector('.hero-result'), () => track('result_seen', { tool: activeId })); } }, true);
+    const cards = [...results.querySelectorAll(':scope > .card, :scope > .full-card')].filter(c => !c.classList.contains('fb'));
+    io(cards[cards.length - 1], () => track('details_seen', { tool: activeId }));
+    const KEY = 'rc-fb-' + activeId; let done = false; try { const t = +localStorage.getItem(KEY); done = t && Date.now() - t < 90 * 864e5; } catch (e) {}
+    if (done || document.getElementById('fb')) return;
+    const fb = document.createElement('div'); fb.className = 'card fb'; fb.id = 'fb';
+    fb.innerHTML = `<div class="fb-q"><b id="fbQ">Was this calculator helpful?</b><span class="fb-btns" role="group" aria-labelledby="fbQ"><button type="button" class="chip" data-vote="yes">👍 Yes</button><button type="button" class="chip" data-vote="no">👎 No</button></span></div>
+      <div class="fb-more" hidden><label for="fbText" data-nohelp id="fbL"></label><textarea id="fbText" maxlength="300" rows="3"></textarea>
+        <small>Nothing is sent unless you tap Send. Then we see the note exactly as written, so please leave out names, phone numbers and your own figures.</small>
+        <div class="fb-acts"><button type="button" class="btn btn-primary btn-sm" data-a="send">Send</button><button type="button" class="btn btn-ghost btn-sm" data-a="skip">No thanks</button></div></div>
+      <p class="fb-thanks" hidden>Thank you. This helps us make RupeeCheck better.</p>`;
+    const offer = results.querySelector(':scope > .offer'); offer ? results.insertBefore(fb, offer) : results.appendChild(fb);
+    let vote = '';
+    const finish = () => { fb.querySelector('.fb-q').hidden = true; fb.querySelector('.fb-more').hidden = true; fb.querySelector('.fb-thanks').hidden = false; try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {} };
+    fb.addEventListener('click', e => {
+      const v = e.target.closest('[data-vote]'), a = e.target.closest('[data-a]');
+      if (v && !vote) { vote = v.dataset.vote; track('feedback', { tool: activeId, vote }); fb.querySelectorAll('[data-vote]').forEach(b => { b.disabled = true; b.classList.toggle('on', b === v); });
+        fb.querySelector('#fbL').textContent = vote === 'yes' ? 'Glad it helped. What was most useful? (optional)' : 'Sorry about that. What was missing or confusing? (optional)';
+        fb.querySelector('.fb-more').hidden = false; fb.querySelector('#fbText').focus(); }
+      if (a) { const t = fb.querySelector('#fbText').value.replace(/\s+/g, ' ').trim().slice(0, 300); if (a.dataset.a === 'send' && t) track('feedback_comment', { tool: activeId, vote, comment: t }); finish(); }
+    });
   }
   window.addEventListener('unhandledrejection', e => { try { track('js_error', { msg: String(e.reason).slice(0, 100) }); } catch (x) {} });
   window.addEventListener('error', e => { try { track('js_error', { msg: String(e.message).slice(0, 100), src: (e.filename || '').split('/').pop() }); } catch (x) {} });
@@ -655,7 +691,7 @@ const Common = (() => {
   }
   function init(activeId) {
     layout(activeId); a11y(); initLimits(); initA11y(); fillCities(); document.querySelectorAll('input[data-money]').forEach(e => attachMoney(e)); state.restore(); enhanceFields(); related(activeId); stickyCols();
-    placeAds(); placeAffiliates(); addShare(activeId); addResultBar(activeId); tidyTables(); consentBanner(); startThirdParties(); startAnalytics(); trackPaths(activeId);
+    placeAds(); placeAffiliates(); addShare(activeId); addResultBar(activeId); tidyTables(); consentBanner(); startThirdParties(); startAnalytics(); trackPaths(activeId); addInsights(activeId);
     window.addEventListener('load', () => { state.watch(); let used = false; document.addEventListener('input', () => { if (!used) { used = true; track('calculator_used', { tool: activeId }); } }); });
   }
   initTheme();
