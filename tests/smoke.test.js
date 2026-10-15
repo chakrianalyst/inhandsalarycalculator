@@ -930,6 +930,8 @@ if (chromium) {
     await pg.goto(base + 'salary-calculator.html'); await pg.waitForTimeout(400);
     await pg.fill('#ctc', '15,43,210'); await pg.fill('#ctc', '15,43,219'); await pg.click('#regime button[data-v=old]'); await pg.click('#regime button[data-v=old]');
     await pg.evaluate(() => { [...document.querySelectorAll('details')].find(d => !d.closest('.faq') && !d.open).open = true; document.querySelector('.faq details').open = true; }); await pg.waitForTimeout(300);
+    await pg.click('label[for=ctc] + .help-btn'); await pg.click('label[for=ctc] + .help-btn'); await pg.click('label[for=ctc] + .help-btn');   // open, close, open: counted once
+    await pg.$eval('.m-bar a', a => a.click());
     // did it help? the result was seen after a change, the reader reached the details, and the 👍 / 👎 card (a note only if they write one and tap Send)
     await pg.$eval('#fb', e => e.scrollIntoView()); await pg.waitForTimeout(300);
     await pg.click('#fb [data-vote=no]'); assert.equal(await pg.isVisible('#fbText'), true, 'a 👎 asks what was missing');
@@ -938,6 +940,7 @@ if (chromium) {
     await pg.goto(base + 'salary-calculator.html'); await pg.waitForTimeout(400); assert.equal(await pg.$('#fb'), null, 'once answered, the card does not come back for a while');
     await pg.goto(base + 'emi-calculator.html'); await pg.waitForTimeout(400); assert.ok(await pg.$('#fb'), 'each calculator asks for itself');
     const ev = sent.map(x => JSON.parse(x)).filter(x => x.name), by = n => ev.filter(x => x.name === n).map(x => x.data);
+    assert.deepEqual(by('help_opened'), [{ tool: 'salary', field: 'ctc' }], 'which ? note was opened, once'); assert.deepEqual(by('result_bar_tap'), [{ tool: 'salary' }]);
     assert.deepEqual(by('result_seen'), [{ tool: 'salary' }]); assert.deepEqual(by('details_seen'), [{ tool: 'salary' }]);
     assert.deepEqual(by('feedback'), [{ tool: 'salary', vote: 'no' }]); assert.deepEqual(by('feedback_comment'), [{ tool: 'salary', vote: 'no', comment: 'Wanted the old regime explained' }]);
     assert.equal(by('home_click').length, 1, 'a calculator card on the home page is counted, with the page it leads to'); assert.match(by('home_click')[0].to, /\.html$/);

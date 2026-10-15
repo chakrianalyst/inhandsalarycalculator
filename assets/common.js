@@ -611,6 +611,12 @@ const Common = (() => {
       else if (b.dataset.v) once('opt:' + control + ':' + b.dataset.v, () => track('option_chosen', { tool: activeId, control, choice: b.dataset.v }));
       else once('chip:' + control, () => track('option_chosen', { tool: activeId, control, choice: 'chip' }));
     }, true);
+    // Where people get stuck: which "?" notes they open (by question name), and whether phone users tap the "See result" bar
+    document.addEventListener('click', e => {
+      const h = e.target.closest && e.target.closest('.help-btn');
+      if (h && h.getAttribute('aria-expanded') !== 'true') { const field = h.dataset.tip || (h.getAttribute('aria-controls') || '').replace(/^help-/, ''); if (field) once('help:' + field, () => track('help_opened', { tool: activeId, field })); }   // opening only, once per question
+      if (e.target.closest && e.target.closest('.m-bar a')) track('result_bar_tap', { tool: activeId });
+    }, true);
     document.addEventListener('toggle', e => {
       const d = e.target; if (!d || d.tagName !== 'DETAILS' || !d.open) return;
       const sum = d.querySelector('summary'), section = (d.id || (sum ? sum.textContent : '')).replace(/\s+/g, ' ').trim().slice(0, 60);
