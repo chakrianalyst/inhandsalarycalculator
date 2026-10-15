@@ -15,80 +15,74 @@
   <div class="container page-hero">
     <div class="crumbs"><a href="index.html">Home</a> › Offer comparison</div>
     <h1>Job Offer Comparison <span class="grad-text">pick the real winner</span></h1>
-    <p>Stop comparing CTCs. Compare what actually lands in your bank account — after tax, rent and living costs.</p>
+    <p>Compare job offers on what reaches your bank account each month, not on CTC.</p>
   </div>
-  <div class="container offers-grid">
+  <div class="container offers-grid two" id="grid">
     <section class="card offer-card" id="card0" aria-label="Offer 1">
-      <input class="oname" id="n0" value="Offer A — Startup" aria-label="Offer name">
+      <input class="oname" id="n0" value="Offer A" aria-label="Offer name">
       <div class="field"><label for="ctc0" data-help="CTC = Cost to Company: the yearly figure in the offer letter.|It includes PF, gratuity and variable pay, so it is more than what reaches your bank.">Yearly CTC</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="ctc0" data-money value="1800000" min="300000" max="20000000" step="50000"></div></div>
-      <div class="row-2">
-      <div class="field"><label for="var0" data-help="The share of CTC paid only if targets are met, usually once a year.|Enter 0 if all of it is fixed.">Variable part of CTC</label>
-        <div class="input-wrap"><input type="number" id="var0" value="15" min="0" max="50" step="1"><span class="suf">%</span></div></div>
-      <div class="field"><label for="bonus0" data-help="A one-time amount paid when you join.|It is taxed like salary.">Joining bonus</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="bonus0" data-money value="100000" min="0" max="5000000" step="10000"></div></div>
-      <div class="field"><label for="esop0" data-help="The yearly value of shares the company gives you.|Startup shares may be hard to sell, so count them with care.">Shares (ESOP or RSU) a year</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="esop0" data-money value="300000" min="0" max="20000000" step="10000"></div></div>
-      <div class="field"><label for="rent0" data-help="The monthly rent you expect to pay in that city.">Rent there, each month</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="rent0" data-money value="30000" min="0" max="300000" step="500"></div></div>
-      </div>
-      <div class="field"><label for="oth0" data-help="Commute, food and other monthly costs that differ between the two jobs.">Other costs there, each month</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="oth0" data-money value="3000" min="0" max="100000" step="500"></div></div>
-      <div class="field"><label for="g0" data-help="How much your pay may go up each year in this job.|Enter 0 to compare today’s pay only.">Yearly raise you expect</label><div class="input-wrap"><input type="number" id="g0" value="8" min="0" max="50" step="1"><span class="suf">%</span></div></div>
-      <div class="field" style="margin:0"><label for="city0" data-help="Where the job is.|It sets HRA rules and professional tax.">City</label><select id="city0" data-cities data-default="Bengaluru"></select></div>
+      <div class="field"><label for="city0" data-help="Where the job is.|It sets HRA rules and professional tax.">City</label><select id="city0" data-cities data-default="Bengaluru"></select></div>
+      <details class="more" id="more0"><summary>More details <small>variable pay, bonus, shares, rent, raise</small></summary>
+        <div class="row-2">
+        <div class="field"><label for="var0" data-help="The share of CTC paid only if targets are met, usually once a year.|Enter 0 if all of it is fixed.">Variable part of CTC</label><div class="input-wrap"><input type="number" id="var0" value="0" min="0" max="50" step="1"><span class="suf">%</span></div></div>
+        <div class="field"><label for="bonus0" data-help="A one-time amount paid when you join.|It is taxed like salary.">Joining bonus</label><div class="input-wrap"><span class="pre">₹</span><input id="bonus0" data-money value="0" min="0" max="5000000" step="10000"></div></div>
+        <div class="field"><label for="esop0" data-help="The yearly value of shares the company gives you.|Startup shares may be hard to sell, so count them with care.">Shares (ESOP or RSU) a year</label><div class="input-wrap"><span class="pre">₹</span><input id="esop0" data-money value="0" min="0" max="20000000" step="10000"></div></div>
+        <div class="field"><label for="rent0" data-help="The monthly rent you expect to pay in that city.|Add it if the jobs are in different cities.">Rent there, each month</label><div class="input-wrap"><span class="pre">₹</span><input id="rent0" data-money value="0" min="0" max="300000" step="500"></div></div>
+        <div class="field"><label for="oth0" data-help="Commute, food and other monthly costs that differ between the two jobs.">Other costs there, each month</label><div class="input-wrap"><span class="pre">₹</span><input id="oth0" data-money value="0" min="0" max="100000" step="500"></div></div>
+        <div class="field"><label for="g0" data-help="How much your pay may go up each year in this job.|Used only when comparing over several years.">Yearly raise you expect</label><div class="input-wrap"><input type="number" id="g0" value="8" min="0" max="50" step="1"><span class="suf">%</span></div></div>
+        </div>
+      </details>
     </section>
     <section class="card offer-card" id="card1" aria-label="Offer 2">
-      <input class="oname" id="n1" value="Offer B — Big company" aria-label="Offer name">
+      <input class="oname" id="n1" value="Offer B" aria-label="Offer name">
       <div class="field"><label for="ctc1" data-help="CTC = Cost to Company: the yearly figure in the offer letter.|It includes PF, gratuity and variable pay, so it is more than what reaches your bank.">Yearly CTC</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="ctc1" data-money value="2400000" min="300000" max="20000000" step="50000"></div></div>
-      <div class="row-2">
-      <div class="field"><label for="var1" data-help="The share of CTC paid only if targets are met, usually once a year.|Enter 0 if all of it is fixed.">Variable part of CTC</label>
-        <div class="input-wrap"><input type="number" id="var1" value="10" min="0" max="50" step="1"><span class="suf">%</span></div></div>
-      <div class="field"><label for="bonus1" data-help="A one-time amount paid when you join.|It is taxed like salary.">Joining bonus</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="bonus1" data-money value="0" min="0" max="5000000" step="10000"></div></div>
-      <div class="field"><label for="esop1" data-help="The yearly value of shares the company gives you.|Startup shares may be hard to sell, so count them with care.">Shares (ESOP or RSU) a year</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="esop1" data-money value="0" min="0" max="20000000" step="10000"></div></div>
-      <div class="field"><label for="rent1" data-help="The monthly rent you expect to pay in that city.">Rent there, each month</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="rent1" data-money value="36000" min="0" max="300000" step="500"></div></div>
-      </div>
-      <div class="field"><label for="oth1" data-help="Commute, food and other monthly costs that differ between the two jobs.">Other costs there, each month</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="oth1" data-money value="6000" min="0" max="100000" step="500"></div></div>
-      <div class="field"><label for="g1" data-help="How much your pay may go up each year in this job.|Enter 0 to compare today’s pay only.">Yearly raise you expect</label><div class="input-wrap"><input type="number" id="g1" value="8" min="0" max="50" step="1"><span class="suf">%</span></div></div>
-      <div class="field" style="margin:0"><label for="city1" data-help="Where the job is.|It sets HRA rules and professional tax.">City</label><select id="city1" data-cities data-default="Mumbai"></select></div>
+        <div class="input-wrap"><span class="pre">₹</span><input id="ctc1" data-money value="2200000" min="300000" max="20000000" step="50000"></div></div>
+      <div class="field"><label for="city1" data-help="Where the job is.|It sets HRA rules and professional tax.">City</label><select id="city1" data-cities data-default="Mumbai"></select></div>
+      <details class="more" id="more1"><summary>More details <small>variable pay, bonus, shares, rent, raise</small></summary>
+        <div class="row-2">
+        <div class="field"><label for="var1" data-help="The share of CTC paid only if targets are met, usually once a year.|Enter 0 if all of it is fixed.">Variable part of CTC</label><div class="input-wrap"><input type="number" id="var1" value="0" min="0" max="50" step="1"><span class="suf">%</span></div></div>
+        <div class="field"><label for="bonus1" data-help="A one-time amount paid when you join.|It is taxed like salary.">Joining bonus</label><div class="input-wrap"><span class="pre">₹</span><input id="bonus1" data-money value="0" min="0" max="5000000" step="10000"></div></div>
+        <div class="field"><label for="esop1" data-help="The yearly value of shares the company gives you.|Startup shares may be hard to sell, so count them with care.">Shares (ESOP or RSU) a year</label><div class="input-wrap"><span class="pre">₹</span><input id="esop1" data-money value="0" min="0" max="20000000" step="10000"></div></div>
+        <div class="field"><label for="rent1" data-help="The monthly rent you expect to pay in that city.|Add it if the jobs are in different cities.">Rent there, each month</label><div class="input-wrap"><span class="pre">₹</span><input id="rent1" data-money value="0" min="0" max="300000" step="500"></div></div>
+        <div class="field"><label for="oth1" data-help="Commute, food and other monthly costs that differ between the two jobs.">Other costs there, each month</label><div class="input-wrap"><span class="pre">₹</span><input id="oth1" data-money value="0" min="0" max="100000" step="500"></div></div>
+        <div class="field"><label for="g1" data-help="How much your pay may go up each year in this job.|Used only when comparing over several years.">Yearly raise you expect</label><div class="input-wrap"><input type="number" id="g1" value="8" min="0" max="50" step="1"><span class="suf">%</span></div></div>
+        </div>
+      </details>
     </section>
     <section class="card offer-card off" id="card2" aria-label="Offer 3">
-      <input class="oname" id="n2" value="Offer C — Small town" aria-label="Offer name">
+      <input class="oname" id="n2" value="Offer C" aria-label="Offer name">
       <div class="field"><label for="ctc2" data-help="CTC = Cost to Company: the yearly figure in the offer letter.|It includes PF, gratuity and variable pay, so it is more than what reaches your bank.">Yearly CTC</label>
         <div class="input-wrap"><span class="pre">₹</span><input id="ctc2" data-money value="1500000" min="300000" max="20000000" step="50000"></div></div>
-      <div class="row-2">
-      <div class="field"><label for="var2" data-help="The share of CTC paid only if targets are met, usually once a year.|Enter 0 if all of it is fixed.">Variable part of CTC</label>
-        <div class="input-wrap"><input type="number" id="var2" value="0" min="0" max="50" step="1"><span class="suf">%</span></div></div>
-      <div class="field"><label for="bonus2" data-help="A one-time amount paid when you join.|It is taxed like salary.">Joining bonus</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="bonus2" data-money value="0" min="0" max="5000000" step="10000"></div></div>
-      <div class="field"><label for="esop2" data-help="The yearly value of shares the company gives you.|Startup shares may be hard to sell, so count them with care.">Shares (ESOP or RSU) a year</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="esop2" data-money value="0" min="0" max="20000000" step="10000"></div></div>
-      <div class="field"><label for="rent2" data-help="The monthly rent you expect to pay in that city.">Rent there, each month</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="rent2" data-money value="18000" min="0" max="300000" step="500"></div></div>
-      </div>
-      <div class="field"><label for="oth2" data-help="Commute, food and other monthly costs that differ between the two jobs.">Other costs there, each month</label>
-        <div class="input-wrap"><span class="pre">₹</span><input id="oth2" data-money value="2000" min="0" max="100000" step="500"></div></div>
-      <div class="field"><label for="g2" data-help="How much your pay may go up each year in this job.|Enter 0 to compare today’s pay only.">Yearly raise you expect</label><div class="input-wrap"><input type="number" id="g2" value="8" min="0" max="50" step="1"><span class="suf">%</span></div></div>
-      <div class="field" style="margin:0"><label for="city2" data-help="Where the job is.|It sets HRA rules and professional tax.">City</label><select id="city2" data-cities data-default="other"></select></div>
+      <div class="field"><label for="city2" data-help="Where the job is.|It sets HRA rules and professional tax.">City</label><select id="city2" data-cities data-default="other"></select></div>
+      <details class="more" id="more2"><summary>More details <small>variable pay, bonus, shares, rent, raise</small></summary>
+        <div class="row-2">
+        <div class="field"><label for="var2" data-help="The share of CTC paid only if targets are met, usually once a year.|Enter 0 if all of it is fixed.">Variable part of CTC</label><div class="input-wrap"><input type="number" id="var2" value="0" min="0" max="50" step="1"><span class="suf">%</span></div></div>
+        <div class="field"><label for="bonus2" data-help="A one-time amount paid when you join.|It is taxed like salary.">Joining bonus</label><div class="input-wrap"><span class="pre">₹</span><input id="bonus2" data-money value="0" min="0" max="5000000" step="10000"></div></div>
+        <div class="field"><label for="esop2" data-help="The yearly value of shares the company gives you.|Startup shares may be hard to sell, so count them with care.">Shares (ESOP or RSU) a year</label><div class="input-wrap"><span class="pre">₹</span><input id="esop2" data-money value="0" min="0" max="20000000" step="10000"></div></div>
+        <div class="field"><label for="rent2" data-help="The monthly rent you expect to pay in that city.|Add it if the jobs are in different cities.">Rent there, each month</label><div class="input-wrap"><span class="pre">₹</span><input id="rent2" data-money value="0" min="0" max="300000" step="500"></div></div>
+        <div class="field"><label for="oth2" data-help="Commute, food and other monthly costs that differ between the two jobs.">Other costs there, each month</label><div class="input-wrap"><span class="pre">₹</span><input id="oth2" data-money value="0" min="0" max="100000" step="500"></div></div>
+        <div class="field"><label for="g2" data-help="How much your pay may go up each year in this job.|Used only when comparing over several years.">Yearly raise you expect</label><div class="input-wrap"><input type="number" id="g2" value="8" min="0" max="50" step="1"><span class="suf">%</span></div></div>
+        </div>
+      </details>
     </section>
   </div>
   <div class="container">
-    <div class="toolbar" style="justify-content:center;margin:18px 0 0">
-      <label class="toggle" style="margin:0;width:auto;gap:18px"><span>Compare a third offer<small>Switch on to include Offer C</small></span><span class="switch"><input type="checkbox" id="third"><i></i></span></label>
+    <div class="toolbar" style="justify-content:center;margin:14px 0 0">
+      <input type="checkbox" id="third" hidden><button type="button" class="btn btn-ghost btn-sm" id="thirdBtn">+ Add a third offer</button>
     </div>
-    <div class="card full-card" style="margin-top:18px"><h2 class="card-title">⚙️ Assumptions for all offers</h2>
+    <details class="grp" id="sec-opts" style="margin-top:14px"><summary><div class="gi">⚙️</div><div class="gt">More options<small>Years to compare, variable payout, rising costs</small></div><span class="chev">›</span></summary><div class="grp-body">
       <div class="row-3s">
-        <div class="field"><label for="hz" data-help="How many years of pay to add up.|Joining bonuses matter more over 1 year; raises matter more over 5.">Compare over</label><select id="hz"><option value="1">1 year</option><option value="2">2 years</option><option value="3">3 years</option><option value="4" selected>4 years</option><option value="5">5 years</option></select></div>
+        <div class="field"><label for="hz" data-help="How many years of pay to add up, for the several-year comparison.|Joining bonuses matter more over 1 year; raises matter more over 5.">Compare over</label><select id="hz"><option value="1">1 year</option><option value="2">2 years</option><option value="3">3 years</option><option value="4" selected>4 years</option><option value="5">5 years</option></select></div>
         <div class="field"><label for="pay" data-help="Many people get less than 100% of their variable pay.|Try 70 to 80% for a careful estimate.">Variable pay you actually get</label><div class="input-wrap"><input type="number" id="pay" value="100" min="0" max="200" step="5"><span class="suf">%</span></div></div>
         <div class="field"><label for="cinf" data-help="How fast rent and other costs go up each year.|About 6% is a common planning number.">Rent and costs rise by</label><div class="input-wrap"><input type="number" id="cinf" value="6" min="0" max="15" step="0.5"><span class="suf">% a year</span></div></div></div>
-      <p class="hint" style="margin:0">Each offer’s pay rises by its own yearly raise, and your rent and other costs rise with inflation. Set the raise to 0 to compare today’s pay only.</p></div>
-    <div class="hero-result full-card" id="hero"><div class="lbl" id="wLbl">Best offer over 4 years</div><div class="big" id="wBig">—</div><div class="sub" id="wSub"></div><span class="pill" id="wPill"></span></div>
-    <div class="card full-card"><h2 class="card-title">📋 Side-by-side</h2><div class="tbl-wrap"><table class="tbl cmp-table" id="tbl"></table></div></div>
-    <div class="card full-card"><h2 class="card-title">💸 Money left each month after rent &amp; costs</h2><div class="bars" id="bars"></div></div>
+    </div></details>
+    <div class="hero-result full-card" id="hero" style="margin-top:18px"><div class="lbl" id="wLbl"></div><div class="big" id="wBig">—</div><div class="sub" id="wSub"></div><span class="pill" id="wPill"></span></div>
+    <div class="card full-card"><h2 class="card-title">💡 Good to know</h2><ul class="facts" id="facts"></ul></div>
+    <details class="grp full-card" id="sec-details" style="margin-bottom:18px"><summary><div class="gi">📊</div><div class="gt">Show the full breakdown<small>Side by side, and what is left each month</small></div><span class="chev">›</span></summary><div class="grp-body">
+      <div class="tbl-wrap"><table class="tbl cmp-table" id="tbl"></table></div>
+      <div class="sub-h" style="margin-top:16px" id="barsT"></div><div class="bars" id="bars"></div>
+    </div></details>
       <div class="offer"><div><b>Negotiating an offer?</b><small>See what the extra rupees do for you — try the hike calculator.</small></div><a class="btn btn-primary btn-sm" href="#" rel="sponsored nofollow" data-affiliate="career">Compare offers</a></div>
   </div>
   <div class="container"><div class="ad-slot">Advertisement (728×90 / responsive)</div></div>
@@ -96,11 +90,11 @@
     <h2>Why compare offers on in-hand pay, not CTC?</h2>
     <p>CTC is a marketing number. It includes employer PF, gratuity and variable pay you may never fully receive. Two offers with the same CTC can differ by ₹5,000–₹15,000 a month in what reaches your account. This tool converts every offer into <strong>monthly in-hand salary</strong> using the same tax engine as our salary calculator.</p>
     <h2>Remember cost of living</h2>
-    <p>A higher salary in an expensive city can leave you with less. That's why the comparison subtracts rent and other monthly costs to show <strong>money left each month</strong> — the number that actually builds your wealth.</p>
+    <p>A higher salary in an expensive city can leave you with less. If the jobs are in different cities, add the rent and other monthly costs under <em>More details</em>. The comparison then shows the <strong>money left each month</strong>, the number that actually builds your wealth.</p>
     <h2>How joining bonus and ESOPs are treated</h2>
     <p>The joining bonus and annual ESOP value are taxed at your marginal slab rate and shown after tax. ESOPs are paper value until you can sell, so treat them with healthy scepticism, especially at startups.</p>
     <h2>Frequently asked questions</h2>
-    <div class="faq"><details><summary>Is the variable pay guaranteed?</summary><p>No. By default this tool assumes you earn 100% of the variable pay. Lower “Variable pay you actually get” under Assumptions to see a conservative case.</p></details><details><summary>Does the surplus include yearly raises?</summary><p>Yes. Each offer’s pay rises by the yearly raise you enter, and your rent and other costs rise with inflation. Tax is recalculated every year, so a bigger raise can move you into a higher slab.</p></details><details><summary>Which tax regime is used?</summary><p>For each offer the regime with the higher take-home is applied automatically.</p></details></div>
+    <div class="faq"><details><summary>Is the variable pay guaranteed?</summary><p>No. By default this tool assumes you earn 100% of the variable pay. Lower “Variable pay you actually get” under More options to see a conservative case.</p></details><details><summary>Does the surplus include yearly raises?</summary><p>Yes. Each offer’s pay rises by the yearly raise you enter, and your rent and other costs rise with inflation. Tax is recalculated every year, so a bigger raise can move you into a higher slab.</p></details><details><summary>Which tax regime is used?</summary><p>For each offer the regime with the higher take-home is applied automatically.</p></details></div>
   </article>
   <div class="container section"><div class="section-head"><h2>More calculators</h2></div><div class="tool-grid" id="related"></div></div>
 </main>
@@ -124,37 +118,57 @@
     }
     return { name: $('n' + i).value || 'Offer ' + (i + 1), ctc: ctc0, g: g * 100, ...first, bonusAT, esopAT: esopAT0, yr1: first.inHandYear + esopAT0 + bonusAT, cash, surplus };
   }
+  const third = on => { $('third').checked = on; $('thirdBtn').textContent = on ? '− Remove the third offer' : '+ Add a third offer'; };
+  $('thirdBtn').addEventListener('click', () => { third(!$('third').checked); calc(); });
   function calc() {
     const H = +$('hz').value, payPct = num('pay'), cinf = num('cinf') / 100, ids = active(), o = ids.map(i => compute(i, H, payPct, cinf));
-    [0, 1, 2].forEach(i => $('card' + i).classList.toggle('off', !ids.includes(i)));
+    [0, 1, 2].forEach(i => $('card' + i).classList.toggle('off', !ids.includes(i))); $('grid').classList.toggle('two', ids.length === 2); third($('third').checked);
+    // the answer: money in hand each month (year 1), or what is left after rent and costs once those are entered
+    const costs = ids.some(i => num('rent' + i) > 0 || num('oth' + i) > 0), key = costs ? 'left' : 'inHand';
+    const sorted = o.map((x, j) => ({ x, j })).sort((a, b) => b.x[key] - a.x[key]), top = sorted[0].x, gap = top[key] - sorted[1].x[key], close = gap < 500;
+    ids.forEach((id, j) => $('card' + id).classList.toggle('win', !close && j === sorted[0].j));
+    const list = o.map(x => `${x.name} ${f(x[key])}`).join(o.length > 2 ? ', ' : ' vs ');
+    $('wLbl').textContent = close ? 'These offers are almost the same' : `${top.name} gives you`;
+    $('wBig').innerHTML = close ? `${f(gap)}<span class="per">a month apart</span>` : `${f(gap)} more<span class="per">a month</span>`;
+    $('wSub').textContent = (costs ? 'Left after rent and costs: ' : 'In hand each month: ') + list + '.';
+    $('wPill').textContent = close ? 'Decide on the role, growth and commute instead' : '';
+    // several years: only when bonus, shares, raises or the options make it different from the monthly answer
+    const extras = ids.some(i => num('bonus' + i) > 0 || num('esop' + i) > 0) || new Set(ids.map(i => num('g' + i))).size > 1 || H !== 4 || payPct !== 100 || num('cinf') !== 6;
+    const tk = costs ? 'surplus' : 'cash', ts = o.map((x, j) => ({ x, j })).sort((a, b) => b.x[tk] - a.x[tk]), tgap = ts[0].x[tk] - ts[1].x[tk];
+    const parts = [ids.some(i => num('bonus' + i) > 0) && 'the joining bonus', ids.some(i => num('esop' + i) > 0) && 'shares', H > 1 && 'yearly raises'].filter(Boolean);
+    const what = parts.length ? `counting ${parts.join(', ').replace(/, ([^,]*)$/, ' and $1')}` + (costs ? ', after rent and costs' : '') : costs ? 'after rent and costs' : 'in total';
+    const hiVar = o.filter((x, j) => num('var' + ids[j]) >= 15).map(x => x.name);
+    $('facts').innerHTML = [
+      extras ? `Over ${plural(H, 'year')}, ${what}: ${o.map(x => `${x.name} ${f(x[tk])}`).join(', ')}. ${tgap < 1000 ? 'They come out about the same.' : `<b>${ts[0].x.name}</b> is ahead by <b>${f(tgap)}</b>.`}` : '',
+      hiVar.length ? `${hiVar.join(' and ')} ${hiVar.length > 1 ? 'have' : 'has'} a large variable part. It is counted ${payPct === 100 ? 'in full' : `at ${payPct}%`}; variable pay is not guaranteed.` : '',
+      costs ? '' : 'Moving city? Add the rent and other costs under <b>More details</b> to see what is left each month.',
+      'Worked out with a typical salary structure (40% basic, PF on the full basic) and the better tax regime for each offer.'
+    ].filter(Boolean).map(x => `<li>${x}</li>`).join('');
     const best = k => Math.max(...o.map(x => x[k]));
-    const win = o.findIndex(x => x.surplus === best('surplus')), sorted = o.map((x, j) => ({ x, j })).sort((a, b) => b.x.surplus - a.x.surplus), gap = sorted[1] ? sorted[0].x.surplus - sorted[1].x.surplus : Infinity;
-    ids.forEach((id, j) => $('card' + id).classList.toggle('win', j === win && o.length > 1 && gap >= 1000));
-    $('wLbl').textContent = `Best offer over ${plural(H, 'year')}`;
-    $('wBig').textContent = gap < 1000 ? 'Too close to call' : o[win].name;
-    $('wSub').textContent = gap < 1000 ? `The top offers are within ${f(Math.max(0, gap))} of each other over ${plural(H, 'year')}. Decide on growth, work and risk instead.` : sorted[1] ? `Leaves you ${f(gap)} better off than ${sorted[1].x.name} over ${plural(H, 'year')}, after rent and living costs.` : '';
-    $('wPill').textContent = gap < 1000 ? '' : `In year 1, it leaves you ${f(o[win].left)} a month after rent and costs`;
     const rows = [
-      ['grp', 'Pay'], ['CTC', 'ctc', 'max'], ['Yearly raise', x => x.g.toFixed(0) + '%'], ['Tax regime used', x => x.regime === 'new' ? 'New' : 'Old'], ['Monthly in-hand (year 1)', 'inHand', 'max'], ['Yearly in-hand (year 1)', 'inHandYear', 'max'],
-      ['grp', 'Cost of living'], ['Rent / month', x => f(x.rent)], ['Other costs / month', x => f(x.oth)], ['Left after costs / month (year 1)', 'left', 'max'],
-      ['grp', 'Bonus & equity (after tax)'], ['Joining bonus', 'bonusAT', 'max'], ['ESOP / RSU per year', 'esopAT', 'max'],
-      ['grp', 'The big picture'], ['Year-1 cash (in-hand + bonus + ESOP)', 'yr1', 'max'], [`${plural(H, 'year')} of cash (before costs)`, 'cash', 'max'], [`${plural(H, 'year')} cash surplus (after costs)`, 'surplus', 'max'],
+      ['grp', 'Pay'], ['CTC', 'ctc', 'max'], ['Yearly raise', x => x.g.toFixed(0) + '%'], ['Tax regime used', x => x.regime === 'new' ? 'New' : 'Old'], ['In hand each month (year 1)', 'inHand', 'max'], ['In hand a year (year 1)', 'inHandYear', 'max'],
+      ['grp', 'Cost of living'], ['Rent each month', x => f(x.rent)], ['Other costs each month', x => f(x.oth)], ['Left each month after costs (year 1)', 'left', 'max'],
+      ['grp', 'Bonus & shares (after tax)'], ['Joining bonus', 'bonusAT', 'max'], ['Shares a year', 'esopAT', 'max'],
+      ['grp', `Over ${plural(H, 'year')}`], ['Cash (in hand + bonus + shares)', 'cash', 'max'], ['Left after costs', 'surplus', 'max'],
     ];
     let html = '<tr><th></th>' + o.map(x => `<th>${Common.esc(x.name)}</th>`).join('') + '</tr>';
-    rows.forEach(([label, key, mode]) => {
-      if (label === 'grp') { html += `<tr class="grp"><td colspan="${o.length + 1}">${key}</td></tr>`; return; }
+    rows.forEach(([label, k, mode]) => {
+      if (label === 'grp') { html += `<tr class="grp"><td colspan="${o.length + 1}">${k}</td></tr>`; return; }
       html += `<tr><td>${label}</td>` + o.map(x => {
-        if (typeof key === 'function') return `<td>${key(x)}</td>`;
-        const isBest = o.length > 1 && mode === 'max' && x[key] === best(key) && o.filter(y => y[key] === x[key]).length === 1;
-        return `<td class="${isBest ? 'best' : ''}">${f(x[key])}</td>`; }).join('') + '</tr>';
+        if (typeof k === 'function') return `<td>${k(x)}</td>`;
+        const isBest = o.length > 1 && mode === 'max' && x[k] === best(k) && o.filter(y => y[k] === x[k]).length === 1;
+        return `<td class="${isBest ? 'best' : ''}">${f(x[k])}</td>`; }).join('') + '</tr>';
     });
     $('tbl').innerHTML = html;
-    const mx = Math.max(1, ...o.map(x => Math.abs(x.left)));
-    $('bars').innerHTML = o.map(x => `<div class="vs-row"><div class="top"><span>${Common.esc(x.name)}</span><span>${f(x.left)}</span></div><div class="track"><i style="width:${Math.max(0, x.left) / mx * 100}%"></i></div></div>`).join('');
+    $('barsT').textContent = costs ? 'Left each month after rent and costs' : 'In hand each month';
+    const mx = Math.max(1, ...o.map(x => Math.abs(x[key])));
+    $('bars').innerHTML = o.map(x => `<div class="vs-row"><div class="top"><span>${Common.esc(x.name)}</span><span>${f(x[key])}</span></div><div class="track"><i style="width:${Math.max(0, x[key]) / mx * 100}%"></i></div></div>`).join('');
   }
   document.querySelectorAll('input,select').forEach(i => i.addEventListener('input', calc));
   document.addEventListener('change', calc);
-  Common.fillCities(); Common.restore(); calc();
+  Common.fillCities(); Common.restore();
+  [0, 1, 2].forEach(i => { if (['var', 'bonus', 'esop', 'rent', 'oth'].some(k => num(k + i) > 0)) $('more' + i).open = true; });   // a shared link with extras opens them
+  calc();
 </script>
 </body>
 </html>

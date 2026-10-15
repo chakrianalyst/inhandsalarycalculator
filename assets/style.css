@@ -403,14 +403,21 @@ td.nw, th.nw { white-space: nowrap; }
 .tl .nwv { font-weight: 700; font-variant-numeric: tabular-nums; }
 
 /* ---------- Offer comparison ---------- */
-.offers-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; padding: 26px 0 0; }
-@media (max-width: 920px) { .offers-grid { grid-template-columns: minmax(0, 1fr); } }
+.offers-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; padding: 26px 0 0; align-items: start; }
+.offers-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 920px) { .offers-grid, .offers-grid.two { grid-template-columns: minmax(0, 1fr); } }
+.offer-card .more { margin-top: 4px; }
+.offer-card .more > summary { cursor: pointer; font-weight: 700; font-size: .9rem; color: var(--brand-text); list-style: none; padding: 6px 0; }
+.offer-card .more > summary::-webkit-details-marker { display: none; }
+.offer-card .more > summary::before { content: "＋ "; }
+.offer-card .more[open] > summary::before { content: "− "; }
+.offer-card .more > summary small { display: block; font-weight: 500; color: var(--muted); font-size: .78rem; margin-top: 2px; }
+.offer-card .more[open] > summary { margin-bottom: 10px; }
 .offer-card { position: relative; }
 .offer-card .oname { width: 100%; border: 0; background: transparent; font: inherit; font-size: 1.1rem; font-weight: 800; color: var(--text); padding: 0 0 12px; margin-bottom: 14px; border-bottom: 1px solid var(--line); outline: none; }
 .offer-card.win { border-color: var(--accent); box-shadow: 0 10px 30px -12px rgba(16,185,129,.45); }
-.offer-card.win::after { content: "🏆 Best overall"; position: absolute; top: -12px; right: 16px; background: var(--accent); color: #fff; font-size: .72rem; font-weight: 800; padding: 3px 11px; border-radius: 99px; }
-.offer-card.off { opacity: .55; }
-@media (max-width: 920px) { .offer-card.off { display: none; } }          /* one column on a phone: an unused Offer C is hidden, not a long greyed form */
+.offer-card.win::after { content: "🏆 More each month"; position: absolute; top: -12px; right: 16px; background: var(--accent); color: #fff; font-size: .72rem; font-weight: 800; padding: 3px 11px; border-radius: 99px; }
+.offer-card.off { display: none; }          /* Offer C appears only after "Add a third offer" */
 .row-3s { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 @media (max-width: 560px) { .row-3s { grid-template-columns: minmax(0, 1fr); gap: 0; } }
 .cmp-table td.best { color: var(--good-text); font-weight: 800; }

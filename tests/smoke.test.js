@@ -306,16 +306,22 @@ if (chromium) {
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
-  test('Offer comparison: horizon, yearly raise, variable payout, city-based professional tax and a tie', async () => {
-    const pg = await open(SITE, 'offer-comparison.html'); const hero = () => pg.$eval('#hero', e => e.innerText);
-    assert.match(await hero(), /In year 1, it leaves you ₹[\d,]+ a month after rent and costs/); assert.ok(await pg.$$eval('#card0 .help-btn', x => x.length) >= 8, 'every question has ? help');
-    assert.match(await hero(), /Best offer over 4 years/); const four = await hero();
-    await pg.selectOption('#hz', '1'); assert.match(await hero(), /Best offer over 1 year/); assert.notEqual(await hero(), four);
-    await pg.selectOption('#hz', '4'); await pg.fill('#g0', '0'); await pg.fill('#g1', '0'); const flat = await pg.$eval('#tbl', e => e.innerText); assert.match(flat, /Yearly raise\s+0%\s+0%/);
-    await pg.fill('#pay', '50'); assert.notEqual(await pg.$eval('#tbl', e => e.innerText), flat);                  // lower variable payout changes the numbers
+  test('Offer comparison: CTC and city first, the monthly answer, extras on request, several years when they matter, and a tie', async () => {
+    const pg = await open(SITE, 'offer-comparison.html'); const hero = () => pg.$eval('#hero', e => e.innerText), facts = () => pg.$eval('#facts', e => e.innerText);
+    assert.match(await hero(), /Offer B gives you[\s\S]*₹23,025 more[\s\S]*In hand each month: Offer A ₹1,22,045 vs Offer B ₹1,45,070/); assert.doesNotMatch(await hero(), /regime/i, 'no tax regime in the summary');
+    assert.equal(await pg.isVisible('#var0'), false, 'extras wait behind More details'); assert.equal(await pg.isVisible('#card2'), false); assert.equal(await pg.isVisible('#tbl'), false);
+    assert.doesNotMatch(await facts(), /Over \d+ year/, 'no several-year line without bonus, shares or options');
+    await pg.click('#more0 summary'); await pg.click('#more1 summary'); assert.ok(await pg.$$eval('#card0 .help-btn', x => x.filter(b => b.offsetParent).length) >= 8, 'every question has ? help');
+    await pg.fill('#rent0', '30,000'); await pg.fill('#rent1', '45,000'); assert.match(await hero(), /Left after rent and costs/);
+    await pg.fill('#bonus0', '1,50,000'); assert.match(await facts(), /Over 4 years, counting the joining bonus and yearly raises, after rent and costs:[\s\S]*ahead by ₹/);
+    await pg.click('#sec-opts summary'); await pg.selectOption('#hz', '1'); assert.match(await facts(), /Over 1 year, counting the joining bonus, after rent and costs/);
+    await pg.fill('#var1', '20'); await pg.fill('#pay', '50'); assert.match(await facts(), /Offer B has a large variable part\. It is counted at 50%/);
+    await pg.click('#sec-details summary'); assert.match(await pg.$eval('#tbl', e => e.innerText), /Yearly raise\s+8%\s+8%/);
     for (const i of [0, 1]) { await pg.fill('#ctc' + i, '2000000'); await pg.fill('#var' + i, '0'); await pg.fill('#bonus' + i, '0'); await pg.fill('#esop' + i, '0'); await pg.fill('#rent' + i, '0'); await pg.fill('#oth' + i, '0'); await pg.selectOption('#city' + i, 'Bengaluru'); }
-    assert.match(await hero(), /Too close to call/);
+    assert.match(await hero(), /almost the same/);
+    await pg.click('#thirdBtn'); assert.equal(await pg.isVisible('#card2'), true); assert.match(await pg.textContent('#thirdBtn'), /Remove/);
     assert.deepEqual(pg.errs, []); await pg.close();
+    const lk = await open(SITE, 'offer-comparison.html?rent0=28000&ctc0=2000000'); assert.equal(await lk.$eval('#more0', d => d.open), true, 'a shared link with extras opens them'); await lk.close();
   });
 
   test('FIRE calculator: lasting-corpus target, lean/fat styles, coast number, stress test and pension', async () => {
@@ -498,9 +504,9 @@ if (chromium) {
     }
     for (const h of links) { const pg = await open(SITE, h); assert.deepEqual(pg.errs, [], h); await pg.close(); }       // every prefilled calculator link opens cleanly
     const shows = async (h, sel, re) => { const pg = await open(SITE, h); await pg.waitForTimeout(300); assert.match(await pg.$eval(sel, e => e.innerText), re, h); await pg.close(); };
-    await shows('offer-comparison.html?n0=Bengaluru%20%E2%82%B920%20L&ctc0=2000000&var0=10&bonus0=0&esop0=0&rent0=28000&oth0=4000&n1=Mumbai%20%E2%82%B924%20L&ctc1=2400000&var1=20&rent1=45000&oth1=6000&hz=1', '#bars', /₹1,01,558[\s\S]*₹1,04,873/);
-    await shows('offer-comparison.html?n0=Bengaluru%20%E2%82%B920%20L&ctc0=2000000&var0=10&bonus0=0&esop0=0&rent0=28000&oth0=4000&n1=Mumbai%20%E2%82%B924%20L&ctc1=2400000&var1=20&rent1=45000&oth1=6000&hz=1&pay=60', '#hero', /₹40,406/);
-    await shows('offer-comparison.html?n0=Startup&ctc0=1800000&var0=0&bonus0=150000&esop0=400000&rent0=30000&oth0=4000&n1=Big%20company&ctc1=2200000&var1=10&bonus1=0&esop1=0&rent1=30000&oth1=4000&hz=4', '#hero', /₹1,50,026/);
+    await shows('offer-comparison.html?n0=Bengaluru%20%E2%82%B920%20L&ctc0=2000000&var0=10&bonus0=0&esop0=0&rent0=28000&oth0=4000&n1=Mumbai%20%E2%82%B924%20L&ctc1=2400000&var1=20&rent1=45000&oth1=6000&hz=1', '#hero', /₹1,01,558[\s\S]*₹1,04,873/);
+    await shows('offer-comparison.html?n0=Bengaluru%20%E2%82%B920%20L&ctc0=2000000&var0=10&bonus0=0&esop0=0&rent0=28000&oth0=4000&n1=Mumbai%20%E2%82%B924%20L&ctc1=2400000&var1=20&rent1=45000&oth1=6000&hz=1&pay=60', '#facts', /ahead by ₹40,406/);
+    await shows('offer-comparison.html?n0=Startup&ctc0=1800000&var0=0&bonus0=150000&esop0=400000&rent0=30000&oth0=4000&n1=Big%20company&ctc1=2200000&var1=10&bonus1=0&esop1=0&rent1=30000&oth1=4000&hz=4', '#facts', /Startup is ahead by ₹1,50,026/);
     await shows('salary-hike-calculator.html?ctc=1800000&hike=6', '.hero-result', /\+₹6,217/);
     await shows('salary-hike-calculator.html?ctc=1360000&hmode=ctc&newctc=1440000', '.hero-result', /From ₹1,00,073 to ₹1,00,063 a month/);
     await shows('layoff-runway-calculator.html?monthly=80000&severance=160000&notice=80000&leave=30000&savings=200000&pf=300000&essentials=30000&emi=0&other=20000&otherCut=8000&insurance=18000', '#kpis', /₹4\.70 L[\s\S]*11 months/);
@@ -785,7 +791,7 @@ if (chromium) {
     await nw.click('#startOwn'); await nw.waitForTimeout(150); assert.equal(await nw.isVisible('#sampleNote'), false); assert.equal(await nw.inputValue('#inc'), '');
     await nw.reload(); await nw.waitForTimeout(200); assert.equal(await nw.isVisible('#sampleNote'), false, 'stays cleared after a reload'); await ctx.close();
     const of = await open(SITE, 'offer-comparison.html', 390); assert.equal(await of.isVisible('#card2'), false, 'unused Offer C is hidden on a phone');
-    await of.click('label:has(#third)'); await of.waitForTimeout(150); assert.equal(await of.isVisible('#card2'), true);
+    await of.click('#thirdBtn'); await of.waitForTimeout(150); assert.equal(await of.isVisible('#card2'), true); await of.click('#sec-opts summary');
     const xs = await of.$$eval('#hz, #pay, #cinf', e => e.map(x => Math.round(x.closest('.field').getBoundingClientRect().left))); assert.equal(new Set(xs).size, 1, 'settings stack in one column on a phone'); await of.close();
   });
 
