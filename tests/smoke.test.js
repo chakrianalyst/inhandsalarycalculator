@@ -294,13 +294,15 @@ if (chromium) {
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
-  test('Salary hike calculator: % or new CTC, inflation check, keep per ₹100, projection', async () => {
+  test('Salary hike calculator: two questions, the monthly rise, keep per ₹100, details on request', async () => {
     const pg = await open(SITE, 'salary-hike-calculator.html'); const hero = () => pg.$eval('.hero-result', e => e.innerText), kp = () => pg.$eval('#facts', e => e.innerText);
-    assert.match(await hero(), /\+₹11,060/); assert.match(await hero(), /From ₹73,530 to ₹84,590 a month/); assert.match(await kp(), /buying power grows by 8\.5%/); assert.match(await kp(), /extra ₹100 of CTC, you keep ₹88/);
-    assert.equal(await pg.$('#inputs input[type=range]'), null, 'no sliders'); assert.ok(await pg.$$eval('#inputs .help-btn', x => x.length) >= 4, 'every question has ? help');
-    assert.equal((await pg.$$('#proj tr')).length, 7);
-    await pg.click('#hmode [data-v=ctc]'); assert.equal(await pg.isVisible('#hike'), false); await pg.fill('#newctc', '10,50,000'); assert.match(await pg.$eval('#warns', e => e.textContent), /below inflation/);
-    await pg.fill('#newctc', '9,00,000'); assert.match(await pg.$eval('#warns', e => e.textContent), /pay cut/);
+    assert.match(await hero(), /\+₹11,060/); assert.match(await hero(), /From ₹73,530 to ₹84,590 a month\./); assert.doesNotMatch(await hero(), /full year/, 'no yearly figure in the summary');
+    assert.match(await kp(), /extra ₹100 of CTC, you keep ₹88/); assert.equal(await pg.$eval('#facts a[href^="sip-calculator"]', a => a.getAttribute('href')), 'sip-calculator.html?sip=11060');
+    assert.deepEqual(await pg.$$eval('#inputs [data-q]', l => l.filter(x => !x.closest('[hidden]')).map(x => x.textContent)), ['1. What is your CTC now?', '2. How much is the raise?'], 'two questions');
+    assert.equal(await pg.$('#infl, #basicPct, #pfcap, #regime'), null, 'no inflation or salary-structure settings');
+    assert.equal(await pg.isVisible('#proj'), false, 'the tables wait behind "Show the full breakdown"'); await pg.click('#sec-details summary'); assert.equal((await pg.$$('#proj tr')).length, 7);
+    await pg.click('#hmode [data-v=ctc]'); assert.equal(await pg.isVisible('#hike'), false); await pg.fill('#newctc', '9,00,000'); assert.match(await pg.$eval('#warns', e => e.textContent), /pay cut/);
+    assert.match(await hero(), /goes down by/);
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
@@ -499,7 +501,7 @@ if (chromium) {
     await shows('offer-comparison.html?n0=Bengaluru%20%E2%82%B920%20L&ctc0=2000000&var0=10&bonus0=0&esop0=0&rent0=28000&oth0=4000&n1=Mumbai%20%E2%82%B924%20L&ctc1=2400000&var1=20&rent1=45000&oth1=6000&hz=1', '#bars', /₹1,01,558[\s\S]*₹1,04,873/);
     await shows('offer-comparison.html?n0=Bengaluru%20%E2%82%B920%20L&ctc0=2000000&var0=10&bonus0=0&esop0=0&rent0=28000&oth0=4000&n1=Mumbai%20%E2%82%B924%20L&ctc1=2400000&var1=20&rent1=45000&oth1=6000&hz=1&pay=60', '#hero', /₹40,406/);
     await shows('offer-comparison.html?n0=Startup&ctc0=1800000&var0=0&bonus0=150000&esop0=400000&rent0=30000&oth0=4000&n1=Big%20company&ctc1=2200000&var1=10&bonus1=0&esop1=0&rent1=30000&oth1=4000&hz=4', '#hero', /₹1,50,026/);
-    await shows('salary-hike-calculator.html?ctc=1800000&hike=6', '#facts', /falls by 0\.9%/);
+    await shows('salary-hike-calculator.html?ctc=1800000&hike=6', '.hero-result', /\+₹6,217/);
     await shows('salary-hike-calculator.html?ctc=1360000&hmode=ctc&newctc=1440000', '.hero-result', /From ₹1,00,073 to ₹1,00,063 a month/);
     await shows('layoff-runway-calculator.html?monthly=80000&severance=160000&notice=80000&leave=30000&savings=200000&pf=300000&essentials=30000&emi=0&other=20000&otherCut=8000&insurance=18000', '#kpis', /₹4\.70 L[\s\S]*11 months/);
     await shows('life-simulator.html', '.hero-result', /₹5\.65 Cr/);
@@ -691,7 +693,7 @@ if (chromium) {
 
   test('result cards say what the number is per', async () => {
     const pg = await open(SITE, 'salary-hike-calculator.html'); await pg.waitForTimeout(200);
-    assert.match(await pg.textContent('#gain'), /a month$/); assert.match(await pg.textContent('#gainSub'), /over a full year/); assert.match(await pg.textContent('#hPill'), /your take-home rises/);
+    assert.match(await pg.textContent('#gain'), /a month$/); assert.match(await pg.textContent('#gainSub'), /a month\.$/); assert.match(await pg.textContent('#hPill'), /your take-home rises/);
     await pg.close();
   });
 
@@ -867,7 +869,7 @@ if (chromium) {
     pg = await go('fire-calculator.html'); assert.match(pg.url(), /swp-calculator\.html\?corpus=\d+&wd=\d+&(step=6&ret=8|ret=8&step=6)&yrs=45/); assert.ok(await pg.$('#handoffNote')); await pg.close();
     pg = await go('networth-calculator.html'); assert.equal(await pg.inputValue('#corp'), '27,70,000'); assert.ok(await pg.$('#handoffNote')); await pg.close();
     pg = await go('abroad-calculator.html'); assert.equal(await pg.inputValue('#country'), 'US'); assert.equal(await pg.inputValue('#cash'), '0'); assert.notEqual(await pg.inputValue('#saveYear'), '60,000'); await pg.close();
-    for (const f of ['salary-hike-calculator.html', 'return-calculator.html']) { pg = await go(f); assert.match(pg.url(), /(sip|swp)-calculator\.html\?/); assert.deepEqual(pg.errs, [], f); await pg.close(); }
+    for (const f of ['return-calculator.html']) { pg = await go(f); assert.match(pg.url(), /(sip|swp)-calculator\.html\?/); assert.deepEqual(pg.errs, [], f); await pg.close(); }
     pg = await ctx.newPage(); await pg.goto(url(SITE, 'sip-calculator.html')); await pg.waitForTimeout(150); assert.equal(await pg.$('#handoffNote'), null, 'plain visits get no note'); await pg.close(); await ctx.close();
     const d = await open(SITE, 'return-calculator.html', 1366);
     assert.deepEqual(await d.evaluate(() => [...document.querySelector('.tool-layout').children].map(k => getComputedStyle(k).position)), ['sticky', 'static']);
