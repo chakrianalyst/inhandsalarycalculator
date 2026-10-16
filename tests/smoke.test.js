@@ -509,7 +509,9 @@ if (chromium) {
     await shows('offer-comparison.html?n0=Startup&ctc0=1800000&var0=0&bonus0=150000&esop0=400000&rent0=30000&oth0=4000&n1=Big%20company&ctc1=2200000&var1=10&bonus1=0&esop1=0&rent1=30000&oth1=4000&hz=4', '#facts', /Startup is ahead by ₹1,50,026/);
     await shows('salary-hike-calculator.html?ctc=1800000&hike=6', '.hero-result', /\+₹6,217/);
     await shows('salary-hike-calculator.html?ctc=1360000&hmode=ctc&newctc=1440000', '.hero-result', /From ₹1,00,073 to ₹1,00,063 a month/);
-    await shows('layoff-runway-calculator.html?monthly=80000&severance=160000&notice=80000&leave=30000&savings=200000&pf=300000&essentials=30000&emi=0&other=20000&otherCut=8000&insurance=18000', '#kpis', /₹4\.70 L[\s\S]*11 months/);
+    await shows('layoff-runway-calculator.html?inhand=75700&payout=270000&savings=200000&pf=300000&spend=50000&cut=38000&insurance=18000', '#kpis', /₹4\.70 L now/);
+    await shows('layoff-runway-calculator.html?inhand=75700&payout=270000&savings=200000&pf=300000&spend=50000&cut=38000&insurance=18000', '#hero', /9 months[\s\S]*lasts 11 months/);
+    await shows('layoff-runway-calculator.html?cut=80000', '#hero', /9 months[\s\S]*lasts 12 months/);
     await shows('life-simulator.html', '.hero-result', /₹5\.65 Cr/);
     await shows('life-simulator.html?kid.on=0', '.hero-result', /₹6\.87 Cr/);
     await shows('life-simulator.html?creep=50', '.hero-result', /₹4\.53 Cr/);
@@ -986,18 +988,26 @@ if (chromium) {
     const lk = await browser.newPage(); await lk.goto(url(SITE, 'return-calculator.html') + '?when=3'); await lk.waitForTimeout(300); assert.equal(await lk.$eval('#whenChips [data-w="3"]', b => b.classList.contains('on')), true); await lk.close();
   });
 
-  test('Layoff runway: settlement after tax, runway today and cut back, job-search check, PF as a last resort, quick picks and share link', async () => {
+  test('Layoff runway: four questions, months in the hero, settlement after tax, spending less, PF as a last resort, old and new share links', async () => {
     const pg = await open(SITE, 'layoff-runway-calculator.html', 390); const txt = sel => pg.$eval(sel, e => e.innerText.replace(/\s+/g, ' '));
-    assert.match(await txt('#hero'), /Your money lasts 9 months[\s\S]*Cut back to ₹80,000 and it lasts 12 months[\s\S]*Covers a 6-month job search with 3 months to spare/);
-    assert.match(await txt('#setTbl'), /Tax on the payout \(estimate\) − ₹1,30,000 Settlement after tax ₹5,20,000[\s\S]*Money you can use now ₹10,20,000/);   // ₹6.5 L on top of ₹10.5 L of salary: ₹1.25 L + 4% cess
-    assert.match(await txt('#tips'), /^Cutting “everything else”[\s\S]*Your PF, as a last resort/, 'PF is offered last');
-    await pg.click('.chips[data-for=severance] .chip[data-n="3"]'); await pg.waitForTimeout(200); assert.equal(await pg.inputValue('#severance'), '4,50,000');
-    await pg.click('label.toggle:has(#pfOn)'); await pg.waitForTimeout(200); assert.equal(await pg.isChecked('#pfOn'), true); assert.match(await txt("#kpis"), /Your PF of ₹[\d.]+ [LC]r? is counted/);
-    await pg.fill('#savings', '0'); await pg.fill('#severance', '0'); await pg.fill('#notice', '0'); await pg.fill('#leave', '0'); await pg.click('label.toggle:has(#pfOn)'); await pg.waitForTimeout(200);
+    assert.deepEqual(await pg.$$eval('#inputs label[data-q]', ls => ls.map(l => l.textContent)), ['1. What is your monthly salary after tax?', '2. How much severance will you get, in total?', '3. What are your monthly expenses, including EMIs?', '4. What are your current savings?']);
+    assert.equal(await pg.$eval('#sec-more', d => d.open), false, 'other details start closed'); assert.equal(await pg.$eval('#sec-details', d => d.open), false, 'breakdown starts closed');
+    assert.match(await txt('#hero'), /Your money lasts 9 months Covers a 6-month job search with 3 months to spare/); assert.doesNotMatch(await txt('#hero'), /20\d\d/, 'no date in the hero');
+    assert.match(await txt('#kpis'), /₹6\.50 L payout is about ₹5\.20 L after ₹1\.30 L of tax[\s\S]*₹10\.20 L now[\s\S]*₹25,000 a year for your own health cover/);
+    await pg.click('#kpis a[href="#first2"]'); await pg.waitForTimeout(200); assert.equal(await pg.$eval('#sec-details', d => d.open), true, 'the two-weeks link opens the breakdown');
+    assert.match(await txt('#setTbl'), /Tax on the payout \(estimate\) − ₹1,29,972 Settlement after tax ₹5,20,028[\s\S]*Money you can use now ₹10,20,028/);   // ₹6.5 L on top of about ₹10.5 L of salary, the same as before take-home was asked for
+    assert.match(await txt('#tips'), /Your PF, as a last resort[^.]*\.[^.]*\.$/, 'PF is offered last');
+    await pg.click('#sec-more > summary'); await pg.fill('#cut', '80,000'); await pg.waitForTimeout(200);
+    assert.match(await txt('#hero'), /9 months Spend ₹80,000 a month and it lasts 12 months/); assert.match(await txt('#kpis'), /^Spending ₹80,000 a month instead of ₹1,00,000 adds 2 months/);
+    await pg.click('label.toggle:has(#pfOn)'); await pg.waitForTimeout(200); assert.equal(await pg.isChecked('#pfOn'), true); assert.match(await txt('#kpis'), /Your PF of ₹[\d.]+ [LC]r? is counted/);
+    await pg.fill('#savings', '0'); await pg.fill('#payout', '0'); await pg.click('label.toggle:has(#pfOn)'); await pg.waitForTimeout(200);
     assert.match(await txt('#hero'), /Under a month/); assert.doesNotMatch(await txt('main'), /NaN|undefined|Infinity/);
     assert.deepEqual(pg.errs, []); await pg.close();
     const lk = await browser.newPage(); await lk.goto(url(SITE, 'layoff-runway-calculator.html') + '?savings=1500000&search=9&pfOn=1'); await lk.waitForTimeout(300);
     assert.equal(await lk.inputValue('#savings'), '15,00,000'); assert.equal(await lk.isChecked('#pfOn'), true); assert.match(await lk.$eval('#hero', e => e.innerText), /9-month job search/); await lk.close();
+    const old = await browser.newPage(); await old.goto(url(SITE, 'layoff-runway-calculator.html') + '?monthly=80000&severance=160000&notice=80000&leave=30000&essentials=30000&emi=0&other=20000&otherCut=8000&savings=200000&insurance=18000'); await old.waitForTimeout(300);
+    assert.equal(await old.inputValue('#payout'), '2,70,000'); assert.equal(await old.inputValue('#spend'), '50,000'); assert.equal(await old.inputValue('#cut'), '38,000');
+    assert.match(await old.$eval('#hero', e => e.innerText), /9 months[\s\S]*lasts 11 months/, 'links made for the old page keep their numbers'); await old.close();
   });
 
   test('every question on every calculator has a ? note, and none has a slider', async () => {
