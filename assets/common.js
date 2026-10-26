@@ -650,7 +650,9 @@ const Common = (() => {
     }
     let used = false; document.addEventListener('input', e => { if (e.isTrusted && !used && e.target && e.target.closest && e.target.closest('#inputs, .offer-card, section[aria-label=Inputs]')) { used = true; io(document.querySelector('.hero-result'), () => track('result_seen', { tool: activeId })); } }, true);
     const cards = [...results.querySelectorAll(':scope > .card, :scope > .full-card')].filter(c => !c.classList.contains('fb'));
-    io(cards[cards.length - 1], () => track('details_seen', { tool: activeId }));
+    const det = document.getElementById('sec-details');                                // pages that keep the detail behind "Show the full breakdown" count opening it
+    if (det) det.addEventListener('toggle', function once() { if (!det.open) return; det.removeEventListener('toggle', once); track('details_seen', { tool: activeId }); });
+    else io(cards[cards.length - 1], () => track('details_seen', { tool: activeId }));
     const KEY = 'rc-fb-' + activeId; let done = false; try { const t = +localStorage.getItem(KEY); done = t && Date.now() - t < 90 * 864e5; } catch (e) {}
     if (done || document.getElementById('fb')) return;
     const fb = document.createElement('div'); fb.className = 'card fb'; fb.id = 'fb';
