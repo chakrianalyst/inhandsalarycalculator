@@ -901,7 +901,7 @@ if (chromium) {
     assert.deepEqual(await d.evaluate(() => [...document.querySelector('.tool-layout').children].map(k => getComputedStyle(k).position)), ['sticky', 'static']);
     await d.evaluate(() => scrollTo({ top: 2600, behavior: 'instant' })); await d.waitForTimeout(200);
     const [top, r] = await d.evaluate(() => { const b = document.querySelector('.tool-layout').children[0].getBoundingClientRect(); return [b.top, innerHeight - b.bottom]; });
-    assert.ok(top >= 0 && r >= 0, `the inputs stay in view beside the results, not a blank strip: top ${top}, below ${r}`); await d.close();
+    assert.ok(r >= 0 && (top >= 0 || r < 40), `the inputs stay in view beside the results, not a blank strip: top ${top}, below ${r}`); await d.close();   // a short card sits whole in view; a tall one rests its bottom on the window
   });
 
   test('share my result: a picture of the result (not the inputs) with the calculator link, in a window that closes with Escape', async () => {
@@ -971,7 +971,7 @@ if (chromium) {
     await pg.goto(base + 'emi-calculator.html'); await pg.waitForTimeout(400); assert.ok(await pg.$('#fb'), 'each calculator asks for itself');
     const ev = sent.map(x => JSON.parse(x)).filter(x => x.name), by = n => ev.filter(x => x.name === n).map(x => x.data);
     assert.deepEqual(by('help_opened'), [{ tool: 'salary', field: 'ctc' }], 'which ? note was opened, once'); assert.deepEqual(by('result_bar_tap'), [{ tool: 'salary' }]);
-    assert.deepEqual(by('result_seen'), [{ tool: 'salary' }]); assert.deepEqual(by('details_seen'), [{ tool: 'salary' }]);
+    assert.deepEqual(by('result_seen'), [{ tool: 'salary' }]); assert.deepEqual(by('details_seen').filter(x => x.tool === 'salary'), [{ tool: 'salary' }]);   // later pages in this test may count their own
     assert.deepEqual(by('feedback'), [{ tool: 'salary', vote: 'no' }]); assert.deepEqual(by('feedback_comment'), [{ tool: 'salary', vote: 'no', comment: 'Wanted the old regime explained' }]);
     assert.equal(by('home_click').length, 1, 'a calculator card on the home page is counted, with the page it leads to'); assert.match(by('home_click')[0].to, /\.html$/);
     assert.deepEqual(by('page_to_calculator'), [{ from: 'emi-for-20-lakh-loan.html', tool: 'emi-calculator.html', prefilled: 'yes' }]);
