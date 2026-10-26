@@ -45,8 +45,8 @@ function ctcPage(Tax, lpa) {
   const idx = LPAS.indexOf(lpa), prev = LPAS[idx - 1], next = LPAS[idx + 1];
   const rp = prev ? Tax.salary({ ...BASE, ctc: prev * 1e5 }) : null, rn = next ? Tax.salary({ ...BASE, ctc: next * 1e5 }) : null;
   const pct = Math.round(b.inHandYear / ctc * 100), be = breakevenDeductions(Tax, r.gross);
-  const file = fileFor(lpa), title = `₹${lpa} LPA CTC In-Hand Salary (Monthly Take-Home) FY 2026-27`;
-  const desc = `Monthly in-hand salary for ₹${lpa} LPA CTC is about ${f(b.inHandMonth)} (${r.best} regime). See PF, tax, and old vs new regime breakdown for FY 2026-27.`;
+  const file = fileFor(lpa), title = `₹${lpa} LPA In-Hand Salary and Income Tax (FY 2026-27)`;
+  const desc = `₹${lpa} LPA CTC is about ${f(b.inHandMonth)} a month in hand. Income tax: ${b.tax >= 1 ? f(b.tax) + ' a year' : '₹0'} under the ${r.best} regime. See PF, tax and old vs new regime for FY 2026-27.`;
   const faq = [
     [`What is the in-hand salary for ₹${lpa} LPA?`, `On a ₹${lpa} lakh CTC, your monthly in-hand salary is about ${f(b.inHandMonth)} under the ${r.best} regime (${f(n.inHandMonth)} new vs ${f(o.inHandMonth)} old with only your PF under 80C), assuming 40% basic, PF on full basic, and Karnataka professional tax (${f(r.pt)} a year).`],
     [`How much income tax is payable on ₹${lpa} LPA?`, n.tax === 0 ? `Nothing under the new regime: taxable income of ${f(n.taxable)} is within the ₹12 lakh rebate limit. Under the old regime with only your own PF claimed under 80C, tax would be ${f(o.tax)}.` : `About ${f(n.tax)} a year under the new regime (taxable income ${f(n.taxable)}) and ${f(o.tax)} under the old regime with only your own PF claimed under 80C, including 4% cess.`],
