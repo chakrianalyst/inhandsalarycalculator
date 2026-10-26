@@ -116,7 +116,8 @@ test('abroad article', () => {
 });
 
 test('return to India article', () => {
-  const t = j => R.return(j).results.table[0], f = 'moving-back-to-india-money-checklist.html';
+  const ex = { retire: 150000, retireYear: 20000, indiaAssets: 3000000, lump: 2500000 };          // the article's example, which its links open
+  const t = j => R.return({ ...ex, ...j }).results.table[0], f = 'moving-back-to-india-money-checklist.html';
   expectIn(f, [crore(t({}).youBringHome), crore(t({}).youNeed), crore(-t({}).gap), crore(t({ jobCtc: 2500000, jobGap: 6 }).gap)]);
-  assert.equal(R.return({}).results.firstReadyInYears, 2);
+  assert.equal(R.return(ex).results.firstReadyInYears, 2);
 });

@@ -15,44 +15,46 @@
   <div class="container page-hero">
     <div class="crumbs"><a href="index.html">Home</a> › Return to India calculator</div>
     <h1>Return to India Calculator <span class="grad-text">when can you move back?</span></h1>
-    <p>Living abroad and thinking of coming home, or facing a move you did not plan? We work out what you would bring back after tax and costs, whether it covers the life you want in India, and what would close any gap.</p>
+    <p>Living abroad and thinking of coming home? Six questions, and you see whether your money covers the life you want in India, and when it will.</p>
   </div>
   <div class="container tool-layout">
     <section class="card" id="inputs" aria-label="Inputs">
-      <h2 class="card-title">🧳 Your life abroad</h2>
+      <h2 class="card-title">🧳 Your plan</h2>
       <div class="row-2">
-        <div class="field"><label for="age" data-help="Your age today, in years.">Your age</label><div class="input-wrap"><input type="number" id="age" value="36" min="22" max="65" step="1"><span class="suf">yrs</span></div></div>
-        <div class="field"><label for="country" data-help="The country you live and save in now.|It sets the currency and the usual tax on investment profits.">Where do you live?</label><select id="country"></select></div>
+        <div class="field"><label for="country" data-q="Where do you live now?" data-help="The country you live and save in now.|It sets the currency and the usual tax on investment profits.">Where do you live?</label><select id="country"></select></div>
+        <div class="field"><label for="age" data-q="Your age" data-help="Your age today, in years.">Your age</label><div class="input-wrap"><input type="number" id="age" value="36" min="22" max="65" step="1"><span class="suf">yrs</span></div></div>
       </div>
-      <div class="field"><label for="cash" id="cashL" data-help="The total today: bank balances, brokerage and mutual funds.|Not your retirement savings or your home.">Savings and investments you have there now</label><div class="input-wrap"><input id="cash" data-money value="250000" placeholder="0"></div></div>
-      <div class="field"><label for="saveYear" id="saveL" data-help="After tax and living costs, not counting your retirement contributions.">How much you save each year</label><div class="input-wrap"><input id="saveYear" data-money value="60000" placeholder="0"></div></div>
-      <div class="field"><label for="saveGrowth" data-help="Your raises and promotions: next year you save this much more than this year.|0% means a flat amount every year.">How fast your yearly saving grows</label><div class="input-wrap"><input type="number" id="saveGrowth" value="3" min="0" max="20" step="0.5"><span class="suf">% a year</span></div></div>
-      <div class="row-2">
-        <div class="field"><label for="retire" id="retireL" data-help="Money locked away for old age, such as a 401(k) in the US, an RRSP in Canada, a workplace pension in the UK or superannuation in Australia.|Enter 0 if you have none.">Retirement savings you already have there</label><div class="input-wrap"><input id="retire" data-money value="150000" placeholder="0"></div></div>
-        <div class="field"><label for="retireYear" id="retireYL" data-help="What goes into your retirement account each year: your share plus your employer’s.|Enter 0 if nothing goes in.">How much you add to them each year</label><div class="input-wrap"><input id="retireYear" data-money value="20000" placeholder="0"></div></div>
-      </div>
-      <div class="field"><label for="retireGrowth" data-help="It usually rises with your pay.|0% keeps it flat.">How fast that yearly amount grows</label><div class="input-wrap"><input type="number" id="retireGrowth" value="0" min="0" max="20" step="0.5"><span class="suf">% a year</span></div></div>
-      
-      <div class="field"><label for="indiaAssets" data-help="Bank accounts, mutual funds, PF, FDs, property you could sell.|It keeps growing while you are away.">What you already hold in India</label><div class="input-wrap"><span class="pre">₹</span><input id="indiaAssets" data-money data-words="iaWords" value="3000000" placeholder="0" aria-describedby="iaWords"></div><div class="words" id="iaWords"></div></div>
+      <div class="field"><label for="cash" data-q="Savings and investments you have there now" id="cashL" data-help="The total today: bank balances, brokerage and mutual funds.|Not your retirement accounts or your home: add retirement accounts under Other details.">Savings and investments you have there now</label><div class="input-wrap"><input id="cash" data-money value="250000" placeholder="0"></div></div>
+      <div class="field"><label for="saveYear" data-q="How much you save there each year" id="saveL" data-help="After tax and living costs, not counting your retirement contributions.">How much you save each year</label><div class="input-wrap"><input id="saveYear" data-money value="60000" placeholder="0"></div></div>
+      <div class="field"><label for="spend" data-q="Monthly spending you want in India" data-help="In today’s rupees.|Include rent or EMI, school fees, help at home, travel and healthcare.|We raise it every year by India’s inflation.">Monthly spending you want</label><div class="input-wrap"><span class="pre">₹</span><input id="spend" data-money data-words="spWords" value="150000" aria-describedby="spWords"></div><div class="words" id="spWords"></div><span class="hint at-return" id="spAt"></span></div>
+      <div class="field"><label for="jobCtc" data-q="Yearly CTC if you work in India" id="ctcL" data-help="The yearly CTC of a job you could take in India.|Leave 0 if you will not work.">Your yearly CTC if you work in India (today’s rupees)</label><div class="input-wrap"><span class="pre">₹</span><input id="jobCtc" data-money value="0" placeholder="0"></div><span class="hint" id="ctcHint"></span><span class="hint at-return" id="ctcAt"></span></div>
 
-      <h2 class="card-title" style="margin-top:8px">🇮🇳 Life in India</h2>
-      <div class="field"><label for="spend" data-help="In today’s rupees.|Include rent or EMI, school fees, help at home, travel and healthcare.|We raise it every year by India’s inflation.">Monthly spending you want</label><div class="input-wrap"><span class="pre">₹</span><input id="spend" data-money data-words="spWords" value="150000" aria-describedby="spWords"></div><div class="words" id="spWords"></div><span class="hint at-return" id="spAt"></span></div>
-      <div class="field"><label for="ctcBasis" data-help="Choose this first.|It decides how the amount below is read.">If you work in India: the package you enter below is</label><select id="ctcBasis"><option value="today" selected>Today’s money (we raise it)</option><option value="return">Pay in the year I return</option></select></div>
-      <div class="field"><label for="jobCtc" id="ctcL" data-help="The yearly CTC of a job you could take in India.|Leave 0 if you will not work.">Your yearly CTC if you work in India (today’s rupees)</label><div class="input-wrap"><span class="pre">₹</span><input id="jobCtc" data-money value="0" placeholder="0"></div><span class="hint" id="ctcHint">The package you could get if you took the job today. We raise it each year by the yearly raise below until you return, then take it through Indian tax. Leave 0 for no job.</span><span class="hint at-return" id="ctcAt"></span></div>
-      <div class="field"><label for="jobGap" data-help="Months with no salary while you look for work in India.|Counts only if you entered a package above.">Months to find a job after you return</label><div class="input-wrap"><input type="number" id="jobGap" value="0" min="0" max="36" step="1"><span class="suf">months</span></div></div>
-      <div class="field"><label for="jobGrowth" data-help="How much your India pay goes up each year.">Yearly raise in India</label><div class="input-wrap"><input type="number" id="jobGrowth" value="7" min="0" max="25" step="0.5"><span class="suf">% a year</span></div><span class="hint" id="raiseHint">Applies to your CTC from today, including the years before you return.</span></div>
+      <details class="grp" id="sec-more" style="margin-top:18px"><summary><div class="gi">⚙️</div><div class="gt">Other details<small>Retirement accounts, money in India, your job, life events, rupee and tax</small></div><span class="chev">›</span></summary><div class="grp-body"><div class="nw-groups">
+      <details class="grp" id="sec-money"><summary><div class="gi">💰</div><div class="gt">More of your money<small>Retirement accounts abroad, money in India, growing savings</small></div><span class="chev">›</span></summary><div class="grp-body">
       <div class="row-2">
+        <div class="field"><label for="retire" id="retireL" data-help="Money locked away for old age, such as a 401(k) in the US, an RRSP in Canada, a workplace pension in the UK or superannuation in Australia.|Enter 0 if you have none.">Retirement savings you already have there</label><div class="input-wrap"><input id="retire" data-money value="0" placeholder="0"></div></div>
+        <div class="field"><label for="retireYear" id="retireYL" data-help="What goes into your retirement account each year: your share plus your employer’s.|Enter 0 if nothing goes in.">How much you add to them each year</label><div class="input-wrap"><input id="retireYear" data-money value="0" placeholder="0"></div></div>
+      </div>
+        <div class="field"><label for="retireGrowth" data-help="It usually rises with your pay.|0% keeps it flat.">How fast that yearly amount grows</label><div class="input-wrap"><input type="number" id="retireGrowth" value="0" min="0" max="20" step="0.5"><span class="suf">% a year</span></div></div>
+        <div class="field"><label for="indiaAssets" data-help="Bank accounts, mutual funds, PF, FDs, property you could sell.|It keeps growing while you are away.">What you already hold in India</label><div class="input-wrap"><span class="pre">₹</span><input id="indiaAssets" data-money data-words="iaWords" value="0" placeholder="0" aria-describedby="iaWords"></div><div class="words" id="iaWords"></div></div>
+        <div class="field"><label for="saveGrowth" data-help="Your raises and promotions: next year you save this much more than this year.|0% means a flat amount every year.">How fast your yearly saving grows</label><div class="input-wrap"><input type="number" id="saveGrowth" value="3" min="0" max="20" step="0.5"><span class="suf">% a year</span></div></div>
+      </div></details>
+      <details class="grp" id="sec-job"><summary><div class="gi">🧑‍💼</div><div class="gt">Work in India<small>How the package is read, job search, raises, PF, a partner’s pay</small></div><span class="chev">›</span></summary><div class="grp-body">
+        <div class="field"><label for="ctcBasis" data-help="Choose this first.|It decides how the amount below is read.">If you work in India: the package you enter below is</label><select id="ctcBasis"><option value="today" selected>Today’s money (we raise it)</option><option value="return">Pay in the year I return</option></select></div>
+        <div class="field"><label for="jobGap" data-help="Months with no salary while you look for work in India.|Counts only if you entered a package above.">Months to find a job after you return</label><div class="input-wrap"><input type="number" id="jobGap" value="0" min="0" max="36" step="1"><span class="suf">months</span></div></div>
+        <div class="field"><label for="jobGrowth" data-help="How much your India pay goes up each year.">Yearly raise in India</label><div class="input-wrap"><input type="number" id="jobGrowth" value="7" min="0" max="25" step="0.5"><span class="suf">% a year</span></div><span class="hint" id="raiseHint">Applies to your CTC from today, including the years before you return.</span></div>
+        <div class="row-2">
         <div class="field"><label for="workUntil" data-help="The age you stop working in India.">Work until age</label><div class="input-wrap"><input type="number" id="workUntil" value="60" min="40" max="75" step="1"><span class="suf">yrs</span></div></div>
         <div class="field"><label for="planEnd" data-help="How long your money must last.|Planning to 85 or 90 is safer than planning to 75.">Plan until age</label><div class="input-wrap"><input type="number" id="planEnd" value="85" min="65" max="100" step="1"><span class="suf">yrs</span></div></div>
       </div>
-      <div class="field"><label for="lump" data-help="Shipping, deposits, furniture, a car, a home down payment, and a few months without income.">One-time cost of settling back</label><div class="input-wrap"><span class="pre">₹</span><input id="lump" data-money value="2500000" placeholder="0"></div></div>
-      <div class="field"><label for="when" data-help="Pick a year to see its numbers in detail.|The table shows every year from now to 10 years away.">If you return in</label><select id="when"></select></div>
-
-      <details class="grp" id="sec-job"><summary><div class="gi">🧑‍💼</div><div class="gt">Job and life events<small>PF, a partner’s pay, school fees, a house</small></div><span class="chev">›</span></summary><div class="grp-body">
         <div class="field"><label for="countPf" data-help="Your PF and your employer’s (inside your CTC) and gratuity after five years, received when the job ends.|They are real savings the take-home figure leaves out.">Count my PF and gratuity as savings</label><select id="countPf"><option value="no" selected>No (cautious)</option><option value="yes">Yes, count them</option></select></div>
         <div class="field" id="fPf" hidden><label for="pfRate" data-help="The provident fund has paid around 8% in recent years.|Check the current rate.">PF interest rate</label><div class="input-wrap"><input type="number" id="pfRate" value="8" min="0" max="15" step="0.25"><span class="suf">% a year</span></div></div>
         <div class="field"><label for="partnerCtc" id="ptL" data-help="Read the same way as your own package above.|Their pay starts the year you return, grows by the yearly raise, and is taxed on their own.|Leave 0 if they will not work.|If they earn abroad now, add their savings to “how much you save each year” above.">Partner’s yearly CTC if they work in India (today’s rupees)</label><div class="input-wrap"><span class="pre">₹</span><input id="partnerCtc" data-money value="0" placeholder="0"></div><span class="hint at-return" id="ptAt"></span></div>
         <div class="field" id="fPtY" hidden><label for="partnerYears" data-help="How many years your partner works in India after you return.">Years your partner works after you return</label><div class="input-wrap"><input type="number" id="partnerYears" value="15" min="0" max="40" step="1"><span class="suf">years</span></div></div>
+      </div></details>
+      <details class="grp" id="sec-plan"><summary><div class="gi">🗓️</div><div class="gt">Your move and later costs<small>Cost of settling back, return year, school fees, a house</small></div><span class="chev">›</span></summary><div class="grp-body">
+        <div class="field"><label for="lump" data-help="Shipping, deposits, furniture, a car, a home down payment, and a few months without income.">One-time cost of settling back</label><div class="input-wrap"><span class="pre">₹</span><input id="lump" data-money value="0" placeholder="0"></div></div>
+        <div class="field"><label for="when" data-help="Pick a year to see its numbers in detail.|The table shows every year from now to 10 years away.">If you return in</label><select id="when"></select></div>
         <p class="grp-hint" style="margin:6px 0 10px">Costs that change your spending later, such as school fees or a house down payment. Amounts are in today’s rupees and grow with inflation. A cost before the age you return is ignored.</p>
         <div class="field"><label for="ev1Kind" data-help="A big cost later in life, such as school fees, a wedding or a home down payment.|Pick “None” to skip it.">Life event 1</label><select id="ev1Kind"><option value="" selected>None</option><option value="once">One-time cost</option><option value="monthly">Monthly cost for some years</option></select></div>
         <div id="evF1" hidden><div class="field"><label for="ev1Amt" id="ev1AmtL" data-help="In today’s rupees. We raise it with inflation.">Amount (today’s rupees)</label><div class="input-wrap"><span class="pre">₹</span><input id="ev1Amt" data-money value="0" placeholder="0"></div></div>
@@ -84,22 +86,26 @@
           <div class="field"><label for="retireTax" data-help="Tax you expect to pay when you take money out of the retirement accounts.">Tax when you take the money out</label><div class="input-wrap"><input type="number" id="retireTax" value="25" min="0" max="50" step="1"><span class="suf">%</span></div></div></div>
         <div class="field" id="fPen"><label for="penalty" data-help="The US charges 10% before age 59½.|Check the rule for your country.">Penalty for cashing out early</label><div class="input-wrap"><input type="number" id="penalty" value="10" min="0" max="50" step="1"><span class="suf">%</span></div></div>
       </div></details>
+      </div></div></details>
     </section>
 
     <section class="results" aria-live="polite">
       <div class="chips when-chips" id="whenChips" role="group" aria-label="When you return"><span class="chips-l">Return</span><button type="button" class="chip" data-w="0">Now</button><button type="button" class="chip" data-w="1">1 yr</button><button type="button" class="chip" data-w="2">2 yrs</button><button type="button" class="chip" data-w="3">3 yrs</button><button type="button" class="chip" data-w="4">4 yrs</button><button type="button" class="chip" data-w="5">5 yrs</button></div>
       <div class="hero-result" id="hero"><div class="lbl" id="hLbl">If you return now</div><div class="big" id="hBig">—</div><div class="sub" id="hSub"></div><span class="pill" id="hPill"></span></div>
       <div class="warns" id="warns"></div>
-      <div class="card fix-card" id="fix" hidden><h2 class="card-title" id="fixT"></h2><p class="grp-hint" style="margin-top:0">Any one of these is enough on its own. Tap one to try it.</p><div id="fixL"></div></div>
-      <div class="card" style="margin-bottom:18px"><h2 class="card-title" id="kpiHead"></h2><ul class="facts" id="kpis"></ul></div>
-      <div class="nudge" id="nudge" hidden></div>
-      <div class="card" style="margin-bottom:18px"><h2 class="card-title">📈 What you have vs what you need</h2><p class="grp-hint" style="margin-top:0">For each year you could return, the money you would bring home (after tax and costs) against the money you need to live the life you want until the end of your plan.</p><div id="chart"></div></div>
-      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🗓️ Year by year</h2><div class="tbl-wrap"><table class="tbl ret-yr" id="yrTbl"></table></div></div>
-      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🧮 What you bring home</h2><div class="tbl-wrap"><table class="tbl" id="homeTbl"></table></div></div>
-      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🎯 What would change it</h2><div id="tips"></div></div>
-      <div class="card" style="margin-bottom:18px"><h2 class="card-title">📉 What if markets fall just before you return?</h2><p class="grp-hint" style="margin-top:0">The same year if your investments abroad and retirement accounts were worth less on the day you convert them. Your money in India and your spending do not change.</p><div class="tbl-wrap"><table class="tbl" id="shock"></table></div></div>
-      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🎲 How sure is this?</h2><p class="grp-hint" style="margin-top:0">The same year with cautious and optimistic versions of your growth settings (returns, inflation, the rupee and raises each move a few points together). These spreads are illustrations, not forecasts.</p><div class="tbl-wrap"><table class="tbl" id="range"></table></div></div>
-      <div class="card" style="margin-bottom:18px"><h2 class="card-title">🎚️ What if the rupee and spending move?</h2><p class="grp-hint" style="margin-top:0">Surplus or gap in the year you picked, for a different rupee weakness (rows) and different monthly spending (columns). Green: your money covers it.</p><div class="tbl-wrap"><table class="tbl" id="grid"></table></div><p class="cap" id="gridNote"></p></div>
+      <div class="card" style="margin-bottom:18px"><h2 class="card-title">💡 Good to know</h2>
+        <div class="fix-card" id="fix" hidden><p class="grp-hint" id="fixT" style="margin-top:0"></p><div id="fixL"></div></div>
+        <ul class="facts" id="kpis"></ul></div>
+      <details class="grp" id="sec-details" style="margin-bottom:18px"><summary><div class="gi">📊</div><div class="gt">Show the full breakdown<small>Year by year, what you bring home, what if markets or the rupee move</small></div><span class="chev">›</span></summary><div class="grp-body">
+        <div class="sub-h" style="margin-top:16px">What you have vs what you need</div><div style="margin-top:12px"><p class="grp-hint" style="margin-top:0">For each year you could return, the money you would bring home (after tax and costs) against the money you need to live the life you want until the end of your plan.</p><div id="chart"></div></div>
+        <div class="sub-h" style="margin-top:16px">Year by year</div><div style="margin-top:12px"><div class="tbl-wrap"><table class="tbl ret-yr" id="yrTbl"></table></div></div>
+        <div class="sub-h" style="margin-top:16px">What you bring home</div><div style="margin-top:12px"><div class="tbl-wrap"><table class="tbl" id="homeTbl"></table></div></div>
+        <div class="sub-h" style="margin-top:16px">What would change it</div><div style="margin-top:12px"><div id="tips"></div></div>
+        <div class="sub-h" style="margin-top:16px">What if markets fall just before you return?</div><div style="margin-top:12px"><p class="grp-hint" style="margin-top:0">The same year if your investments abroad and retirement accounts were worth less on the day you convert them. Your money in India and your spending do not change.</p><div class="tbl-wrap"><table class="tbl" id="shock"></table></div></div>
+        <div class="sub-h" style="margin-top:16px">How sure is this?</div><div style="margin-top:12px"><p class="grp-hint" style="margin-top:0">The same year with cautious and optimistic versions of your growth settings (returns, inflation, the rupee and raises each move a few points together). These spreads are illustrations, not forecasts.</p><div class="tbl-wrap"><table class="tbl" id="range"></table></div></div>
+        <div class="sub-h" style="margin-top:16px">What if the rupee and spending move?</div><div style="margin-top:12px"><p class="grp-hint" style="margin-top:0">Surplus or gap in the year you picked, for a different rupee weakness (rows) and different monthly spending (columns). Green: your money covers it.</p><div class="tbl-wrap"><table class="tbl" id="grid"></table></div><p class="cap" id="gridNote"></p></div>
+        <div class="nudge" id="nudge" hidden style="margin-top:16px"></div>
+      </div></details>
       <div class="banner info"><span>ℹ️</span><span>This is a planning tool, not tax advice. Your tax status in India changes when you return, and rules on foreign assets, bank accounts and disclosure apply. Confirm the details with a tax professional before you move.</span></div>
     </section>
   </div>
@@ -147,7 +153,7 @@
   Common.init('return');
   const $ = id => document.getElementById(id), f = Common.fmt, num = Common.num, cr = Common.fmtCompact, C = Abroad.COUNTRIES;
   const IN = new Intl.NumberFormat('en-IN');
-  const DEF = { US: [250000, 60000, 150000, 20000, 25, 10], CA: [300000, 70000, 120000, 15000, 25, 0], UK: [150000, 40000, 100000, 12000, 25, 25], AU: [300000, 60000, 200000, 0, 15, 0], SG: [300000, 70000, 0, 0, 0, 0], AE: [800000, 250000, 0, 0, 0, 0], DE: [200000, 40000, 0, 0, 0, 0] };
+  const DEF = { US: [250000, 60000, 0, 0, 25, 10], CA: [300000, 70000, 0, 0, 25, 0], UK: [150000, 40000, 0, 0, 25, 25], AU: [300000, 60000, 0, 0, 15, 0], SG: [300000, 70000, 0, 0, 0, 0], AE: [800000, 250000, 0, 0, 0, 0], DE: [200000, 40000, 0, 0, 0, 0] };
   $('country').innerHTML = Object.entries(C).map(([k, c]) => `<option value="${k}">${c.name}</option>`).join('');
   $('when').innerHTML = Array.from({ length: 11 }, (_, i) => `<option value="${i}">${i === 0 ? 'Now' : i + (i === 1 ? ' year' : ' years')}</option>`).join('');
   function applyCountry() {
@@ -165,20 +171,21 @@
 
   function calc() {
     const k = $('country').value, c = C[k], P = params(), W = [];
-    ['cashL', 'saveL', 'retireL', 'retireYL'].forEach((id, i) => { $(id).textContent = [`Savings and investments you have there now (${c.cur})`, `How much you save each year (${c.cur})`, `Retirement savings you already have there (${c.cur})`, `How much you add to them each year (${c.cur})`][i]; });
+    $('cashL').dataset.q = `Savings and investments you have there now (${c.cur})`; $('saveL').dataset.q = `How much you save there each year (${c.cur})`;
+    $('ctcL').dataset.q = 'Yearly CTC if you work in India' + ($('ctcBasis').value === 'return' ? ' (pay in the year you return)' : ' (today’s rupees)');
+    $('retireL').textContent = `Retirement savings you already have there (${c.cur})`; $('retireYL').textContent = `How much you add to them each year (${c.cur})`;
+    [...document.querySelectorAll('#inputs [data-q]')].forEach((l, i) => { l.textContent = `${i + 1}. ${l.dataset.q}`; });
     $('fxL').textContent = `Exchange rate (₹ per ${c.cur})`; $('fPen').hidden = $('retMode').value !== 'withdraw';
-    if (!(P.spend > 0)) { $('hBig').textContent = '—'; $('hSub').textContent = ''; $('hPill').textContent = ''; $('kpis').innerHTML = ''; $('kpiHead').textContent = ''; $('warns').innerHTML = '<div class="warn"><span>⚠️</span><span>Enter the monthly spending you want in India.</span></div>'; return; }
+    if (!(P.spend > 0)) { $('hBig').textContent = '—'; $('hSub').textContent = ''; $('hPill').textContent = ''; $('kpis').innerHTML = ''; $('fix').hidden = true; $('warns').innerHTML = '<div class="warn"><span>⚠️</span><span>Enter the monthly spending you want in India.</span></div>'; return; }
     const A = Returning.analyse(P, 10), sel = +$('when').value, S = A.rows[sel], income = S.income, rows = A.rows;
     const first = A.firstReady;
     const whenTxt = r => r === 0 ? 'now' : 'in ' + r + (r === 1 ? ' year' : ' years');
     $('hLbl').textContent = sel === 0 ? 'If you return now' : `If you return ${whenTxt(sel)} (age ${S.age})`;
     $('hBig').textContent = S.ready ? `${cr(S.gap)} to spare` : `Short by ${cr(-S.gap)}`;
-    $('hSub').textContent = S.ready ? `You would bring home about ${cr(S.corpus)} and need about ${cr(S.need)} for ${f(P.spend)} a month to age ${P.planEnd}.`
-      : `You would bring home about ${cr(S.corpus)} but need about ${cr(S.need)} for ${f(P.spend)} a month to age ${P.planEnd}.`;
+    $('hSub').textContent = `You’d bring home ${cr(S.corpus)}. You need ${cr(S.need)}.`;
     document.querySelectorAll('#whenChips .chip').forEach(b => { const on = +b.dataset.w === sel; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
     const T = Returning.todayToReturn(P, sel), fromReturn = P.ctcBasis === 'return';
-    $('ctcL').textContent = fromReturn ? 'Your yearly CTC if you work in India (as of the year you return)' : 'Your yearly CTC if you work in India (today’s rupees)';
-    $('ctcHint').textContent = fromReturn ? 'What you would be paid in the year you return. We raise it each year after that by the yearly raise below, then take it through Indian tax. Leave 0 for no job.' : 'The package you could get if you took the job today. We raise it each year by the yearly raise below until you return, then take it through Indian tax. Leave 0 for no job.';
+    $('ctcHint').textContent = 'Leave 0 if you will not work. We take it through Indian tax.';
     $('raiseHint').textContent = fromReturn ? 'Applies to your CTC from the year you return.' : 'Applies to your CTC from today, including the years before you return.';
     $('fPf').hidden = P.countPf !== 'yes'; $('fPtY').hidden = !(P.partnerCtc > 0);
     const yrs = `${sel} ${sel === 1 ? 'year' : 'years'}`, g1 = 1 + P.jobGrowth / 100;
@@ -191,7 +198,7 @@
     const drift = Returning.rupeeDriftFromInflation(P.infl, c.infl);
     $('depSug').textContent = `Inflation gap guide: India ${P.infl}% minus ${c.name} ${c.infl}% suggests about ${drift}% a year. A rough guide only: exchange rates do not always follow inflation.`;
     const ub = $('useDrift'); ub.dataset.v = drift; ub.textContent = `Use ${drift}%`; ub.hidden = P.dep === drift;          // one button that stays in place, so a tap is never lost when the page recalculates as a field loses focus
-    $('hPill').textContent = first === null ? 'Not affordable within the next 10 years at this spending' : first === 0 ? 'You can afford to return now' : `Earliest you can afford it: in ${first} ${first === 1 ? 'year' : 'years'} (age ${rows[first].age})`;
+    $('hPill').textContent = first === null ? 'Not affordable within the next 10 years at this spending' : first === 0 ? 'You can afford to return now' : `You can afford it in ${first} ${first === 1 ? 'year' : 'years'} (age ${rows[first].age})`;
     if (P.retireMode === 'leave' && P.retire > 0 && P.retireAge >= P.planEnd) W.push('Your retirement accounts are not used before the end of your plan, so they do not help.');
     if (P.retAbroad > P.retIndia + 3) W.push('You expect a much higher return abroad than in India. Check this, as it favours staying abroad.');
     if (P.jobCtc > 0 && P.workUntil <= P.age) W.push('Work-until age is before your return, so no job income is counted.');
@@ -200,7 +207,6 @@
     P.events.forEach((e, i) => { if (e.kind === 'monthly' && e.to <= e.from) W.push(`Life event ${i + 1} ends before it starts, so it is not counted.`); });
     $('warns').innerHTML = W.map(w => `<div class="warn"><span>⚠️</span><span>${w}</span></div>`).join('');
     const mx = Returning.maxSpend(P, sel, income);
-    $('kpiHead').textContent = `${sel === 0 ? 'If you return now' : 'If you return in ' + sel + (sel === 1 ? ' year' : ' years')} (age ${S.age})`;
     // what closes the gap: any one of these on its own makes the chosen year work
     $('fix').hidden = S.ready;
     if (!S.ready) {
@@ -210,7 +216,7 @@
       if (need !== null && need > 0) { const c2 = upTo(need, need < 300000 ? 10000 : 50000), basis = P.ctcBasis === 'return' ? 'pay in the year you return' : 'in today’s money';
         opts.push({ t: P.jobCtc > 0 ? `<b>Earn about ${f(c2)} a year</b> in India (${basis}) instead of ${f(P.jobCtc)}, until age ${P.workUntil}.` : `<b>Work in India at about ${f(c2)} a year</b> (${basis}) until age ${P.workUntil}${P.jobGap > 0 ? `, after ${P.jobGap} months of looking` : ''}.`, act: 'jobCtc', v: c2 }); }
       if (first !== null && first > sel) opts.push({ t: `<b>Return ${whenTxt(first)}</b> instead (age ${rows[first].age}). By then you would bring home about ${cr(rows[first].corpus)}.`, act: 'when', v: first });
-      $('fixT').textContent = `How to close the ${cr(-S.gap)} gap`;
+      $('fixT').textContent = `How to close the ${cr(-S.gap)} gap. Any one of these is enough on its own:`;
       const fixHtml = opts.length ? opts.map(o => `<div class="fix-row"><p>${o.t}</p><button type="button" class="btn btn-ghost btn-sm" data-act="${o.act}" data-v="${o.v}">Try it</button></div>`).join('')
         : '<p style="margin:0">None of the usual levers closes it on its own. Try a mix: a lower monthly spend together with a job in India, or more years abroad.</p>';
       if (fixHtml !== lastFix) { $('fixL').innerHTML = fixHtml; lastFix = fixHtml; }   // redraw only when the options change, so a tap right after editing a field is not lost
@@ -221,12 +227,12 @@
       actions: [{ label: 'Check with the SWP calculator', to: 'swp-calculator.html', note: 'No job income, rent or one-off costs are included there.',
         data: { corpus: Math.round(S.corpus), wd: wdR, step: P.infl, ret: P.retIndia, yrs: Math.round(P.planEnd - S.age) } }]
     });
+    const missing = [!(P.indiaAssets > 0) && 'money you already hold in India', !(P.retire > 0) && DEF[k][4] > 0 && 'retirement accounts abroad', !(P.lump > 0) && 'the one-time cost of settling back (shipping, deposits, a car)'].filter(Boolean);
     $('kpis').innerHTML = [
-      `You bring home <b>${cr(S.corpus)}</b>, after tax, costs and the move.`,
-      `You need <b>${cr(S.need)}</b> to spend ${f(P.spend)} a month (in today’s money) until age ${P.planEnd}.` + (S.ready ? ` That leaves <b>${cr(S.gap)}</b> to spare.` : ` You are short by <b>${cr(-S.gap)}</b>.`),
       S.runwayEnd === null ? `Without a job, your money lasts <b>to the end of your plan</b>, beyond age ${P.planEnd}.` : `Without a job, your money lasts <b>${S.runwayYears} ${S.runwayYears === 1 ? 'year' : 'years'}</b>, until age ${S.runwayEnd}.`,
-      `The most you could spend and still make it is about <b>${f(mx)} a month</b>, in today’s money.`
-    ].map(x => `<li>${x}</li>`).join('');
+      S.ready ? `The most you could spend and still make it is about <b>${f(mx)} a month</b>, in today’s money.` : '',
+      missing.length ? `Not counted yet: ${missing.length > 1 ? missing.slice(0, -1).join(', ') + ' and ' + missing[missing.length - 1] : missing[0]}. Add ${missing.length > 1 ? 'them' : 'it'} under Other details: ${missing.length > 1 ? 'they often change' : 'it often changes'} the answer a lot.` : ''
+    ].filter(Boolean).map(x => `<li>${x}</li>`).join('');
     Common.lineChart($('chart'), { xs: rows.map(r => r.r), xfmt: v => v === 0 ? 'Now' : v + 'y', xlabel: v => v === 0 ? 'Return now' : 'Return in ' + v + (v === 1 ? ' year' : ' years'), label: 'Money you bring home vs money you need', area: true,
       series: [{ name: 'You bring home', color: 'var(--c1)', ys: rows.map(r => r.corpus) }, { name: 'You need', color: 'var(--c4)', dash: true, ys: rows.map(r => r.need) }], markers: first !== null ? [{ x: first, label: '🛬' }] : [] });
     $('yrTbl').innerHTML = '<tr><th>Return</th><th>Your age</th><th>You bring home</th><th>You need</th><th>Surplus or gap</th><th></th></tr>' + rows.map(r => `<tr class="${r.r === sel ? 'sel' : ''}"><td>${r.r === 0 ? 'Now' : 'In ' + r.r + (r.r === 1 ? ' year' : ' years')}<small class="ph-only">Age ${r.age}</small></td><td>${r.age}</td><td>${cr(r.corpus)}</td><td>${cr(r.need)}</td><td class="${r.gap >= 0 ? 'pos' : 'neg'}">${sgn(r.gap)}</td><td class="${r.ready ? 'pos' : ''}">${r.ready ? '✓ Ready' : 'Not yet'}</td></tr>`).join('');
