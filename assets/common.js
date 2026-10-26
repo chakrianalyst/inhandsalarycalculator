@@ -57,7 +57,7 @@ const Common = (() => {
   function layout(activeId) {
     const HOME = location.protocol === 'file:' ? 'index.html' : '/';                    // the published site links home to rupeecheck.in/ itself
     if (location.protocol !== 'file:' && /\/index\.html$/.test(location.pathname) && history.replaceState) history.replaceState(null, '', location.pathname.replace(/index\.html$/, '') + location.search + location.hash);
-    const POPULAR = ['salary', 'sip', 'emi', 'fd', 'hra', 'return'];                        // shown in the bar on wide screens; everything is under "All tools"
+    const POPULAR = ['salary', 'return', 'sip', 'emi', 'fd', 'fire'];                        // shown in the bar on wide screens; everything is under "All tools"
     const links = TOOLS.map(t => `<a href="${t.href}" class="${t.id === activeId ? 'active' : ''}">${t.name}</a>`).join('');
     const quick = POPULAR.map(id => TOOLS.find(t => t.id === id)).filter(Boolean).map(t => `<a href="${t.href}" class="${t.id === activeId ? 'active' : ''}">${t.short}</a>`).join('') + `<a href="articles.html" class="${activeId === 'articles' ? 'active' : ''}">Articles</a>`;
     const header = `
