@@ -805,3 +805,7 @@ table.tbl tr.sel td { background: var(--grad-soft); font-weight: 700; }
 .fb small { color: var(--muted); font-size: .78rem; }
 .fb .fb-acts { display: flex; gap: 8px; }
 .fb .fb-thanks { margin: 0; font-weight: 600; }
+/* A choice shown as a single quiet link: only the option not in use is visible */
+.mode-link { display: flex; justify-content: flex-end; background: none; border: 0; padding: 0; margin: -4px 0 6px; box-shadow: none; }
+.mode-link button { background: none !important; border: 0; box-shadow: none !important; color: var(--brand, #6d28d9); font-weight: 700; font-size: .86rem; padding: 4px 0; cursor: pointer; }
+.mode-link button.on { display: none; }
