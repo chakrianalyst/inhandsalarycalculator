@@ -346,7 +346,7 @@ if (chromium) {
     assert.equal(await pg.$('section[aria-label=Inputs] input[type=range]'), null, 'no sliders'); assert.equal(await pg.$$eval('section[aria-label=Inputs] .help-btn', x => x.length) >= 7, true, 'every question has ? help');
     assert.match(await txt('#styles'), /Lean[\s\S]*Regular[\s\S]*Fat/); assert.match(await txt('#coast'), /Coast|invested today/); assert.equal((await pg.$$('#grid tr')).length, 4);
     await pg.$eval('details.adv', e => (e.open = true)); await pg.fill('#pension', '30,000'); assert.match(await txt('#facts'), /need on the day you retire: ₹2\./);        // a ₹30,000 pension roughly halves the corpus
-    await pg.fill('#pension', '0'); await pg.fill('#sav', '2,00,000'); assert.match(await txt('#facts'), /on track to retire at 45/);
+    await pg.fill('#pension', '0'); await pg.fill('#sav', '2,00,000'); assert.match(await txt('#hero'), /On track to retire at 45, with ₹[\d.]+ Cr to spare/);
     assert.deepEqual(pg.errs, []); await pg.close();
   });
 
@@ -364,7 +364,7 @@ if (chromium) {
       const ls = (await T(pg, '#facts')).match(/(?:reaches|SIP is) (₹[\d,]+) a month/); if (ls) assert.equal(d(ls[1]), d(row[await col(pg, 'sip that year')]), 'last-year SIP matches the table ' + q); await pg.close();
     }
     for (const q of ['', '?sav=200000', '?retAge=50', '?exp=100000']) {
-      const pg = await open(SITE, 'fire-calculator.html' + q), reg = await pg.$$eval('#styles tr', r => r.map(x => x.innerText.split('\t')).find(x => /Regular/.test(x[0]))), num = (await T(pg, '#fPill')).match(/₹[\d.]+ (?:Cr|L)/)[0];
+      const pg = await open(SITE, 'fire-calculator.html' + q), reg = await pg.$$eval('#styles tr', r => r.map(x => x.innerText.split('\t')).find(x => /Regular/.test(x[0]))), num = (await T(pg, '#facts')).match(/FIRE number is[^₹]*(₹[\d.]+ (?:Cr|L))/)[1];
       assert.equal(reg[2], num, 'FIRE number matches the lean/fat table ' + q); assert.equal(reg[3], await T(pg, '#fBig'), 'earliest age matches the table ' + q); assert.ok((await T(pg, '#facts')).includes(num)); await pg.close();
     }
   });
@@ -839,7 +839,7 @@ if (chromium) {
   test('audit round 3: FIRE caption, FD tax from your income, abroad table adds up, salary old-regime label, HRA tip, home groups, life-sim assumptions', async () => {
     const fire = await open(SITE, 'fire-calculator.html'); await fire.waitForTimeout(250);
     assert.match(await fire.textContent('#chartCap'), /plan to retire at 45\. Your money would run out at about age 77\. Retiring at 48 instead makes it last to 90/);
-    assert.equal(await fire.textContent('#fPill'), 'Your FIRE number: ₹5.30 Cr to retire at 45', 'both answers sit in the result box, so the share picture carries them');
+    assert.equal(await fire.textContent('#fPill'), 'To retire at 45, invest ₹67,110 a month', 'the card has one age in the big number and the action for the age you asked about');
     await fire.click('.share-btn'); await fire.waitForSelector('.share-img[src^="data:"]'); await fire.close();
     const fd = await open(SITE, 'fd-calculator.html'); await fd.$eval('#sec-tax', e => (e.open = true)); const before = await fd.textContent('#facts');
     await fd.fill('#sal', '0'); await fd.waitForTimeout(200); assert.match(await fd.textContent('#facts'), /No tax on this interest: your income stays within the ₹12 lakh rebate/); assert.notEqual(await fd.textContent('#facts'), before);

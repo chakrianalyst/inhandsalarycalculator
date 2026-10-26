@@ -105,14 +105,13 @@
     $('fTitle').textContent = 'You can retire at';
     if (fireAge !== null) { $('fBig').textContent = 'Age ' + fireAge; $('fSub').textContent = fireAge <= age ? 'You are already financially independent 🎉' : `${fireAge - age} years from now, at your current savings pace.`; }
     else { $('fBig').textContent = 'After ' + Math.max(80, life - 1); $('fSub').textContent = 'Raise your monthly investing or lower your retirement spending to bring this forward.'; }
-    $('fPill').textContent = `Your FIRE number: ${cr(T)} to retire at ${ra}`;
+    $('fPill').textContent = ok ? `On track to retire at ${ra}, with ${cr(gap)} to spare` : sipNeed > 0 && isFinite(sipNeed) ? `To retire at ${ra}, invest ${f(sipNeed)} a month` : `To retire at ${ra}, you need ${cr(T)}`;   // one age in the big number; the tag answers the age you asked about
     if (num('retAge') <= age) W.push('Your retirement age must be after your current age. We used ' + ra + '.');
     if (P.post >= Q.pre) W.push('You expect a higher return after retiring than before. Most people shift to safer investments, which earn less.');
     $('warns').innerHTML = W.map(w => `<div class="warn"><span>⚠️</span><span>${w}</span></div>`).join('');
     $('facts').innerHTML = [
       `Your <b>FIRE number</b> is the money you need on the day you retire: <b>${cr(T)}</b> to retire at ${ra}. That is about ${cr(T / Math.pow(1 + infl, n))} in today’s prices, because your spending keeps rising with prices.`,
       ok ? `At your current pace you would have <b>${cr(projRA)}</b> at ${ra}: enough, with ${cr(gap)} to spare.` : `At your current pace you would have <b>${cr(projRA)}</b> at ${ra}, <b>${cr(-gap)} short</b>.`,
-      ok ? `You are on track to retire at ${ra}, and the money lasts beyond age ${life}.` : `To retire at ${ra}, invest about <b>${f(sipNeed)} a month</b> instead of ${f(Q.sav)}.`,
       `The ${Q.pre}% growth is an assumption, not a promise. Try a lower number to see a careful result.`
     ].map(x => `<li>${x}</li>`).join('');
     Common.lineChart($('chart'), { xs, xfmt: v => v, xlabel: v => 'Age ' + v, label: 'Corpus over time', area: true,
