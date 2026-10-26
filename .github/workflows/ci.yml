@@ -6,11 +6,11 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 20 }
-      - name: Tax engine tests
-        run: node --test tests/tax.test.js tests/tax-v2.test.js tests/lifesim.test.js tests/deposit.test.js tests/loan.test.js tests/invest.test.js tests/gratuity.test.js tests/hra.test.js tests/fire.test.js tests/rentbuy.test.js tests/abroad.test.js tests/returning.test.js tests/skill.test.js
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: 22 }
+      - name: Engine and article tests
+        run: npm test
       - name: Build site
         run: node scripts/build.js
       - name: Check SEO tags, links and structured data
