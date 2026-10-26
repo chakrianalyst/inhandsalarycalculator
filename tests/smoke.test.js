@@ -509,7 +509,7 @@ if (chromium) {
 
   test('articles: fit a phone, link to working prefilled calculators, and show the figures they quote', async () => {
     const arts = pagesOf(SITE).filter(f => /rc-article/.test(fs.readFileSync(path.join(SITE, f), 'utf8')));
-    assert.equal(arts.length, 16);
+    assert.equal(arts.length, 17);
     const links = new Set();
     for (const f of arts) {
       const pg = await open(SITE, f, 390);
@@ -525,6 +525,7 @@ if (chromium) {
     await shows('offer-comparison.html?n0=Bengaluru%20%E2%82%B920%20L&ctc0=2000000&var0=10&bonus0=0&esop0=0&rent0=28000&oth0=4000&n1=Mumbai%20%E2%82%B924%20L&ctc1=2400000&var1=20&rent1=45000&oth1=6000&hz=1&pay=60', '#facts', /ahead by ₹40,406/);
     await shows('offer-comparison.html?n0=Startup&ctc0=1800000&var0=0&bonus0=150000&esop0=400000&rent0=30000&oth0=4000&n1=Big%20company&ctc1=2200000&var1=10&bonus1=0&esop1=0&rent1=30000&oth1=4000&hz=4', '#facts', /Startup is ahead by ₹1,50,026/);
     await shows('salary-hike-calculator.html?ctc=1800000&hike=6', '.hero-result', /\+₹6,217/);
+    { const pg = await open(SITE, 'abroad-calculator.html?gross=120000&city=aus'); await pg.waitForTimeout(300); assert.equal(await pg.inputValue('#city'), 'aus'); assert.equal(await pg.inputValue('#rentA'), '1,800', 'the Texas example opens with Texas rent'); await pg.close(); }
     await shows('salary-hike-calculator.html?ctc=1360000&hmode=ctc&newctc=1440000', '.hero-result', /From ₹1,00,073 to ₹1,00,063 a month/);
     await shows('layoff-runway-calculator.html?inhand=75700&payout=270000&savings=200000&pf=300000&spend=50000&cut=38000&insurance=18000', '#kpis', /₹4\.70 L now/);
     await shows('layoff-runway-calculator.html?inhand=75700&payout=270000&savings=200000&pf=300000&spend=50000&cut=38000&insurance=18000', '#hero', /9 months[\s\S]*lasts 11 months/);
@@ -539,7 +540,7 @@ if (chromium) {
     await shows('salary-calculator.html?ctc=1400000&nps=10', 'body', /₹98,355/);
     await shows('gratuity-calculator.html?wage=40000&yrs=6&total=120000', '.hero-result', /₹2,07,692/);
     // the hub lists every article, the home page features eight, and each calculator links to its article
-    let pg = await open(SITE, 'articles.html'); assert.equal(await pg.$$eval('.art-card', x => x.length), 16); await pg.close();
+    let pg = await open(SITE, 'articles.html'); assert.equal(await pg.$$eval('.art-card', x => x.length), 17); await pg.close();
     pg = await open(SITE, 'index.html'); assert.equal(await pg.$$eval('#articles .art-card', x => x.length), 8); await pg.close();
     pg = await open(SITE, 'emi-calculator.html'); assert.equal(await pg.$eval('.read-card', e => e.getAttribute('href')), 'prepay-home-loan-or-invest.html'); await pg.close();
     pg = await open(SITE, 'offer-comparison.html'); assert.equal(await pg.$eval('.read-card', e => e.getAttribute('href')), 'compare-two-job-offers.html'); await pg.close();

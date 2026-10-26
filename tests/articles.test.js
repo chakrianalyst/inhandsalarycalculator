@@ -115,6 +115,19 @@ test('abroad article', () => {
     crore(a({ city: 'aus', rentA: 1800, otherA: 1500 }).abroadAheadBy), crore(a({ ctc: 2500000 }).abroadAheadBy)]);
 });
 
+test('US salary in rupees: the build figures match the engines, worked out a second way', () => {
+  const Abroad = require(path.join(ROOT, 'assets', 'abroad.js')), U = require(path.join(ROOT, 'scripts', 'usd-pages.js'));
+  const table = (h, rows) => JSON.stringify({ h, rows }), T = U.tokens(Tax, Abroad, table), f = 'us-salary-in-indian-rupees.html';
+  // $120,000 in Texas, by hand: federal tax on $103,900 = 1,240 + 4,560 + 11,770, Social Security 6.2%, Medicare 1.45%, no state tax
+  const fed = 0.10 * 12400 + 0.12 * (50400 - 12400) + 0.22 * (120000 - 16100 - 50400), net = (120000 - fed - 120000 * 0.062 - 120000 * 0.0145) / 12;
+  assert.equal(T['{{USD_120_TX_NET}}'], inr(net * 96)); assert.equal(T['{{USD_120_TX_SAVE}}'], inr((net - 1800 - 1500) * 96));
+  // the Indian CTC that saves as much: its in-hand pay, less ₹70,000 of costs, lands on the Texas saving
+  const ctc = parseFloat(T['{{USD_120_TX_CTC}}'].replace(/[^\d.]/g, '')) * 1e5, r = sal(ctc, { rentMonthly: 35000 });
+  assert.ok(Math.abs(r[r.best].inHandMonth - 70000 - (net - 3300) * 96) < 2000, 'CTC within ₹50,000 rounding of the target');
+  const h = read(f); for (const k of ['{{USD_TABLE}}', '{{USD_SAVE_TABLE}}', '{{USD_120_TX_NET}}', '{{USD_120_TX_SAVE}}', '{{USD_120_TX_CTC}}', '{{USD_120_NY_CTC}}']) assert.ok(h.includes(k), f + ' shows ' + k);
+  assert.ok(T['{{USD_SAVE_TABLE}}'].includes('spends more than it earns'), 'a salary that cannot cover New York costs is said plainly');
+});
+
 test('return to India article', () => {
   const ex = { retire: 150000, retireYear: 20000, indiaAssets: 3000000, lump: 2500000 };          // the article's example, which its links open
   const t = j => R.return({ ...ex, ...j }).results.table[0], f = 'moving-back-to-india-money-checklist.html';
