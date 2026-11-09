@@ -102,7 +102,7 @@ function hubPage(Tax) {
 <main>
   <div class="container page-hero"><div class="crumbs"><a href="index.html">Home</a> › Salary by CTC</div>
     <h1>In-Hand Salary by CTC <span class="grad-text">(₹3 – ₹50 LPA)</span></h1>
-    <p>Find your monthly take-home for any CTC. Click a row for the full breakdown, or use the <a href="salary-calculator.html">custom calculator</a>.</p></div>
+    <p>Find your monthly take-home for any CTC. Click a row for the full breakdown, or use the <a href="salary-calculator.html">custom calculator</a>. Know the monthly amount you want instead? See <a href="monthly-salary-to-lpa.html">what CTC gives that in-hand</a>.</p></div>
   <div class="container" style="max-width:880px"><div class="card"><div class="tbl-wrap"><table class="tbl">
     <tr><th>CTC</th><th>Monthly in-hand (new)</th><th>Monthly in-hand (old)</th><th>Yearly tax</th><th>Better</th></tr>${rows}</table></div>
     <p style="margin-top:14px;font-size:.85rem;color:var(--muted)">Assumes 40% basic, PF on full basic, gratuity inside CTC, ₹200 a month professional tax, metro city, and in the old regime no deductions other than your own PF under 80C and the standard deduction. Tax Year 2026-27 (FY 2026-27).</p></div></div>

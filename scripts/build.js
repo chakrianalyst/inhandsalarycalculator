@@ -64,6 +64,7 @@ tokens['{{SIP_TABLE}}'] = table(['Years', ...[8, 10, 12, 15].map(r => r + '% a y
 tokens['{{EMI_TABLE}}'] = table(['Interest rate', ...[1, 3, 5, 10, 15, 20].map(y => y + (y === 1 ? ' year' : ' years'))], [7, 8, 9, 10, 11, 12, 14, 15].map(r => [r + '%', ...[1, 3, 5, 10, 15, 20].map(y => '₹' + nf(Loan.emi(1e5, r, y * 12)))]));
 tokens['{{EMI_AMOUNT_LINKS}}'] = EMI.links();
 Object.assign(tokens, require('./usd-pages.js').tokens(Tax, require('../assets/abroad.js'), table));
+Object.assign(tokens, require('./offer-pages.js').tokens(Tax, table));
 tokens['{{CTC_CHART}}'] = table(['CTC', 'In hand a month', 'Share of CTC', 'Income tax a year'], [3, 5, 8, 10, 12, 15, 18, 20, 25, 30, 40, 50].map(l => { const r = Tax.salary({ ...CTC.BASE, ctc: l * 1e5 }), b = r[r.best];
   return [`<a href="${CTC.fileFor(l)}">₹${l} LPA</a>`, '₹' + nf(b.inHandMonth), Math.round(b.inHandYear / (l * 1e5) * 100) + '%', b.tax >= 1 ? '₹' + nf(b.tax) : 'Nil']; }));
 tokens['{{HRA_METROS}}'] = HRA.METROS_2026.join(', ');
