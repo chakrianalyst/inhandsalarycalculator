@@ -509,7 +509,7 @@ if (chromium) {
 
   test('articles: fit a phone, link to working prefilled calculators, and show the figures they quote', async () => {
     const arts = pagesOf(SITE).filter(f => /rc-article/.test(fs.readFileSync(path.join(SITE, f), 'utf8')));
-    assert.equal(arts.length, 17);
+    assert.equal(arts.length, 19);
     const links = new Set();
     for (const f of arts) {
       const pg = await open(SITE, f, 390);
@@ -540,7 +540,7 @@ if (chromium) {
     await shows('salary-calculator.html?ctc=1400000&nps=10', 'body', /₹98,355/);
     await shows('gratuity-calculator.html?wage=40000&yrs=6&total=120000', '.hero-result', /₹2,07,692/);
     // the hub lists every article, the home page features eight, and each calculator links to its article
-    let pg = await open(SITE, 'articles.html'); assert.equal(await pg.$$eval('.art-card', x => x.length), 17); await pg.close();
+    let pg = await open(SITE, 'articles.html'); assert.equal(await pg.$$eval('.art-card', x => x.length), 19); await pg.close();
     pg = await open(SITE, 'index.html'); assert.equal(await pg.$$eval('#articles .art-card', x => x.length), 8); await pg.close();
     pg = await open(SITE, 'emi-calculator.html'); assert.equal(await pg.$eval('.read-card', e => e.getAttribute('href')), 'prepay-home-loan-or-invest.html'); await pg.close();
     pg = await open(SITE, 'offer-comparison.html'); assert.equal(await pg.$eval('.read-card', e => e.getAttribute('href')), 'compare-two-job-offers.html'); await pg.close();
@@ -1019,7 +1019,8 @@ if (chromium) {
   });
 
   test('Layoff runway: four questions, months in the hero, settlement after tax, spending less, PF as a last resort, old and new share links', async () => {
-    const pg = await open(SITE, 'layoff-runway-calculator.html', 390); const txt = sel => pg.$eval(sel, e => e.innerText.replace(/\s+/g, ' '));
+    const pg = await open(SITE, 'layoff-runway-calculator.html', 390); await pg.clock.setFixedTime(new Date('2026-10-15T12:00:00')); await pg.reload(); await pg.waitForTimeout(150);   // the tax on the payout depends on the month, so the expected figures are for October
+    const txt = sel => pg.$eval(sel, e => e.innerText.replace(/\s+/g, ' '));
     assert.deepEqual(await pg.$$eval('#inputs label[data-q]', ls => ls.map(l => l.textContent)), ['1. What is your monthly salary after tax?', '2. How much severance will you get, in total?', '3. What are your monthly expenses, including EMIs?', '4. What are your current savings?']);
     assert.equal(await pg.$eval('#sec-more', d => d.open), false, 'other details start closed'); assert.equal(await pg.$eval('#sec-details', d => d.open), false, 'breakdown starts closed');
     assert.match(await txt('#hero'), /Your money lasts 9 months Covers a 6-month job search with 3 months to spare/); assert.doesNotMatch(await txt('#hero'), /20\d\d/, 'no date in the hero');

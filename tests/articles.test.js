@@ -128,6 +128,18 @@ test('US salary in rupees: the build figures match the engines, worked out a sec
   assert.ok(T['{{USD_SAVE_TABLE}}'].includes('spends more than it earns'), 'a salary that cannot cover New York costs is said plainly');
 });
 
+test('offer-letter guides: PF choice and in-hand to CTC, worked out a second way', () => {
+  const O = require(path.join(ROOT, 'scripts', 'offer-pages.js')), T = O.tokens(Tax, (h, rows) => JSON.stringify(rows));
+  // ₹20 L CTC by hand: basic 8 L, HRA 4 L, gratuity 4.81% of basic, new regime with the ₹75,000 standard deduction and 4% cess
+  const slab = x => [[400000, 0], [800000, .05], [1200000, .10], [1600000, .15], [2000000, .20], [2400000, .25], [Infinity, .30]].reduce((a, [hi, r], i, A) => { const lo = i ? A[i - 1][0] : 0; return a + Math.max(0, Math.min(x, hi) - lo) * r; }, 0) * 1.04;
+  const hand = empPf => { const gross = 2000000 - empPf - 38480; return (gross - empPf - 2400 - slab(gross - 75000)) / 12; };
+  assert.equal(T['{{PF_20_FULL}}'], inr(hand(96000))); assert.equal(T['{{PF_20_CAP}}'], inr(hand(21600)));
+  assert.equal(T['{{PF_20_LESS}}'], inr(2 * (96000 - 21600)), 'both shares of PF');
+  for (const m of O.TARGETS) { const c = O.ctcFor(Tax, m), at = x => { const r = sal(x); return r[r.best].inHandMonth; };
+    assert.ok(at(c) >= m - 1 && at(c - 5000) < m, `₹${m} a month needs ${c}`); }
+  for (const f of ['pf-12-percent-vs-fixed-1800.html', 'monthly-salary-to-lpa.html']) assert.ok(/\{\{(PF|LPA)_TABLE\}\}/.test(read(f)), f + ' shows its table');
+});
+
 test('return to India article', () => {
   const ex = { retire: 150000, retireYear: 20000, indiaAssets: 3000000, lump: 2500000 };          // the article's example, which its links open
   const t = j => R.return({ ...ex, ...j }).results.table[0], f = 'moving-back-to-india-money-checklist.html';
