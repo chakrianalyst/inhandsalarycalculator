@@ -509,7 +509,7 @@ if (chromium) {
 
   test('articles: fit a phone, link to working prefilled calculators, and show the figures they quote', async () => {
     const arts = pagesOf(SITE).filter(f => /rc-article/.test(fs.readFileSync(path.join(SITE, f), 'utf8')));
-    assert.equal(arts.length, 19);
+    assert.equal(arts.length, 22);
     const links = new Set();
     for (const f of arts) {
       const pg = await open(SITE, f, 390);
@@ -540,7 +540,7 @@ if (chromium) {
     await shows('salary-calculator.html?ctc=1400000&nps=10', 'body', /₹98,355/);
     await shows('gratuity-calculator.html?wage=40000&yrs=6&total=120000', '.hero-result', /₹2,07,692/);
     // the hub lists every article, the home page features eight, and each calculator links to its article
-    let pg = await open(SITE, 'articles.html'); assert.equal(await pg.$$eval('.art-card', x => x.length), 19); await pg.close();
+    let pg = await open(SITE, 'articles.html'); assert.equal(await pg.$$eval('.art-card', x => x.length), 22); await pg.close();
     pg = await open(SITE, 'index.html'); assert.equal(await pg.$$eval('#articles .art-card', x => x.length), 8); await pg.close();
     pg = await open(SITE, 'emi-calculator.html'); assert.equal(await pg.$eval('.read-card', e => e.getAttribute('href')), 'prepay-home-loan-or-invest.html'); await pg.close();
     pg = await open(SITE, 'offer-comparison.html'); assert.equal(await pg.$eval('.read-card', e => e.getAttribute('href')), 'compare-two-job-offers.html'); await pg.close();
