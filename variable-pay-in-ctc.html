@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Variable Pay in CTC: How Much You Actually Get, After Tax | {{SITE_NAME}}</title>
+<meta name="description" content="On a ₹20 LPA CTC with 15% variable pay, your fixed in-hand is {{VP_20_FIXED}} a month, and the ₹3 lakh variable is about {{VP_20_AFTER}} after tax if paid in full. See every CTC.">
+<meta name="rc-article" content="salary" data-group="pay" data-icon="🎯" data-date="2026-11-11">
+<link rel="canonical" href="https://inhand.example/variable-pay-in-ctc.html">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main>
+  <header class="container art-hero">
+    <div class="crumbs"><a href="index.html">Home</a> › <a href="articles.html">Articles</a> › Salary &amp; tax</div>
+    <span class="kicker">🎯 Salary &amp; tax</span>
+    <h1>Variable pay in CTC: how much you actually get</h1>
+    <p class="dek">Variable pay is counted in your CTC but not paid with your monthly salary, and often not in full. Here is what it means for your monthly in-hand, how much of it is left after tax, and how to compare offers with different variable pay.</p>
+    <div class="art-meta"><span>⏱ {{READ_MINS}} min read</span><span>📅 Updated {{UPDATED_ON}}</span><span>🧮 Numbers from the <a href="salary-calculator.html">salary calculator</a></span></div>
+  </header>
+  <article class="container prose art">
+    <div class="tldr"><b>The short version</b><ul>
+      <li>Variable pay is <strong>not part of your monthly salary</strong>. On ₹20 LPA with 15% variable, your monthly in-hand is {{VP_20_FIXED}}, which is {{VP_20_LESS}} less than the same CTC with no variable pay.</li>
+      <li>When it is paid, it is <strong>taxed at your highest rate</strong>: the ₹3 lakh variable on ₹20 LPA is about {{VP_20_AFTER}} after tax.</li>
+      <li>Many companies pay less than 100%. Compare offers on <strong>fixed pay</strong> and treat variable pay as a bonus.</li>
+    </ul></div>
+
+    <h2>Variable pay at every CTC</h2>
+    <p>With 15% of CTC as variable pay, a typical structure (basic at 40% of CTC, PF at 12% of basic, gratuity inside the CTC) and the new tax regime:</p>
+    {{VP_TABLE}}
+    <p>“Fixed in hand a month” is what reaches your bank every month. The variable is paid on top of it, once or a few times a year, if targets are met.</p>
+
+    <h2>Why variable pay is taxed so much</h2>
+    <p>Your variable pay is added to the rest of your salary for the year, so it is taxed at the highest rate you reach. On ₹20 LPA, the tax on the ₹3 lakh variable is {{VP_20_TAX}}, about {{VP_20_TAXPCT}}.</p>
+    <p>Around ₹15 LPA the effect is sharper. Your fixed pay alone stays within the new regime’s zero-tax limit (taxable income up to ₹12 lakh), so the variable pay is what makes you pay any tax at all: {{VP_15_TAX}} on {{VP_15_TARGET}}, about {{VP_15_TAXPCT}}. If only 70% is paid, you get about {{VP_15_70}}.</p>
+
+    <div class="scenario">
+      <div class="sc-head"><span class="sc-k">Example</span><b>₹20 LPA with 15% variable, 80% paid</b></div>
+      <div class="sc-in"><span>Variable target ₹3,00,000</span><span>80% paid: {{VP_20_80_GROSS}}</span><span>New tax regime</span></div>
+      <div class="sc-out"><div><small>All fixed: in hand a month</small><b>{{VP_20_ALLFIXED}}</b></div><div class="good"><small>With variable: in hand a month</small><b>{{VP_20_FIXED}}</b></div><div><small>Variable after tax (80% paid)</small><b>{{VP_20_80}}</b></div></div>
+      <p>Two ₹20 LPA offers can feel very different. With all of it fixed, you get {{VP_20_ALLFIXED}} every month. With 15% variable, you get {{VP_20_FIXED}} a month, plus about {{VP_20_80}} once a year if 80% is paid.</p>
+      <a class="btn btn-primary btn-sm" href="salary-calculator.html?ctc=2000000&amp;bonus=15&amp;payout=80">Try your own variable pay →</a>
+    </div>
+
+    <h2>How to compare offers with variable pay</h2>
+    <ul>
+      <li>Compare the <strong>fixed pay</strong> first: CTC minus variable pay.</li>
+      <li>Ask what percentage of variable pay was actually paid last year, and how often it is paid.</li>
+      <li>Plan your monthly budget, rent and EMIs on the fixed in-hand only. Use variable pay for savings or one-off spending.</li>
+      <li>Check whether your next hike is calculated on fixed pay or on the full CTC.</li>
+    </ul>
+
+    <h2>Frequently asked questions</h2>
+    <div class="faq">
+      <details><summary>Is variable pay included in CTC?</summary><p>Usually, yes. Offer letters often show it as a separate line within the CTC, at its full target amount.</p></details>
+      <details><summary>Is variable pay paid monthly?</summary><p>Rarely. Most companies pay it every quarter, every six months or once a year, after results and ratings are known.</p></details>
+      <details><summary>What if I leave before it is paid?</summary><p>In many companies you get nothing for that period if you are not on the payroll on the payout date. Check your offer letter or HR policy.</p></details>
+      <details><summary>How is tax on variable pay deducted?</summary><p>Your employer adds it to your salary for the year and deducts the extra tax (TDS), often from the month it is paid, so that month’s salary can look lower.</p></details>
+    </div>
+    <div class="cta-band art-end"><h2>Got an offer with variable pay?</h2><p>Enter the CTC, variable pay and expected payout to see your monthly in-hand and the variable after tax.</p><a class="btn" href="salary-calculator.html">Calculate my in-hand →</a></div>
+    <p class="disclaim">Estimates for FY 2026-27, for a typical salary structure (basic 40% of CTC including variable pay, HRA 50% of basic, PF 12% of basic, gratuity 4.81% of basic inside the CTC, ₹200 a month professional tax) and the regime that leaves more in hand. Your offer may differ: check your salary breakup. Not tax or financial advice.</p>
+  </article>
+  <section class="container section" style="padding-top:10px"><div class="section-head"><h2>Keep reading</h2></div><div class="tool-grid">{{MORE_ARTICLES}}</div></section>
+</main>
+<script src="assets/tax.js"></script>
+<script src="assets/common.js"></script>
+<script>Common.init('salary');</script>
+</body>
+</html>

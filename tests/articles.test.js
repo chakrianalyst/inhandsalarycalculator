@@ -140,6 +140,27 @@ test('offer-letter guides: PF choice and in-hand to CTC, worked out a second way
   for (const f of ['pf-12-percent-vs-fixed-1800.html', 'monthly-salary-to-lpa.html']) assert.ok(/\{\{(PF|LPA)_TABLE\}\}/.test(read(f)), f + ' shows its table');
 });
 
+test('offer-letter guides: breakup, variable pay and joining bonus, worked out a second way', () => {
+  const O = require(path.join(ROOT, 'scripts', 'offer-pages.js')), T = O.tokens(Tax, (h, rows) => JSON.stringify(rows));
+  const slab = x => [[400000, 0], [800000, .05], [1200000, .10], [1600000, .15], [2000000, .20], [2400000, .25], [Infinity, .30]].reduce((a, [hi, r], i, A) => { const lo = i ? A[i - 1][0] : 0; return a + Math.max(0, Math.min(x, hi) - lo) * r; }, 0);
+  const tax = x => (x <= 1200000 ? 0 : Math.min(slab(x), x - 1200000)) * 1.04;            // the ₹60,000 rebate up to ₹12 lakh, with marginal relief just above it, then 4% cess
+  // ₹18 L with 10% variable: basic 7.2 L, employer PF 86,400, gratuity 4.81% of basic; the monthly pay leaves out the ₹1.8 L variable
+  const grat18 = 720000 * 0.0481, gross18 = 1800000 - 86400 - grat18, fixed18 = gross18 - 180000;
+  assert.equal(T['{{OL_INHAND}}'], inr((fixed18 - 86400 - 2400 - tax(fixed18 - 75000)) / 12));
+  assert.equal(T['{{OL_VAR_AFTER}}'], inr(180000 - (tax(gross18 - 75000) - tax(fixed18 - 75000))));
+  assert.equal(T['{{OL_GROSS_MO}}'], inr(fixed18 / 12));
+  // ₹15 L with 15% variable: fixed pay is under the ₹12 lakh limit, so all the tax comes from the variable
+  const gross15 = 1500000 - 72000 - 600000 * 0.0481;
+  assert.equal(tax(gross15 - 225000 - 75000), 0); assert.equal(T['{{VP_15_TAX}}'], inr(tax(gross15 - 75000)));
+  // joining bonus: ₹12 L plus ₹1 L stays under the limit, ₹2 L does not
+  const tax12 = 1200000 - 57600 - 480000 * 0.0481 - 75000;
+  assert.equal(T['{{JB_12_1_TAX}}'], '₹0'); assert.equal(T['{{JB_12_2_TAX}}'], inr(tax(tax12 + 200000)));
+  const tax20 = 2000000 - 96000 - 800000 * 0.0481 - 75000;
+  assert.equal(T['{{JB_20_2_NET}}'], inr(200000 - (tax(tax20 + 200000) - tax(tax20))));
+  const net = k => O.joiningBonus(Tax, k * 1e5, 200000).net; assert.ok(net(12) < net(15) && net(12) < net(20), 'the page says ₹12 LPA keeps less of ₹2 lakh than ₹15 or ₹20 LPA');
+  for (const [f, k] of [['offer-letter-salary-breakup.html', 'OL'], ['variable-pay-in-ctc.html', 'VP'], ['joining-bonus-tax.html', 'JB']]) assert.ok(read(f).includes(`{{${k}_TABLE}}`), f + ' shows its table');
+});
+
 test('return to India article', () => {
   const ex = { retire: 150000, retireYear: 20000, indiaAssets: 3000000, lump: 2500000 };          // the article's example, which its links open
   const t = j => R.return({ ...ex, ...j }).results.table[0], f = 'moving-back-to-india-money-checklist.html';
