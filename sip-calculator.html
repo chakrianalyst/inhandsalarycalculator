@@ -70,7 +70,7 @@
     <h2>Why start early?</h2>
     <p>The last few years of a long SIP add the most money, and the early years supply the compounding that makes them large. Starting 5 years later does not cost 5 years of growth. It costs far more, as the <em>What waiting costs</em> table shows.</p>
     <h2>Inflation and tax</h2>
-    <p>₹1 crore in 20 years will buy much less than ₹1 crore today, so the result is also shown in today’s money. Under <em>Tax and inflation</em> you can include capital-gains tax. Equity gains held over a year are taxed at 12.5% above ₹1.25 lakh of gains in a year, and debt-fund gains are added to your income. The calculator treats it as one sale at the end, which is a simplification.</p>
+    <p>₹1 crore in 20 years will buy much less than ₹1 crore today, so the result is also shown in today’s money. Under <em>Tax and inflation</em> you can include capital-gains tax. Equity gains on money held over a year are taxed at 12.5% above ₹1.25 lakh of gains in a year, gains on instalments from the last 12 months at 20%, and debt-fund gains are added to your income. The calculator treats it as one sale at the end, which is a simplification.</p>
     <h2>Frequently asked questions</h2>
     <div class="faq">
       <details><summary>Are SIP returns guaranteed?</summary><p>No. Mutual fund returns are market-linked and uneven. The figures here are projections from the return you enter, not a promise. Real returns can be negative for years.</p></details>
@@ -111,7 +111,7 @@
     let sip = num('sip'); const entered = num('goal'), target = goalToday ? entered * fut : entered;
     $('goalNote').textContent = !goal ? '' : goalToday ? `${cr(entered)} at today’s prices will cost about ${cr(target)} in ${span(months)}, allowing for ${infl}% price rise a year. The plan aims for that future amount. Change the price rise under “Tax, inflation and settings”.` : `${cr(entered)} in future rupees is worth about ${cr(entered / fut)} in today’s prices, at ${infl}% price rise a year.`;
     if (goal) { sip = Invest.requiredSip({ target, ret, months, step, lump, nominal }); if (lump >= target) warn('', 'The money you already have grows past your goal on its own, so no SIP is needed.'); }
-    const R = Invest.run({ sip: lumpMode ? 0 : sip, step, lump, ret, months, nominal }), tax = Invest.tax(R.gain, taxk, months, slab), net = R.value - tax, t = months / 12, realVal = net / Math.pow(1 + infl / 100, t);
+    const R = Invest.run({ sip: lumpMode ? 0 : sip, step, lump, ret, months, nominal }), tax = Invest.tax(R.gain, taxk, months, slab, R.gainShort), net = R.value - tax, t = months / 12, realVal = net / Math.pow(1 + infl / 100, t);
     const how = `${span(months)} at ${ret}% a year`;
     $('hLbl').textContent = goal ? 'Start with a monthly SIP of' : lumpMode ? 'Your money could grow to' : 'Your SIP could grow to';
     $('fv').textContent = goal ? f(sip) : f(R.value);

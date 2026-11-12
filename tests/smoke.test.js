@@ -9,7 +9,8 @@ if (chromium) {
   const run = env => execFileSync('node', [path.join(ROOT, 'scripts', 'build.js')], { env: { ...process.env, ...env }, stdio: 'pipe' });
   let browser;
   const url = (dir, f) => 'file://' + path.join(dir, f);
-  const pagesOf = dir => fs.readdirSync(dir).filter(f => f.endsWith('.html'));
+  const isRedirect = (dir, f) => /<meta http-equiv="refresh"/.test(fs.readFileSync(path.join(dir, f), 'utf8'));      // a page that only sends visitors to its new address
+  const pagesOf = dir => fs.readdirSync(dir).filter(f => f.endsWith('.html') && !isRedirect(dir, f));
   const open = async (dir, f, w = 1280) => { const pg = await browser.newPage({ viewport: { width: w, height: 900 } }); pg.errs = [];
     pg.on('pageerror', e => pg.errs.push(e.message)); pg.on('console', m => m.type() === 'error' && !/fonts|ERR_|net::/.test(m.text()) && pg.errs.push(m.text()));
     await pg.goto(url(dir, f)); await pg.waitForTimeout(150); return pg; };
@@ -177,7 +178,7 @@ if (chromium) {
     assert.deepEqual(await pg.$$eval('#inputs [data-q]', ls => ls.filter(l => !l.closest('[hidden]')).map(l => l.textContent)), ['1. What is your yearly CTC?', '2. How much of it is variable pay or bonus?']);
     assert.equal(await pg.$eval('#sec-more', d => d.open), false); assert.equal(await pg.$eval('#sec-details', d => d.open), false);
     assert.equal(await txt('.hero-result .big'), '₹88,276'); assert.equal(await pg.$eval('#rYear', e => e.textContent), '');
-    assert.match(await txt('#facts'), /If your company caps PF at ₹1,800 a month, your in-hand would be ₹94,276 \(₹6,000 more\)/);
+    assert.match(await txt('#facts'), /If your company caps PF at ₹3,000 a month, your in-hand would be ₹91,876 \(₹3,600 more\)/);      // ₹12 lakh CTC: basic ₹40,000, so PF falls from ₹4,800 to ₹3,000 on each side, and no tax either way: 2 × ₹1,800 more
     await pg.click('#mode [data-v=payslip]'); assert.deepEqual(await pg.$$eval('#inputs [data-q]', ls => ls.filter(l => !l.closest('[hidden]')).map(l => l.textContent)), ['1. Copy these from your payslip']);
     assert.equal(await pg.isVisible('#mode [data-v=ctc]'), true, 'a link back to CTC'); assert.equal(await pg.isVisible('#mode [data-v=payslip]'), false);
     assert.deepEqual(pg.errs, []); await pg.close();
@@ -185,7 +186,7 @@ if (chromium) {
 
   test('polish: PF label, regime saving in the badge, bonus chips, mobile bar above the cookie banner', async () => {
     const sal = await open(SITE, 'salary-calculator.html'); await sal.fill('#ctc', '2000000');
-    assert.match(await sal.$eval('#pfMode', e => e.textContent), /Capped at ₹15,000 basic/);
+    assert.match(await sal.$eval('#pfMode', e => e.textContent), /Capped at ₹25,000 basic \(₹3,000\/mo\)/);
     assert.equal(await sal.$eval('#rPill', e => e.textContent), '', 'the purple card shows only the monthly in-hand');
     assert.match(await sal.$eval('#facts', e => e.textContent), /regime leaves you ₹[\d,]+ more a year/); assert.equal(await sal.$('#inputs input[type=range]'), null, 'no sliders');
     await sal.close();
@@ -406,7 +407,7 @@ if (chromium) {
     const pg = await open(SITE, 'abroad-calculator.html'); const txt = sel => pg.$eval(sel, e => e.innerText), hero = () => txt('#hero');
     assert.match(await hero(), /After 10 years[\s\S]*behind[\s\S]*staying in India/); assert.equal(await pg.inputValue('#rentA'), '3,800'); assert.match(await txt('#payTbl'), /Income tax[\s\S]*Take-home pay/);
     assert.match(await txt('#tips'), /\$12\d,\d\d\d a year/); assert.equal((await pg.$$('#grid tr')).length, 5); assert.equal((await pg.$$('#yrTbl tr')).length, 11);
-    await pg.selectOption('#country', 'AE'); assert.equal(await pg.inputValue('#fx'), '26.1'); assert.equal(await pg.inputValue('#rentA'), '7,000'); assert.match(await hero(), /ahead of staying in India/);
+    await pg.selectOption('#country', 'AE'); assert.equal(await pg.inputValue('#fx'), '25.5'); assert.equal(await pg.inputValue('#rentA'), '7,000'); assert.match(await hero(), /ahead of staying in India/);
     await pg.selectOption('#country', 'CA'); assert.deepEqual(await pg.$$eval('#city option', o => o.map(x => x.textContent)), ['Toronto', 'Vancouver', 'Calgary']);
     await pg.selectOption('#country', 'US'); await pg.selectOption('#city', 'aus'); assert.match(await hero(), /ahead of staying in India/);       // Texas: no state income tax, cheaper rent
     await pg.selectOption('#years', '5'); assert.match(await hero(), /After 5 years/); await pg.click('#mode [data-v=real]'); assert.match(await hero(), /today’s money/);
@@ -417,7 +418,7 @@ if (chromium) {
   test('Move abroad: UK and Germany presets, pensions, partner toggle and provident fund', async () => {
     const pg = await open(SITE, 'abroad-calculator.html'); const txt = sel => pg.$eval(sel, e => e.innerText), hero = () => txt('#hero');
     assert.deepEqual(await pg.$$eval('#country option', o => o.map(x => x.value)), ['US', 'CA', 'AU', 'SG', 'AE', 'UK', 'DE']);
-    await pg.selectOption('#country', 'UK'); assert.equal(await pg.inputValue('#fx'), '127.3'); assert.equal(await pg.inputValue('#gross'), '85,000'); assert.equal(await pg.inputValue('#rentA'), '2,300'); assert.equal(await pg.inputValue('#retPct'), '5');
+    await pg.selectOption('#country', 'UK'); assert.equal(await pg.inputValue('#fx'), '125.1'); assert.equal(await pg.inputValue('#gross'), '85,000'); assert.equal(await pg.inputValue('#rentA'), '2,300'); assert.equal(await pg.inputValue('#retPct'), '5');
     assert.match(await txt('#payTbl'), /National Insurance|PF, payroll/); await pg.selectOption('#country', 'DE'); assert.equal(await pg.inputValue('#city') , 'ber'); assert.equal(await pg.inputValue('#retPct'), '0'); assert.match(await txt('#kpis'), /Take-home each month/);
     await pg.selectOption('#country', 'US'); const solo = await hero(); const rent = await pg.inputValue('#rentA');
     await pg.$eval('#partner', e => e.click()); assert.equal(await pg.isVisible('#pCtc'), true); assert.notEqual(await pg.inputValue('#rentA'), rent); assert.notEqual(await hero(), solo);
@@ -428,12 +429,12 @@ if (chromium) {
 
   test('Return to India calculator: best year, runway, bringing money home, retirement choice, sensitivity and share link', async () => {
     const pg = await open(SITE, 'return-calculator.html' + RQ); await openAll(pg); const txt = sel => pg.$eval(sel, e => e.innerText), hero = () => txt('#hero');
-    assert.match(await hero(), /If you return now[\s\S]*Short by ₹1\.05 Cr[\s\S]*You can afford it in 2 years \(age 38\)/); assert.equal((await pg.$$('#yrTbl tr')).length, 12); assert.match(await txt('#yrTbl'), /Not yet[\s\S]*Not yet[\s\S]*✓ Ready/);
-    assert.match(await txt('#kpis'), /Without a job, your money lasts 17 years/); assert.match(await txt('#homeTbl'), /Tax on your profits[\s\S]*Money you start life in India with/); assert.match(await txt('#homeTbl'), /left abroad/);
+    assert.match(await hero(), /If you return now[\s\S]*Short by ₹1\.13 Cr[\s\S]*You can afford it in 2 years \(age 38\)/); assert.equal((await pg.$$('#yrTbl tr')).length, 12); assert.match(await txt('#yrTbl'), /Not yet[\s\S]*Not yet[\s\S]*✓ Ready/);
+    assert.match(await txt('#kpis'), /Without a job, your money lasts 16 years, until age 52/); assert.match(await txt('#homeTbl'), /Tax on your profits[\s\S]*Money you start life in India with/); assert.match(await txt('#homeTbl'), /left abroad/);
     await pg.selectOption('#when', '3'); assert.match(await txt('#hero'), /If you return in 3 years \(age 39\)[\s\S]*to spare/);
     await pg.$eval('#sec-tax', e => (e.open = true)); assert.equal(await pg.isVisible('#penalty'), false); await pg.selectOption('#retMode', 'withdraw'); assert.equal(await pg.isVisible('#penalty'), true); assert.match(await txt('#homeTbl'), /cashed out/);
     await pg.fill('#jobCtc', '30,00,000'); assert.match(await hero(), /You can afford to return now/); await pg.fill('#jobCtc', '0'); await pg.selectOption('#retMode', 'leave');
-    await pg.selectOption('#country', 'AE'); assert.equal(await pg.inputValue('#fx'), '26.1'); assert.match(await txt('#cashL'), /AED/); assert.equal((await pg.$$('#grid tr')).length, 5);
+    await pg.selectOption('#country', 'AE'); assert.equal(await pg.inputValue('#fx'), '25.5'); assert.match(await txt('#cashL'), /AED/); assert.equal((await pg.$$('#grid tr')).length, 5);
     const lk = await browser.newPage(); await lk.goto(url(SITE, 'return-calculator.html') + RQ + '&spend=60000'); await lk.waitForTimeout(300); assert.equal(await lk.inputValue('#spend'), '60,000'); assert.match(await lk.$eval('#hero', e => e.innerText), /You can afford to return now/); await lk.close();
     assert.deepEqual(pg.errs, []); await pg.close();
   });
@@ -507,6 +508,33 @@ if (chromium) {
     await pg.close();
   });
 
+  test('November 2026 rule fixes show on the pages: PF cap, the moved PF guide, government gratuity limit, fixed-term gratuity, PF after a job loss', async () => {
+    // the old PF guide address sends visitors to the new page, which says ₹3,000 and still mentions the old ₹1,800 cap
+    const mv = await browser.newPage(); await mv.goto(url(SITE, 'pf-12-percent-vs-fixed-1800.html')); await mv.waitForURL(/pf-12-percent-vs-capped-pf\.html$/, { timeout: 5000 });
+    const art = await mv.$eval('article', e => e.innerText); assert.match(art, /capped at ₹3,000 a month/); assert.match(art, /₹1,800 PF, until 16 September 2026/); assert.match(art, /Capped ₹3,000 PF: in hand a month/);
+    assert.match(art, /₹5 LPA\s+₹[\d,]+\s+₹[\d,]+\s+\+₹0\s+₹0/, 'no difference at ₹5 LPA, where basic is under the ceiling'); await mv.close();
+    assert.ok(!fs.readFileSync(path.join(SITE, 'sitemap.xml'), 'utf8').includes('fixed-1800'), 'the old address is not in the sitemap');
+    // salary calculator, ₹20 lakh CTC with capped PF: ₹3,000 a month of employer PF
+    const sal = await open(SITE, 'salary-calculator.html?ctc=2000000&pfMode=cap'); await sal.waitForTimeout(300); await openAll(sal);
+    assert.match(await sal.$eval('#pfInfo', e => e.textContent), /Employer PF ₹36,000\/yr \(₹3,000\/mo\)/); await sal.close();
+    // gratuity: a central government officer on ₹2 lakh with 33 years gets ₹25 lakh, a private employee ₹20 lakh
+    const g = await open(SITE, 'gratuity-calculator.html?wage=200000&yrs=33'); const hero = () => g.$eval('.hero-result', e => e.innerText);
+    assert.match(await hero(), /₹20,00,000/); await g.click('#kind button[data-v=govt]'); await g.waitForTimeout(150);
+    assert.match(await hero(), /₹25,00,000/); assert.match(await hero(), /cap it at ₹25 lakh/); assert.match(await g.$eval('#facts', e => e.textContent), /PSU and bank employees are not covered/);
+    // fixed-term, 1 year 3 months on ₹50,000: 50,000 × 15 ÷ 26 × 1.25 = ₹36,058; and the 240-day note from 4 years 8 months
+    await g.click('#kind button[data-v=covered]'); await g.fill('#wage', '50,000'); await g.fill('#yrs', '1'); await g.fill('#mon', '3'); await g.$eval('#ftRow input', e => e.click()); await g.waitForTimeout(150);
+    assert.match(await hero(), /₹36,058/); assert.match(await g.$eval('#svcHint', e => e.textContent), /1\.25 years/);
+    await g.$eval('#ftRow input', e => e.click()); await g.fill('#yrs', '4'); await g.fill('#mon', '8'); await g.waitForTimeout(150);
+    assert.match(await hero(), /No gratuity yet/); assert.match(await g.$eval('#warns', e => e.textContent), /4 years plus 240 working days/);
+    await g.fill('#mon', '7'); await g.waitForTimeout(150); assert.doesNotMatch(await g.$eval('#warns', e => e.textContent), /240 working days/); await g.close();
+    // job loss: the PF wording, on the calculator and in the guide
+    const lay = await open(SITE, 'layoff-runway-calculator.html'); assert.match(await lay.$eval('main', e => e.textContent), /withdraw 75% of your PF as soon as you are out of work, and the rest after 12 months/);
+    assert.doesNotMatch(await lay.$eval('main', e => e.textContent), /after (a|one) month without work/); await lay.close();
+    assert.doesNotMatch(fs.readFileSync(path.join(SITE, 'laid-off-in-india-money-plan.html'), 'utf8'), /after one month without work/);
+    // move abroad: the default dollar rate
+    const ab = await open(SITE, 'abroad-calculator.html'); assert.equal(await ab.inputValue('#fx'), '94'); await ab.close();
+  });
+
   test('articles: fit a phone, link to working prefilled calculators, and show the figures they quote', async () => {
     const arts = pagesOf(SITE).filter(f => /rc-article/.test(fs.readFileSync(path.join(SITE, f), 'utf8')));
     assert.equal(arts.length, 22);
@@ -534,8 +562,8 @@ if (chromium) {
     await shows('life-simulator.html?kid.on=0', '.hero-result', /₹6\.87 Cr/);
     await shows('life-simulator.html?creep=50', '.hero-result', /₹4\.53 Cr/);
     await shows('networth-calculator.html', '.hero-result', /₹60,15,000/);
-    await shows('abroad-calculator.html?country=DE&city=ber&gross=75000&rentA=1300&otherA=1300', '.hero-result', /₹1,71,16,958/);
-    await shows('return-calculator.html' + RQ + '&jobCtc=2500000&jobGap=6', '.hero-result', /₹2\.05 Cr to spare/);
+    await shows('abroad-calculator.html?country=DE&city=ber&gross=75000&rentA=1300&otherA=1300', '.hero-result', /₹1,87,93,078/);
+    await shows('return-calculator.html' + RQ + '&jobCtc=2500000&jobGap=6', '.hero-result', /₹1\.97 Cr to spare/);
     await shows('salary-calculator.html?ctc=3000000&rent=60000&c80ppf=6000&d80s=25000&nps1b=50000', 'body', /₹1,87,297/);
     await shows('salary-calculator.html?ctc=1400000&nps=10', 'body', /₹98,355/);
     await shows('gratuity-calculator.html?wage=40000&yrs=6&total=120000', '.hero-result', /₹2,07,692/);
@@ -999,12 +1027,12 @@ if (chromium) {
     assert.deepEqual(await pg.$$eval('#inputs [data-q]', ls => ls.map(l => l.textContent)), ['1. Where do you live now?', '2. Your age', '3. Savings and investments you have there now (USD)', '4. How much you save there each year (USD)', '5. Monthly spending you want in India', '6. Yearly CTC if you work in India (today’s rupees)']);
     assert.equal(await pg.$eval('#sec-more', d => d.open), false); assert.equal(await pg.$eval('#sec-details', d => d.open), false);
     assert.match(await pg.$eval('#gridNote', e => e.textContent), /weaker rupee has stopped helping/);
-    assert.match(await txt('#fix'), /How to close the ₹1\.05 Cr gap[\s\S]*Spend about ₹1,11,000 a month[\s\S]*Work in India at about ₹7,00,000 a year[\s\S]*Return in 2 years/);
+    assert.match(await txt('#fix'), /How to close the ₹1\.13 Cr gap[\s\S]*Spend about ₹1,09,000 a month[\s\S]*Work in India at about ₹7,50,000 a year[\s\S]*Return in 2 years/);
     await pg.click('#fixL button[data-act=jobCtc]'); await pg.waitForTimeout(250);
-    assert.equal(await pg.inputValue('#jobCtc'), '7,00,000'); assert.match(await txt('#hero'), /to spare/); assert.equal(await pg.isVisible('#fix'), false, 'covered: the card goes away');
-    await pg.fill('#jobCtc', '0'); await pg.waitForTimeout(200); await pg.click('#fixL button[data-act=spend]'); await pg.waitForTimeout(250); assert.equal(await pg.inputValue('#spend'), '1,11,000'); assert.match(await txt('#hero'), /to spare/);
+    assert.equal(await pg.inputValue('#jobCtc'), '7,50,000'); assert.match(await txt('#hero'), /to spare/); assert.equal(await pg.isVisible('#fix'), false, 'covered: the card goes away');
+    await pg.fill('#jobCtc', '0'); await pg.waitForTimeout(200); await pg.click('#fixL button[data-act=spend]'); await pg.waitForTimeout(250); assert.equal(await pg.inputValue('#spend'), '1,09,000'); assert.match(await txt('#hero'), /to spare/);
     await pg.fill('#spend', '1,50,000'); await pg.waitForTimeout(200); await pg.click('#whenChips [data-w="2"]'); await pg.waitForTimeout(250);
-    assert.match(await txt('#hero'), /If you return in 2 years \(age 38\)[\s\S]*₹82\.03 L to spare/); assert.equal(await pg.$eval('#whenChips [data-w="2"]', b => b.classList.contains('on')), true);
+    assert.match(await txt('#hero'), /If you return in 2 years \(age 38\)[\s\S]*₹73\.81 L to spare/); assert.equal(await pg.$eval('#whenChips [data-w="2"]', b => b.classList.contains('on')), true);
     assert.equal(await pg.$eval('#whenChips', e => e.scrollHeight <= 48), true, 'the year buttons stay on one row on a phone');
     assert.deepEqual(pg.errs, []); await pg.close();
     const lk = await browser.newPage(); await lk.goto(url(SITE, 'return-calculator.html') + RQ + '&when=3'); await lk.waitForTimeout(300); assert.equal(await lk.$eval('#whenChips [data-w="3"]', b => b.classList.contains('on')), true); await lk.close();

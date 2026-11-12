@@ -44,7 +44,7 @@
           <div class="input-wrap"><input type="number" id="search" value="6" min="1" max="36" step="1"><span class="suf">months</span></div></div>
         <div class="field"><label for="pf" data-help="Your EPF balance (your share plus your employer’s), from the EPFO passbook.">PF balance</label>
           <div class="input-wrap"><span class="pre">₹</span><input id="pf" data-money value="600000" placeholder="0"></div></div>
-        <label class="toggle"><span>Use my PF as a last resort<small>75% can be withdrawn after a month without work, the rest after 12 months. It is your retirement money, so it is off by default.</small></span><span class="switch"><input type="checkbox" id="pfOn"><i></i></span></label>
+        <label class="toggle"><span>Use my PF as a last resort<small>75% can be withdrawn as soon as you are out of work, the rest after 12 months. It is your retirement money, so it is off by default.</small></span><span class="switch"><input type="checkbox" id="pfOn"><i></i></span></label>
       </div></details>
     </section>
 
@@ -75,13 +75,13 @@
     <h2>Tax on your final settlement</h2>
     <p>Severance, notice pay and leave encashment are added to the salary you were paid this financial year (worked out from your take-home pay with a typical salary structure) and taxed under the new regime, with the ₹75,000 standard deduction. That is why a large payout late in the year is taxed at a higher rate than one early in the year. Gratuity is tax-free up to ₹20 lakh. Part of a retrenchment payment and of leave encashment can also be tax-free under specific rules; we do not count that, so your real tax may be lower. Your employer deducts tax (TDS) from the payout, and any difference is settled when you file your return.</p>
     <h2>Your PF after a job loss</h2>
-    <p>Under the EPF rules, you can withdraw 75% of your PF after one month without work, and the rest after 12 months of continuous unemployment. These rules changed in 2026, so confirm the current ones on the EPFO portal before you apply. Your PF earns more than most savings accounts and moves to your next employer, which is why this calculator leaves it out unless you switch it on.</p>
+    <p>Under the EPF rules, you can withdraw 75% of your PF as soon as you are out of work, and the rest after 12 months of continuous unemployment. These rules changed in October 2025, so confirm the current ones on the EPFO portal before you apply. Your PF earns more than most savings accounts and moves to your next employer, which is why this calculator leaves it out unless you switch it on.</p>
     <h2>How long a runway do you need?</h2>
     <p>Long enough for your job search, plus a buffer. Searches take longer for senior roles, in slow hiring markets and around year-end holidays. If your runway is shorter than your search, the biggest levers are usually the spending you can pause, other income in the household, and talking to your lender before EMIs become a problem.</p>
     <h2>Frequently asked questions</h2>
     <div class="faq">
       <details><summary>Is severance pay taxable in India?</summary><p>Yes. Severance and notice pay are generally taxed as salary, at your slab rate for the year. Compensation paid on retrenchment can be partly tax-free under specific conditions, so ask your employer how it is classified and confirm with a tax professional.</p></details>
-      <details><summary>Should I withdraw my PF after a layoff?</summary><p>Only if your other savings run short. PF earns a good, steady rate and is meant for retirement. If you need it, you can take 75% after a month without work and the rest after 12 months. Switch on “Use my PF as a last resort” to see how much time it would add.</p></details>
+      <details><summary>Should I withdraw my PF after a layoff?</summary><p>Only if your other savings run short. PF earns a good, steady rate and is meant for retirement. If you need it, you can take 75% straight away and the rest after 12 months without work. Switch on “Use my PF as a last resort” to see how much time it would add.</p></details>
       <details><summary>How much emergency fund should I have?</summary><p>Enough to cover your essential spending for the time it would take to find a new job. For many people that is six months or more. Under Other details, enter what you could live on while you look to see how long your money lasts at that.</p></details>
       <details><summary>What if my severance is paid in instalments?</summary><p>Enter the total. If it comes over several months it lands a little later, but the total it adds to your runway is about the same.</p></details>
       <details><summary>I work abroad on a visa. Can I use this?</summary><p>This calculator is for income and tax in India. If losing your job abroad means moving back, the <a href="return-calculator.html">Return to India calculator</a> shows whether your money covers the move and life in India.</p></details>
@@ -145,7 +145,7 @@
       lever,
       S.gross > 0 ? (S.tax >= 1 ? `Your ${cr(S.gross)} payout is about <b>${cr(S.net)}</b> after ${cr(S.tax)} of tax.` : `Your ${cr(S.gross)} payout has no tax to pay.`) + ` With your savings, you can use <b>${cr(cash)}</b> now.` : `You can use <b>${cr(cash)}</b> now.`,
       o.insurance > 0 ? `Your runway allows <b>${f(o.insurance)}</b> a year for your own health cover, because company cover usually ends with the job. Change it under Other details.` : '',
-      o.pfOn && o.pf > 0 ? `Your PF of <b>${cr(o.pf)}</b> is counted: 75% after a month without work, the rest after 12 months.` : '',
+      o.pfOn && o.pf > 0 ? `Your PF of <b>${cr(o.pf)}</b> is counted: 75% in the first month, the rest after 12 months.` : '',
       '<a href="#first2">What to do in the first two weeks →</a>'
     ].filter(Boolean).map(x => `<li>${x}</li>`).join('');
 

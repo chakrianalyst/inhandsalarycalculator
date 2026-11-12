@@ -91,10 +91,18 @@ test('job-search gap: the first months after returning have no income, spread ov
 
 test('PF and gratuity: your PF plus the employer’s at the PF rate, gratuity only after five years, received when the job ends', () => {
   const C = 2000000, basic = 0.4 * C, p = P({ jobCtc: C, jobGrowth: 0, workUntil: 50, planEnd: 70, countPf: 'yes', pfRate: 8 }), v = R.pfInflow(p, 0);
-  near(v.pf, 0.24 * basic * (Math.pow(1.08, 10) - 1) / 0.08, 1); near(v.grat, 0.0481 * basic * 10, 1); assert.equal(v.age, 50); near(v.value, v.pf + v.grat, 0.01);
+  // PF: 24% of basic less the pension-scheme part, 8.33% of pay up to ₹25,000 a month (₹24,990 a year). Gratuity: last monthly basic × 15 ÷ 26 × 10 years.
+  const yearlyPf = 0.24 * basic - 0.0833 * 25000 * 12; near(yearlyPf, 192000 - 24990, 1e-6);
+  near(v.pf, yearlyPf * (Math.pow(1.08, 10) - 1) / 0.08, 1); near(v.grat, basic / 12 * 15 / 26 * 10, 1); near(v.grat, 384615.38, 1); assert.equal(v.age, 50); near(v.value, v.pf + v.grat, 0.01);
   assert.equal(R.pfInflow({ ...p, countPf: 'no' }, 0), null); assert.equal(R.pfInflow({ ...p, jobCtc: 0 }, 0), null);
   const short = R.pfInflow({ ...p, workUntil: 44 }, 0); assert.equal(short.grat, 0); near(short.value, short.pf, 0.01);          // only 4 years of work: no gratuity
   assert.equal(R.pfInflow({ ...p, workUntil: 70 }, 0), null);                                                                       // the job runs to the end of the plan: nothing arrives inside it
+  const low = R.pfInflow({ ...p, jobCtc: 600000 }, 0); near(low.pf, (0.24 - 0.0833) * 240000 * (Math.pow(1.08, 10) - 1) / 0.08, 1);          // basic ₹20,000 a month is under the ceiling: 8.33% of all of it goes to the pension scheme
+  const rich = R.pfInflow({ ...p, jobCtc: 30000000 }, 0); assert.equal(rich.grat, 2000000);                                              // ₹10 lakh basic a month × 15 ÷ 26 × 10 is far above the ₹20 lakh limit
+  const grown = R.pfInflow({ ...p, jobGrowth: 10 }, 0); near(grown.grat, basic * Math.pow(1.1, 9) / 12 * 15 / 26 * 10, 1);                 // gratuity uses the last pay, not each year's
+  const gap = R.pfInflow({ ...p, workUntil: 45, jobGap: 6 }, 0); assert.equal(gap.grat, 0);                                             // five calendar years with a six-month search is 4.5 years of work: no gratuity
+  const gap6 = R.pfInflow({ ...p, workUntil: 46, jobGap: 4 }, 0); near(gap6.grat, basic / 12 * 15 / 26 * 6, 1);                           // 5 years 8 months of work counts as 6 years
+  const dflt = { ...p }; delete dflt.pfRate; near(R.pfInflow(dflt, 0).pf, yearlyPf * (Math.pow(1.0825, 10) - 1) / 0.0825, 1); assert.equal(R.PF_RATE, 8.25);      // the declared PF rate when none is given
   const lessNeed = R.analyse({ ...p, spend: 100000 }, 0).rows[0].need, none = R.analyse({ ...p, countPf: 'no', spend: 100000 }, 0).rows[0].need; assert.ok(none > 0 && lessNeed < none);
 });
 

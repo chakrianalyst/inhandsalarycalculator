@@ -25,7 +25,10 @@ test('runner reproduces the figures the site and its guides show', () => {
   const r = run.TOOLS.regime({ gross: 1500000 }).results; assert.equal(Math.round(r.newRegimeTax), 97500); assert.ok(Math.abs(r.oldRegimeBreakEvenDeductions - 543750) < 5);
   const sip = run.TOOLS.sip({ mode: 'goal', goalIn: 'future', goal: 10000000, yrs: 10, ret: 12 }).results; assert.equal(Math.round(sip.monthlySip), 44636);
   const e = run.TOOLS.emi({ amt: 5000000, rate: 8.5, yrs: 20, extra: 5000 }).results; assert.equal(Math.round(e.emi), 43391); assert.ok(Math.abs(e.withPrepayment.yearsToRepay - 15.58) < 0.01); assert.equal(Math.round(e.withPrepayment.interestSaved / 1e5), 14);
-  const a = run.TOOLS.abroad({ city: 'sf', gross: 150000, ctc: 4000000 }).results; assert.equal(Math.round(a.takeHomeMonthAbroadInRupees), 769904); assert.equal((a.netWorthEndAbroad / 1e7).toFixed(1), '10.3'); assert.equal((a.rentCut20PctAddsToNetWorth / 1e7).toFixed(2), '1.70');
+  const a = run.TOOLS.abroad({ city: 'sf', gross: 150000, ctc: 4000000 }).results; assert.equal(Math.round(a.takeHomeMonthAbroadInRupees), 752760); assert.equal((a.netWorthEndAbroad / 1e7).toFixed(1), '10.0'); assert.equal((a.rentCut20PctAddsToNetWorth / 1e7).toFixed(2), '1.66');
+  { // the same take-home by hand: $150,000 with 6% ($9,000) into a 401(k), federal tax on 150,000 − 9,000 − 16,100, payroll tax on all of it, California tax and 1.3% disability insurance on pay after the 401(k), at ₹94
+    const fed = 0.10 * 12400 + 0.12 * 38000 + 0.22 * 55300 + 0.24 * (124900 - 105700), ca = 0.01 * 11079 + 0.02 * 15185 + 0.04 * 15188 + 0.06 * 16090 + 0.08 * 15182 + 0.093 * (141000 - 5706 - 72724) + 0.013 * 141000;
+    assert.ok(Math.abs(a.takeHomeMonthAbroadInRupees - (150000 - 9000 - fed - 150000 * 0.062 - 150000 * 0.0145 - ca) / 12 * 94) < 1); }
   assert.equal(Math.round(run.TOOLS.salary({ ctc: 1200000 }).results.inHandMonth), Math.round(Tax.salary({ ctc: 1200000, basicPct: 40, hraPct: 50, variablePct: 0, pfCap: false, gratuity: true, employerNps: 0, ptMonthly: 200, metro: true, rentMonthly: 0 }).new.inHandMonth));
 });
 

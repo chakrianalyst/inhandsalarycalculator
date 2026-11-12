@@ -78,6 +78,7 @@ for (const [file, raw] of Object.entries(pages)) {
   let html = raw;
   for (const [k, v] of Object.entries(tokens)) html = html.split(k).join(v);
   html = html.split(PLACEHOLDER).join(siteUrl);
+  if (/<meta http-equiv="refresh"/.test(html)) { fs.writeFileSync(path.join(OUT, file), html); continue; }      // a page that only redirects to its new address: written as it is, and left out of the sitemap
   const title = strip((html.match(/<title>([\s\S]*?)<\/title>/) || [, file])[1]);
   const desc = strip((html.match(/<meta name="description" content="([^"]*)"/) || [, ''])[1]);
   const url = `${siteUrl}/${file === 'index.html' ? '' : file}`;

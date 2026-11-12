@@ -23,7 +23,8 @@ const V = {
   salary(r) {
     const i = r.inputs, ctc = n(i.ctc), basic = ctc * n(i.basicPct) / 100;
     if (n(i.variablePct) > 0 || ctc > 5000000) return unverified('in-hand salary', 'Variable pay or a CTC above ₹50 lakh needs surcharge and payout rules this check does not rebuild. Use an official calculator for a second opinion.');
-    const pfBase = i.pfCap ? Math.min(basic, 180000) : basic, erPf = pfBase * 0.12, grat = i.gratuity ? basic * 0.0481 : 0, erNps = ctc * n(i.employerNps) / 100 * 0, gross = ctc - erPf - grat - erNps;
+    const pfBase = i.pfCap ? Math.min(basic, 300000) : basic;       // capped PF: the ₹25,000 a month wage ceiling (from 17 September 2026)
+    const erPf = pfBase * 0.12, grat = i.gratuity ? basic * 0.0481 : 0, erNps = ctc * n(i.employerNps) / 100 * 0, gross = ctc - erPf - grat - erNps;
     const pt = Math.min(2500, n(i.ptMonthly) * 12), perq = Math.max(0, erPf - 750000);
     const newTax = taxNew(Math.max(0, gross - 75000 + perq)), inHandNew = gross - erPf - pt - newTax;
     check('gross cash salary a year', r.results.grossCashSalaryYear, gross, 2); check('income tax, new regime', r.results.taxNewRegime, newTax, 2);
@@ -127,9 +128,10 @@ const V = {
     const income = (t, k) => { let v = 0; if (P.jobCtc > 0 && P.age + t < P.workUntil) v += pay(ctcOf(t, k)) * share(t, k);
       if (P.partnerCtc > 0 && t >= k && t < k + P.partnerYears && P.age + t < P.planEnd) v += pay(P.partnerCtc * Math.pow(1 + P.jobGrowth / 100, P.basis === 'return' ? t - k : t)); return v; };       // a partner is taxed on their own and starts the year you return
     const events = (a, t) => P.events.reduce((m, e) => m + (e.kind === 'monthly' && a >= e.from && a < e.to ? e.amount * 12 * Math.pow(1 + P.infl / 100, t) : 0) + (e.kind === 'once' && a === e.from ? e.amount * Math.pow(1 + P.infl / 100, t) : 0), 0);
-    const pfAt = k => { if (!P.countPf || !(P.jobCtc > 0)) return null; const end = Math.min(P.workUntil, P.planEnd); let pf = 0, gr = 0, yrs = 0;       // PF (both shares, 24% of basic) grows to the day the job ends; gratuity counts after five working years
-      for (let t = k; P.age + t < end; t++) { const basic = 0.4 * ctcOf(t, k) * share(t, k); pf += 0.24 * basic * Math.pow(1 + P.pfRate, end - P.age - t - 1); gr += 0.0481 * basic; if (share(t, k) > 0) yrs++; }
-      const value = pf + (yrs >= 5 ? gr : 0); return value > 0 && end < P.planEnd && end > P.age + k ? { age: end, value } : null; };
+    const pfAt = k => { if (!P.countPf || !(P.jobCtc > 0)) return null; const end = Math.min(P.workUntil, P.planEnd); let pf = 0, worked = 0, last = 0;       // PF: both shares (24% of basic) less the pension-scheme part (8.33% of pay up to ₹3 lakh a year), growing to the day the job ends
+      for (let t = k; P.age + t < end; t++) { const s = share(t, k), yearBasic = 0.4 * ctcOf(t, k); pf += (0.24 * yearBasic * s - 0.0833 * Math.min(yearBasic * s, 300000 * s)) * Math.pow(1 + P.pfRate, end - P.age - t - 1); worked += s; if (s > 0) last = yearBasic / 12; }
+      const months = Math.round(worked * 12), yrs = Math.floor(months / 12) + (months % 12 > 6 ? 1 : 0), gr = months >= 60 ? Math.min(2000000, last * 15 / 26 * yrs) : 0;       // gratuity after five working years: last monthly basic × 15 ÷ 26 × years, up to ₹20 lakh
+      const value = pf + gr; return value > 0 && end < P.planEnd && end > P.age + k ? { age: end, value } : null; };
     const rows = [];
     for (let k = 0; k <= 10; k++) {
       let cash = P.cash, ret = P.retire; const fxK = P.fx * Math.pow(1 + P.dep / 100, k), age = P.age + k;

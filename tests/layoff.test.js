@@ -27,8 +27,15 @@ test('runway: months covered, with the yearly premium and a part-month at the en
   near(L.runway(600000, 100000, { income: 40000 }).months, 10, 1e-9);     // 60k a month from savings
 });
 
-test('runway: PF counts only when switched on, 75% after a month and the rest after twelve', () => {
+test('runway: PF counts only when switched on, 75% straight away and the rest after twelve months', () => {
   const off = L.runway(300000, 100000, { pf: 400000 }), on = L.runway(300000, 100000, { pf: 400000, pfOn: true });
   near(off.months, 3, 1e-9); near(on.months, 6, 1e-9);                   // 3 L + 3 L (75% of PF) = 6 months; the last 25% would come in month 13
   near(L.runway(300000, 50000, { pf: 400000, pfOn: true }).months, 14, 1e-9);   // 3 + 3 = 6 L → 12 months, then 1 L more in month 13 → 14
+});
+
+test('runway: the 75% of PF is there in the first month, so someone with no other money is not shown running out before it arrives', () => {
+  assert.equal(L.runway(0, 50000, { pf: 1000000 }).months, 0);                                 // PF switched off: nothing to live on
+  const r = L.runway(0, 50000, { pf: 1000000, pfOn: true });                                  // 7.5 L in month 1 pays 12 months (6 L); 1.5 L left + 2.5 L in month 13 = 4 L = 8 more months
+  near(r.months, 12 + (750000 - 600000 + 250000) / 50000, 1e-9); near(r.months, 20, 1e-9); near(r.bals[1], 750000 - 50000, 1e-9); near(r.bals[13], 150000 + 250000 - 50000, 1e-9);
+  near(L.runway(20000, 50000, { pf: 200000, pfOn: true }).months, (20000 + 150000) / 50000, 1e-9);      // 0.2 L + 1.5 L lasts 3.4 months; the last quarter never arrives in time
 });

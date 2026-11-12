@@ -68,7 +68,7 @@ const Tax = (() => {
     const basic = ctc * inp.basicPct / 100;
     const hra = basic * inp.hraPct / 100;
     const variable = ctc * inp.variablePct / 100;
-    const pfWageMonthly = inp.pfCap ? Math.min(basic / 12, 15000) : basic / 12;
+    const pfWageMonthly = inp.pfCap ? Math.min(basic / 12, 25000)       /* the PF wage ceiling: ₹25,000 from 17 September 2026 (₹15,000 before) */ : basic / 12;
     const employerPf = pfWageMonthly * 12 * 0.12;
     const employeePf = employerPf;
     const gratuity = inp.gratuity ? basic * 0.0481 : 0;

@@ -33,15 +33,21 @@
     return out;
   }
 
-  /** Provident fund and gratuity that build up while you work in India (your PF and your employer's, at the PF rate, and gratuity after five years), as one amount you receive when the job ends. Only when countPf is 'yes'. */
+  /** Provident fund and gratuity that build up while you work in India, as one amount you receive when the job ends. Only when countPf is 'yes'.
+   *  PF: your 12% of basic and your employer's 12%, less the part of the employer's share that goes to the pension scheme (8.33% of pay up to the
+   *  ₹25,000 a month wage ceiling), growing at the PF rate. Gratuity, after five years of work: the last monthly basic × 15 ÷ 26 × years of service
+   *  (a part-year over six months counts as a year), up to the ₹20 lakh limit. */
+  const PF_WAGE_CEILING = 25000, GRATUITY_CAP = 2000000, PF_RATE = 8.25;
   function pfInflow(p, r) {
     if (p.countPf !== 'yes' || !(p.jobCtc > 0)) return null;
-    const end = Math.min(p.workUntil, p.planEnd), rate = (p.pfRate == null ? 8 : p.pfRate) / 100; let pf = 0, grat = 0, years = 0;
+    const end = Math.min(p.workUntil, p.planEnd), rate = (p.pfRate == null ? PF_RATE : p.pfRate) / 100; let pf = 0, service = 0, lastBasic = 0;
     for (let t = r || 0; p.age + t < end; t++) {
-      const basic = 0.4 * ctcAt(p, t, r) * workShare(p, t, r); pf += 0.24 * basic * Math.pow(1 + rate, end - (p.age + t) - 1); grat += 0.0481 * basic; if (workShare(p, t, r) > 0) years++;
+      const share = workShare(p, t, r), full = 0.4 * ctcAt(p, t, r), basic = full * share, pension = 0.0833 * Math.min(basic, PF_WAGE_CEILING * 12 * share);
+      pf += (0.24 * basic - pension) * Math.pow(1 + rate, end - (p.age + t) - 1); service += share; if (share > 0) lastBasic = full;
     }
-    const value = pf + (years >= 5 ? grat : 0);
-    return value > 0 && end < p.planEnd && end > p.age + (r || 0) ? { age: end, value, pf, grat: years >= 5 ? grat : 0 } : null;
+    const whole = Math.floor(service + 1e-9), years = whole + (service - whole > 0.5 + 1e-9 ? 1 : 0);
+    const grat = service >= 5 - 1e-9 ? Math.min(GRATUITY_CAP, lastBasic / 12 * 15 / 26 * years) : 0, value = pf + grat;
+    return value > 0 && end < p.planEnd && end > p.age + (r || 0) ? { age: end, value, pf, grat } : null;
   }
 
   /** Extra spending from the life events you list, in rupees of the year it falls: 'monthly' = a monthly cost (today's money) from one age up to another, 'once' = a one-time cost at one age. Events before you return are not counted. */
@@ -147,6 +153,6 @@
     return q;
   }
 
-  const api = { minCtc, incomeByYear, pfInflow, eventSpend, atReturn, live, needed, evaluate, analyse, maxSpend, todayToReturn, rupeeDriftFromInflation, scenario, SCENARIOS };
+  const api = { PF_RATE, PF_WAGE_CEILING, minCtc, incomeByYear, pfInflow, eventSpend, atReturn, live, needed, evaluate, analyse, maxSpend, todayToReturn, rupeeDriftFromInflation, scenario, SCENARIOS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Returning = api;
 })(typeof window !== 'undefined' ? window : globalThis);

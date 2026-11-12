@@ -27,7 +27,7 @@ function salary(o) {
     inHandMonthNewRegime: r.new.inHandMonth, inHandMonthOldRegime: r.old.inHandMonth, taxNewRegime: r.new.tax, taxOldRegime: r.old.tax,
     employeePfYear: r.employeePf, employerPfYear: r.employerPf, gratuityYear: r.gratuity, professionalTaxYear: r.pt, grossCashSalaryYear: r.gross,
     ctcMinusInHandYear: p.ctc - b.inHandYear },
-    assumptions: ['Basic ' + p.basicPct + '% of CTC, HRA ' + p.hraPct + '% of basic' + (n(p.variablePct) > 0 ? ', variable pay ' + p.variablePct + '% of CTC' : ', no bonus'), 'PF 12% of ' + (p.pfCap ? 'a capped ₹15,000 basic' : 'the full basic'), 'Gratuity inside CTC', 'Professional tax ₹' + p.ptMonthly + ' a month',
+    assumptions: ['Basic ' + p.basicPct + '% of CTC, HRA ' + p.hraPct + '% of basic' + (n(p.variablePct) > 0 ? ', variable pay ' + p.variablePct + '% of CTC' : ', no bonus'), 'PF 12% of ' + (p.pfCap ? 'basic capped at the ₹25,000 wage ceiling (₹3,000 a month; ₹1,800 until 16 September 2026)' : 'the full basic'), 'Gratuity inside CTC', 'Professional tax ₹' + p.ptMonthly + ' a month',
       'Rent ₹' + n(p.rentMonthly) + ' a month in a ' + (p.metro ? 'metro' : 'non-metro') + ' city (matters only for the old regime)', deductionsText(p),
       'Better of old and new regime is used for the main figure; both are listed', 'Tax Year 2026-27 rules'] };
 }
@@ -67,7 +67,7 @@ function sip(o) {
   const ret = n(d.ret), months = Math.floor(n(d.yrs)) * 12 + Math.floor(n(d.mon)), step = lumpMode ? 0 : n(d.step), lump = n(d.lump), infl = n(d.infl), taxk = d.taxk, slab = n(d.slab), nominal = d.conv === 'nom';
   const fut = Math.pow(1 + infl / 100, months / 12), goalToday = goal && d.goalIn === 'today', entered = n(d.goal), target = goalToday ? entered * fut : entered;
   let s = n(d.sip); if (goal) s = Invest.requiredSip({ target, ret, months, step, lump, nominal });
-  const R = Invest.run({ sip: lumpMode ? 0 : s, step, lump, ret, months, nominal }), tax = Invest.tax(R.gain, taxk, months, slab), net = R.value - tax;
+  const R = Invest.run({ sip: lumpMode ? 0 : s, step, lump, ret, months, nominal }), tax = Invest.tax(R.gain, taxk, months, slab, R.gainShort), net = R.value - tax;
   const res = { monthlySip: lumpMode ? 0 : s, futureValue: R.value, totalInvested: R.invested, wealthGained: R.gain, taxIfSoldAtEnd: tax, valueAfterTax: net, valueAfterTaxInTodaysMoney: net / Math.pow(1 + infl / 100, months / 12), lastYearMonthlySip: R.lastSip, months };
   if (goal) { res.goalFutureAmount = target; res.goalAsEnteredInTodaysPrices = goalToday ? entered : entered / fut; }
   return { inputs: d, results: res, assumptions: ['Return ' + ret + '% a year, applied as ' + (nominal ? 'return ÷ 12 each month' : 'an effective yearly rate'), 'Inflation ' + infl + '% a year', 'Step-up ' + step + '% a year', 'Returns are not guaranteed'] };
@@ -97,7 +97,7 @@ function fd(o) {
 }
 
 /* ---------- gratuity / hra ---------- */
-function gratuity(o) { const d = merge('gratuity-calculator', o), r = Gratuity.calc({ wage: n(d.wage), kind: d.kind, years: n(d.yrs), months: n(d.mon), fixedTerm: bool(d.fixed), totalPay: n(d.total) || undefined, apply50: n(d.total) > 0 }); return { inputs: d, results: r, assumptions: ['Formula: wage × 15 ÷ 26 × completed years (covered employees)', 'New labour-code rules as built into the site. Confirm with a labour-law professional', 'Tax-free limit ₹20 lakh'] }; }
+function gratuity(o) { const d = merge('gratuity-calculator', o), r = Gratuity.calc({ wage: n(d.wage), kind: d.kind, years: n(d.yrs), months: n(d.mon), fixedTerm: bool(d.fixed), totalPay: n(d.total) || undefined, apply50: n(d.total) > 0 }); return { inputs: d, results: r, assumptions: ['Formula: wage × 15 ÷ 26 × completed years (covered employees)', 'New labour-code rules as built into the site. Confirm with a labour-law professional', 'Tax-free limit ₹20 lakh; central government civil servants have a ₹25 lakh limit'] }; }
 function hra(o) {
   const d = merge('hra-calculator', { metro: true, ...o }), metro = bool(d.metro), r = HRA.calc({ basicM: n(d.basic), hraM: n(d.hra), rentM: n(d.rent), months: n(d.months), pctOfBasic: metro ? 0.5 : 0.4, slab: n(d.slab) });
   return { inputs: d, results: r, assumptions: ['Old regime only', 'Exempt HRA = least of HRA received, rent − 10% of basic, and ' + (metro ? '50%' : '40%') + ' of basic', 'Metro = Delhi, Mumbai, Kolkata, Chennai, Bengaluru, Hyderabad, Pune, Ahmedabad (Income-tax Rules 2026, Rule 279)'] };
