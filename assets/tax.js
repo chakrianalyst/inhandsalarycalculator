@@ -40,7 +40,7 @@ const Tax = (() => {
 
   /** Total tax for a given taxable income, incl. surcharge (with marginal relief) and 4% cess. */
   function computeTax(income, regime) {
-    income = Math.max(0, Math.round(income));
+    income = Math.max(0, Math.round(Number(income) || 0));              // anything that is not a number counts as no income
     const base = baseTax(income, regime);
     let withSur = taxBeforeRelief(income, regime);
     const rate = surchargeRate(income, regime);
@@ -57,7 +57,7 @@ const Tax = (() => {
 
   /** The working behind computeTax: tax slab by slab, then rebate or marginal relief, surcharge and cess. Totals always equal computeTax. */
   function breakdown(income, regime) {
-    income = Math.max(0, Math.round(income));
+    income = Math.max(0, Math.round(Number(income) || 0));
     const slabs = regime === 'new' ? NEW_SLABS : OLD_SLABS, rows = []; let prev = 0, slabTax = 0;
     for (const [lim, rate] of slabs) {
       if (income > prev) { const to = Math.min(income, lim), amt = to - prev; rows.push({ from: prev, to: lim, rate, amount: amt, tax: amt * rate }); slabTax += amt * rate; }
@@ -78,7 +78,7 @@ const Tax = (() => {
   /** Cities where HRA exemption is up to 50% of basic (old regime). Income-tax Rules 2026 added the last four from FY 2026-27. */
   const METRO_CITIES = ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad', 'Pune', 'Ahmedabad'];
   const K = { stdNew: 75000, stdOld: 50000, npsNew: 0.14, npsOld: 0.10, cap80c: 150000, cap1b: 50000, capHome: 200000, capDis: 125000,
-              empCap: 750000, pfCeiling: 15000, pfRate: 0.12, gratuityRate: 0.0481 };
+              empCap: 750000, pfCeiling: 25000, pfRate: 0.12, gratuityRate: 0.0481 };      // pfCeiling: the EPF wage ceiling, ₹25,000 a month from 17 September 2026 (₹15,000 before), so capped PF is ₹3,000 a month
   /** annual amount from a value entered as 'pct' (of base), 'yr' or 'mo' */
   const per = (mode, v, base) => { v = Number(v) || 0; return mode === 'pct' ? (base || 0) * v / 100 : mode === 'mo' ? v * 12 : v; };
 

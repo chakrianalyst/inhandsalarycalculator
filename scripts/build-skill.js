@@ -8,7 +8,7 @@ const fs = require('fs'), path = require('path'), crypto = require('crypto'), { 
 const ROOT = path.join(__dirname, '..'), SKILL = path.join(ROOT, 'skills', 'rupeecheck-content'), ENGINE = path.join(SKILL, 'engine');
 const MODULES = ['tax', 'invest', 'loan', 'deposit', 'hra', 'gratuity', 'fire', 'rentbuy', 'abroad', 'returning', 'swp'];
 const PAGES = ['sip-calculator', 'emi-calculator', 'fd-calculator', 'gratuity-calculator', 'hra-calculator', 'fire-calculator', 'rent-vs-buy-calculator', 'return-calculator', 'abroad-calculator', 'swp-calculator'];
-const TAX_YEAR = '2026-27', FX_DEFAULTS_DATE = '2026-10-02';        // update FX_DEFAULTS_DATE whenever the exchange-rate defaults in assets/abroad.js are refreshed
+const TAX_YEAR = '2026-27', FX_DEFAULTS_DATE = '2026-11-11';        // update FX_DEFAULTS_DATE whenever the exchange-rate defaults in assets/abroad.js are refreshed
 const sha = buf => crypto.createHash('sha256').update(buf).digest('hex').slice(0, 16);
 
 function pageDefaults(file) {                                       // the value each input has when the page first opens

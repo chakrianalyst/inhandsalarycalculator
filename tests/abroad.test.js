@@ -17,7 +17,11 @@ test('US: Social Security stops at the wage base; Medicare surcharge above $200k
   assert.ok(A.netPay('US', 150000, { state: 'NYC' }).net < A.netPay('US', 150000, { state: 'NY' }).net);
 });
 test('Canada: Alberta at C$100k by hand; Ontario costs more than Alberta; payroll caps hold', () => {
-  near(A.netPay('CA', 100000, { province: 'AB' }).net, 74248, 2); assert.ok(A.netPay('CA', 100000, { province: 'ON' }).net < A.netPay('CA', 100000, { province: 'AB' }).net);
+  // by hand: CPP 5.95% of (74,600 − 3,500) + 4% of (85,000 − 74,600), EI 1.63% of 68,900; the enhanced CPP part is deducted, the base part, EI and the C$1,501 employment amount earn credits
+  const cpp1 = 0.0595 * 71100, cpp2 = 0.04 * 10400, ei = 0.0163 * 68900, base = cpp1 * 4.95 / 5.95, taxable = 100000 - (cpp1 - base) - cpp2;
+  const fed = 0.14 * 58523 + 0.205 * (taxable - 58523) - 0.14 * (16452 + base + ei + 1501), ab = 0.08 * 61200 + 0.10 * (taxable - 61200) - 0.08 * (22769 + base + ei);
+  near(A.netPay('CA', 100000, { province: 'AB' }).net, 100000 - fed - ab - cpp1 - cpp2 - ei, 0.01); near(A.netPay('CA', 100000, { province: 'AB' }).net, 74458.5, 1);
+  near(A.netPay('CA', 100000, { province: 'AB' }).items.find(x => x.label === 'Federal income tax').amt, 13512.2 - 0.14 * 1501, 0.5);      // the employment amount takes C$210.14 off the earlier figure assert.ok(A.netPay('CA', 100000, { province: 'ON' }).net < A.netPay('CA', 100000, { province: 'AB' }).net);
   const e = A.netPay('CA', 300000, { province: 'AB' }).items.find(x => x.label === 'Employment Insurance').amt; near(e, 0.0163 * 68900, 0.01);
 });
 test('Australia: A$150k = income tax 36,570 + Medicare 3,000; nothing under the tax-free threshold', () => {
@@ -56,8 +60,10 @@ test('UK: £85k by hand (income tax 21,432 + NI 3,710.60); the personal allowanc
 });
 test('Germany: tariff formula continuity and the €90k example (tax class 1)', () => {
   assert.equal(A.deTariff(12000), 0); near(A.deTariff(17799), 1034, 1); near(A.deTariff(69878), 18213, 2); near(A.deTariff(100000), 0.42 * 100000 - 11135.63, 1);
-  const r = A.netPay('DE', 90000); near(r.items.find(x => x.label === 'Income tax').amt, 19350, 1); assert.equal(r.items.find(x => x.label === 'Solidarity surcharge'), undefined);        // income tax below the €20,350 threshold: no surcharge
-  near(r.tax - 19350, 8370 + 1170 + 0.0875 * 69750 + 0.024 * 69750, 1.5); assert.ok(A.netPay('DE', 200000).items.find(x => x.label === 'Solidarity surcharge').amt > 0);
+  // €90,000: taxable income = gross − 1,230 − 36 − pension (9.3%) − 96% of health (8.75% of €69,750) − care (2.4% of €69,750); tax = 42% of it − 11,135.63
+  const zve = 90000 - 1230 - 36 - 8370 - 0.96 * 0.0875 * 69750 - 0.024 * 69750, est = Math.floor(0.42 * Math.floor(zve) - 11135.63);
+  const r = A.netPay('DE', 90000); near(r.items.find(x => x.label === 'Income tax').amt, est, 0.01); near(est, 19453, 1); near(est - 19350, 0.42 * 0.04 * 0.0875 * 69750, 1);        // €102.5 more than when all of the health contribution was deducted assert.equal(r.items.find(x => x.label === 'Solidarity surcharge'), undefined);        // income tax below the €20,350 threshold: no surcharge
+  near(r.tax - est, 8370 + 1170 + 0.0875 * 69750 + 0.024 * 69750, 1.5); assert.ok(A.netPay('DE', 200000).items.find(x => x.label === 'Solidarity surcharge').amt > 0);
 });
 test('retirement: 401(k) lowers income tax but not payroll tax, is capped, and is not part of take-home', () => {
   const r = A.netPay('US', 120000, { state: 'none', retPct: 6, matchPct: 4 }); near(r.items.find(x => x.label === 'Federal income tax').amt, 15986, 0.01); near(r.items.find(x => x.label === 'Social Security').amt, 7440, 0.01);
@@ -70,4 +76,46 @@ test('retirement balances count toward net worth on both sides; a partner adds i
   const ret = A.compare({ ...p, abroad: { ...p.abroad, opt: { state: 'none', retPct: 6, matchPct: 4 } } }); assert.ok(ret.rows[0].abroadRetire > 0); assert.ok(ret.abroadNW > none.abroadNW - 5e6);                           // contributions are saved, so wealth is not lost
   const par = A.compare({ ...p, partner: { on: true, indiaCtc: 1500000, abroadGross: 60000 } }); assert.ok(par.indiaNW > none.indiaNW); assert.ok(par.abroadNW > none.abroadNW);
   assert.equal(A.compare({ ...p, partner: { on: false, indiaCtc: 1500000, abroadGross: 60000 } }).diff, none.diff);
+});
+
+test('UK: the personal allowance tapers on income after pension contributions, not on gross pay', () => {
+  const it = (g, o) => A.netPay('UK', g, o).items.find(x => x.label === 'Income tax').amt;
+  // £110,000 with a 10% pension: income for the taper is £99,000, so the full £12,570 allowance stays. Tax = 20% of 37,700 + 40% of the rest
+  near(it(110000, { retPct: 10 }), 0.20 * 37700 + 0.40 * (99000 - 12570 - 37700), 0.01); near(it(110000, { retPct: 10 }), 27032, 0.01);
+  // £120,000 with 5%: income £114,000, allowance 12,570 − 7,000 = 5,570
+  near(it(120000, { retPct: 5 }), 0.20 * 37700 + 0.40 * (114000 - 5570 - 37700), 0.01);
+  near(it(110000), 33432, 0.01);                                                                    // no pension: unchanged
+  near(A.netPay('UK', 110000, { retPct: 10 }).items.find(x => x.label === 'National Insurance').amt, 3016 + 0.02 * (110000 - 50270), 0.01);      // National Insurance is still on gross pay
+});
+
+test('Australia: the low income tax offset, by hand, and gone by A$66,667', () => {
+  const it = g => (A.netPay('AU', g).items.find(x => x.label === 'Income tax') || { amt: 0 }).amt;
+  near(it(40000), 0.15 * (40000 - 18200) - (700 - 0.05 * 2500), 0.01); near(it(40000), 2695, 0.01);                  // A$3,270 less a A$575 offset
+  near(it(30000), 0.15 * 11800 - 700, 0.01); assert.equal(it(22000), 0);                                             // the offset wipes out small amounts of tax, never below zero
+  near(it(50000), 0.15 * 26800 + 0.30 * 5000 - (325 - 0.015 * 5000), 0.01);
+  near(it(66667), 0.15 * 26800 + 0.30 * 21667, 0.01); near(it(120000), 0.15 * 26800 + 0.30 * 75000, 0.01);          // no offset left
+});
+
+test('Canada: Ontario Health Premium rises gradually between its steps', () => {
+  // low pay keeps Ontario tax itself tiny, so the premium shows: taxable C$22,000 → 6% of 2,000 = C$120 (enhanced CPP is so small here that taxable ≈ gross)
+  const on = g => { const cpp1 = 0.0595 * (Math.min(g, 74600) - 3500), base = cpp1 * 4.95 / 5.95, ei = 0.0163 * g, t = g - (cpp1 - base);
+    const prem = t <= 20000 ? 0 : t <= 36000 ? Math.min(300, 0.06 * (t - 20000)) : t <= 48000 ? Math.min(450, 300 + 0.06 * (t - 36000)) : Math.min(600, 450 + 0.25 * (t - 48000));
+    return Math.max(0, 0.0505 * t - 0.0505 * (12989 + base + ei)) + prem; };
+  for (const g of [19000, 22000, 30000, 37000, 45000, 48300, 52000]) near(A.netPay('CA', g, { province: 'ON' }).items.filter(x => x.label === 'Ontario income tax').reduce((s, x) => s + x.amt, 0), on(g), 0.01);
+  near(on(22000), Math.max(0, 0.0505 * (22000 - 12989 - 0.0163 * 22000 - 0.0595 * 18500)) + 0.06 * (22000 - 0.01 * 18500 - 20000), 0.01);      // the same thing written out for C$22,000: the 1%-point enhanced CPP is deducted, the rest of CPP and EI are credited at 5.05%
+});
+
+test('US states, 2026 figures by hand: Illinois exemption, Massachusetts surtax threshold, California disability insurance and the 1% above $1 million', () => {
+  const st = (g, s) => A.netPay('US', g, { state: s }).items.find(x => / tax$/.test(x.label) && !/Federal/.test(x.label)).amt;
+  near(st(150000, 'IL'), (150000 - 2925) * 0.0495, 0.01);
+  near(st(1200000, 'MA'), (1200000 - 4400) * 0.05 + (1200000 - 1107750) * 0.04, 0.01); near(st(1100000, 'MA'), (1100000 - 4400) * 0.05, 0.01);      // under the 2026 threshold: no surtax
+  const caBands = x => A.progressive(x, [[11079, .01], [26264, .02], [41452, .04], [57542, .06], [72724, .08], [371479, .093], [445771, .103], [742953, .113], [Infinity, .123]]);
+  near(st(150000, 'CA'), caBands(150000 - 5706) + 150000 * 0.013, 0.01);
+  near(st(1500000, 'CA'), caBands(1500000 - 5706) + (1500000 - 5706 - 1000000) * 0.01 + 1500000 * 0.013, 0.01);
+  assert.match(A.US_STATES.NY.note, /107,650/); assert.match(A.US_STATES.NYC.note, /recapture/);
+});
+
+test('default exchange rates are the 11 November 2026 figures', () => {
+  assert.deepEqual(Object.fromEntries(Object.entries(A.COUNTRIES).map(([k, c]) => [k, c.fx])), { US: 94, CA: 66, AU: 64.4, SG: 73.1, AE: 25.5, UK: 125.1, DE: 104.6 });
+  near(A.COUNTRIES.AE.fx, A.COUNTRIES.US.fx / 3.6725, 0.15);                          // the dirham is pegged to the dollar, so the two defaults must agree
 });

@@ -119,7 +119,7 @@
     <h2>Frequently asked questions</h2>
     <div class="faq">
       <details><summary>Why is my in-hand salary much lower than CTC/12?</summary><p>Because CTC includes employer PF and gratuity, and your own PF, professional tax and income tax are deducted before payout.</p></details>
-      <details><summary>What PF should I choose?</summary><p>PF is 12% of basic. Many employers cap it at ₹15,000 of basic (₹1,800 a month). Choose the option that matches your offer letter or payslip, or enter a custom amount. See how much each choice changes your in-hand at every CTC: <a href="pf-12-percent-vs-fixed-1800.html">12% PF or fixed ₹1,800 PF</a>.</p></details>
+      <details><summary>What PF should I choose?</summary><p>PF is 12% of basic. Many employers cap it at the PF wage ceiling of ₹25,000 of basic (₹3,000 a month; it was ₹15,000 and ₹1,800 until 16 September 2026). Choose the option that matches your offer letter or payslip, or enter a custom amount. See how much each choice changes your in-hand at every CTC: <a href="pf-12-percent-vs-capped-pf.html">12% PF or capped ₹3,000 PF</a>.</p></details>
       <details><summary>How is bonus treated?</summary><p>Bonus or variable pay is taxed together with your other income. The calculator shows your fixed monthly in-hand separately and the bonus after tax, because the bonus is not paid every month. You can also set an expected payout percentage. See <a href="variable-pay-in-ctc.html">how variable pay changes your in-hand</a>.</p></details>
       <details><summary>Does NPS reduce my tax?</summary><p>Employer NPS up to 14% of basic (new regime) or 10% (old regime) is not taxed, so opting for it lowers your tax. It also lowers your take-home, because the amount comes out of your CTC and goes into your NPS account. The calculator shows both effects. Voluntary PF comes out of your pay and only reduces tax in the old regime, through the 80C limit.</p></details>
       <details><summary>Is professional tax deductible?</summary><p>Yes under the old regime. It is not allowed as a deduction in the new regime, but it is still deducted from your pay.</p></details>
@@ -188,7 +188,7 @@
   const sRet = sec('ret', '🛡️', 'Employer PF & gratuity', 'Your employer puts these into your PF, gratuity and NPS. Still your money, paid out later', false);
   ctcSecs.appendChild(sRet);
   $('b-ret').innerHTML = sub('Provident fund (PF)') +
-    `<div class="field"><span class="lbl">PF is calculated on</span><div class="seg" id="pfMode"><button type="button" data-v="full" class="on">12% of basic</button><button type="button" data-v="cap">Capped at ₹15,000 basic (₹1,800/mo)</button><button type="button" data-v="custom">Custom</button></div><div class="cap" id="pfInfo"></div></div><div id="pfCustom"></div>` +
+    `<div class="field"><span class="lbl">PF is calculated on</span><div class="seg" id="pfMode"><button type="button" data-v="full" class="on">12% of basic</button><button type="button" data-v="cap">Capped at ₹25,000 basic (₹3,000/mo)</button><button type="button" data-v="custom">Custom</button></div><div class="cap" id="pfInfo"></div></div><div id="pfCustom"></div>` +
     mfield('vpf', 'Voluntary PF (VPF)', '', 'Extra PF you choose to put in each month. Comes out of your pay; counts under 80C (old regime).', '/month') + `<div class="cap" id="vpfEffect"></div>` +
     sub('Gratuity') + `<div class="field"><span class="lbl">Gratuity is calculated on</span><div class="seg" id="gratMode"><button type="button" data-v="basic" class="on">Basic</button><button type="button" data-v="wages">Wages (50% rule)</button><button type="button" data-v="custom">Custom</button><button type="button" data-v="off">None</button></div><div class="cap" id="gratInfo"></div><span class="hint">Gratuity is 4.81% of the base. Many employers now use “wages”, which is at least 50% of total pay, instead of basic. Choose the one your offer uses, or enter your own figure under Custom.</span></div><div id="gratCustom"></div>` +
     sub('NPS (employer contribution)') + `<div id="npsBox"></div><div class="cap" id="npsInfo"></div><div class="cap" id="npsEffect" style="color:var(--text);font-weight:600"></div>` +
@@ -286,12 +286,12 @@
 
   /* ---------- render ---------- */
   const sipAt = m => Math.max(500, Math.round(m * 0.2 / 100) * 100);
-  /** The PF check: many employers cap PF at ₹1,800 a month, others take 12% of the full basic. Show what the other choice would leave in hand. */
+  /** The PF check: many employers cap PF at ₹3,000 a month (12% of the ₹25,000 wage ceiling), others take 12% of the full basic. Show what the other choice would leave in hand. */
   function pfLine(isCtc, a, d, key, b) {
-    const pf = pfGet(); if (!isCtc || pf === 'custom' || a.basic / 12 <= 15000) return '';
+    const pf = pfGet(); if (!isCtc || pf === 'custom' || a.basic / 12 <= Tax.K.pfCeiling) return '';
     const alt = Tax.assess(Tax.structure({ ...readCtc(), pfMode: pf === 'full' ? 'cap' : 'full' }), d)[key].fixedMonthly, gap = alt - b.fixedMonthly;
     if (Math.abs(gap) < 100) return '';
-    return pf === 'full' ? `If your company caps PF at ₹1,800 a month, your in-hand would be <b>${f(alt)}</b> (${f(gap)} more). Check your offer letter and set it under Other details.`
+    return pf === 'full' ? `If your company caps PF at ₹3,000 a month, your in-hand would be <b>${f(alt)}</b> (${f(gap)} more). Check your offer letter and set it under Other details.`
       : `With PF at 12% of your full basic, your in-hand would be <b>${f(alt)}</b> (${f(-gap)} less), with more going into your PF.`;
   }
   const ALLOC = ['var(--c1)', 'var(--c5)', 'var(--c3)', 'var(--c2)', 'var(--c4)', 'var(--c6)', '#a78bfa'];
@@ -354,7 +354,7 @@
     setV('tax', f(r.pt) + '/yr PT'); const autoOld = 50000 + r.pt + Math.min(150000, a.employeePf + a.vpf), added = Math.max(0, r.old.deductions - autoOld);      // the standard deduction, PT and your own PF are counted for everyone
     setV('old', added >= 1 ? f(added) + ' added' : 'None added yet');
     $('oldAuto').textContent = `Already counted for you: the ₹50,000 standard deduction` + (a.employeePf + a.vpf > 0 ? `, your PF of ${f(Math.min(150000, a.employeePf + a.vpf))} under 80C` : '') + (r.pt > 0 ? ` and professional tax of ${f(r.pt)}` : '') + '.';
-    const pfAmt = a.employerPf; $('pfInfo').textContent = isCtc ? `Employer PF ${f(pfAmt)}/yr (${f(pfAmt / 12)}/mo). Your own PF deduction is the same.` + (pfGet() === 'full' && a.basic / 12 > 15000 ? ' Some employers cap PF at ₹1,800/month; choose “Minimum” if yours does.' : '') : '';
+    const pfAmt = a.employerPf; $('pfInfo').textContent = isCtc ? `Employer PF ${f(pfAmt)}/yr (${f(pfAmt / 12)}/mo). Your own PF deduction is the same.` + (pfGet() === 'full' && a.basic / 12 > Tax.K.pfCeiling ? ' Some employers cap PF at ₹3,000/month; choose “Capped” if yours does.' : '') : '';
     const gm = gratGet(), gv = a.gratuity; $('gratInfo').textContent = !isCtc ? '' : gm === 'off' ? 'No gratuity is counted inside your CTC.' : gm === 'wages' ? `Gratuity ${f(gv)}/yr = 4.81% of wages (${f(gv / 0.0481)}).` : gm === 'basic' ? `Gratuity ${f(gv)}/yr = 4.81% of basic.` : `Gratuity ${f(gv)}/yr (${f(gv / 12)}/mo).`;
     const retB = a.employerPf + a.gratuity + a.employerNps + a.insurance;
     $('ab').innerHTML = isCtc ? `<span>Paid to you as salary <b>${f(a.ctc - retB)}</b></span><span>+ Employer PF &amp; gratuity <b>${f(retB)}</b></span><span>= CTC <b>${f(a.ctc)}</b></span>` : '';

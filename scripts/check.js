@@ -7,10 +7,20 @@ const siteUrl = (cfg.siteUrl || '').replace(/\/+$/, '');
 const errors = [], warns = [];
 const err = (f, m) => errors.push(`${f}: ${m}`), warn = (f, m) => warns.push(`${f}: ${m}`);
 const files = fs.readdirSync(DIR).filter(f => f.endsWith('.html'));
-const titles = new Map();
+const titles = new Map(), redirects = [];
+/** A page that only redirects (meta refresh): it must point at a page that exists, name it as canonical, and stay out of search results and the sitemap. */
+function checkRedirect(f, h) {
+  const to = (h.match(/<meta http-equiv="refresh" content="0; url=([^"]+)"/) || [])[1], canon = (h.match(/<link rel="canonical" href="([^"]*)"/) || [])[1];
+  if (!to || !fs.existsSync(path.join(DIR, to))) err(f, 'redirect target missing: ' + to);
+  else if (/<meta http-equiv="refresh"/.test(fs.readFileSync(path.join(DIR, to), 'utf8'))) err(f, 'redirects to another redirect');
+  if (canon !== `${siteUrl}/${to}`) err(f, `canonical ${canon} should be the page it redirects to`);
+  if (!/<meta name="robots" content="noindex/.test(h)) err(f, 'a redirect page should be noindex');
+  if (/\{\{[A-Z_]+\}\}/.test(h)) err(f, 'unreplaced {{TOKEN}}');
+}
 
 for (const f of files) {
   const h = fs.readFileSync(path.join(DIR, f), 'utf8');
+  if (/<meta http-equiv="refresh"/.test(h)) { redirects.push(f); checkRedirect(f, h); continue; }
   const title = (h.match(/<title>([\s\S]*?)<\/title>/) || [])[1], desc = (h.match(/<meta name="description" content="([^"]*)"/) || [])[1];
   if (!title) err(f, 'missing <title>'); else { if (title.length > 75) warn(f, `long title (${title.length})`); if (titles.has(title)) err(f, `duplicate title with ${titles.get(title)}`); titles.set(title, f); }
   if (!desc) err(f, 'missing meta description'); else if (desc.length < 50 || desc.length > 175) warn(f, `description length ${desc.length}`);
@@ -33,7 +43,8 @@ for (const f of files) {
   }
 }
 const sm = fs.readFileSync(path.join(DIR, 'sitemap.xml'), 'utf8'), locs = [...sm.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
-for (const f of files.filter(x => x !== '404.html')) if (!locs.includes(`${siteUrl}/${f === 'index.html' ? '' : f}`)) err('sitemap.xml', `missing ${f}`);
+for (const f of redirects) if (locs.includes(`${siteUrl}/${f}`)) err('sitemap.xml', `lists the redirect page ${f}`);
+for (const f of files.filter(x => x !== '404.html' && !redirects.includes(x))) if (!locs.includes(`${siteUrl}/${f === 'index.html' ? '' : f}`)) err('sitemap.xml', `missing ${f}`);
 if (!/Sitemap:/.test(fs.readFileSync(path.join(DIR, 'robots.txt'), 'utf8'))) err('robots.txt', 'no Sitemap line');
 for (const a of ['favicon.svg', 'og.png', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png']) if (!fs.existsSync(path.join(DIR, 'assets', a))) err('assets', 'missing ' + a);
 if (!fs.existsSync(path.join(DIR, 'manifest.webmanifest'))) err('manifest', 'missing');

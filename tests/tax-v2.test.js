@@ -32,9 +32,10 @@ test('basic: 40% of CTC == ₹4,80,000 a year == ₹40,000 a month', () => {
 test('HRA: % of basic or ₹', () => {
   near(Tax.structure({ ctc: 1200000, hraMode: 'pct', hraVal: 50 }).hra, 240000); near(Tax.structure({ ctc: 1200000, hraMode: 'mo', hraVal: 15000 }).hra, 180000);
 });
-test('PF modes: 12% of basic, statutory minimum (₹1,800/mo), custom %, custom ₹', () => {
+test('PF modes: 12% of basic, capped at the ₹25,000 wage ceiling (₹3,000/mo), custom %, custom ₹', () => {
   const s = o => Tax.structure({ ctc: 1200000, ...o }).employerPf;
-  near(s({ pfMode: 'full' }), 57600); near(s({ pfMode: 'cap' }), 21600); near(s({ pfMode: 'pct', pfVal: 10 }), 48000);
+  near(s({ pfMode: 'full' }), 57600); near(s({ pfMode: 'cap' }), 3000 * 12); near(s({ pfMode: 'cap' }), 0.12 * 25000 * 12); assert.equal(Tax.K.pfCeiling, 25000);      // basic ₹40,000 a month is above the ceiling: 12% of ₹25,000
+  near(Tax.structure({ ctc: 600000, pfMode: 'cap' }).employerPf, 0.12 * 20000 * 12); near(Tax.structure({ ctc: 600000, pfMode: 'cap' }).employerPf, Tax.structure({ ctc: 600000, pfMode: 'full' }).employerPf);      // basic ₹20,000 is under it: the cap changes nothing near(s({ pfMode: 'pct', pfVal: 10 }), 48000);
   near(s({ pfMode: 'mo', pfVal: 2000 }), 24000); near(s({ pfMode: 'yr', pfVal: 30000 }), 30000);
 });
 test('special allowance balances the CTC; shortfall is reported when components overshoot', () => {
@@ -210,4 +211,17 @@ test('other payslip deductions (cab, lunch, ESPP): lower take-home by exactly th
   const a = Tax.structure({ ctc: 2400000, bonusMode: 'pct', bonusVal: 10 }), base = Tax.assess(a, { ptMonthly: 200, rentMonthly: 20000 }), ded = Tax.assess(a, { ptMonthly: 200, rentMonthly: 20000, postTaxYear: 60000 });
   for (const k of ['new', 'old']) { near(ded[k].inHandYear, base[k].inHandYear - 60000, 0.01); near(ded[k].fixedMonthly, base[k].fixedMonthly - 5000, 0.01); assert.equal(ded[k].tax, base[k].tax); assert.equal(ded[k].otherDed, 60000); }
   assert.equal(ded.best, base.best); near(ded.saving, base.saving, 0.01); assert.equal(Tax.assess(a, { postTaxYear: -5 }).new.otherDed, 0);
+});
+
+test('capped PF at ₹20 lakh CTC, by hand: ₹3,000 a month from each side, and the in-hand that follows', () => {
+  const r = Tax.salary({ ctc: 2000000, basicPct: 40, hraPct: 50, variablePct: 0, pfCap: true, gratuity: true, employerNps: 0, ptMonthly: 200, metro: true, rentMonthly: 0 });
+  near(r.employerPf, 36000); near(r.employeePf, 36000);
+  // gross = CTC − employer PF − gratuity (4.81% of ₹8 lakh basic); new-regime tax on gross − ₹75,000: 20,000 + 40,000 + 60,000 + 20% above ₹16 lakh, plus 4% cess
+  const gross = 2000000 - 36000 - 800000 * 0.0481, taxable = gross - 75000, tax = (120000 + (taxable - 1600000) * 0.20) * 1.04;
+  near(r.gross, gross); near(r.new.tax, tax, 0.01); near(r.new.inHandMonth, (gross - 36000 - 2400 - tax) / 12, 0.01);
+});
+
+test('a tax amount that is not a number counts as no income instead of spreading NaN', () => {
+  for (const x of [NaN, undefined, null, 'abc']) { assert.equal(Tax.computeTax(x, 'new').total, 0); assert.equal(Tax.computeTax(x, 'old').total, 0); assert.equal(Tax.breakdown(x, 'new').total, 0); }
+  near(Tax.computeTax('1500000', 'new').total, (20000 + 40000 + 45000) * 1.04, 0.01);        // a number typed as text still works: ₹15 lakh taxable is 5% + 10% of ₹4 lakh each and 15% of ₹3 lakh, plus cess
 });

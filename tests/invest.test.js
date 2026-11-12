@@ -40,3 +40,17 @@ test('monthly-compounding convention (ret ÷ 12 a month) gives the larger figure
   assert.ok(I.run({ sip: 10000, ret: 12, months: 180, nominal: true }).value > I.run({ sip: 10000, ret: 12, months: 180 }).value);
   const p = { target: 5000000, ret: 12, months: 120, step: 5, lump: 0, nominal: true }; near(I.run({ sip: I.requiredSip(p), step: 5, ret: 12, months: 120, nominal: true }).value, 5000000, 0.5);
 });
+
+test('SIP tax: the gain on the last 12 instalments is short-term (20%), the rest long-term (12.5% above ₹1.25 lakh)', () => {
+  const sip = 100000, M = 36, ret = 12, r = Math.pow(1.12, 1 / 12) - 1, x = I.run({ sip, ret, months: M });
+  let short = 0; for (let k = 1; k <= 12; k++) short += sip * (Math.pow(1 + r, k) - 1);          // an instalment made k months before the sale has grown for k months
+  near(x.gainShort, short, 0.01); near(x.gainShort, sip * ((1 + r) * (Math.pow(1 + r, 12) - 1) / r - 12), 0.01);      // the same sum in closed form
+  const long = x.gain - short, byHand = ((long - 125000) * 0.125 + short * 0.20) * 1.04;
+  near(I.tax(x.gain, 'equity', M, 0, x.gainShort), byHand, 0.01); assert.ok(byHand > I.tax(x.gain, 'equity', M));     // more than treating every rupee as long-term
+  // step-up: the last 12 instalments are the stepped-up amount
+  const y = I.run({ sip: 10000, step: 10, ret: 12, months: 24 }); let s2 = 0; for (let k = 1; k <= 12; k++) s2 += 11000 * (Math.pow(1 + r, k) - 1); near(y.gainShort, s2, 0.01);
+  // a plan of 12 months or less is all short-term, lump sum included; a lump held longer is long-term
+  const z = I.run({ sip: 5000, lump: 200000, ret: 12, months: 12 }); near(z.gainShort, z.gain, 0.01); near(I.tax(z.gain, 'equity', 12, 0, z.gainShort), z.gain * 0.2 * 1.04, 0.01);
+  const w = I.run({ sip: 0, lump: 1000000, ret: 12, months: 24 }); near(w.gainShort, 0, 1e-9); near(I.tax(w.gain, 'equity', 24, 0, w.gainShort), (w.gain - 125000) * 0.125 * 1.04, 0.01);
+  near(I.tax(100000, 'slab', 36, 30, 40000), 31200, 0.01); assert.equal(I.tax(100000, 'none', 36, 0, 40000), 0);       // slab-rate and no-tax choices do not depend on the split
+});

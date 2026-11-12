@@ -120,10 +120,11 @@ test('US salary in rupees: the build figures match the engines, worked out a sec
   const table = (h, rows) => JSON.stringify({ h, rows }), T = U.tokens(Tax, Abroad, table), f = 'us-salary-in-indian-rupees.html';
   // $120,000 in Texas, by hand: federal tax on $103,900 = 1,240 + 4,560 + 11,770, Social Security 6.2%, Medicare 1.45%, no state tax
   const fed = 0.10 * 12400 + 0.12 * (50400 - 12400) + 0.22 * (120000 - 16100 - 50400), net = (120000 - fed - 120000 * 0.062 - 120000 * 0.0145) / 12;
-  assert.equal(T['{{USD_120_TX_NET}}'], inr(net * 96)); assert.equal(T['{{USD_120_TX_SAVE}}'], inr((net - 1800 - 1500) * 96));
+  assert.equal(Abroad.COUNTRIES.US.fx, 94); assert.equal(T['{{USD_FX}}'], '₹94');        // the default rate, set on 11 November 2026
+  assert.equal(T['{{USD_120_TX_NET}}'], inr(net * 94)); assert.equal(T['{{USD_120_TX_SAVE}}'], inr((net - 1800 - 1500) * 94));
   // the Indian CTC that saves as much: its in-hand pay, less ₹70,000 of costs, lands on the Texas saving
   const ctc = parseFloat(T['{{USD_120_TX_CTC}}'].replace(/[^\d.]/g, '')) * 1e5, r = sal(ctc, { rentMonthly: 35000 });
-  assert.ok(Math.abs(r[r.best].inHandMonth - 70000 - (net - 3300) * 96) < 2000, 'CTC within ₹50,000 rounding of the target');
+  assert.ok(Math.abs(r[r.best].inHandMonth - 70000 - (net - 3300) * 94) < 2000, 'CTC within ₹50,000 rounding of the target');
   const h = read(f); for (const k of ['{{USD_TABLE}}', '{{USD_SAVE_TABLE}}', '{{USD_120_TX_NET}}', '{{USD_120_TX_SAVE}}', '{{USD_120_TX_CTC}}', '{{USD_120_NY_CTC}}']) assert.ok(h.includes(k), f + ' shows ' + k);
   assert.ok(T['{{USD_SAVE_TABLE}}'].includes('spends more than it earns'), 'a salary that cannot cover New York costs is said plainly');
 });
@@ -133,11 +134,22 @@ test('offer-letter guides: PF choice and in-hand to CTC, worked out a second way
   // ₹20 L CTC by hand: basic 8 L, HRA 4 L, gratuity 4.81% of basic, new regime with the ₹75,000 standard deduction and 4% cess
   const slab = x => [[400000, 0], [800000, .05], [1200000, .10], [1600000, .15], [2000000, .20], [2400000, .25], [Infinity, .30]].reduce((a, [hi, r], i, A) => { const lo = i ? A[i - 1][0] : 0; return a + Math.max(0, Math.min(x, hi) - lo) * r; }, 0) * 1.04;
   const hand = empPf => { const gross = 2000000 - empPf - 38480; return (gross - empPf - 2400 - slab(gross - 75000)) / 12; };
-  assert.equal(T['{{PF_20_FULL}}'], inr(hand(96000))); assert.equal(T['{{PF_20_CAP}}'], inr(hand(21600)));
-  assert.equal(T['{{PF_20_LESS}}'], inr(2 * (96000 - 21600)), 'both shares of PF');
+  // capped PF is 12% of the ₹25,000 wage ceiling: ₹3,000 a month, ₹36,000 a year from each side (it was ₹1,800 and ₹21,600 until 16 September 2026)
+  assert.equal(T['{{PF_20_FULL}}'], inr(hand(96000))); assert.equal(T['{{PF_20_CAP}}'], inr(hand(3000 * 12)));
+  assert.equal(T['{{PF_20_LESS}}'], inr(2 * (96000 - 36000)), 'both shares of PF'); assert.equal(T['{{PF_20_LESS}}'], '₹1,20,000');
+  assert.equal(T['{{PF_20_MORE}}'], inr(hand(36000) - hand(96000)));
+  assert.equal(T['{{PF_5_MORE}}'], '₹0', 'at ₹5 LPA basic is ₹16,667 a month, under the ceiling, so the cap changes nothing');
   for (const m of O.TARGETS) { const c = O.ctcFor(Tax, m), at = x => { const r = sal(x); return r[r.best].inHandMonth; };
     assert.ok(at(c) >= m - 1 && at(c - 5000) < m, `₹${m} a month needs ${c}`); }
-  for (const f of ['pf-12-percent-vs-fixed-1800.html', 'monthly-salary-to-lpa.html']) assert.ok(/\{\{(PF|LPA)_TABLE\}\}/.test(read(f)), f + ' shows its table');
+  for (const f of ['pf-12-percent-vs-capped-pf.html', 'monthly-salary-to-lpa.html']) assert.ok(/\{\{(PF|LPA)_TABLE\}\}/.test(read(f)), f + ' shows its table');
+  // the PF guide: says ₹3,000 and ₹25,000, keeps a mention of the old ₹1,800 cap with its end date, and notes the wider wages base
+  const pf = read('pf-12-percent-vs-capped-pf.html'); for (const s of ['₹3,000', '₹25,000', '₹1,800', '16 September 2026', '17 September 2026', '“wages”']) assert.ok(pf.includes(s), 'PF guide mentions ' + s);
+  assert.ok(!/fixed ₹1,800 PF gives/i.test(pf)); assert.match(read('methodology.html'), /₹1,800 a month\) until 16 September 2026/); assert.match(read('methodology.html'), /wider “wages” base/);
+  // the old address only redirects: meta refresh and canonical both name the new page, and nothing on the site links to the old one
+  const old = read('pf-12-percent-vs-fixed-1800.html'); assert.match(old, /<meta http-equiv="refresh" content="0; url=pf-12-percent-vs-capped-pf\.html">/); assert.match(old, /<link rel="canonical" href="https:\/\/inhand\.example\/pf-12-percent-vs-capped-pf\.html">/); assert.match(old, /noindex/);
+  assert.ok(!/rc-article/.test(old), 'the redirect page is not listed as an article');
+  for (const f of fs.readdirSync(ROOT).filter(x => x.endsWith('.html') && x !== 'pf-12-percent-vs-fixed-1800.html')) assert.ok(!read(f).includes('pf-12-percent-vs-fixed-1800'), f + ' still links to the old PF page');
+  for (const f of ['salary-calculator.html', 'offer-letter-salary-breakup.html']) assert.ok(read(f).includes('href="pf-12-percent-vs-capped-pf.html"'), f + ' links to the new PF page');
 });
 
 test('offer-letter guides: breakup, variable pay and joining bonus, worked out a second way', () => {

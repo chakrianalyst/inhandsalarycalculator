@@ -15,14 +15,15 @@
 
   /* ---------------- United States (2026, single filer) ---------------- */
   const US_FED = [[12400, .10], [50400, .12], [105700, .22], [201775, .24], [256225, .32], [640600, .35], [INF, .37]], US_STD = 16100, US_SS_BASE = 184500;
+  const NY_NOTE = 'Leaves out New York’s tax benefit recapture, which adds a little state tax once income passes $107,650.';
   const US_STATES = {
     none: { name: 'No state income tax (Texas, Washington, Florida)', tax: () => 0 },
-    CA: { name: 'California', tax: g => progressive(Math.max(0, g - 5706), [[11079, .01], [26264, .02], [41452, .04], [57542, .06], [72724, .08], [371479, .093], [445771, .103], [742953, .113], [INF, .123]]) + g * 0.012, note: 'Includes the 1.2% state disability insurance payroll tax (approximate).' },
-    NY: { name: 'New York State', tax: g => progressive(Math.max(0, g - 8000), [[8500, .039], [11700, .044], [13900, .0515], [80650, .054], [215400, .059], [1077550, .0685], [5000000, .0965], [25000000, .103], [INF, .109]]) },
-    NYC: { name: 'New York City (state + city)', tax: g => US_STATES.NY.tax(g) + progressive(Math.max(0, g - 8000), [[12000, .03078], [25000, .03762], [50000, .03819], [INF, .03876]]) },
+    CA: { name: 'California', tax: g => progressive(Math.max(0, g - 5706), [[11079, .01], [26264, .02], [41452, .04], [57542, .06], [72724, .08], [371479, .093], [445771, .103], [742953, .113], [INF, .123]]) + Math.max(0, g - 5706 - 1000000) * 0.01 + g * 0.013, note: 'Includes the 1% behavioural health tax on taxable income above $1 million and the 1.3% state disability insurance payroll tax (2026). Brackets and the standard deduction are the 2025 figures.' },
+    NY: { name: 'New York State', tax: g => progressive(Math.max(0, g - 8000), [[8500, .039], [11700, .044], [13900, .0515], [80650, .054], [215400, .059], [1077550, .0685], [5000000, .0965], [25000000, .103], [INF, .109]]), note: NY_NOTE },
+    NYC: { name: 'New York City (state + city)', tax: g => US_STATES.NY.tax(g) + progressive(Math.max(0, g - 8000), [[12000, .03078], [25000, .03762], [50000, .03819], [INF, .03876]]), note: NY_NOTE },
     NJ: { name: 'New Jersey', tax: g => progressive(g, [[20000, .014], [35000, .0175], [40000, .035], [75000, .05525], [500000, .0637], [1000000, .0897], [INF, .1075]]) },
-    MA: { name: 'Massachusetts (5% flat, approximate)', tax: g => Math.max(0, g - 4400) * 0.05 + Math.max(0, g - 1083150) * 0.04 },
-    IL: { name: 'Illinois (4.95% flat, approximate)', tax: g => Math.max(0, g - 2850) * 0.0495 },
+    MA: { name: 'Massachusetts (5% flat, approximate)', tax: g => Math.max(0, g - 4400) * 0.05 + Math.max(0, g - 1107750) * 0.04 },      // 4% surtax above $1,107,750 in 2026
+    IL: { name: 'Illinois (4.95% flat, approximate)', tax: g => Math.max(0, g - 2925) * 0.0495 },                                              // personal exemption $2,925 in 2026
   };
   function usTax(gross, opt) {
     const ded = opt.ded || 0, fed = progressive(Math.max(0, gross - ded - US_STD), US_FED), ss = Math.min(gross, US_SS_BASE) * 0.062, med = gross * 0.0145 + Math.max(0, gross - 200000) * 0.009, st = (US_STATES[opt.state] || US_STATES.none).tax(gross - ded);
@@ -37,22 +38,30 @@
     BC: { name: 'British Columbia', bands: [[50363, .056], [100728, .077], [115648, .105], [140430, .1229], [190405, .147], [265545, .168], [INF, .205]], bpa: 13216, low: .056 },
     AB: { name: 'Alberta', bands: [[61200, .08], [154259, .10], [185111, .12], [246813, .13], [370220, .14], [INF, .15]], bpa: 22769, low: .08 },
   };
+  const CA_EMPLOYMENT = 1501;                                  // Canada employment amount (2026): a federal credit for anyone with a salary
+  /** Ontario Health Premium on taxable income, with the bands where it rises gradually. */
+  function ontarioHealth(t) {
+    if (t <= 20000) return 0; if (t <= 36000) return Math.min(300, 0.06 * (t - 20000)); if (t <= 48000) return Math.min(450, 300 + 0.06 * (t - 36000));
+    if (t <= 72000) return Math.min(600, 450 + 0.25 * (t - 48000)); if (t <= 200000) return Math.min(750, 600 + 0.25 * (t - 72000)); return Math.min(900, 750 + 0.25 * (t - 200000));
+  }
   function caTax(gross, opt) {
     const P = CA_PROV[opt.province] || CA_PROV.ON;
     const cpp1 = 0.0595 * Math.max(0, Math.min(gross, 74600) - 3500), cpp2 = 0.04 * Math.max(0, Math.min(gross, 85000) - 74600), ei = 0.0163 * Math.min(gross, 68900);
     const cppBase = cpp1 * (4.95 / 5.95), cppEnh = cpp1 - cppBase + cpp2, taxable = Math.max(0, gross - cppEnh - (opt.ded || 0));                 // the enhanced CPP part is a deduction; the base part and EI earn credits
     const bpaFed = gross <= 181440 ? 16452 : gross >= 258482 ? 14829 : 16452 - (16452 - 14829) * (gross - 181440) / (258482 - 181440);
-    const fed = Math.max(0, progressive(taxable, CA_FED) - 0.14 * (bpaFed + cppBase + ei));
+    const fed = Math.max(0, progressive(taxable, CA_FED) - 0.14 * (bpaFed + cppBase + ei + Math.min(CA_EMPLOYMENT, gross)));
     let prov = Math.max(0, progressive(taxable, P.bands) - P.low * (P.bpa + cppBase + ei));
     let extra = 0;
-    if (opt.province === 'ON') { const s = 0.2 * Math.max(0, prov - 5818) + 0.36 * Math.max(0, prov - 7446); prov += s; extra = taxable >= 200600 ? 900 : taxable >= 72600 ? 750 : taxable >= 48600 ? 600 : taxable >= 38500 ? 450 : taxable >= 25000 ? 300 : 0; }
+    if (opt.province === 'ON') { const s = 0.2 * Math.max(0, prov - 5818) + 0.36 * Math.max(0, prov - 7446); prov += s; extra = ontarioHealth(taxable); }
     const items = [['Federal income tax', fed], [P.name + ' income tax', prov + extra], ['CPP / CPP2', cpp1 + cpp2], ['Employment Insurance', ei]];
     return pack(gross, items);
   }
 
   /* ---------------- Australia (resident, 2026-27) ---------------- */
+  /** Low income tax offset: $700 up to $37,500 of income, falling by 5c a dollar to $45,000 and then by 1.5c a dollar until it is gone at $66,667. */
+  const auLito = x => x <= 37500 ? 700 : x <= 45000 ? 700 - 0.05 * (x - 37500) : Math.max(0, 325 - 0.015 * (x - 45000));
   function auTax(gross) {
-    const inc = progressive(gross, [[18200, 0], [45000, .15], [135000, .30], [190000, .37], [INF, .45]]), medi = gross > 35014 ? gross * 0.02 : gross > 28011 ? (gross - 28011) * 0.1 : 0;
+    const inc = Math.max(0, progressive(gross, [[18200, 0], [45000, .15], [135000, .30], [190000, .37], [INF, .45]]) - auLito(gross)), medi = gross > 35014 ? gross * 0.02 : gross > 28011 ? (gross - 28011) * 0.1 : 0;
     return pack(gross, [['Income tax', inc], ['Medicare levy', medi]]);
   }
 
@@ -63,7 +72,7 @@
 
   /* ---------------- United Kingdom (England, 2026/27) ---------------- */
   function ukTax(gross, opt) {
-    const g = gross - (opt.ded || 0), pa = Math.max(0, 12570 - Math.max(0, (gross - 100000) / 2)), taxable = Math.max(0, g - pa);       // the personal allowance shrinks £1 for every £2 over £100k
+    const g = gross - (opt.ded || 0), pa = Math.max(0, 12570 - Math.max(0, (g - 100000) / 2)), taxable = Math.max(0, g - pa);       // the personal allowance shrinks £1 for every £2 of income over £100k, counted after pension contributions
     const inc = progressive(taxable, [[37700, .20], [125140, .40], [INF, .45]]), ni = 0.08 * Math.max(0, Math.min(gross, 50270) - 12570) + 0.02 * Math.max(0, gross - 50270);
     return pack(gross, [['Income tax', inc], ['National Insurance', ni]]);
   }
@@ -77,9 +86,9 @@
     if (z <= 277825) return Math.floor(0.42 * z - 11135.63);
     return Math.floor(0.45 * z - 19470.38);
   }
-  function deTax(gross) {
+  function deTax(gross) {                                    // 96% of the health contribution is deductible: the 4% that pays for sick pay is not
     const pension = 0.093 * Math.min(gross, 101400), unemp = 0.013 * Math.min(gross, 101400), health = 0.0875 * Math.min(gross, 69750), care = 0.024 * Math.min(gross, 69750);
-    const zve = gross - 1230 - 36 - pension - health - care, inc = deTariff(zve), soli = inc <= 20350 ? 0 : Math.min(0.055 * inc, 0.119 * (inc - 20350));
+    const zve = gross - 1230 - 36 - pension - 0.96 * health - care, inc = deTariff(zve), soli = inc <= 20350 ? 0 : Math.min(0.055 * inc, 0.119 * (inc - 20350));
     return pack(gross, [['Income tax', inc], ['Solidarity surcharge', soli], ['Pension insurance', pension], ['Health insurance', health], ['Long-term care insurance', care], ['Unemployment insurance', unemp]]);
   }
 
@@ -93,18 +102,18 @@
 
   /** The destinations. rent / other are typical monthly figures in local currency for one person in a 1-bedroom home, as starting estimates the user should replace. */
   const COUNTRIES = {
-    US: { name: 'United States', cur: 'USD', sym: '$', fx: 96, infl: 3, tax: usTax, retire: { name: '401(k)', emp: 6, match: 4, cap: 24500, deductible: true, note: 'Employee contributions are pre-tax up to $24,500.' }, cities: [
+    US: { name: 'United States', cur: 'USD', sym: '$', fx: 94, infl: 3, tax: usTax, retire: { name: '401(k)', emp: 6, match: 4, cap: 24500, deductible: true, note: 'Employee contributions are pre-tax up to $24,500.' }, cities: [
       { id: 'nyc', name: 'New York City', state: 'NYC', rent: 3800, other: 1900 }, { id: 'sf', name: 'San Francisco Bay Area', state: 'CA', rent: 3400, other: 1900 },
       { id: 'sea', name: 'Seattle', state: 'none', rent: 2500, other: 1700 }, { id: 'aus', name: 'Austin or Dallas (Texas)', state: 'none', rent: 1800, other: 1500 },
       { id: 'chi', name: 'Chicago', state: 'IL', rent: 2100, other: 1600 }, { id: 'bos', name: 'Boston', state: 'MA', rent: 3000, other: 1800 }, { id: 'nj', name: 'New Jersey (Jersey City)', state: 'NJ', rent: 2900, other: 1800 }] },
-    CA: { name: 'Canada', cur: 'CAD', sym: 'C$', fx: 68.5, infl: 2.5, tax: caTax, retire: { name: 'RRSP', emp: 5, match: 4, cap: 33810, capPct: 18, deductible: true, note: 'Contributions are tax-deductible up to 18% of pay and C$33,810.' }, cities: [
+    CA: { name: 'Canada', cur: 'CAD', sym: 'C$', fx: 66, infl: 2.5, tax: caTax, retire: { name: 'RRSP', emp: 5, match: 4, cap: 33810, capPct: 18, deductible: true, note: 'Contributions are tax-deductible up to 18% of pay and C$33,810.' }, cities: [
       { id: 'tor', name: 'Toronto', province: 'ON', rent: 2500, other: 1500 }, { id: 'van', name: 'Vancouver', province: 'BC', rent: 2700, other: 1500 }, { id: 'cal', name: 'Calgary', province: 'AB', rent: 1800, other: 1400 }] },
-    AU: { name: 'Australia', cur: 'AUD', sym: 'A$', fx: 63, infl: 3, tax: auTax, retire: { name: 'superannuation', emp: 0, match: 12, matchTax: 15, note: 'Employers add 12% on top of salary, taxed at 15% inside the fund. It is locked until about 60.' }, cities: [{ id: 'syd', name: 'Sydney', rent: 2800, other: 1700 }, { id: 'mel', name: 'Melbourne', rent: 2300, other: 1600 }] },
-    SG: { name: 'Singapore', cur: 'SGD', sym: 'S$', fx: 75, infl: 2.5, tax: sgTax, retire: { name: 'CPF', emp: 0, match: 0, note: 'Work-pass holders do not pay into the CPF, so nothing is added here. Citizens and PRs do.' }, cities: [{ id: 'sin', name: 'Singapore', rent: 3800, other: 1600 }] },
-    AE: { name: 'UAE (Dubai, Abu Dhabi)', cur: 'AED', sym: 'AED ', fx: 26.1, infl: 2.5, tax: aeTax, retire: { name: 'savings plan', emp: 0, match: 0, note: 'Expats get an end-of-service gratuity instead of a pension; it is not counted here.' }, cities: [{ id: 'dxb', name: 'Dubai', rent: 7000, other: 4500 }, { id: 'auh', name: 'Abu Dhabi', rent: 6000, other: 4000 }] },
-    UK: { name: 'United Kingdom (England)', cur: 'GBP', sym: '£', fx: 127.3, infl: 3, tax: ukTax, retire: { name: 'workplace pension', emp: 5, match: 3, deductible: true, note: 'Employee pension contributions get tax relief. The legal minimum is 8% in total.' }, cities: [
+    AU: { name: 'Australia', cur: 'AUD', sym: 'A$', fx: 64.4, infl: 3, tax: auTax, retire: { name: 'superannuation', emp: 0, match: 12, matchTax: 15, note: 'Employers add 12% on top of salary, taxed at 15% inside the fund. It is locked until about 60.' }, cities: [{ id: 'syd', name: 'Sydney', rent: 2800, other: 1700 }, { id: 'mel', name: 'Melbourne', rent: 2300, other: 1600 }] },
+    SG: { name: 'Singapore', cur: 'SGD', sym: 'S$', fx: 73.1, infl: 2.5, tax: sgTax, retire: { name: 'CPF', emp: 0, match: 0, note: 'Work-pass holders do not pay into the CPF, so nothing is added here. Citizens and PRs do.' }, cities: [{ id: 'sin', name: 'Singapore', rent: 3800, other: 1600 }] },
+    AE: { name: 'UAE (Dubai, Abu Dhabi)', cur: 'AED', sym: 'AED ', fx: 25.5, infl: 2.5, tax: aeTax, retire: { name: 'savings plan', emp: 0, match: 0, note: 'Expats get an end-of-service gratuity instead of a pension; it is not counted here.' }, cities: [{ id: 'dxb', name: 'Dubai', rent: 7000, other: 4500 }, { id: 'auh', name: 'Abu Dhabi', rent: 6000, other: 4000 }] },
+    UK: { name: 'United Kingdom (England)', cur: 'GBP', sym: '£', fx: 125.1, infl: 3, tax: ukTax, retire: { name: 'workplace pension', emp: 5, match: 3, deductible: true, note: 'Employee pension contributions get tax relief. The legal minimum is 8% in total.' }, cities: [
       { id: 'lon', name: 'London', rent: 2300, other: 1500 }, { id: 'man', name: 'Manchester', rent: 1300, other: 1300 }] },
-    DE: { name: 'Germany', cur: 'EUR', sym: '€', fx: 108.7, infl: 2.5, tax: deTax, retire: { name: 'private pension', emp: 0, match: 0, note: 'The state pension you pay into is not an asset you can draw on, so it is not counted.' }, cities: [
+    DE: { name: 'Germany', cur: 'EUR', sym: '€', fx: 104.6, infl: 2.5, tax: deTax, retire: { name: 'private pension', emp: 0, match: 0, note: 'The state pension you pay into is not an asset you can draw on, so it is not counted.' }, cities: [
       { id: 'ber', name: 'Berlin', rent: 1300, other: 1300 }, { id: 'muc', name: 'Munich', rent: 1800, other: 1400 }, { id: 'fra', name: 'Frankfurt', rent: 1500, other: 1400 }] },
   };
 
